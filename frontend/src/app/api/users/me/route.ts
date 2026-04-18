@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
 
     // Forward cookies from the request to maintain session
     const cookieHeader = request.headers.get("cookie") || "";
+    const tokenCookie = request.cookies.get("payload-token")?.value || "";
 
     // Helper to try a URL and parse JSON safely
     const debug =
@@ -68,6 +69,7 @@ export async function GET(request: NextRequest) {
           Accept: "application/json",
           "Content-Type": "application/json",
           ...(cookieHeader && { Cookie: cookieHeader }),
+          ...(tokenCookie && { Authorization: `Bearer ${tokenCookie}` }),
         },
         // no-store to avoid stale auth
         cache: "no-store",
@@ -83,7 +85,10 @@ export async function GET(request: NextRequest) {
 
     // First attempt (no trailing slash)
     if (debug)
-      console.info("🔗 Backend URL (me):", backendUrl, "reqHost:", reqHost);
+      console.info("🔗 Backend URL (me):", backendUrl, "reqHost:", reqHost, {
+        cookiePresent: Boolean(cookieHeader),
+        tokenCookiePresent: Boolean(tokenCookie),
+      });
     let { res, payload } = await tryFetch(
       `${backendUrl.replace(/\/$/, "")}/api/users/me`,
     );

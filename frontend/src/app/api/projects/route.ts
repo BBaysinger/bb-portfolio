@@ -40,7 +40,10 @@ export async function GET(req: NextRequest) {
   // Forward only needed headers; include Cookie so NDA/auth applies when the cookie is scoped to the frontend origin and proxied here.
   const headers: HeadersInit = {};
   const cookie = req.headers.get("cookie");
+  const token = req.cookies.get("payload-token")?.value;
   if (cookie) (headers as Record<string, string>)["cookie"] = cookie;
+  if (token)
+    (headers as Record<string, string>)["authorization"] = `Bearer ${token}`;
 
   // No caching at this proxy; caching is controlled at the caller via fetch options.
   const res = await fetch(url, {

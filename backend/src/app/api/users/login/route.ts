@@ -419,9 +419,12 @@ export const POST = async (request: Request) => {
     }
 
     // Mirror Payload REST response shape succinctly
+    const exposeTokenToProxy = request.headers.get('x-auth-proxy') === '1'
+
     return Response.json(
       {
         user: result.user,
+        ...(exposeTokenToProxy && token ? { token } : {}),
       },
       { status: 200, headers },
     )

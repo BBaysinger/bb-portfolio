@@ -26,7 +26,10 @@ export async function GET(req: NextRequest) {
   const url = buildTargetUrl(req);
   const headers: HeadersInit = {};
   const cookie = req.headers.get("cookie");
+  const token = req.cookies.get("payload-token")?.value;
   if (cookie) (headers as Record<string, string>)["cookie"] = cookie;
+  if (token)
+    (headers as Record<string, string>)["authorization"] = `Bearer ${token}`;
 
   const res = await fetch(url, {
     method: "GET",

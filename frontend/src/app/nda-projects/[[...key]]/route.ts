@@ -44,6 +44,7 @@ export const revalidate = 0;
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   try {
     const cookieHeader = req.headers.get("cookie") || "";
+    const tokenCookie = req.cookies.get("payload-token")?.value || "";
     const backend = resolveBackendBase();
 
     const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -75,6 +76,7 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
         method: "GET",
         headers: {
           ...(cookieHeader && { Cookie: cookieHeader }),
+          ...(tokenCookie && { Authorization: `Bearer ${tokenCookie}` }),
           Accept: "application/json",
         },
         cache: "no-store",

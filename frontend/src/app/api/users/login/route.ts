@@ -50,16 +50,27 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-auth-proxy": "1",
         },
         body: JSON.stringify(body),
       },
     );
 
-    const data = await response.json();
+    const data = (await response.json()) as {
+      user?: unknown;
+      token?: unknown;
+      message?: string;
+      error?: string;
+    };
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || LOGIN_FAILED_MESSAGE },
+        {
+          error:
+            (typeof data.message === "string" && data.message) ||
+            (typeof data.error === "string" && data.error) ||
+            LOGIN_FAILED_MESSAGE,
+        },
         { status: response.status },
       );
     }
@@ -67,10 +78,23 @@ export async function POST(request: NextRequest) {
     // Create response with user data
     const nextResponse = NextResponse.json({ user: data.user });
 
-    // Forward any authentication cookies from the backend
-    const setCookieHeader = response.headers.get("set-cookie");
-    if (setCookieHeader) {
-      nextResponse.headers.set("set-cookie", setCookieHeader);
+    const token = typeof data.token === "string" ? data.token : "";
+    if (token) {
+      const requestProto =
+        request.headers.get("x-forwarded-proto") ||
+        request.nextUrl.protocol.replace(":", "") ||
+        "http";
+      const secure = requestProto === "https";
+
+      nextResponse.cookies.set({
+        name: "payload-token",
+        value: token,
+        httpOnly: true,
+        sameSite: "lax",
+        secure,
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
     }
 
     return nextResponse;
