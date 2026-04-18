@@ -2,6 +2,13 @@
 
 Last updated: 2026-04-17 (local), diagnostics upload timestamp in UTC may appear as 2026-04-18.
 
+## TL;DR Action Card
+
+1. Run `npm run precommit` before additional changes.
+2. Open Docker support/GitHub issue and include diagnostics ID: `4FA003CD-21FD-4E55-A32E-7585E4CB357A/20260418033035`.
+3. Use non-Docker frontend build for local validation.
+4. Use CI Docker builds as source of truth for containerized frontend validation until Docker Desktop is stable.
+
 ## Executive Summary
 
 We fixed the original frontend code-level build error, but local Docker Desktop builds still intermittently hang on macOS during the frontend image build path.
@@ -108,6 +115,22 @@ Until Docker Desktop stability is restored:
    - observed stall points
    - note that backend succeeds while frontend hangs
 3. Track Docker Desktop version-specific fix guidance from support.
+
+## Deferred Next Steps Checklist
+
+Use this when resuming work later.
+
+1. Run local quality checks before further changes:
+
+- `npm run precommit`
+
+2. Open a Docker support ticket (or Docker Desktop GitHub issue) using this document as source context.
+3. Include diagnostics ID exactly as uploaded:
+
+- `4FA003CD-21FD-4E55-A32E-7585E4CB357A/20260418033035`
+
+4. Continue local app validation with non-Docker frontend build while Docker Desktop remains unstable.
+5. Treat CI Docker image builds as source of truth for containerized frontend validation until host runtime stability is restored.
 
 ## Copy-Paste Brief for ChatGPT (Browser)
 
