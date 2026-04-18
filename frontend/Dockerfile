@@ -33,6 +33,9 @@ ENV NODE_ENV=production
 # Deployment profile (e.g. local/dev/prod). Used at build-time so client bundles can gate dev-only UI.
 ARG ENV_PROFILE
 ENV ENV_PROFILE=$ENV_PROFILE
+# Controls whether project SSG routes fail build on data-fetch/empty-param issues.
+ARG PROJECT_SSG_FAIL_FAST=1
+ENV PROJECT_SSG_FAIL_FAST=$PROJECT_SSG_FAIL_FAST
 # Expose the same profile to client bundles (Next.js only exposes NEXT_PUBLIC_*).
 ENV NEXT_PUBLIC_ENV_PROFILE=$ENV_PROFILE
 COPY --from=deps /app/node_modules /app/node_modules

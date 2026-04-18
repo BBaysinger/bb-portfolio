@@ -6,6 +6,10 @@ import { ProjectDataStore } from "@/data/ProjectData";
 
 import NdaIncludedProjectClientBoundary from "./NdaIncludedProjectClientBoundary";
 
+const shouldFailFastProjectSsg = (): boolean => {
+  return process.env.PROJECT_SSG_FAIL_FAST !== "0";
+};
+
 /**
  * NDA-included project route.
  *
@@ -35,20 +39,33 @@ export default async function NdaIncludedProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const failFast = shouldFailFastProjectSsg();
 
-  const projectData = new ProjectDataStore();
-  const initResult = await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: true,
-  });
+  let ssrParsed:
+    | import("@/data/ProjectData").ParsedPortfolioProjectData
+    | undefined;
+  let ssrContainsSanitizedPlaceholders: boolean | undefined;
 
-  const rec = projectData.getProject(projectId);
-  if (!rec) return notFound();
+  try {
+    const projectData = new ProjectDataStore();
+    const initResult = await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: true,
+    });
 
-  const ssrParsed = projectData.projectsRecord;
-  const ssrContainsSanitizedPlaceholders = Boolean(
-    initResult?.containsSanitizedPlaceholders,
-  );
+    const rec = projectData.getProject(projectId);
+    if (!rec) return notFound();
+
+    ssrParsed = projectData.projectsRecord;
+    ssrContainsSanitizedPlaceholders = Boolean(
+      initResult?.containsSanitizedPlaceholders,
+    );
+  } catch (error) {
+    if (failFast) throw error;
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to SSR prefetch NDA-included placeholders", error);
+    }
+  }
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
@@ -63,20 +80,33 @@ export default async function NdaIncludedProjectPage({
 }
 
 export async function generateStaticParams() {
+  const failFast = shouldFailFastProjectSsg();
   const projectData = new ProjectDataStore();
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: true,
-  });
+
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: true,
+    });
+  } catch (error) {
+    if (failFast) throw error;
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to generate NDA project static params", error);
+    }
+    return [];
+  }
 
   const uniqueIds = Array.from(
     new Set(projectData.activeProjects.map((project) => project.id)),
   ).filter((id): id is string => Boolean(id));
 
   if (uniqueIds.length === 0) {
-    throw new Error(
-      "SSG parameter generation produced zero NDA-included project IDs.",
-    );
+    if (failFast) {
+      throw new Error(
+        "SSG parameter generation produced zero NDA-included project IDs.",
+      );
+    }
+    return [];
   }
 
   return uniqueIds.map((projectId) => ({ projectId }));

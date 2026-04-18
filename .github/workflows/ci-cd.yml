@@ -171,6 +171,7 @@ jobs:
         working-directory: ./frontend
         env:
           ENV_PROFILE: dev
+          PROJECT_SSG_FAIL_FAST: "0"
           # Env-guard definition list (sanitized for frontend build)
           REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
@@ -233,6 +234,7 @@ jobs:
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
+            --build-arg PROJECT_SSG_FAIL_FAST=1 \
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
@@ -383,6 +385,7 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           DOCKER_BUILDKIT=1 docker build --build-arg ENV_PROFILE=dev \
+            --build-arg PROJECT_SSG_FAIL_FAST=1 \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \

@@ -18,6 +18,10 @@ import { ProjectDataStore } from "@/data/ProjectData";
 
 import ProjectClientBoundary from "./ProjectClientBoundary";
 
+const shouldFailFastProjectSsg = (): boolean => {
+  return process.env.PROJECT_SSG_FAIL_FAST !== "0";
+};
+
 // Allow SSG/ISR for the project detail route.
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
 export const revalidate = 3600;
@@ -54,17 +58,29 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const failFast = shouldFailFastProjectSsg();
 
-  const projectData = new ProjectDataStore();
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+  let ssrParsed:
+    | import("@/data/ProjectData").ParsedPortfolioProjectData
+    | undefined;
 
-  const rec = projectData.getProject(projectId);
-  if (!rec) return notFound();
+  try {
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
 
-  const ssrParsed = projectData.projectsRecord;
+    const rec = projectData.getProject(projectId);
+    if (!rec) return notFound();
+
+    ssrParsed = projectData.projectsRecord;
+  } catch (error) {
+    if (failFast) throw error;
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to SSR prefetch public projects", error);
+    }
+  }
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
@@ -84,20 +100,33 @@ export default async function ProjectPage({
  * Build-time static params for full SSG.
  */
 export async function generateStaticParams() {
+  const failFast = shouldFailFastProjectSsg();
   const projectData = new ProjectDataStore();
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+  } catch (error) {
+    if (failFast) throw error;
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to generate public project static params", error);
+    }
+    return [];
+  }
 
   const uniqueIds = Array.from(
     new Set(projectData.activeProjects.map((project) => project.id)),
   ).filter((id): id is string => Boolean(id));
 
   if (uniqueIds.length === 0) {
-    throw new Error(
-      "SSG parameter generation produced zero public project IDs.",
-    );
+    if (failFast) {
+      throw new Error(
+        "SSG parameter generation produced zero public project IDs.",
+      );
+    }
+    return [];
   }
 
   return uniqueIds.map((projectId) => ({ projectId }));
