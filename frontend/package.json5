@@ -52,7 +52,9 @@
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
     // Come back to this when there's time to write some tests.
-    "test": "echo 'TODO: Add test scripts'",
+    "test": "vitest run",
+    //
+    "test:redirect": "vitest run src/app/project/ProjectQueryRedirect.test.tsx",
   },
   // Runtime dependencies for the frontend application
   "dependencies": {
@@ -91,6 +93,8 @@
   "devDependencies": {
     // ESLint configuration utilities (required by some plugins)
     "@eslint/eslintrc": "^3",
+    //
+    "@testing-library/react": "^16.3.2",
     // TypeScript definitions for jsonwebtoken library
     "@types/jsonwebtoken": "^9.0.10",
     // Node.js TypeScript definitions (latest for Node 18+)
@@ -103,22 +107,26 @@
     "@typescript-eslint/eslint-plugin": "8.58.1",
     // TypeScript parser for ESLint to understand TS syntax
     "@typescript-eslint/parser": "8.58.1",
-    // JavaScript/TypeScript linting engine (v9 for latest rules)
-    "eslint": "^9.39.4",
     // Load environment variables during local builds and scripts
     "dotenv": "17.4.2",
+    // JavaScript/TypeScript linting engine (v9 for latest rules)
+    "eslint": "^9.39.4",
     // Next.js ESLint configuration with React and accessibility rules
     "eslint-config-next": "16.2.4",
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.1.0",
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.5.2",
+    //
+    "jsdom": "^29.0.2",
     // Opinionated code formatter for consistent style
     "prettier": "^3.8.3",
     // Lightweight TypeScript runtime for executing guard scripts
     "tsx": "^4.21.0",
     // TypeScript compiler (v5 for latest language features)
     "typescript": "6.0.3",
+    //
+    "vitest": "^4.1.4",
   },
   // Toolchain version constraints for local dev and CI
   "engines": {
