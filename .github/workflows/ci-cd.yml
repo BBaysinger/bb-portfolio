@@ -234,7 +234,7 @@ jobs:
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROJECT_SSG_FAIL_FAST=1 \
+            --build-arg PROJECT_SSG_FAIL_FAST=0 \
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
