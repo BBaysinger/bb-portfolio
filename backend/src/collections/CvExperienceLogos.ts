@@ -1,7 +1,21 @@
 import type { CollectionConfig } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 export const CvExperienceLogos: CollectionConfig = {
   slug: 'cvExperienceLogos',
+  hooks: {
+    afterChange: [
+      async () => {
+        await triggerFrontendProjectRevalidate('cvExperienceLogos.afterChange')
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendProjectRevalidate('cvExperienceLogos.afterDelete')
+      },
+    ],
+  },
   labels: {
     singular: 'CV Experience Logo',
     plural: 'CV Experience Logos',

@@ -1,5 +1,7 @@
 import type { Block, GlobalConfig } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 const ExperienceItemBlock: Block = {
   slug: 'experienceItem',
   labels: {
@@ -84,6 +86,13 @@ const ExperienceItemBlock: Block = {
 export const CvExperience: GlobalConfig = {
   slug: 'cvExperience',
   label: 'CV Experience',
+  hooks: {
+    afterChange: [
+      async () => {
+        await triggerFrontendProjectRevalidate('cvExperience.afterChange')
+      },
+    ],
+  },
   access: {
     read: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
