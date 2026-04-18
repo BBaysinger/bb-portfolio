@@ -3,6 +3,12 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+/**
+ * Client-side query redirect for `/project?p={slug}`.
+ *
+ * Reads the `p` query param, validates a safe slug shape, and rewrites
+ * to the canonical segment route `/project/{slug}/`.
+ */
 export default function ProjectQueryRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();

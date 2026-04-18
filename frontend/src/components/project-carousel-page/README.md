@@ -18,6 +18,12 @@ For core internals and package-extraction notes, see `carousel-core/README.md`.
 - In-session navigation should use segment routes (`/project/{slug}/`, `/nda-included/{slug}/`) via client `pushState` so the mounted carousel instance is preserved.
 - Routing preference: implement active carousel navigation without query strings when feasible; query strings are acceptable only when they are the only or clearly best option and still preserve mounted-carousel continuity.
 
+## SSG Contract
+
+- NDA-included route output is placeholders-only in static HTML; confidential fields are never rendered server-side.
+- Project route stack must not perform client auth-upgrade fetch/probe loops (`/api/users/me`, focus/visibility probes, or `no-store` refreshes) during normal route hydration.
+- If this contract changes, update this README and `carousel-core/README.md` together.
+
 ## Integration Architecture
 
 Key integration files:
