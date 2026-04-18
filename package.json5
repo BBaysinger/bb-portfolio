@@ -200,6 +200,14 @@
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
+    //
+    "snapshot:projects": "npm --prefix frontend run snapshot:projects",
+    //
+    "snapshot:projects:secret": "npm --prefix frontend run snapshot:projects:secret",
+    //
+    "snapshot:projects:secret:file": "npm --prefix frontend run snapshot:projects:secret:file",
+    //
+    "snapshot:projects:refresh-secret-file": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:file",
     // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     // 🧪 Same as above but performs only a dry run.
