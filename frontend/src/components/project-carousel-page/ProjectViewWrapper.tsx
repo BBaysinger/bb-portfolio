@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import CanonicalLink from "@/components/common/CanonicalLink";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
 import ProjectData from "@/data/ProjectData";
 import { useProjectUrlSync } from "@/hooks/useProjectUrlSync";
+import { useAppSelector } from "@/store/hooks";
 
 /**
  * Renders the ProjectView statically with a given projectId.
@@ -62,6 +63,56 @@ export default function ProjectViewWrapper({
       return false;
     }
   });
+
+  const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
+  const clientAuth = isLoggedIn || !!user;
+  const prevAuthRef = useRef(clientAuth);
+
+  useEffect(() => {
+    if (!allowNda) {
+      prevAuthRef.current = clientAuth;
+      return;
+    }
+    if (!hasInitialized) return;
+
+    const projectId = params.projectId;
+    const routeHasProject = Boolean(
+      ProjectData.activeProjectsRecord?.[projectId],
+    );
+    const shouldUpgradeAfterLogin =
+      clientAuth &&
+      (Boolean(ssrContainsSanitizedPlaceholders) || !routeHasProject);
+    const shouldDowngradeAfterLogout = prevAuthRef.current && !clientAuth;
+
+    prevAuthRef.current = clientAuth;
+
+    if (!shouldUpgradeAfterLogin && !shouldDowngradeAfterLogout) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: clientAuth,
+        });
+      } catch {
+        return;
+      }
+
+      if (cancelled) return;
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    allowNda,
+    clientAuth,
+    hasInitialized,
+    params.projectId,
+    ssrContainsSanitizedPlaceholders,
+  ]);
 
   void didHydrateFromSsr;
 
