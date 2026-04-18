@@ -46,6 +46,18 @@ General conventions:
 - **Default**: `./.cache/project-data-snapshot.json` (relative to `frontend/`).
 - **Usage**: `frontend/scripts/export-project-data-snapshot.ts`
 
+### PROJECT_DATA_SNAPSHOT_IN
+
+- **Purpose**: Optional input path for preparing a compact `PROJECT_DATA_SNAPSHOT_JSON` payload.
+- **Default**: `./.cache/project-data-snapshot.json` (relative to `frontend/`).
+- **Usage**: `frontend/scripts/prepare-project-data-snapshot-secret.ts`
+
+### PROJECT_DATA_SNAPSHOT_SECRET_MAX_BYTES
+
+- **Purpose**: Size budget (bytes) for compact snapshot payload generation used in GitHub Secrets workflows.
+- **Default**: `65000`
+- **Usage**: `frontend/scripts/prepare-project-data-snapshot-secret.ts`
+
 ### PROJECT_DATA_SNAPSHOT_COOKIE
 
 - **Purpose**: Optional cookie header used when generating a snapshot to capture auth-aware backend responses.

@@ -127,6 +127,26 @@ For GitHub Actions image builds, store snapshot JSON in the secret:
 
 - `PROJECT_DATA_SNAPSHOT_JSON`
 
+Prepare a compact secret payload from your generated snapshot:
+
+```bash
+npm run snapshot:projects:secret --prefix frontend > /tmp/project-data-snapshot.secret.json
+```
+
+Or write directly to a tracked local temp path:
+
+```bash
+npm run snapshot:projects:secret:file --prefix frontend
+```
+
+The secret-prep command enforces a size budget (default `65000` bytes) and fails early if exceeded.
+
+Override the size budget when needed:
+
+```bash
+PROJECT_DATA_SNAPSHOT_SECRET_MAX_BYTES=70000 npm run snapshot:projects:secret --prefix frontend > /tmp/project-data-snapshot.secret.json
+```
+
 Expected snapshot shape:
 
 - normalized project record object, or

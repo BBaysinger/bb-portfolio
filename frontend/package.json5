@@ -49,6 +49,10 @@
     "start:prod-like:watch": "tsx ./scripts/watch-prod-like.ts",
     //
     "snapshot:projects": "tsx ./scripts/export-project-data-snapshot.ts",
+    //
+    "snapshot:projects:secret": "tsx ./scripts/prepare-project-data-snapshot-secret.ts",
+    //
+    "snapshot:projects:secret:file": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
     // Run Next.js ESLint configuration
     "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
