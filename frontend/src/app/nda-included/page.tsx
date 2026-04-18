@@ -9,7 +9,7 @@
 import NdaIncludedQueryRedirect from "./NdaIncludedQueryRedirect";
 
 export const dynamic = "force-static";
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 type QuerySearchParams = Record<string, string | string[]>;
 

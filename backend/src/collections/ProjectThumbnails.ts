@@ -3,6 +3,8 @@ import path from 'path'
 
 import type { CollectionConfig, PayloadRequest, Where } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 type RelRecord = Record<string, unknown>
 
 const getRelValueString = (rel: unknown): string | undefined => {
@@ -190,6 +192,16 @@ export const ProjectThumbnails: CollectionConfig = {
         ;(data as Record<string, unknown>).nda = await computeNdaForProject(req, projectId)
 
         return data
+      },
+    ],
+    afterChange: [
+      async () => {
+        await triggerFrontendProjectRevalidate('projectThumbnails.afterChange')
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendProjectRevalidate('projectThumbnails.afterDelete')
       },
     ],
   },

@@ -24,7 +24,7 @@ const shouldFailFastProjectSsg = (): boolean => {
 
 // Allow SSG/ISR for the project detail route.
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
-export const revalidate = 3600;
+export const revalidate = 86400;
 // Pre-render known params at build time.
 export const dynamicParams = false;
 export const dynamic = "force-static";

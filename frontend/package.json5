@@ -65,9 +65,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.1031.0",
+    "@aws-sdk/client-s3": "^3.1032.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.1031.0",
+    "@aws-sdk/s3-request-presigner": "^3.1032.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -120,7 +120,7 @@
     // Next.js ESLint configuration with React and accessibility rules
     "eslint-config-next": "16.2.4",
     // ESLint plugin for React Hooks rules and best practices
-    "eslint-plugin-react-hooks": "^7.1.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.5.2",
     //

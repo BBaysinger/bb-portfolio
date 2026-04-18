@@ -3,6 +3,7 @@ import slugify from 'slugify'
 
 import { canReadNdaField } from '../access/nda'
 import { generateShortCode } from '../utils/shortCode'
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 const SHORT_CODE_LENGTH = 10
 const SHORT_CODE_MAX_ATTEMPTS = 10
@@ -133,6 +134,16 @@ export const Projects: CollectionConfig = {
           })
         }
         return data
+      },
+    ],
+    afterChange: [
+      async () => {
+        await triggerFrontendProjectRevalidate('projects.afterChange')
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendProjectRevalidate('projects.afterDelete')
       },
     ],
   },

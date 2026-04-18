@@ -3,6 +3,8 @@ import path from 'path'
 
 import type { CollectionConfig, PayloadRequest, Where } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 type RelRecord = Record<string, unknown>
 
 const getRelValueString = (rel: unknown): string | undefined => {
@@ -291,6 +293,16 @@ export const ProjectScreenshots: CollectionConfig = {
           }
         }
         return data
+      },
+    ],
+    afterChange: [
+      async () => {
+        await triggerFrontendProjectRevalidate('projectScreenshots.afterChange')
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendProjectRevalidate('projectScreenshots.afterDelete')
       },
     ],
   },

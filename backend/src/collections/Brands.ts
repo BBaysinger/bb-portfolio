@@ -1,6 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
 
 import { canReadNdaBrandAsset } from '../access/nda'
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 export const ProjectBrands: CollectionConfig = {
   slug: 'project-brands',
@@ -59,6 +60,13 @@ export const ProjectBrands: CollectionConfig = {
         } catch (e) {
           console.warn('[project-brands] failed to propagate NDA flag to brandLogos:', e)
         }
+
+        await triggerFrontendProjectRevalidate('project-brands.afterChange')
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendProjectRevalidate('project-brands.afterDelete')
       },
     ],
   },

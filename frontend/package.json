@@ -32,8 +32,8 @@
     "test:redirect": "vitest run src/app/project/ProjectQueryRedirect.test.tsx"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1031.0",
-    "@aws-sdk/s3-request-presigner": "^3.1031.0",
+    "@aws-sdk/client-s3": "^3.1032.0",
+    "@aws-sdk/s3-request-presigner": "^3.1032.0",
     "@reduxjs/toolkit": "^2.11.2",
     "aws-rum-web": "^2.1.0",
     "bootstrap": "^5.3.8",
@@ -60,7 +60,7 @@
     "dotenv": "17.4.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.4",
-    "eslint-plugin-react-hooks": "^7.1.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "jsdom": "^29.0.2",
     "prettier": "^3.8.3",
