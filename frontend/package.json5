@@ -47,6 +47,8 @@
     "start:prod-like:status": "sh ./scripts/status-prod-like.sh",
     //
     "start:prod-like:watch": "tsx ./scripts/watch-prod-like.ts",
+    //
+    "snapshot:projects": "tsx ./scripts/export-project-data-snapshot.ts",
     // Run Next.js ESLint configuration
     "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
