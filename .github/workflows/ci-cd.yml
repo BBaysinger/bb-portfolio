@@ -233,10 +233,16 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
           bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
+          if [ -s /tmp/project_data_snapshot ]; then
+            PROJECT_SSG_FAIL_FAST_VALUE=1
+          else
+            PROJECT_SSG_FAIL_FAST_VALUE=0
+          fi
+          echo "Using PROJECT_SSG_FAIL_FAST=$PROJECT_SSG_FAIL_FAST_VALUE for prod frontend image build"
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROJECT_SSG_FAIL_FAST=0 \
+            --build-arg PROJECT_SSG_FAIL_FAST=$PROJECT_SSG_FAIL_FAST_VALUE \
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
@@ -389,8 +395,14 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
           bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
+          if [ -s /tmp/project_data_snapshot ]; then
+            PROJECT_SSG_FAIL_FAST_VALUE=1
+          else
+            PROJECT_SSG_FAIL_FAST_VALUE=0
+          fi
+          echo "Using PROJECT_SSG_FAIL_FAST=$PROJECT_SSG_FAIL_FAST_VALUE for dev frontend image build"
           DOCKER_BUILDKIT=1 docker build --build-arg ENV_PROFILE=dev \
-            --build-arg PROJECT_SSG_FAIL_FAST=0 \
+            --build-arg PROJECT_SSG_FAIL_FAST=$PROJECT_SSG_FAIL_FAST_VALUE \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
