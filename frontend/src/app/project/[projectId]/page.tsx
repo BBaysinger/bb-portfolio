@@ -26,7 +26,7 @@ const shouldFailFastProjectSsg = (): boolean => {
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
 export const revalidate = 86400;
 // Pre-render known params at build time.
-export const dynamicParams = false;
+export const dynamicParams = true;
 export const dynamic = "force-static";
 
 /**
@@ -116,9 +116,9 @@ export async function generateStaticParams() {
     return [];
   }
 
-  const uniqueIds = Array.from(
-    new Set(projectData.activeProjects.map((project) => project.id)),
-  ).filter((id): id is string => Boolean(id));
+  const uniqueIds = Array.from(new Set(projectData.activeKeys)).filter(
+    (id): id is string => Boolean(id),
+  );
 
   if (uniqueIds.length === 0) {
     if (failFast) {

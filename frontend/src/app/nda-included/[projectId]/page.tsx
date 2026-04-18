@@ -19,7 +19,7 @@ const shouldFailFastProjectSsg = (): boolean => {
  * Security invariant: confidential NDA fields are never rendered in this route.
  */
 export const revalidate = 86400;
-export const dynamicParams = false;
+export const dynamicParams = true;
 export const dynamic = "force-static";
 
 export async function generateMetadata({
