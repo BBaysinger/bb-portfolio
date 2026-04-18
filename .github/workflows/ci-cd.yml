@@ -220,6 +220,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: bb-portfolio-frontend-prod
           IMAGE_TAG: ${{ github.sha }}
+          PROJECT_DATA_SNAPSHOT_JSON: ${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}
         run: |
           echo "${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" > /tmp/required_environment_variables_frontend
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
@@ -231,7 +232,7 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" > /tmp/next_public_rum_guest_role_arn
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
-          printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
+          printf '%s' "$PROJECT_DATA_SNAPSHOT_JSON" > /tmp/project_data_snapshot
           bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
           if [ -s /tmp/project_data_snapshot ]; then
             PROJECT_SSG_FAIL_FAST_VALUE=1
@@ -347,6 +348,7 @@ jobs:
         env:
           SANITIZED_FE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}
           SANITIZED_BE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_backend }}
+          PROJECT_DATA_SNAPSHOT_JSON: ${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}
         run: |
           echo "${{ secrets.MONGODB_URI }}" > /tmp/mongodb_uri
           echo "${{ secrets.PAYLOAD_SECRET }}" > /tmp/payload_secret
@@ -393,7 +395,7 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" > /tmp/next_public_rum_guest_role_arn
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
-          printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
+          printf '%s' "$PROJECT_DATA_SNAPSHOT_JSON" > /tmp/project_data_snapshot
           bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
           if [ -s /tmp/project_data_snapshot ]; then
             PROJECT_SSG_FAIL_FAST_VALUE=1
