@@ -81,7 +81,9 @@ const isProjectDataSnapshotEnvelope = (
 const loadProjectDataSnapshot = async (
   snapshotPath: string,
 ): Promise<FetchProjectsResult> => {
-  const { readFile } = await import("node:fs/promises");
+  // Resolve at runtime to avoid client webpack trying to bundle Node-only modules.
+  const fsPromisesModule = "fs/promises";
+  const { readFile } = await import(fsPromisesModule);
   const raw = await readFile(snapshotPath, "utf8");
   const parsed = JSON.parse(raw) as ProjectDataSnapshotFile;
 
