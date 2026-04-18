@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
-
 import ProjectQueryRedirect from "./ProjectQueryRedirect";
+
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
 type QuerySearchParams = Record<string, string | string[]>;
 
@@ -9,14 +10,7 @@ export default async function ProjectQueryPage({
 }: {
   searchParams?: Promise<QuerySearchParams>;
 }) {
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const projectId = Array.isArray(resolvedSearchParams?.p)
-    ? resolvedSearchParams?.p[0]
-    : resolvedSearchParams?.p;
-
-  if (!projectId) {
-    notFound();
-  }
+  void searchParams;
 
   return <ProjectQueryRedirect />;
 }
