@@ -265,12 +265,12 @@ async function fetchPortfolioProjects(opts?: {
     if (disableCache || requestHeaders) {
       fetchOptions.cache = "no-store";
     } else {
-      fetchOptions.next = { revalidate: 3600 };
+      fetchOptions.next = { revalidate: 86400 };
     }
   } else if (disableCache) {
     fetchOptions.cache = "no-store";
   } else {
-    fetchOptions.next = { revalidate: 3600 };
+    fetchOptions.next = { revalidate: 86400 };
   }
   if (requestHeaders) {
     // Clone headers and also add Authorization: JWT <token> if a payload-token cookie is present.

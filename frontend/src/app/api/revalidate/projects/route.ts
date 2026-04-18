@@ -17,6 +17,7 @@ const getTokenFromRequest = (req: NextRequest): string => {
 };
 
 const revalidateProjectRoutes = () => {
+  revalidatePath("/", "layout");
   revalidatePath("/", "page");
   revalidatePath("/cv", "page");
   revalidatePath("/project", "page");
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     revalidated: [
+      "/ (layout)",
       "/",
       "/cv",
       "/project",

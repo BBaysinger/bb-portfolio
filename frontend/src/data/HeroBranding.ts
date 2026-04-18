@@ -44,7 +44,7 @@ export const getServerHeroBranding = async (): Promise<ServerHeroBranding> => {
     const response = await fetch(`${backendUrl}/api/hero-branding/`, {
       method: "GET",
       headers: { Accept: "application/json" },
-      next: { revalidate: 60 },
+      next: { revalidate: 86400 },
     });
 
     if (!response.ok) return fallback;

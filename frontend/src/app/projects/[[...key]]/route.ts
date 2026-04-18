@@ -31,11 +31,11 @@ export const runtime = "nodejs";
 // Note: This is a Route Handler (not an App Router page), so it won't become
 // "SSG HTML" output, but we can still allow Next/CDNs to cache responses.
 export const dynamic = "force-static";
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Cache at the CDN/edge, but keep browser caching conservative.
 const PUBLIC_CACHE_CONTROL =
-  "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
+  "public, max-age=0, s-maxage=86400, stale-while-revalidate=86400";
 
 // Debug flag for S3 route logging
 const debug =

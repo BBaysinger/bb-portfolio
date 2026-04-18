@@ -1,5 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i
 
 const letterSpacingField = (defaultValue: string) => ({
@@ -43,6 +45,13 @@ const letterSpacingField = (defaultValue: string) => ({
 export const HeroBranding: GlobalConfig = {
   slug: 'heroBranding',
   label: 'Site Branding',
+  hooks: {
+    afterChange: [
+      async () => {
+        await triggerFrontendProjectRevalidate('heroBranding.afterChange')
+      },
+    ],
+  },
   access: {
     read: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
