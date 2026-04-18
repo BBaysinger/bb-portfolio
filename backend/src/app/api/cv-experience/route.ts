@@ -79,7 +79,7 @@ export async function GET() {
       const date = asTrimmedString(item.date)
       const bulletPoints = toBulletPoints(item.bulletPoints)
 
-      if (!company || !location || !title || !description || !technicalScope || !date) {
+      if (!company || !title || !date) {
         return null
       }
 

@@ -6,10 +6,10 @@ import { RawImg } from "@/components/common/RawImg";
 
 export type CvExperienceItemData = {
   company: string;
-  location: string;
+  location?: string;
   title: string;
-  description: string;
-  technicalScope: string;
+  description?: string;
+  technicalScope?: string;
   date: string;
   bulletPoints?: string[];
   logo?: {
@@ -63,7 +63,9 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
           <div className={styles.leftSub}>
             <h5>
               {item.company}
-              <span className={styles.location}> — {item.location}</span>
+              {item.location ? (
+                <span className={styles.location}> — {item.location}</span>
+              ) : null}
             </h5>
             {item.title}
           </div>
@@ -71,13 +73,17 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
           <div className={styles.rightSub}>[ {item.date} ]</div>
         </div>
 
-        <p ref={addToRefs} className={styles.desc}>
-          {item.description}
-        </p>
+        {item.description ? (
+          <p ref={addToRefs} className={styles.desc}>
+            {item.description}
+          </p>
+        ) : null}
 
-        <p ref={addToRefs} className={styles.scope}>
-          <span>Technical Scope:</span> {item.technicalScope}
-        </p>
+        {item.technicalScope ? (
+          <p ref={addToRefs} className={styles.scope}>
+            <span>Technical Scope:</span> {item.technicalScope}
+          </p>
+        ) : null}
 
         {bulletPoints.length > 0 ? (
           <ul>
