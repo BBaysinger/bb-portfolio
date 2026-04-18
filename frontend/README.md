@@ -97,6 +97,43 @@ PORT=3010 npm run frontend:prod-like:down
 - **SSG Project Pages**: Static generation with ISR for performance
 - **NDA Segmentation**: Separate `/project/` and `/nda/` routes for content safety
 
+### Hermetic SSG Snapshot (Optional)
+
+The frontend can consume a pre-generated project snapshot during build to avoid live backend fetches for project SSG routes.
+
+This is useful when Docker/CI build jobs cannot reliably reach the backend service.
+
+Generate a snapshot locally (backend must be reachable):
+
+```bash
+BACKEND_INTERNAL_URL=http://localhost:8081 npm run snapshot:projects --prefix frontend
+```
+
+Output defaults to:
+
+```text
+frontend/.cache/project-data-snapshot.json
+```
+
+Override output path when needed:
+
+```bash
+PROJECT_DATA_SNAPSHOT_OUT=./tmp/project-data-snapshot.json BACKEND_INTERNAL_URL=http://localhost:8081 npm run snapshot:projects --prefix frontend
+```
+
+The build reads snapshot data only when `PROJECT_DATA_SNAPSHOT_PATH` is set (wired automatically in Docker builds when the optional `project_data_snapshot` secret is provided).
+
+For GitHub Actions image builds, store snapshot JSON in the secret:
+
+- `PROJECT_DATA_SNAPSHOT_JSON`
+
+Expected snapshot shape:
+
+- normalized project record object, or
+- envelope `{ data, metadata }` where `data` is the normalized record.
+
+Raw Payload REST `{ docs: [...] }` snapshots are intentionally rejected.
+
 ## Environment Configuration
 
 The frontend reads environment variables from files in `frontend/` (it does not automatically use the monorepo root `.env`).

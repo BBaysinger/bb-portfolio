@@ -25,6 +25,33 @@ General conventions:
 
 ## Key Variables
 
+### PROJECT_DATA_SNAPSHOT_JSON
+
+- **Purpose**: Optional GitHub Actions secret used by frontend Docker image builds as a hermetic project-data input.
+- **Shape**: JSON string containing either:
+  - normalized project record object, or
+  - envelope `{ data, metadata }` where `data` is the normalized project record.
+- **Validation**: CI validates this JSON before Docker build. Invalid JSON or raw Payload REST `{ docs: [...] }` shape fails fast.
+- **Usage**: `.github/workflows/ci-cd.yml` frontend prod/dev image build steps.
+
+### PROJECT_DATA_SNAPSHOT_PATH
+
+- **Purpose**: Server-only path to a local snapshot file consumed during frontend build-time project data loading.
+- **Typical source**: Set inside Docker build stage when `project_data_snapshot` BuildKit secret is mounted.
+- **Usage**: `frontend/src/data/ProjectData.ts`
+
+### PROJECT_DATA_SNAPSHOT_OUT
+
+- **Purpose**: Optional output path for `frontend` snapshot generation command.
+- **Default**: `./.cache/project-data-snapshot.json` (relative to `frontend/`).
+- **Usage**: `frontend/scripts/export-project-data-snapshot.ts`
+
+### PROJECT_DATA_SNAPSHOT_COOKIE
+
+- **Purpose**: Optional cookie header used when generating a snapshot to capture auth-aware backend responses.
+- **Usage**: `frontend/scripts/export-project-data-snapshot.ts`
+- **Note**: If omitted, snapshot generation uses unauthenticated backend responses.
+
 ### NEXT_PUBLIC_FORCE_HASH_HISTORY
 
 - **Purpose**: When set to `1`, navigation utilities append a timestamp hash token (e.g., `#ts=...`) to ensure distinct history entries during rapid client‑side route changes. This improves Back/Forward behavior in some browsers.
