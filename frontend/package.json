@@ -25,7 +25,8 @@
     "start:prod-like:watch": "tsx ./scripts/watch-prod-like.ts",
     "lint": "eslint .",
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
-    "test": "echo 'TODO: Add test scripts'"
+    "test": "vitest run",
+    "test:redirect": "vitest run src/app/project/ProjectQueryRedirect.test.tsx"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1031.0",
@@ -46,20 +47,23 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@testing-library/react": "^16.3.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "8.58.1",
     "@typescript-eslint/parser": "8.58.1",
-    "eslint": "^9.39.4",
     "dotenv": "17.4.2",
+    "eslint": "^9.39.4",
     "eslint-config-next": "16.2.4",
     "eslint-plugin-react-hooks": "^7.1.0",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "jsdom": "^29.0.2",
     "prettier": "^3.8.3",
     "tsx": "^4.21.0",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "^4.1.4"
   },
   "engines": {
     "node": ">=18.20.2 <26",

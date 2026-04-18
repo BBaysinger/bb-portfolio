@@ -178,7 +178,17 @@ jobs:
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
           # GA4 (optional): client bundle requires it at build time
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
-        run: pnpm run build
+        run: |
+          set -euo pipefail
+          BUILD_LOG="$(mktemp)"
+          pnpm run build | tee "$BUILD_LOG"
+          grep -E "○ /project(\s|$)" "$BUILD_LOG"
+          grep -E "○ /project/\[projectId\]" "$BUILD_LOG"
+          grep -E "○ /nda-included/\[projectId\]" "$BUILD_LOG"
+
+      - name: Test frontend query redirect
+        working-directory: ./frontend
+        run: pnpm run test:redirect
 
   # Build and push production images to ECR (main branch)
   build-push-prod-images:
