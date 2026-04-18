@@ -78,12 +78,39 @@ const isProjectDataSnapshotEnvelope = (
   );
 };
 
+const runtimeImport = <T>(specifier: string): Promise<T> => {
+  // Force native runtime import so webpack does not try to bundle Node built-ins.
+  const loader = Function(
+    "moduleSpecifier",
+    "return import(moduleSpecifier);",
+  ) as (moduleSpecifier: string) => Promise<T>;
+  return loader(specifier);
+};
+
 const loadProjectDataSnapshot = async (
   snapshotPath: string,
 ): Promise<FetchProjectsResult> => {
-  // Resolve at runtime to avoid client webpack trying to bundle Node-only modules.
-  const fsPromisesModule = "fs/promises";
-  const { readFile } = await import(fsPromisesModule);
+  type ReadFileFn = (path: string, encoding: string) => Promise<string>;
+
+  let readFile: ReadFileFn | undefined;
+  try {
+    // Prefer fs/promises on modern Node runtimes.
+    const fsPromises = await runtimeImport<{ readFile?: ReadFileFn }>(
+      "fs/promises",
+    );
+    readFile = fsPromises.readFile;
+  } catch {
+    // Fallback for environments that only expose promises on the fs module.
+    const fsModule = await runtimeImport<{
+      promises?: { readFile?: ReadFileFn };
+    }>("fs");
+    readFile = fsModule.promises?.readFile;
+  }
+
+  if (!readFile) {
+    throw new Error("Node fs readFile is unavailable in this runtime");
+  }
+
   const raw = await readFile(snapshotPath, "utf8");
   const parsed = JSON.parse(raw) as ProjectDataSnapshotFile;
 
