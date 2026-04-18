@@ -42,7 +42,7 @@ interface ProjectThumbnailProps {
   omitFromList: boolean;
   /** Unique project identifier. */
   projectId: string;
-  /** Optional opaque short code used for NDA login return flow. */
+  /** Optional opaque short code used for NDA/login-friendly URLs. */
   projectShortCode?: string;
   /** Project display title. */
   title: string;
@@ -164,12 +164,12 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   const href = showNdaConfidential
     ? "/login/"
     : (() => {
-        // Authenticated browsing happens under the NDA-included route to avoid
-        // mixing route bases while navigating the carousel.
+        // Authenticated browsing happens under the NDA-included route.
+        // Prefer short code for human-friendly URLs, fall back to project ID.
         if (effectiveAuth) {
           const code = (projectShortCode || "").trim();
-          const id = isNdaLike ? code || projectId : projectId;
-          return `/nda-included/${encodeURIComponent(id)}/`;
+          const routeKey = isNdaLike ? code || projectId : projectId;
+          return `/nda-included/${encodeURIComponent(routeKey)}/`;
         }
         // Public browsing stays under /project.
         return `/project/${encodeURIComponent(projectId)}/`;
@@ -195,8 +195,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         onClick={() => {
           if (!showNdaConfidential) return;
           try {
-            // Store a stable post-login redirect key.
-            // Prefer short code (opaque), but always fall back to projectId.
+            // Keep both for compatibility; redirect flow prefers short code when available.
             const code = (projectShortCode || "").trim();
             sessionStorage.setItem(
               "postLoginProjectId",

@@ -49,8 +49,6 @@ const LoginPage = () => {
    */
   const getPostLoginRedirectTo = (): string | null => {
     try {
-      // Prefer a stable projectId redirect when available.
-      // Short code is an optional opaque alias; keep it as a fallback.
       const projectIdRaw = sessionStorage.getItem("postLoginProjectId") || "";
       const codeRaw = sessionStorage.getItem("postLoginProjectCode") || "";
       const projectId = projectIdRaw.trim();
@@ -59,7 +57,7 @@ const LoginPage = () => {
       sessionStorage.removeItem("postLoginProjectId");
       sessionStorage.removeItem("postLoginProjectCode");
 
-      const chosen = projectId || code;
+      const chosen = code || projectId;
       if (!chosen) return null;
       return `/nda-included/${encodeURIComponent(chosen)}/`;
     } catch {

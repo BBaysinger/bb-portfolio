@@ -96,9 +96,13 @@ export async function generateStaticParams() {
     return [];
   }
 
-  const uniqueIds = Array.from(
-    new Set(projectData.activeProjects.map((project) => project.id)),
-  ).filter((id): id is string => Boolean(id));
+  const staticRouteKeys = new Set<string>();
+  for (const project of projectData.activeProjects) {
+    if (project.id) staticRouteKeys.add(project.id);
+    const shortCode = project.shortCode?.trim();
+    if (shortCode) staticRouteKeys.add(shortCode);
+  }
+  const uniqueIds = Array.from(staticRouteKeys);
 
   if (uniqueIds.length === 0) {
     if (failFast) {
