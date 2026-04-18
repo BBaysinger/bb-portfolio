@@ -47,6 +47,7 @@ RUN --mount=type=secret,id=required_environment_variables_frontend,required=fals
 		--mount=type=secret,id=backend_internal_url,required=false \
 		--mount=type=secret,id=public_projects_bucket,required=false \
 		--mount=type=secret,id=nda_projects_bucket,required=false \
+		--mount=type=secret,id=project_data_snapshot,required=false \
 		--mount=type=secret,id=next_public_ga_measurement_id,required=false \
 		--mount=type=secret,id=next_public_rum_app_monitor_id,required=false \
 		--mount=type=secret,id=next_public_rum_identity_pool_id,required=false \
@@ -87,6 +88,13 @@ assign_secret REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND required_environment_varia
 assign_secret BACKEND_INTERNAL_URL backend_internal_url
 assign_secret PUBLIC_PROJECTS_BUCKET public_projects_bucket
 assign_secret NDA_PROJECTS_BUCKET nda_projects_bucket
+
+# Optional hermetic SSG input (JSON snapshot). If present, build-time project data reads
+# this file and avoids live backend fetches.
+if [ -s /run/secrets/project_data_snapshot ]; then
+	cp /run/secrets/project_data_snapshot /tmp/project-data-snapshot.json
+	export PROJECT_DATA_SNAPSHOT_PATH=/tmp/project-data-snapshot.json
+fi
 
 # GA4 build-time config (Next.js client bundles only see NEXT_PUBLIC_* at build time)
 assign_secret NEXT_PUBLIC_GA_MEASUREMENT_ID next_public_ga_measurement_id

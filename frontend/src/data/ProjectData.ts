@@ -52,6 +52,51 @@ interface FetchProjectsResult {
   metadata: FetchProjectsMetadata;
 }
 
+type ProjectDataSnapshotFile =
+  | PortfolioProjectData
+  | {
+      data: PortfolioProjectData;
+      metadata?: FetchProjectsMetadata;
+    };
+
+const isProjectDataSnapshotEnvelope = (
+  val: unknown,
+): val is { data: PortfolioProjectData; metadata?: FetchProjectsMetadata } => {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "data" in (val as Record<string, unknown>) &&
+    typeof (val as Record<string, unknown>).data === "object"
+  );
+};
+
+const loadProjectDataSnapshot = async (
+  snapshotPath: string,
+): Promise<FetchProjectsResult> => {
+  const { readFile } = await import("node:fs/promises");
+  const raw = await readFile(snapshotPath, "utf8");
+  const parsed = JSON.parse(raw) as ProjectDataSnapshotFile;
+
+  if (isProjectDataSnapshotEnvelope(parsed)) {
+    return {
+      data: parsed.data,
+      metadata: {
+        containsSanitizedPlaceholders: Boolean(
+          parsed.metadata?.containsSanitizedPlaceholders,
+        ),
+        hasNdaAccess: parsed.metadata?.hasNdaAccess,
+      },
+    };
+  }
+
+  return {
+    data: parsed,
+    metadata: {
+      containsSanitizedPlaceholders: false,
+    },
+  };
+};
+
 async function fetchPortfolioProjects(opts?: {
   /** Optional request headers to forward (e.g., Cookie for auth-aware results). */
   requestHeaders?: HeadersInit;
@@ -62,6 +107,21 @@ async function fetchPortfolioProjects(opts?: {
   const cookieHeaderRaw = getCookieHeaderValue(requestHeaders);
   const payloadToken = extractPayloadTokenFromCookie(cookieHeaderRaw);
   const isServer = typeof window === "undefined";
+  const snapshotPath =
+    isServer && process.env.PROJECT_DATA_SNAPSHOT_PATH
+      ? process.env.PROJECT_DATA_SNAPSHOT_PATH.trim()
+      : "";
+  if (snapshotPath) {
+    try {
+      return await loadProjectDataSnapshot(snapshotPath);
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : "Unknown snapshot error";
+      throw new Error(
+        `Failed to load project data snapshot (${snapshotPath}): ${msg}`,
+      );
+    }
+  }
   const rawProfile =
     // Client bundles cannot reliably access non-NEXT_PUBLIC env vars at runtime.
     // Prefer NEXT_PUBLIC_ENV_PROFILE in the browser to avoid falling back to

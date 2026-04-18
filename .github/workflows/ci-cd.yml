@@ -231,6 +231,7 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" > /tmp/next_public_rum_guest_role_arn
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
+          printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
@@ -241,6 +242,7 @@ jobs:
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
+            --secret id=project_data_snapshot,src=/tmp/project_data_snapshot \
             --secret id=next_public_ga_measurement_id,src=/tmp/next_public_ga_measurement_id \
             --secret id=next_public_rum_app_monitor_id,src=/tmp/next_public_rum_app_monitor_id \
             --secret id=next_public_rum_identity_pool_id,src=/tmp/next_public_rum_identity_pool_id \
@@ -248,7 +250,7 @@ jobs:
             --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
             --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
-          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
+          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/project_data_snapshot /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -384,12 +386,14 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" > /tmp/next_public_rum_guest_role_arn
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
+          printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
           DOCKER_BUILDKIT=1 docker build --build-arg ENV_PROFILE=dev \
             --build-arg PROJECT_SSG_FAIL_FAST=0 \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
+            --secret id=project_data_snapshot,src=/tmp/project_data_snapshot \
             --secret id=next_public_ga_measurement_id,src=/tmp/next_public_ga_measurement_id \
             --secret id=next_public_rum_app_monitor_id,src=/tmp/next_public_rum_app_monitor_id \
             --secret id=next_public_rum_identity_pool_id,src=/tmp/next_public_rum_identity_pool_id \
@@ -397,7 +401,7 @@ jobs:
             --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
             --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t bhbaysinger/bb-portfolio-frontend:dev ./frontend
-          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
+          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/project_data_snapshot /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push bhbaysinger/bb-portfolio-backend:dev
           docker push bhbaysinger/bb-portfolio-frontend:dev
 
