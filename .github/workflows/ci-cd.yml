@@ -232,6 +232,9 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
+          if [ -s /tmp/project_data_snapshot ]; then
+            node -e 'const fs=require("node:fs");const raw=fs.readFileSync("/tmp/project_data_snapshot","utf8");let parsed;try{parsed=JSON.parse(raw);}catch{console.error("Invalid PROJECT_DATA_SNAPSHOT_JSON: not valid JSON");process.exit(1);}const data=parsed&&typeof parsed==="object"&&"data" in parsed?parsed.data:parsed;const isPayloadRest=(v)=>!!v&&typeof v==="object"&&Array.isArray(v.docs);if(!data||typeof data!=="object"||Array.isArray(data)){console.error("Invalid PROJECT_DATA_SNAPSHOT_JSON: expected object record or envelope { data, metadata }");process.exit(1);}if(isPayloadRest(data)){console.error("Invalid PROJECT_DATA_SNAPSHOT_JSON: raw Payload REST { docs: [...] } is not supported; provide normalized project record");process.exit(1);}'
+          fi
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
@@ -387,6 +390,9 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           printf '%s' "${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}" > /tmp/project_data_snapshot
+          if [ -s /tmp/project_data_snapshot ]; then
+            node -e 'const fs=require("node:fs");const raw=fs.readFileSync("/tmp/project_data_snapshot","utf8");let parsed;try{parsed=JSON.parse(raw);}catch{console.error("Invalid PROJECT_DATA_SNAPSHOT_JSON: not valid JSON");process.exit(1);}const data=parsed&&typeof parsed==="object"&&"data" in parsed?parsed.data:parsed;const isPayloadRest=(v)=>!!v&&typeof v==="object"&&Array.isArray(v.docs);if(!data||typeof data!=="object"||Array.isArray(data)){console.error("Invalid PROJECT_DATA_SNAPSHOT_JSON: expected object record or envelope { data, metadata }");process.exit(1);}if(isPayloadRest(data)){console.error("Invalid PROJECT_DATA_SNAPSHOT_JSON: raw Payload REST { docs: [...] } is not supported; provide normalized project record");process.exit(1);}'
+          fi
           DOCKER_BUILDKIT=1 docker build --build-arg ENV_PROFILE=dev \
             --build-arg PROJECT_SSG_FAIL_FAST=0 \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \

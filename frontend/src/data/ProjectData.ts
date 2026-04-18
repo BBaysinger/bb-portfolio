@@ -59,6 +59,14 @@ type ProjectDataSnapshotFile =
       metadata?: FetchProjectsMetadata;
     };
 
+const isPayloadRestSnapshot = (val: unknown): boolean => {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    Array.isArray((val as Record<string, unknown>).docs)
+  );
+};
+
 const isProjectDataSnapshotEnvelope = (
   val: unknown,
 ): val is { data: PortfolioProjectData; metadata?: FetchProjectsMetadata } => {
@@ -78,6 +86,11 @@ const loadProjectDataSnapshot = async (
   const parsed = JSON.parse(raw) as ProjectDataSnapshotFile;
 
   if (isProjectDataSnapshotEnvelope(parsed)) {
+    if (isPayloadRestSnapshot(parsed.data)) {
+      throw new Error(
+        "Snapshot envelope data must be normalized project record, not Payload REST { docs: [...] } shape.",
+      );
+    }
     return {
       data: parsed.data,
       metadata: {
@@ -87,6 +100,12 @@ const loadProjectDataSnapshot = async (
         hasNdaAccess: parsed.metadata?.hasNdaAccess,
       },
     };
+  }
+
+  if (isPayloadRestSnapshot(parsed)) {
+    throw new Error(
+      "Snapshot must be normalized project record (or envelope { data, metadata }); raw Payload REST { docs: [...] } is not supported.",
+    );
   }
 
   return {
