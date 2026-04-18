@@ -6,6 +6,7 @@
 **/dist-ssr/
 **/.next/
 /frontend/out/
+frontend/.cache/**
 *.local
 
 # ─────────────────────────────────────────────
