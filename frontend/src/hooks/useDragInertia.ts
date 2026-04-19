@@ -105,6 +105,17 @@ export function useDragInertia(
       return current + k * slideSpacing;
     };
 
+    const cancelThrow = () => {
+      const draggable = draggableRef.current;
+      if (!draggable) return;
+
+      draggable.tween?.kill();
+      dragState.current.isThrowing = false;
+      dragState.current.isDragging = false;
+      snapOffsetRef.current = computeSnapOffset();
+      gsap.set(scroller, { cursor: "grab" });
+    };
+
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
       allowNativeTouchScrolling: true,
@@ -159,7 +170,21 @@ export function useDragInertia(
 
     draggableRef.current = draggable;
 
+    const handleNativeInterruption = () => {
+      if (!dragState.current.isThrowing) return;
+      cancelThrow();
+    };
+
+    scroller.addEventListener("wheel", handleNativeInterruption, {
+      passive: true,
+    });
+    scroller.addEventListener("touchstart", handleNativeInterruption, {
+      passive: true,
+    });
+
     return () => {
+      scroller.removeEventListener("wheel", handleNativeInterruption);
+      scroller.removeEventListener("touchstart", handleNativeInterruption);
       draggable.kill(); // Clean up GSAP instance
     };
   }, [
