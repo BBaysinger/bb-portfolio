@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.projectInfo {
+.project-info {
   overflow: visible;
   pointer-events: none;
   visibility: hidden;
@@ -20,13 +20,20 @@
     }
   }
 
-  div {
+  // div {
+  //   margin-bottom: 10px;
+  //   &:last-of-type {
+  //     margin-bottom: 30px;
+  //   }
+  //   p {
+  //     margin-bottom: 0;
+  //   }
+  // }
+
+  p {
     margin-bottom: 10px;
     &:last-of-type {
       margin-bottom: 30px;
-    }
-    p {
-      margin-bottom: 0;
     }
   }
 
@@ -48,19 +55,19 @@
   }
 }
 
-.projectTitle {
+.project-title {
   font-size: 1.2em;
   margin-bottom: 20px !important;
 }
 
 :global(.bbSlideLeft) {
-  .projectInfo.active > * {
+  .project-info.active > * {
     animation: slideLeftFadeIn 0.6s ease-out calc(var(--index) * 0.2s) forwards;
   }
 }
 
 :global(.bbSlideRight) {
-  .projectInfo.active > * {
+  .project-info.active > * {
     animation: slideRightFadeIn 0.6s ease-out calc(var(--index) * 0.2s) forwards;
   }
 }
@@ -91,7 +98,7 @@
 /// Btns
 ////////////////////////////////////////
 
-.btnGroupLabel,
+.btn-group-label,
 .btn {
   background-color: #333;
   color: #fff !important;
@@ -110,13 +117,13 @@
   }
 }
 
-.btnGroup {
+.btn-group {
   flex-direction: row;
   .btn {
     margin-right: 0;
   }
 }
 
-.btnGroupLabel {
+.btn-group-label {
   cursor: default;
 }

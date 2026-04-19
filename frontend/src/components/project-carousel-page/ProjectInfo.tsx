@@ -49,7 +49,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
       <div
         ref={ref}
         className={clsx(
-          styles.projectInfo,
+          styles["project-info"],
           isActive && styles.active,
           direction && styles[direction.toLowerCase()],
         )}
@@ -57,7 +57,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
       >
         {/* {direction && <div className={styles.direction}>{direction}</div>} */}
         <div
-          className={styles.projectTitle}
+          className={styles["project-title"]}
           style={{ "--index": globalIndex++ } as React.CSSProperties}
         >
           <strong>Project Title</strong>: {displayTitle}
@@ -78,14 +78,14 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           if (Array.isArray(urls)) {
             return (
               <span
-                className={clsx(styles.btnGroup, "btnGroup")}
+                className={clsx(styles["btn-group"], "btnGroup")}
                 key={label}
                 style={{ "--index": globalIndex++ } as React.CSSProperties}
               >
                 <span
                   className={clsx(
                     styles.btn,
-                    styles.btnGroupLabel,
+                    styles["btn-group-label"],
                     "btn",
                     "btnGroupLabel",
                   )}
