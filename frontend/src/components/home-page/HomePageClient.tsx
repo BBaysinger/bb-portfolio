@@ -26,6 +26,8 @@ export default function HomePageClient({
 }: HomePageClientProps) {
   const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
+  const hasSsrSnapshot =
+    ssrProjects.length > 0 || Object.keys(ssrProjectRecord || {}).length > 0;
   // Before the client has checked auth, allow SSR-auth to avoid flicker.
   // After initialization (or explicit reset on logout), trust client state.
   const compositeAuth = hasInitialized
@@ -46,6 +48,9 @@ export default function HomePageClient({
     if (cached.length > 0) return cached;
     return [];
   });
+  const [isResolvingProjects, setIsResolvingProjects] = useState(
+    !hasSsrSnapshot && ProjectData.listedProjects.length === 0,
+  );
   const hydratedRef = useRef(false);
   const prevAuthRef = useRef<boolean>(compositeAuth);
 
@@ -65,6 +70,7 @@ export default function HomePageClient({
       ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive, {
         containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
       });
+      setIsResolvingProjects(false);
     }
     hydratedRef.current = true;
   }, [
@@ -89,10 +95,12 @@ export default function HomePageClient({
           includeNdaInActive: false,
         });
       } catch {
+        if (!cancelled) setIsResolvingProjects(false);
         return;
       }
       if (cancelled) return;
       setProjects([...ProjectData.listedProjects]);
+      setIsResolvingProjects(false);
     })();
 
     return () => {
@@ -157,6 +165,7 @@ export default function HomePageClient({
   return (
     <ProjectsList
       allProjects={projects}
+      showEmptyState={!isResolvingProjects}
       isAuthenticated={
         hasInitialized ? clientAuth : clientAuth || ssrAuthenticated
       }

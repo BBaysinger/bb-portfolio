@@ -18,6 +18,7 @@ interface ProjectsListProps {
    */
   allProjects: ParsedPortfolioProject[];
   isAuthenticated: boolean;
+  showEmptyState?: boolean;
   /**
    * Optional render prop for custom thumbnail rendering.
    */
@@ -48,7 +49,12 @@ interface ProjectsListProps {
  */
 const ProjectsList: React.FC<ProjectsListProps> & {
   ProjectThumbnail: typeof ProjectThumbnail;
-} = ({ allProjects, isAuthenticated, renderThumbnail }) => {
+} = ({
+  allProjects,
+  isAuthenticated,
+  showEmptyState = true,
+  renderThumbnail,
+}) => {
   // Merge server and client auth states (server-side for SSR, client-side for post-login).
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const _clientAuth = isLoggedIn || !!user;
@@ -65,7 +71,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
       data-nav="projects-list"
     >
       <Marquee phrases={marqueePhrases} />
-      {allProjects.length === 0 && (
+      {showEmptyState && allProjects.length === 0 && (
         <div aria-live="polite" style={{ opacity: 0.7 }}>
           No projects to display yet.
         </div>

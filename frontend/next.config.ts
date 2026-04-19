@@ -117,7 +117,13 @@ const nextConfig: NextConfig = {
     return `bb-${Date.now().toString(36)}`;
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.s3.us-west-2.amazonaws.com",
+        pathname: "/**",
+      },
+    ],
   },
   trailingSlash: true,
   // Keep default trailing slash redirects enabled to avoid build-time issues with API route resolution.
