@@ -1,6 +1,12 @@
 const DEFAULT_TIMEOUT_MS = 8000
+let hasWarnedMissingSecret = false
 
 const withNoTrailingSlash = (value: string): string => value.replace(/\/+$/, '')
+
+const isLocalProfile = (): boolean => {
+  const profile = (process.env.ENV_PROFILE || '').trim().toLowerCase()
+  return profile === '' || profile === 'local'
+}
 
 const resolveEndpoint = (): string | undefined => {
   const explicit = (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
@@ -18,9 +24,12 @@ export const triggerFrontendProjectRevalidate = async (reason: string): Promise<
 
   const secret = (process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET || '').trim()
   if (!secret) {
-    console.warn(
-      '[revalidate] FRONTEND_PROJECTS_REVALIDATE_SECRET is not set; skipping revalidation ping.',
-    )
+    if (!isLocalProfile() && !hasWarnedMissingSecret) {
+      hasWarnedMissingSecret = true
+      console.warn(
+        '[revalidate] FRONTEND_PROJECTS_REVALIDATE_SECRET is not set; skipping revalidation ping.',
+      )
+    }
     return
   }
 
