@@ -33,6 +33,10 @@ import useStableViewportHeightVar, {
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
+import {
+  getPublicRedirectForNdaUrl,
+  isNdaRoutePath,
+} from "@/utils/ndaRouteRedirect";
 import ScrollToHash from "@/utils/ScrollToHash";
 
 import styles from "./AppShell.module.scss";
@@ -160,23 +164,6 @@ export function AppShell({
   // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
   useEffect(() => {
     let ticking = false;
-    const getPublicRedirectForNdaPath = (path: string) => {
-      // If a non-authed user lands on an NDA-included project detail route,
-      // redirect to the public equivalent.
-      //
-      // Examples:
-      // - /nda-included/foo/   -> /project/foo/
-      // - /nda-included/?p=foo -> /projects/
-      try {
-        const match = /^\/nda-included\/([^/]+)(?:\/|$)/.exec(path);
-        const projectId = match?.[1] || "";
-        return projectId
-          ? `/project/${encodeURIComponent(projectId)}/`
-          : "/projects/";
-      } catch {
-        return "/projects/";
-      }
-    };
     const shouldSkipRefreshForCarousel = () => {
       try {
         if (typeof window === "undefined") return false;
@@ -222,13 +209,15 @@ export function AppShell({
           // If currently on an NDA route, immediately navigate away for privacy.
           try {
             const path = pathname || "";
-            if (/\/nda-included\//.test(path)) {
+            if (isNdaRoutePath(path)) {
               const announcer = document.getElementById("privacyAnnouncement");
               if (announcer) {
                 announcer.textContent =
                   "Session ended. Redirecting to public view for privacy.";
               }
-              router.replace(getPublicRedirectForNdaPath(path));
+              router.replace(
+                getPublicRedirectForNdaUrl(path, window.location.search),
+              );
             }
           } catch {}
         } else if (res.status >= 500) {
@@ -273,7 +262,7 @@ export function AppShell({
   useEffect(() => {
     try {
       const path = pathname || "";
-      const onNdaPage = /\/nda-included\//.test(path);
+      const onNdaPage = isNdaRoutePath(path);
       const authed = Boolean(isLoggedIn) || Boolean(user);
       // Avoid redirecting away from NDA pages until we've established auth state;
       // otherwise reloads may send logged-in users back to home briefly.
@@ -284,17 +273,7 @@ export function AppShell({
             "Logged out. Redirecting to public view for privacy.";
         }
         router.replace(
-          (() => {
-            try {
-              const match = /^\/nda-included\/([^/]+)(?:\/|$)/.exec(path);
-              const projectId = match?.[1] || "";
-              return projectId
-                ? `/project/${encodeURIComponent(projectId)}/`
-                : "/projects/";
-            } catch {
-              return "/projects/";
-            }
-          })(),
+          getPublicRedirectForNdaUrl(path, window.location.search),
         );
       }
     } catch {
