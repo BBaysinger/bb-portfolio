@@ -70,7 +70,6 @@ export default function HomePageClient({
       ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive, {
         containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
       });
-      setIsResolvingProjects(false);
     }
     hydratedRef.current = true;
   }, [
