@@ -33,6 +33,7 @@ import useStableViewportHeightVar, {
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
+import { requestHomeHeroIntroReplay } from "@/utils/homeHeroIntroReplay";
 import {
   getPublicRedirectForNdaUrl,
   isNdaRoutePath,
@@ -61,6 +62,33 @@ export function AppShell({
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const previousPathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    const previousPathname = previousPathnameRef.current;
+
+    if (previousPathname === "/" && pathname !== "/") {
+      requestHomeHeroIntroReplay();
+    }
+
+    previousPathnameRef.current = pathname;
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handlePageExit = () => {
+      requestHomeHeroIntroReplay();
+    };
+
+    window.addEventListener("pagehide", handlePageExit);
+    window.addEventListener("beforeunload", handlePageExit);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageExit);
+      window.removeEventListener("beforeunload", handlePageExit);
+    };
+  }, []);
 
   // Runtime backend health check: logs backend connectivity status on startup.
   // Intentionally console-only (no UI) to avoid impacting UX.

@@ -37,6 +37,10 @@ import useStableViewportHeightVar, {
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
+import {
+  consumeHomeHeroIntroReplayRequest,
+  shouldPlayHomeHeroIntroOnEntry,
+} from "@/utils/homeHeroIntroReplay";
 
 import BorderBlinker, { Side } from "./BorderBlinker";
 import GridController, {
@@ -87,16 +91,11 @@ const envProfile = (process.env.NEXT_PUBLIC_ENV_PROFILE || "")
 const isDevLikeProfile = envProfile === "local" || envProfile === "dev";
 const defaultFpsCounterEnabled =
   envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
-const HERO_REPLAY_ON_RETURN_KEY = "home-hero-replay-on-return";
 
 const MIN_SLINGER_RELEASE_SPEED = 210;
 const MAX_SLINGER_RELEASE_SPEED = 500;
 const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
 const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 1792; // My laptop
-
-const heroRuntimeState = {
-  hasEnteredHomeInRuntime: false,
-};
 
 const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
   if (viewportWidth === null) return MAX_SLINGER_RELEASE_SPEED;
@@ -115,24 +114,6 @@ const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
     MIN_SLINGER_RELEASE_SPEED +
       (MAX_SLINGER_RELEASE_SPEED - MIN_SLINGER_RELEASE_SPEED) * progress,
   );
-};
-
-const shouldReplayHeroIntroOnEntry = () => {
-  if (typeof window === "undefined") return false;
-
-  if (heroRuntimeState.hasEnteredHomeInRuntime) return false;
-
-  const rawReferrer = document.referrer || "";
-  if (!rawReferrer) return true;
-
-  try {
-    return (
-      new URL(rawReferrer, window.location.href).origin !==
-      window.location.origin
-    );
-  } catch {
-    return true;
-  }
 };
 
 type HeroProps = {
@@ -378,8 +359,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
   }, [startSlingerTracking, useSlingerTracking]);
 
   useEffect(() => {
-    const shouldReplayIntro = shouldReplayHeroIntroOnEntry();
-    heroRuntimeState.hasEnteredHomeInRuntime = true;
+    const shouldReplayIntro = shouldPlayHomeHeroIntroOnEntry();
 
     const mountRaf = requestAnimationFrame(() => setMounted(true));
     let hydrationRaf: number | null = null;
@@ -446,37 +426,19 @@ function Hero({ initialRoleTitle }: HeroProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const onPageHide = () => {
-      try {
-        sessionStorage.setItem(HERO_REPLAY_ON_RETURN_KEY, "true");
-      } catch {
-        // Ignore storage failures; this only improves bfcache return behavior.
-      }
-    };
-
     const onPageShow = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
 
-      let shouldReplay = false;
-      try {
-        shouldReplay =
-          sessionStorage.getItem(HERO_REPLAY_ON_RETURN_KEY) === "true";
-        sessionStorage.removeItem(HERO_REPLAY_ON_RETURN_KEY);
-      } catch {
-        shouldReplay = false;
-      }
-
+      const shouldReplay = consumeHomeHeroIntroReplayRequest();
       if (!shouldReplay) return;
 
       restartHeroRuntime();
       setPlayHeroIntro(true);
     };
 
-    window.addEventListener("pagehide", onPageHide);
     window.addEventListener("pageshow", onPageShow);
 
     return () => {
-      window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("pageshow", onPageShow);
     };
   }, [restartHeroRuntime]);

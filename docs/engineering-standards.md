@@ -40,7 +40,9 @@ Code must be authored professionally with code review in mind: clear naming, sma
 
 Any deviation from standards, conventions, or best practices must be explicitly called out in code comments and/or PR descriptions with rationale and a plan for alignment.
 
-**Collaborative note:** tools reviewing or generating code should also flag non-standard, non-conventional, or non-best-practice patterns when encountered, and recommend alignment — without referencing their nature as automated assistants.
+If code or configuration is unconventional, convoluted, or otherwise difficult to justify, and that choice is not already explained in a nearby comment or the PR description, it must be surfaced to the developer immediately rather than passed over silently.
+
+**Collaborative note:** tools reviewing or generating code should alert the developer every time they encounter non-standard, non-conventional, convoluted, or non-best-practice patterns that are not already clearly justified in comments or PR context, and should recommend alignment — without referencing their nature as automated assistants.
 
 ---
 
@@ -48,10 +50,10 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 
 When working with AI coding assistants:
 
-- **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), and may offer to do so when work reaches a natural stopping point. AI should assume the developer will handle push, merge, and PR steps. AI should also assume the developer will run `npm run precommit` before any push so formatting side effects are visible to the human reviewer. AI must not offer to run `git push`; it may do so only when the developer explicitly asks.
+- **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), and may offer to do so when work reaches a natural stopping point. AI should assume the developer will handle push, merge, and PR steps. `npm run precommit` should be run before every commit so formatting side effects are visible to the human reviewer each time, and the assistant may run that command any time it is deemed useful. AI must not offer to run `git push`; it may do so only when the developer explicitly asks.
 - **Command expectation**: when commit-ready work is complete, the assistant may ask whether the developer wants a commit. Only execute `git add`/`git commit` when explicitly instructed to run them.
 - **Confirmation required**: when providing any git command (including `git add`/`git commit`), the assistant must present the exact command(s) and require an explicit human **Approve/Execute** confirmation step via **command preview card**, as opposed to providing it in plain text.
-- **Local checks are human-run**: the developer runs local checks like `npm run precommit`, `npm run lint`, and `npm test`. The assistant should not run them unless explicitly asked.
+- **Local checks**: local checks like `npm run precommit`, `npm run lint`, and `npm test` should be run intentionally. Assume `npm run precommit` is run before every commit, and the assistant may run `npm run precommit` any time it is deemed useful. Other local checks should not be run unless explicitly asked.
 - **No linting required by the assistant**: do not require the assistant to run `npm run lint` as part of a task; request it only when you explicitly want the assistant to execute a lint pass.
 - **Builds**: do **not** run builds (e.g., `pnpm run build`, `npm run build:*`) by default. In most cases a build is already running; **ask the developer to run the build** and paste results unless the user explicitly asked you to run it or you need it to unblock a diagnosis.
 - **Running the project**: assume the project is already running locally with hot reload. Do **not** start/stop dev servers, Docker Compose stacks, or “run the app to verify” by default. Only run the project when you explicitly need runtime output (logs, HTTP responses, console errors) to confirm behavior or diagnose a problem, or when the user asks you to.
@@ -64,7 +66,7 @@ When working with AI coding assistants:
 1. **Scope** – e.g., “Touch only `frontend/src/components/foo/**`.”
 2. **Goal** – “Eliminate React hook lint warnings; behavior must stay identical.”
 3. **Forbidden actions** – “Never run `terraform apply`, `ssh prod`, or rotate secrets. Do not offer to push; only push if I explicitly instruct it.”
-4. **Required checks** – “Run `npm test` and summarize output; stop on failure.” (If you want the assistant to execute local checks, list the exact commands here. Otherwise assume the developer will run `npm run precommit` before pushing.)
+4. **Required checks** – “Run `npm test` and summarize output; stop on failure.” (If you want the assistant to execute local checks, list the exact commands here. Otherwise assume `npm run precommit` should run before every commit, and the assistant may run it whenever useful.)
 5. **Ambiguity rule** – “If requirements conflict or files are missing, stop and ask instead of guessing.”
 6. **Logging** – “Summarize long-running commands; don’t dump pages of logs unless requested.”
 
