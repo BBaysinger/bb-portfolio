@@ -134,9 +134,13 @@ export function useDragInertia(
 
         return retVal;
       },
-      onPress: () => {
+      onPress: function () {
+        const wasThrowing = dragState.current.isThrowing;
+        this.tween?.kill();
         gsap.set(scroller, { cursor: "grabbing" });
-        snapOffsetRef.current = computeSnapOffset();
+        if (!wasThrowing) {
+          snapOffsetRef.current = computeSnapOffset();
+        }
         handlePress();
       },
       onRelease: () => {
