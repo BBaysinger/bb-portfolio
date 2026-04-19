@@ -20,21 +20,13 @@
     }
   }
 
-  // div { // Previous
-  //   margin-bottom: 10px;
-  //   &:last-of-type {
-  //     margin-bottom: 30px;
-  //   }
-  //   p {
-  //     margin-bottom: 0;
-  //   }
-  // }
-
-  p {
-    // Current
+  div { // Previous
     margin-bottom: 10px;
     &:last-of-type {
       margin-bottom: 30px;
+    }
+    p {
+      margin-bottom: 0;
     }
   }
 
