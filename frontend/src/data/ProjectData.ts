@@ -69,12 +69,68 @@ const isPayloadRestSnapshot = (val: unknown): boolean => {
 
 const isProjectDataSnapshotEnvelope = (
   val: unknown,
-): val is { data: PortfolioProjectData; metadata?: FetchProjectsMetadata } => {
+): val is {
+  data: PortfolioProjectData;
+  metadata?: FetchProjectsMetadata;
+  generatedAt?: string;
+} => {
   return (
     typeof val === "object" &&
     val !== null &&
     "data" in (val as Record<string, unknown>) &&
     typeof (val as Record<string, unknown>).data === "object"
+  );
+};
+
+const appendSnapshotVersionToUrl = (
+  url: string | undefined,
+  version: string | undefined,
+): string | undefined => {
+  if (!url || !version) return url;
+  if (/[?&]v=/.test(url)) return url;
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${encodeURIComponent(version)}`;
+};
+
+const appendSnapshotVersionToProjectData = (
+  data: PortfolioProjectData,
+  version: string | undefined,
+): PortfolioProjectData => {
+  if (!version) return data;
+
+  return Object.fromEntries(
+    Object.entries(data).map(([key, project]) => [
+      key,
+      {
+        ...project,
+        thumbUrl: appendSnapshotVersionToUrl(project.thumbUrl, version),
+        lockedThumbUrl: appendSnapshotVersionToUrl(
+          project.lockedThumbUrl,
+          version,
+        ),
+        brandLogoLightUrl: appendSnapshotVersionToUrl(
+          project.brandLogoLightUrl,
+          version,
+        ),
+        brandLogoDarkUrl: appendSnapshotVersionToUrl(
+          project.brandLogoDarkUrl,
+          version,
+        ),
+        screenshotUrls: project.screenshotUrls
+          ? {
+              laptop: appendSnapshotVersionToUrl(
+                project.screenshotUrls.laptop,
+                version,
+              ),
+              phone: appendSnapshotVersionToUrl(
+                project.screenshotUrls.phone,
+                version,
+              ),
+            }
+          : project.screenshotUrls,
+      },
+    ]),
   );
 };
 
@@ -120,8 +176,12 @@ const loadProjectDataSnapshot = async (
         "Snapshot envelope data must be normalized project record, not Payload REST { docs: [...] } shape.",
       );
     }
+    const versionedData = appendSnapshotVersionToProjectData(
+      parsed.data,
+      parsed.generatedAt,
+    );
     return {
-      data: parsed.data,
+      data: versionedData,
       metadata: {
         containsSanitizedPlaceholders: Boolean(
           parsed.metadata?.containsSanitizedPlaceholders,
