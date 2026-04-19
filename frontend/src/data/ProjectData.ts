@@ -52,12 +52,15 @@ interface FetchProjectsResult {
   metadata: FetchProjectsMetadata;
 }
 
+type ProjectDataSnapshotEnvelope = {
+  data: PortfolioProjectData;
+  metadata?: FetchProjectsMetadata;
+  generatedAt?: string;
+};
+
 type ProjectDataSnapshotFile =
   | PortfolioProjectData
-  | {
-      data: PortfolioProjectData;
-      metadata?: FetchProjectsMetadata;
-    };
+  | ProjectDataSnapshotEnvelope;
 
 const isPayloadRestSnapshot = (val: unknown): boolean => {
   return (
@@ -69,17 +72,19 @@ const isPayloadRestSnapshot = (val: unknown): boolean => {
 
 const isProjectDataSnapshotEnvelope = (
   val: unknown,
-): val is {
-  data: PortfolioProjectData;
-  metadata?: FetchProjectsMetadata;
-  generatedAt?: string;
-} => {
+): val is ProjectDataSnapshotEnvelope => {
   return (
     typeof val === "object" &&
     val !== null &&
     "data" in (val as Record<string, unknown>) &&
     typeof (val as Record<string, unknown>).data === "object"
   );
+};
+
+const isNormalizedProjectDataSnapshot = (
+  val: ProjectDataSnapshotFile,
+): val is PortfolioProjectData => {
+  return !isProjectDataSnapshotEnvelope(val) && !isPayloadRestSnapshot(val);
 };
 
 const appendSnapshotVersionToUrl = (
@@ -194,6 +199,12 @@ const loadProjectDataSnapshot = async (
   if (isPayloadRestSnapshot(parsed)) {
     throw new Error(
       "Snapshot must be normalized project record (or envelope { data, metadata }); raw Payload REST { docs: [...] } is not supported.",
+    );
+  }
+
+  if (!isNormalizedProjectDataSnapshot(parsed)) {
+    throw new Error(
+      "Snapshot must be a normalized project record when not using an envelope.",
     );
   }
 
