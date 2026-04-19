@@ -90,9 +90,9 @@ const defaultFpsCounterEnabled =
 const HERO_REPLAY_ON_RETURN_KEY = "home-hero-replay-on-return";
 
 const MIN_SLINGER_RELEASE_SPEED = 210;
-const MAX_SLINGER_RELEASE_SPEED = 350;
+const MAX_SLINGER_RELEASE_SPEED = 500;
 const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
-const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 2200;
+const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 1792; // My laptop
 
 const heroRuntimeState = {
   hasEnteredHomeInRuntime: false,
