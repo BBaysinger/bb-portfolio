@@ -92,6 +92,8 @@ server {
   # (No ^~ here so the regex rules above can still match.)
   location /_next/ { proxy_pass \$next_upstream_prod_local; }
 
+  location = /api/revalidate/projects { proxy_pass http://127.0.0.1:3000; }
+
   location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
 }
@@ -113,6 +115,8 @@ server {
   location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ { proxy_pass http://127.0.0.1:4001; }
   location ~ ^/_next/static/media/payload- { proxy_pass http://127.0.0.1:4001; }
   location /_next/ { proxy_pass \$next_upstream_dev_local; }
+
+  location = /api/revalidate/projects { proxy_pass http://127.0.0.1:4000; }
 
   location /api/ { proxy_pass http://127.0.0.1:4001; }
   location / { proxy_pass http://127.0.0.1:4000/; }
