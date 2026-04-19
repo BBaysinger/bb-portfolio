@@ -5,8 +5,15 @@ This repo now supports importing authored CV content and project description con
 Default content source:
 
 - `../cms-seedings` relative to this repo root.
-- Override with `PORTFOLIO_CONTENT_DIR=/absolute/path/to/your/private/content`.
-- The same override now also works for `npm run media:seed` at the repo root.
+- Preferred override: set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local`.
+- You can still override in the shell for a one-off run with `PORTFOLIO_CONTENT_DIR=/absolute/path/to/your/private/content`.
+- The same content root is used by the root content workflow helper and by `npm run media:seed`.
+
+Recommended local setup:
+
+```env
+PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie
+```
 
 Expected structure:
 
@@ -103,7 +110,8 @@ Example: `project-descriptions/golden-1-credit-union.html`
 Rules:
 
 - One `.html` file per project slug.
-- The entire file is imported into the project's `desc` field as a single HTML block.
+- Each top-level HTML node in the file is imported as one item in the project's `desc` array.
+- Example: two sibling `<p>` tags become two `desc` entries.
 - The importer fails if a file does not match an existing project slug.
 
 ## Commands
@@ -119,33 +127,41 @@ From `backend/`:
 
 From repo root:
 
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> npm run content:import:local:content-dir`
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
+- `npm run content:import:local:content-dir`
+- `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
 - `npm run content:pull:prod:project-descriptions`
 - `npm run content:pull:prod:project-descriptions:dry`
 - `npm run content:pull:prod:cv-experiences`
 - `npm run content:pull:prod:cv-experiences:dry`
 - `npm run content:pull:prod:all`
 - `npm run content:pull:prod:all:dry`
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> npm run content:pull:prod:content-dir`
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> npm run content:pull:prod:content-dir:dry`
+- `npm run content:pull:prod:content-dir`
+- `npm run content:pull:prod:content-dir:dry`
+
+These root commands now route through `scripts/content-workflow.sh`, which centralizes content-root resolution and validation.
 
 Alternate directory examples:
 
 - `PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed`
-- `PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:cv-experiences`
-- `PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:project-descriptions`
 - `npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a`
 - `npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a`
 - `npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a`
 
+If you switch variants often, either:
+
+- change `PORTFOLIO_CONTENT_DIR` in `.env.local`, or
+- set it inline for a single command.
+
 Path-driven alias:
 
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie npm run content:import:local:content-dir`
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie npm run content:pull:prod:content-dir`
-- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie npm run content:pull:prod:content-dir:dry`
-- These use `PORTFOLIO_CONTENT_DIR` as the single target-root variable for media syncs, local seeding, and backend imports/exports.
+- `.env.local`:
+  `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie`
+- `npm run content:import:local:content-dir`
+- `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
+- `npm run content:pull:prod:content-dir`
+- `npm run content:pull:prod:content-dir:dry`
+- These commands use the content root from `.env.local` by default.
+- For a one-off run, you can still prefix a command with `PORTFOLIO_CONTENT_DIR=...`.
 - The dev import alias also requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
 
 Notes:

@@ -9,6 +9,8 @@ const resolveFromBase = (baseDir: string, targetPath: string) =>
 export const resolvePortfolioContentDirPath = (scriptDir: string) => {
   const repoRoot = path.resolve(scriptDir, '../..')
   const configuredDir = process.env.PORTFOLIO_CONTENT_DIR?.trim()
+
+  // PORTFOLIO_CONTENT_DIR relative paths are anchored to repo root for consistency.
   return configuredDir
     ? resolveFromBase(repoRoot, configuredDir)
     : path.resolve(repoRoot, '../cms-seedings')

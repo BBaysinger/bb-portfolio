@@ -58,6 +58,8 @@ PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed
 npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a
 ```
 
+If you use the same content root regularly, prefer setting `PORTFOLIO_CONTENT_DIR` once in repo `.env.local` instead of prefixing every command.
+
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
 ### Bootstrap vs migration vs recovery (what to run when)
@@ -124,12 +126,14 @@ npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-seedings/va
 npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a
 ```
 
-For backend-authored content pulls and imports, use `PORTFOLIO_CONTENT_DIR`:
+For backend-authored content pulls and imports, the root content workflow commands read `PORTFOLIO_CONTENT_DIR` from your shell or repo `.env.local`/`.env`:
 
 ```
-PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:cv-experiences
-PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:project-descriptions
+npm run content:pull:prod:content-dir
+npm run content:import:local:content-dir
 ```
+
+Use the inline `PORTFOLIO_CONTENT_DIR=...` prefix only when you want to temporarily override your usual `.env.local` content root.
 
 ## What you likely want
 
