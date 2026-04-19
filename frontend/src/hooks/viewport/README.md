@@ -8,6 +8,8 @@ Provide stable, mobile-friendly viewport measurements for layout code that canno
 
 ## Exports
 
+- `useViewportSize`
+  - returns `{ width, height }` for the current viewport and refreshes after resize/orientation/settle passes
 - `useStableViewportHeight`
   - returns a stable viewport height in CSS pixels
 - `useStableViewportHeightVar`

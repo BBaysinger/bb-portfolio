@@ -34,6 +34,7 @@ import useTimeOfDay from "@/hooks/useTimeOfDay";
 import useStableViewportHeightVar, {
   STABLE_VIEWPORT_HEIGHT_MODES,
 } from "@/hooks/viewport/useStableViewportHeightVar";
+import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
 
@@ -88,8 +89,32 @@ const defaultFpsCounterEnabled =
   envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
 const HERO_REPLAY_ON_RETURN_KEY = "home-hero-replay-on-return";
 
+const MIN_SLINGER_RELEASE_SPEED = 210;
+const MAX_SLINGER_RELEASE_SPEED = 350;
+const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
+const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 2200;
+
 const heroRuntimeState = {
   hasEnteredHomeInRuntime: false,
+};
+
+const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
+  if (viewportWidth === null) return MAX_SLINGER_RELEASE_SPEED;
+  if (viewportWidth <= MIN_SLINGER_RELEASE_SPEED_VIEWPORT) {
+    return MIN_SLINGER_RELEASE_SPEED;
+  }
+  if (viewportWidth >= MAX_SLINGER_RELEASE_SPEED_VIEWPORT) {
+    return MAX_SLINGER_RELEASE_SPEED;
+  }
+
+  const progress =
+    (viewportWidth - MIN_SLINGER_RELEASE_SPEED_VIEWPORT) /
+    (MAX_SLINGER_RELEASE_SPEED_VIEWPORT - MIN_SLINGER_RELEASE_SPEED_VIEWPORT);
+
+  return Math.round(
+    MIN_SLINGER_RELEASE_SPEED +
+      (MAX_SLINGER_RELEASE_SPEED - MIN_SLINGER_RELEASE_SPEED) * progress,
+  );
 };
 
 const shouldReplayHeroIntroOnEntry = () => {
@@ -153,8 +178,22 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
   const [useSlingerTracking, setUseSlingerTracking] = useState(false);
+  const { width: viewportWidth } = useViewportSize();
   const showFpsCounter =
     fpsOverride !== null ? fpsOverride : defaultFpsCounterEnabled;
+  const maxSlingerReleaseSpeed = useMemo(
+    () => getMaxSlingerReleaseSpeed(viewportWidth),
+    [viewportWidth],
+  );
+
+  // useEffect(() => {
+  //   if (viewportWidth === null) return;
+
+  //   console.log("maxSlingerReleaseSpeed", {
+  //     viewportWidth,
+  //     maxSlingerReleaseSpeed,
+  //   });
+  // }, [maxSlingerReleaseSpeed, viewportWidth]);
 
   const updateHasDragged = useCallback((value: boolean) => {
     try {
@@ -512,6 +551,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
+            maxReleaseSpeed={maxSlingerReleaseSpeed}
           >
             <>
               {/* These get nested for offset/position once projected */}

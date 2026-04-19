@@ -70,6 +70,7 @@ type SlingerBoxProps = {
   children?: React.ReactNode;
   pointerGravity?: number;
   ballSize?: number;
+  maxReleaseSpeed?: number;
 };
 
 export interface SlingerBoxHandle {
@@ -107,6 +108,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       children,
       pointerGravity = 1,
       ballSize = 50,
+      maxReleaseSpeed = 350,
     },
     ref,
   ) => {
@@ -124,7 +126,6 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const minimumWallCollisionNotifySpeed = 2.5;
     const postReleaseGravityDelayMs = 500;
     const minimumDragReleaseSpeed = 1.2;
-    const maximumReleaseSpeed = 350;
     const highSpeedDampingFactor = 0.974;
     const dampingEaseSpeedRange = 10;
     const stopSpeedThreshold = 0.02;
@@ -636,11 +637,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         eventTime: number,
         nativeEvent: MouseEvent | TouchEvent,
       ) => {
-        const cappedVelocity = clampVectorMagnitude(
-          vx,
-          vy,
-          maximumReleaseSpeed,
-        );
+        const cappedVelocity = clampVectorMagnitude(vx, vy, maxReleaseSpeed);
 
         obj.vx = cappedVelocity.vx;
         obj.vy = cappedVelocity.vy;
@@ -653,7 +650,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         forceUpdate();
         onDragEnd?.(obj.vx, obj.vy, nativeEvent);
       },
-      [maximumReleaseSpeed, onDragEnd],
+      [maxReleaseSpeed, onDragEnd],
     );
 
     /** Handle dragging movement */
