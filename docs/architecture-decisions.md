@@ -924,20 +924,20 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
 
 ## 2025-09-28 – Media Seeding and Export Pipeline
 
-- **Decision:** Standardize a local media workflow using an external `cms-seedings` folder and an export script that converts PSDs to WebP for import into the app.
+- **Decision:** Standardize a local media workflow using an external `cms-media-seedings` folder and an export script that converts PSDs to WebP for import into the app.
 - **Details:**
   - External working assets (PSDs) live outside the repo at:
     - `.../Portfolio Site/_work/project-screenshots`
     - `.../Portfolio Site/_work/project-thumbnails`
-  - Script `cms-seedings/export-media.sh` converts PSDs → WebP and outputs to:
-    - `cms-seedings/project-screenshots/*.webp`
-    - `cms-seedings/project-thumbnails/*.webp`
+  - Script `repo/scripts/export-media.sh` converts PSDs → WebP and outputs to:
+    - `cms-media-seedings/project-screenshots/*.webp`
+    - `cms-media-seedings/project-thumbnails/*.webp`
   - Script is location-independent and reliable:
-    - Reads from parent-level `_work` (relative to `cms-seedings`)
-    - Writes into the `cms-seedings` folder
+    - Reads from parent-level `_work` (relative to `cms-media-seedings`)
+    - Writes into the `cms-media-seedings` folder
     - Supports ImageMagick v7 (`magick mogrify`) and v6 (`mogrify`)
     - Case-insensitive PSD matching (`*.psd` / `*.PSD`)
-  - Import for local dev via `npm run media:seed` (copies from `../cms-seedings` into `backend/media/*`).
+  - Import for local dev via `npm run media:seed` (copies from `../cms-media-seedings` into `backend/media/*`).
 - **Reasoning:** Keep heavy/layered source files (PSDs) out of the repo, enable reproducible hydration for local dev, and standardize on WebP outputs for performance.
 - **Alternatives considered:**
   - Commit images to repo → rejected due to repo bloat and history churn.

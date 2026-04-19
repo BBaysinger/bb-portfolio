@@ -36,7 +36,7 @@ CV experience seeding wrappers:
 External content import wrappers:
 
 - Use the same `.github-secrets.private*.json5` loading pattern as the CV seed wrappers.
-- Default to sibling private content repo `../cms-seedings`; prefer repo `.env.local` for `PORTFOLIO_CONTENT_DIR`, with shell override support for one-off runs.
+- Default to sibling private content repo `../cms-content-variants/_general-purpose`; prefer repo `.env.local` for `PORTFOLIO_CONTENT_DIR`, with shell override support for one-off runs.
 - Keep explicit write guards and typed confirmations (`import-cv-dev`, `import-cv-prod`, `import-projects-dev`, `import-projects-prod`).
 
 Prod to dev sync:

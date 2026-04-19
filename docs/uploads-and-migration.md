@@ -45,7 +45,7 @@ Note on `:dry` scripts: `migrate:all:<env>:dry` and `media:upload:<env>:dry` now
 - Canonical upload root for local dev: `backend/media/`
   - Subfolders: `project-brand-logos/`, `cv-experience-logos/`, `project-screenshots/`, `project-thumbnails/`
 - These folders are ignored by git (we keep only `.gitkeep` so directories exist after clone).
-- To import assets from your external `../cms-seedings` folder (or `../cms-seedings/images/*`) into `backend/media/*`, use:
+- To import assets from your external `../cms-media-seedings` folder (or `../cms-media-seedings/images/*`) into `backend/media/*`, use:
 
 ```
 npm run media:seed
@@ -54,8 +54,8 @@ npm run media:seed
 You can also target a different content root for one run:
 
 ```
-PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed
-npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a
+PORTFOLIO_CONTENT_DIR=../cms-media-seedings npm run media:seed
+npm run media:seed -- --seedings-dir ../cms-media-seedings
 ```
 
 If you use the same content root regularly, prefer setting `PORTFOLIO_CONTENT_DIR` once in repo `.env.local` instead of prefixing every command.
@@ -100,13 +100,13 @@ Advanced / recovery scripts (manual, use with care):
 If you keep non-checked-in working assets outside the repo (recommended), place them under a sibling directory to this repo named `seedings`. Supported layouts include either flat or under an `images/` folder. For example:
 
 ```
-../cms-seedings/
+../cms-media-seedings/
   project-brand-logos/
   cv-experience-logos/
   project-screenshots/
   project-thumbnails/
 # or
-../cms-seedings/images/
+../cms-media-seedings/images/
   project-brand-logos/
   cv-experience-logos/
   project-screenshots/
@@ -122,8 +122,8 @@ npm run media:seed
 To pull production media into a non-default seedings directory, use the existing `--seedings-dir` flag:
 
 ```
-npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a
-npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a
+npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-media-seedings
+npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-media-seedings
 ```
 
 For backend-authored content pulls and imports, the root content workflow commands read `PORTFOLIO_CONTENT_DIR` from your shell or repo `.env.local`/`.env`:
@@ -133,7 +133,7 @@ npm run content:pull:prod:content-dir
 npm run content:import:local:content-dir
 ```
 
-Use the inline `PORTFOLIO_CONTENT_DIR=...` prefix only when you want to temporarily override your usual `.env.local` content root.
+Use the inline `PORTFOLIO_CONTENT_DIR=../cms-content-variants/<target>` prefix only when you want to temporarily override your usual `.env.local` content root.
 
 ## What you likely want
 

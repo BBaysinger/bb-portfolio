@@ -13,7 +13,7 @@ export const resolvePortfolioContentDirPath = (scriptDir: string) => {
   // PORTFOLIO_CONTENT_DIR relative paths are anchored to repo root for consistency.
   return configuredDir
     ? resolveFromBase(repoRoot, configuredDir)
-    : path.resolve(repoRoot, '../cms-seedings')
+    : path.resolve(repoRoot, '../cms-content-variants/_general-purpose')
 }
 
 export const resolvePortfolioContentDir = (scriptDir: string) => {

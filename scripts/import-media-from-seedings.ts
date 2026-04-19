@@ -1,5 +1,5 @@
 /**
- * Import media from an external sibling folder (../cms-seedings)
+ * Import media from an external sibling folder (../cms-media-seedings)
  * into backend/media/* for local development.
  *
  * This does NOT commit any media. It only copies files into the ignored
@@ -16,8 +16,8 @@
  *
  * Usage:
  *   npm run media:seed
- *   npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a
- *   PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed
+ *   npm run media:seed -- --seedings-dir ../cms-media-seedings
+ *   PORTFOLIO_CONTENT_DIR=../cms-media-seedings npm run media:seed
  */
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
@@ -51,7 +51,7 @@ function resolveSeedingsRoot(root: string, overrideDir?: string) {
     overrideDir?.trim() || process.env.PORTFOLIO_CONTENT_DIR?.trim();
 
   if (!configuredDir) {
-    return path.join(root, "..", "cms-seedings");
+    return path.join(root, "..", "cms-media-seedings");
   }
 
   return path.isAbsolute(configuredDir)
@@ -113,7 +113,7 @@ async function main() {
   }
   if (!seedBase) {
     console.error(
-      "No seed folder found. Create ../cms-seedings next to the repo or pass --seedings-dir / PORTFOLIO_CONTENT_DIR.",
+      "No seed folder found. Create ../cms-media-seedings next to the repo or pass --seedings-dir / PORTFOLIO_CONTENT_DIR.",
     );
     process.exit(2);
   }

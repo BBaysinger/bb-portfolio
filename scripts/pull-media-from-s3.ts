@@ -3,7 +3,7 @@
  * Pull media files from an S3 media bucket into the external sibling seedings folder.
  *
  * Default destination:
- *   ../cms-seedings/<collection>/
+ *   ../cms-media-seedings/<collection>/
  *
  * Supported collections:
  * - project-brand-logos
@@ -134,7 +134,7 @@ Options:
   --profile <name>       AWS CLI profile to use
   --region <name>        AWS region
   --tfvars <path>        Terraform tfvars path
-  --seedings-dir <path>  Override default ../cms-seedings destination
+  --seedings-dir <path>  Override default ../cms-media-seedings destination
   --help, -h             Show help
 
 Examples:
@@ -169,7 +169,7 @@ function resolveSeedingsRoot(seedingsDir?: string): string {
       : path.resolve(repoRoot, seedingsDir);
   }
 
-  return path.resolve(repoRoot, "../cms-seedings");
+  return path.resolve(repoRoot, "../cms-media-seedings");
 }
 
 function checkPrerequisites(destinationDir: string) {

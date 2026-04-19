@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Export PSDs from ../_work/{project-screenshots,project-thumbnails}
-# into WebP files written under ../cms-seedings/{project-screenshots,project-thumbnails}.
+# into WebP files written under ../cms-media-seedings/{project-screenshots,project-thumbnails}.
 # This script is location-independent and resolves all paths relative to the repo root.
 
 # Resolve directories
@@ -17,11 +17,11 @@ if [[ -z "$WORK_BASE" || ! -d "$WORK_BASE" ]]; then
   exit 2
 fi
 
-# Output base: sibling to repo -> ../cms-seedings (absolute)
-SEED_BASE="$(cd "${REPO_DIR}/../cms-seedings" 2>/dev/null && pwd || true)"
+# Output base: sibling to repo -> ../cms-media-seedings (absolute)
+SEED_BASE="$(cd "${REPO_DIR}/../cms-media-seedings" 2>/dev/null && pwd || true)"
 if [[ -z "$SEED_BASE" ]]; then
-  # If cms-seedings doesn't exist yet, create it
-  SEED_BASE="${REPO_DIR}/../cms-seedings"
+  # If cms-media-seedings doesn't exist yet, create it
+  SEED_BASE="${REPO_DIR}/../cms-media-seedings"
   mkdir -p "$SEED_BASE"
   SEED_BASE="$(cd "$SEED_BASE" && pwd)"
 fi

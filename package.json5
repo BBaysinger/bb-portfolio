@@ -236,7 +236,7 @@
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
     // 🪄 Import target content into dev. Requires ALLOW_DEV_WRITE=true.
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
-    // 🪄 Sync production CV logos, then export authored CV experience content into ../cms-seedings/cv-experiences
+    // 🪄 Sync production CV logos, then export authored CV experience content into the configured cms-content-variants root
     "content:pull:prod:cv-experiences": "npm run media:pull:prod:cv-experience-logos && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod",
     // 🧪 Dry run: preview CV logo sync and CV content export without writing files
     "content:pull:prod:cv-experiences:dry": "npm run media:pull:prod:cv-experience-logos:dry && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod --dry-run",
@@ -244,7 +244,7 @@
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     // 🧪 Dry-run variant of content:pull:prod:content-dir.
     "content:pull:prod:content-dir:dry": "bash ./scripts/content-workflow.sh pull-prod-dry",
-    // 🪄 Export authored production project descriptions into ../cms-seedings/project-descriptions
+    // 🪄 Export authored production project descriptions into the configured cms-content-variants root
     "content:pull:prod:project-descriptions": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod",
     // 🧪 Dry run: show which production project descriptions would be exported
     "content:pull:prod:project-descriptions:dry": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod --dry-run",
@@ -260,7 +260,7 @@
     "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
     // 🧪 Dry run: preview production project brand logo downloads without writing files
     "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
-    // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
+    // 🪄 Import images from ../cms-media-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
     //
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
