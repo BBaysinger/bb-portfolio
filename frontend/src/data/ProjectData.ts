@@ -548,18 +548,38 @@ async function fetchPortfolioProjects(opts?: {
     let brandLogoLightUrl: string | undefined;
     let brandLogoDarkUrl: string | undefined;
     const b: BrandRel | undefined = doc.brandId;
+    const appendAssetVersion = (
+      url: string | undefined,
+      updatedAt: string | undefined,
+    ): string | undefined => {
+      if (!url) return undefined;
+      if (!updatedAt) return url;
+
+      const version = Date.parse(updatedAt);
+      if (!Number.isFinite(version)) return url;
+
+      const separator = url.includes("?") ? "&" : "?";
+      return `${url}${separator}v=${version}`;
+    };
+
     // Helper to extract upload URL from a value that could be string | object
     const extractUploadUrl = (val: unknown): string | undefined => {
       if (!val) return undefined;
       if (typeof val === "string") return undefined; // only an ID; no URL at this depth
       if (Array.isArray(val)) {
         const first = val[0] as Record<string, unknown> | undefined;
-        return first && typeof first === "object"
-          ? (first.url as string | undefined)
-          : undefined;
+        if (!first || typeof first !== "object") return undefined;
+        return appendAssetVersion(
+          first.url as string | undefined,
+          first.updatedAt as string | undefined,
+        );
       }
       if (typeof val === "object") {
-        return (val as Record<string, unknown>).url as string | undefined;
+        const record = val as Record<string, unknown>;
+        return appendAssetVersion(
+          record.url as string | undefined,
+          record.updatedAt as string | undefined,
+        );
       }
       return undefined;
     };
@@ -635,7 +655,10 @@ async function fetchPortfolioProjects(opts?: {
         lockedThumbDoc.sizes?.thumbnail?.url ||
         lockedThumbDoc.sizes?.mobile?.url ||
         undefined;
-      lockedThumbUrl = baseLockedUrl || undefined;
+      lockedThumbUrl = appendAssetVersion(
+        baseLockedUrl || undefined,
+        lockedThumbDoc.updatedAt,
+      );
       lockedThumbAlt = lockedThumbDoc.alt || undefined;
     }
 
@@ -731,10 +754,9 @@ async function fetchPortfolioProjects(opts?: {
     let thumbAlt: string | undefined;
     const thumbDoc = firstUploadDoc(doc.thumbnail);
     if (thumbDoc) {
-      // Use canonical URL directly; rely on standard cache headers instead of version query strings.
       const baseUrl =
         thumbDoc.url || thumbDoc.sizes?.thumbnail?.url || undefined;
-      thumbUrl = baseUrl || undefined;
+      thumbUrl = appendAssetVersion(baseUrl || undefined, thumbDoc.updatedAt);
       thumbAlt = thumbDoc.alt || undefined;
     }
 
@@ -752,8 +774,8 @@ async function fetchPortfolioProjects(opts?: {
       const base = entry.url;
       if (!base) continue;
 
-      // Use raw URL without version query params; file changes will naturally invalidate caches when URL changes.
-      const url = base;
+      const url = appendAssetVersion(base, entry.updatedAt);
+      if (!url) continue;
       if (entry.screenType === "laptop" && !laptopUrl) {
         laptopUrl = url;
       } else if (entry.screenType === "phone" && !phoneUrl) {
