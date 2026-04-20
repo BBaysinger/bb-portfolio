@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 
 /**
  * Home page route (`/`).
@@ -19,6 +20,9 @@ import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
 import { getServerHeroBranding } from "@/data/HeroBranding";
 import { ProjectDataStore } from "@/data/ProjectData";
+import { buildPageMetadata } from "@/app/siteMetadata";
+
+export const metadata: Metadata = buildPageMetadata({ path: "/" });
 
 /**
  * Server component for the home page.

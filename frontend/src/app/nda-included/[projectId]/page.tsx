@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { buildPageMetadata } from "@/app/siteMetadata";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 import NdaIncludedProjectClientBoundary from "./NdaIncludedProjectClientBoundary";
@@ -27,10 +28,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ projectId: string }>;
 }): Promise<Metadata> {
-  const { projectId: _projectId } = await params;
+  const { projectId } = await params;
   const robots = { index: false, follow: false };
-  void _projectId;
-  return { robots, title: "Project" };
+
+  return buildPageMetadata({
+    title: "Project",
+    path: `/nda-included/${encodeURIComponent(projectId)}/`,
+    robots,
+  });
 }
 
 export default async function NdaIncludedProjectPage({

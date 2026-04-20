@@ -1,10 +1,18 @@
+import type { Metadata } from "next";
 import type { CvExperienceItemData } from "@/components/cv/ExperienceItem";
+import { buildPageMetadata } from "@/app/siteMetadata";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 import CvPageClient from "./CvPageClient";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
+export const metadata: Metadata = buildPageMetadata({
+  title: "CV",
+  description:
+    "Curriculum vitae for Bradley Baysinger, covering frontend engineering, UI systems, production delivery, and recent independent study work.",
+  path: "/cv",
+});
 
 type CvExperienceResponse = {
   success?: boolean;

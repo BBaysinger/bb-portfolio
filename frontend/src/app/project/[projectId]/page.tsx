@@ -14,6 +14,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { buildPageMetadata } from "@/app/siteMetadata";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 import ProjectClientBoundary from "./ProjectClientBoundary";
@@ -40,8 +41,12 @@ export async function generateMetadata({
 }: {
   params: Promise<{ projectId: string }>;
 }): Promise<Metadata> {
-  void (await params);
-  return { title: "Project" };
+  const { projectId } = await params;
+
+  return buildPageMetadata({
+    title: "Project",
+    path: `/project/${encodeURIComponent(projectId)}/`,
+  });
 }
 
 /**
