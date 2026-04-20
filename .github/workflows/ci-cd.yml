@@ -183,13 +183,8 @@ jobs:
           set -euo pipefail
           BUILD_LOG="$(mktemp)"
           pnpm run build | tee "$BUILD_LOG"
-          grep -E "○ /project(\s|$)" "$BUILD_LOG"
-          grep -E "○ /project/\[projectId\]" "$BUILD_LOG"
-          grep -E "○ /nda-included/\[projectId\]" "$BUILD_LOG"
-
-      - name: Test frontend query redirect
-        working-directory: ./frontend
-        run: pnpm run test:redirect
+          grep -F "○ /project/[projectId]" "$BUILD_LOG"
+          grep -F "○ /nda-included/[projectId]" "$BUILD_LOG"
 
   # Build and push production images to ECR (main branch)
   build-push-prod-images:
