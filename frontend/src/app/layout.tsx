@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import clsx from "clsx";
 import { ReactNode, Suspense } from "react";
 
@@ -24,6 +25,66 @@ import styles from "./layout.module.scss";
 import { AppProviders } from "./providers/AppProviders";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
+
+const defaultSiteOrigin = "https://bbaysinger.io";
+
+const metadataBase = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SITE_ORIGIN ?? defaultSiteOrigin);
+  } catch {
+    return new URL(defaultSiteOrigin);
+  }
+})();
+
+const siteDescription =
+  "Interactive frontend systems portfolio for Bradley Baysinger, featuring React, TypeScript, Next.js, animation engineering, custom rendering systems, and production-grade AWS infrastructure.";
+
+const siteKeywords = [
+  "Bradley Baysinger",
+  "Bradley Baysinger portfolio",
+  "frontend developer portfolio",
+  "frontend engineer portfolio",
+  "interactive UI engineer",
+  "creative developer portfolio",
+  "React TypeScript portfolio",
+  "Next.js portfolio",
+  "web animation engineer",
+  "UI animation systems",
+  "parallax carousel",
+  "sprite rendering",
+  "custom rendering systems",
+  "Payload CMS portfolio",
+  "AWS Terraform portfolio",
+  "NDA-safe case studies",
+  "frontend architecture",
+  "portfolio case studies",
+  "CV and portfolio site",
+] as const;
+
+export const metadata: Metadata = {
+  metadataBase,
+  title: {
+    default: "Bradley Baysinger | Interactive Frontend Systems Portfolio",
+    template: "%s | Bradley Baysinger",
+  },
+  description: siteDescription,
+  keywords: [...siteKeywords],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Bradley Baysinger Portfolio",
+    title: "Bradley Baysinger | Interactive Frontend Systems Portfolio",
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bradley Baysinger | Interactive Frontend Systems Portfolio",
+    description: siteDescription,
+  },
+};
 
 /**
  * Root layout component.
