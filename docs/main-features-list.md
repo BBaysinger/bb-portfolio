@@ -20,6 +20,7 @@ Working list of notable features
 - Page slide-out nav
 - Transform-positioned footer
 - Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`
+- Query-string sprite/sequencer renderer overrides + DPR caps for live performance comparison
 - In-view slide-in animation system (IntersectionObserver)
 - FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
 
@@ -34,9 +35,12 @@ Working list of notable features
 ### Rendering / Routing
 
 - SSR/Next portfolio projects list
-- SSG/Next dynamic routing projects view
+- SSG/ISR (24h) dynamic project routes
+- SSG/ISR (24h) CV route
+- On-demand frontend revalidation endpoint for project/CV/hero/media updates
 - NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
 - Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)
+- Post-login redirect back to originally requested NDA content
 
 ### CMS / Data Modeling
 
@@ -45,7 +49,9 @@ Working list of notable features
 - Automatic slug generation and sortable index for projects
 - Rich project metadata (brand, tags, role, year, awards, urls)
 - Confidential/NDA project filtering
-- NDA-aware content sanitization for anonymous users
+- NDA-aware content sanitization + server-driven field gating for anonymous users
+- CMS-managed hero branding/title variants with active preset selection
+- CMS-managed CV experience sections with drag/drop ordering, logo uploads, enabled bullet points, and separate independent R&D / contracting content
 - Image collections for screenshots/thumbnails/brand logos
 - Role-based access control for admin-only mutations
 
@@ -64,7 +70,13 @@ Working list of notable features
 
 - Strict env_profile-based config validation (fail-fast on missing)
 - Locked-down CSRF/CORS allowlists per environment
+- Username-or-email authentication flow
+- Account lockout after repeated failed logins
+- Admin-readable auth audit trail (login events with IP/user-agent/referrer metadata)
 - Contact API via AWS SES with HTML/Text email and reply-to
+- Contact API rate limiting
+- CMS-backed public contact-info API with server-side obfuscation (email + optional phone)
+- GraphQL API + GraphQL Playground
 - `/.well-known/security.txt` endpoint
 - Health-check endpoint(s) for uptime/deploy validation
 - Private project asset route that requires auth and streams from S3 (supports 304 + private caching)
@@ -82,6 +94,7 @@ Working list of notable features
 
 - JSON dumps for seed data and repeatable imports
 - Automated database backup exports (with dated folders)
+- Private content-root workflow for CV experiences and project descriptions (YAML/HTML import/export with explicit order control)
 - NDA media backfill scripts (Payload + Mongo variants)
 
 ## Platform / Deployment & Monorepo Tooling
@@ -106,6 +119,9 @@ Working list of notable features
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
+- Hermetic project-data snapshot pipeline for build-time/static exports
+- Guarded dependency update workflow (`update:deps`) with blocked majors, lockstep upgrade families, and manifest/lockfile refresh
+- Production-like local perf testing with standalone server builds
 - JSON5 package sync system (commented package.json5 → generated package.json for tooling compatibility)
 
 ## README Priorities
