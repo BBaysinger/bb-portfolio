@@ -8,7 +8,7 @@ It is intentionally brief for now and can be expanded later into a fuller pass.
 
 ### Fluxel animation work
 
-- The root README already notes a separate repo for the sprite/image processing work:
+- The root README now links the separate repo for the sprite/image processing work:
   - `github.com/BBaysinger/fluxel-animations`
 - This is the clearest current example of something that has already gone out of the main repo.
 

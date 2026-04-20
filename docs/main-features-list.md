@@ -65,7 +65,7 @@ Working list of notable features
 
 ### Media / Storage Pipeline
 
-- Sprite sheet image processing scripts
+- Sprite sheet image processing scripts (exporter work extracted to [BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations))
 - Sharp-backed image processing and upload size limits
 - Media seeding/import pipeline from external seed folders (`media:seed`)
 - Image export pipeline to external seed folders/WebP outputs (`media:export`)
