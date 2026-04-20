@@ -6,12 +6,14 @@ Working list of notable features
 
 - Simulated depth magnetic “fluxel” (fluxing pixel) grid with pointer influence
 - Fluxel grid projectile collision response
+- Fluxel background animations authored in Photoshop and Adobe Animate, then exported as sprite sheets
 - Parallax project carousel
 - Layered parallax carousel engine (master/slave synchronization)
 - Browser-native carousel swipe/gestures (horizontal scrolling)
 - Carousel navigation persists to browser history (Back/Forward) + shortest-path bidirectional wrap
 - Device mockup overlays with tilt + stabilization states
 - Route-driven carousel navigation with deep linking
+- Custom project graphics for each portfolio entry, developed through heavy AI-assisted iteration, Photoshop compositing/editing, and art direction
 - Logo/info swapper animations tied to active slide
 - Typewriter-style hero copy rotator (`TypewriterEffect`; shuffled paragraph typing, pause-aware)
 - Scroll-aware nav link highlighting (active section)
