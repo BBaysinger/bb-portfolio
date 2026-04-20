@@ -83,7 +83,7 @@ Working list of notable features and technical systems
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
 - Media migration/verification scripts (`migrate-to-s3`, update media URLs, rebuild records)
-- Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)
+- Revived and redeployed a large set of legacy projects via S3-hosted project bundles (public + private)
   - Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
 
 ### API / Security
