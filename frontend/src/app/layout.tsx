@@ -36,52 +36,83 @@ const metadataBase = (() => {
   }
 })();
 
+const siteTitle = "Bradley Baysinger | Frontend / UI Developer Portfolio";
+
 const siteDescription =
-  "Interactive frontend systems portfolio for Bradley Baysinger, featuring React, TypeScript, Next.js, animation engineering, custom rendering systems, and production-grade AWS infrastructure.";
+  "Portfolio of Bradley Baysinger, a frontend and UI developer specializing in JavaScript, React, TypeScript, Next.js, interaction systems, animation engineering, and performance-focused web interfaces.";
 
 const siteKeywords = [
   "Bradley Baysinger",
   "Bradley Baysinger portfolio",
   "frontend developer portfolio",
   "frontend engineer portfolio",
+  "UI developer portfolio",
+  "JavaScript developer portfolio",
+  "TypeScript developer portfolio",
+  "React developer portfolio",
+  "Next.js developer portfolio",
   "interactive UI engineer",
+  "interactive frontend developer",
   "creative developer portfolio",
-  "React TypeScript portfolio",
-  "Next.js portfolio",
+  "frontend animation developer",
   "web animation engineer",
-  "UI animation systems",
-  "parallax carousel",
-  "sprite rendering",
-  "custom rendering systems",
-  "Payload CMS portfolio",
-  "AWS Terraform portfolio",
-  "NDA-safe case studies",
+  "animation systems engineer",
+  "interaction design developer",
+  "product UI developer",
+  "design systems frontend",
+  "accessible frontend development",
+  "responsive frontend development",
+  "performance-focused frontend",
+  "production frontend architecture",
   "frontend architecture",
+  "component architecture",
+  "custom rendering systems",
+  "sprite rendering",
+  "parallax carousel",
+  "scroll-driven interactions",
+  "motion-driven interfaces",
+  "immersive web experiences",
   "portfolio case studies",
+  "NDA-safe case studies",
+  "Payload CMS portfolio",
+  "AWS infrastructure frontend",
+  "AWS Terraform portfolio",
+  "freelance frontend developer",
+  "contract frontend developer",
+  "frontend execution support",
+  "production support frontend",
   "CV and portfolio site",
 ] as const;
 
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "Bradley Baysinger | Interactive Frontend Systems Portfolio",
+    default: siteTitle,
     template: "%s | Bradley Baysinger",
   },
   description: siteDescription,
   keywords: [...siteKeywords],
+  applicationName: "Bradley Baysinger Portfolio",
+  authors: [{ name: "Bradley Baysinger", url: defaultSiteOrigin }],
+  creator: "Bradley Baysinger",
+  publisher: "Bradley Baysinger",
   alternates: {
     canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   openGraph: {
     type: "website",
     url: "/",
     siteName: "Bradley Baysinger Portfolio",
-    title: "Bradley Baysinger | Interactive Frontend Systems Portfolio",
+    title: siteTitle,
     description: siteDescription,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bradley Baysinger | Interactive Frontend Systems Portfolio",
+    title: siteTitle,
     description: siteDescription,
   },
 };
