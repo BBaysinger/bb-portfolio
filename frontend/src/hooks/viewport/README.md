@@ -33,6 +33,8 @@ For now, the JS-managed path is only intended for Firefox and Edge when consumer
 
 ## Current Strategy
 
+Browser-specific gating for the JS-managed stable-height path lives in [stableViewportHeightPolicy.ts](stableViewportHeightPolicy.ts), keeping detection/policy separate from the measurement hook itself.
+
 `useStableViewportHeight` keeps a committed stable height and only updates it when the observed viewport change looks trustworthy.
 
 Signals we currently treat as trustworthy enough to commit quickly:

@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { detectOs, isEdge, isFirefox } from "@/utils/browser";
 import { getViewportHeightPx } from "@/utils/viewport";
 
 import { useGlobalWindowMonitor } from "../useLayoutMonitor";
 
+import { isManagedStableViewportHeightRequiredForCurrentBrowser } from "./stableViewportHeightPolicy";
 import { useViewportSettle } from "./useViewportSettle";
 
 const WINDOW_MONITOR_DEBOUNCE = {
@@ -75,40 +75,10 @@ export const stableViewportHeightConfig: {
   defaultMode: STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL,
 };
 
-const STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS: ReadonlyArray<{
-  id: string;
-  matches: () => boolean;
-}> = [
-  {
-    id: "firefox-ios",
-    matches: () => detectOs() === "ios" && isFirefox(),
-  },
-  {
-    id: "firefox-android",
-    matches: () => detectOs() === "android" && isFirefox(),
-  },
-  {
-    id: "edge-ios",
-    matches: () => detectOs() === "ios" && isEdge(),
-  },
-  {
-    id: "edge-android",
-    matches: () => detectOs() === "android" && isEdge(),
-  },
-];
-
 function isUsableViewportHeight(
   height: number | null | undefined,
 ): height is number {
   return typeof height === "number" && Number.isFinite(height) && height > 0;
-}
-
-function isManagedStableViewportHeightRequiredForCurrentBrowser() {
-  if (typeof window === "undefined") return false;
-
-  return STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS.some((browserRule) =>
-    browserRule.matches(),
-  );
 }
 
 function shouldEnableManagedStableViewportHeight(

@@ -39,7 +39,7 @@ export function isFirefox(): boolean {
 
 export function isEdge(): boolean {
   const ua = getUserAgent();
-  return /EdgA|EdgiOS/i.test(ua);
+  return /Edg(?:A|iOS)?\/|Edge\//i.test(ua);
 }
 
 export function isSafari(): boolean {
@@ -47,7 +47,8 @@ export function isSafari(): boolean {
   if (!ua) return false;
 
   return (
-    /Safari/i.test(ua) && !/(Chrome|CriOS|FxiOS|OPiOS|EdgiOS|Brave)/i.test(ua)
+    /Safari/i.test(ua) &&
+    !/(Chrome|CriOS|FxiOS|OPiOS|Edg(?:A|iOS)?\/|Edge\/|Brave)/i.test(ua)
   );
 }
 
