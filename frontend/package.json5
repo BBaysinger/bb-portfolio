@@ -59,8 +59,6 @@
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
     // Come back to this when there's time to write some tests.
     "test": "vitest run",
-    //
-    "test:redirect": "vitest run src/app/project/ProjectQueryRedirect.test.tsx",
   },
   // Runtime dependencies for the frontend application
   "dependencies": {

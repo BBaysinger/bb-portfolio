@@ -34,12 +34,11 @@ Working list of notable features
 
 ### Rendering / Routing
 
-- SSR/Next portfolio projects list
+- SSG/ISR (24h) portfolio projects list
 - SSG/ISR (24h) dynamic project routes
 - SSG/ISR (24h) CV route
 - On-demand frontend revalidation endpoint for project/CV/hero/media updates
 - NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
-- Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)
 - Post-login redirect back to originally requested NDA content
 
 ### CMS / Data Modeling

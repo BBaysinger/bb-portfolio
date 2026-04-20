@@ -28,8 +28,7 @@
     "snapshot:projects:secret:file": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
     "lint": "eslint .",
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
-    "test": "vitest run",
-    "test:redirect": "vitest run src/app/project/ProjectQueryRedirect.test.tsx"
+    "test": "vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1032.0",
