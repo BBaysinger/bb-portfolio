@@ -37,6 +37,11 @@ export function isFirefox(): boolean {
   return /Firefox|FxiOS/i.test(ua);
 }
 
+export function isEdge(): boolean {
+  const ua = getUserAgent();
+  return /EdgA|EdgiOS/i.test(ua);
+}
+
 export function isSafari(): boolean {
   const ua = getUserAgent();
   if (!ua) return false;

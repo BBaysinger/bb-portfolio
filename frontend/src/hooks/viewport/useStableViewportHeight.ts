@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { detectOs, isFirefox } from "@/utils/browser";
+import { detectOs, isEdge, isFirefox } from "@/utils/browser";
 import { getViewportHeightPx } from "@/utils/viewport";
 
 import { useGlobalWindowMonitor } from "../useLayoutMonitor";
@@ -60,13 +60,15 @@ const RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX = 24;
 const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 
 // Current status:
-// - This hook exists because mobile Firefox had inconsistent `svh` behavior in prior testing.
-// - The JS path is still considered relevant only for Firefox when callers opt into
+// - This hook exists because mobile Firefox and mobile Edge had inconsistent `svh`
+//   behavior in prior testing.
+// - The JS path is still considered relevant only for those browsers when callers opt into
 //   `use-where-required`.
 // - Other mobile browsers can still distort page height during downward pull-to-refresh
 //   gestures, and this hook does not fully solve that case yet.
 // - That limitation is acceptable for now because the default mode stays on CSS `svh`,
-//   and current testing has not shown the same downward-gesture viewport mutation issue in Firefox.
+//   and current testing has not shown the same downward-gesture viewport mutation issue in
+//   Firefox or Edge.
 export const stableViewportHeightConfig: {
   defaultMode: StableViewportHeightMode;
 } = {
@@ -84,6 +86,14 @@ const STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS: ReadonlyArray<{
   {
     id: "firefox-android",
     matches: () => detectOs() === "android" && isFirefox(),
+  },
+  {
+    id: "edge-ios",
+    matches: () => detectOs() === "ios" && isEdge(),
+  },
+  {
+    id: "edge-android",
+    matches: () => detectOs() === "android" && isEdge(),
   },
 ];
 

@@ -23,10 +23,11 @@ header.hero {
   background-color: black;
   background-size: 100% 100%;
   // Prefer a JS-set, stable pixel height (set once on mount; updated only on real resizes).
-  // This avoids Firefox mobile viewport-unit jitter during scroll-chrome show/hide.
+  // This avoids Firefox and Edge mobile viewport-unit jitter during scroll-chrome show/hide.
   min-height: var(--hero-stable-vh, 100vh);
 
-  // CSS-only fallback: prefer `svh` where reliable (avoid Firefox).
+  // CSS-only fallback: prefer `svh` where reliable. The JS hook overrides this on browsers
+  // that currently require managed stable height.
   @supports (min-height: 100svh) and (not (-moz-appearance: none)) {
     min-height: var(--hero-stable-vh, 100svh);
   }
