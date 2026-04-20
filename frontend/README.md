@@ -4,14 +4,12 @@ This is the frontend service for the BB-Portfolio website, built with Next.js, R
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for shared conventions (naming, env exposure via `NEXT_PUBLIC_*`, and CI/CD expectations).
 
-## Features
+## Service Scope
 
-- Interactive parallax project carousel
-- Animated sprite system and kinetic orb
-- Clamped Linear Interpolation (Lerp) fluid responsive system
-- SSR/SSG portfolio rendering
-- NDA-aware content routing
-- Mobile-first responsive design
+- Owns the public-facing Next.js App Router UI, including homepage interaction systems, project browsing, NDA-aware client flows, and route-driven presentation logic.
+- Hosts the custom rendering and interaction layers used by the site, including the parallax carousel, fluxel grid, sprite/sequencer systems, kinetic orb, and viewport/layout stabilization hooks.
+- Provides frontend-focused build/runtime helpers such as project snapshot consumption, production-like local perf runs, and browser-facing environment/config wiring.
+- Defers canonical feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
 
 ## Development
 

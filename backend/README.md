@@ -4,14 +4,12 @@ This is the backend service for the BB-Portfolio website, built with Payload CMS
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for conventions on env vars, Docker images, and operational guardrails used across this repo.
 
-## Features
+## Service Scope
 
-- Type-safe CMS with generated TypeScript types
-- Project and media collections
-- NDA-aware content filtering
-- AWS S3 integration for media storage
-- Contact form with AWS SES email
-- Environment-specific configurations
+- Owns the Payload CMS application, collection schemas, generated types, auth flows, and server-side content gating for public versus NDA-aware delivery.
+- Provides backend APIs and delivery paths for projects, contact flows, health checks, media/static asset access, and app-facing content reads.
+- Encapsulates environment-profiled runtime behavior, including local filesystem media, S3-backed storage, and operational scripts tied to migration and recovery workflows.
+- Defers canonical feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
 
 ## Local Development
 

@@ -4,7 +4,8 @@ Working list of notable features
 
 ## Frontend UX / Interaction
 
-- Simulated depth magnetic “fluxel” (fluxing pixel) grid
+- Simulated depth magnetic “fluxel” (fluxing pixel) grid with pointer influence
+- Fluxel grid projectile collision response
 - Parallax project carousel
 - Layered parallax carousel engine (master/slave synchronization)
 - Browser-native carousel swipe/gestures (horizontal scrolling)
@@ -14,15 +15,23 @@ Working list of notable features
 - Logo/info swapper animations tied to active slide
 - Typewriter-style hero copy rotator (`TypewriterEffect`; shuffled paragraph typing, pause-aware)
 - Scroll-aware nav link highlighting (active section)
-- Scroll-focus project thumbnail highlighting (multi-column rows; left→right on tablet+)
+- Project thumbnail highlighting via hover on mouse-primary desktop and scroll position on non-hover/coarse-pointer devices (multi-column rows; left→right on tablet+)
 - Magnetic/sticky road sign
-- Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)
-- Page slide-out nav
+- Responsive road-sign panels using `border-image` framing with barricade/emergency blinker accents
+- Embossed sub-sign with masked animated stripe layers
+- Animated barber-pole accent and border effects
+- Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks, timed pointer gravity)
+- Dynamically triggered hero onboarding hints/tooltips for orb interaction
+- FPS counter/debug overlay with env and query-string toggles
+- Layered-depth page slide-out nav
+- Dynamic/animated hamburger button
 - Transform-positioned footer
 - Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`
+- Fullscreen animation sequencer with imperative triggering
 - Query-string sprite/sequencer renderer overrides + DPR caps for live performance comparison
 - In-view slide-in animation system (IntersectionObserver)
 - FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
+- Stable viewport height strategy for mobile browser chrome jitter, overscroll noise, and coarse-pointer route-return layout stability
 
 ## Fluid Responsive System
 
@@ -58,6 +67,9 @@ Working list of notable features
 
 - Sprite sheet image processing scripts
 - Sharp-backed image processing and upload size limits
+- Media seeding/import pipeline from external seed folders (`media:seed`)
+- Image export pipeline to external seed folders/WebP outputs (`media:export`)
+- PSD/WebP export script with optional opacity-to-matte flattening for transparent artwork variants
 - Local filesystem storage for local profile
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
@@ -121,7 +133,10 @@ Working list of notable features
 - Hermetic project-data snapshot pipeline for build-time/static exports
 - Guarded dependency update workflow (`update:deps`) with blocked majors, lockstep upgrade families, and manifest/lockfile refresh
 - Production-like local perf testing with standalone server builds
-- JSON5 package sync system (commented package.json5 → generated package.json for tooling compatibility)
+
+## Spun-off Packages
+
+- `json5-manifest-sync`: extracted package for syncing documented `package.json5` companion manifests from canonical `package.json` files while preserving mapped comments and stable JSON5 formatting
 
 ## README Priorities
 
