@@ -6,12 +6,16 @@ Working list of notable features and technical systems
 
 - Simulated depth magnetic “fluxel” (fluxing pixel) grid with pointer influence
 - Fluxel grid projectile collision response
-- Parallax project carousel
-- Layered parallax carousel engine with master/slave synchronization
+- Fluxel background animations authored in Photoshop and Adobe Animate, then exported as sprite sheets
+- Parallax project carousel with layered screenshots composited into physical device mockups
+- Layered parallax carousel engine with master/slave synchronization — to become standalone NPM package
 - Browser-native carousel swipe/gesture support via horizontal scrolling
 - Carousel navigation persisted to browser history with Back/Forward support and shortest-path bidirectional wrap
 - Route-driven carousel navigation with deep linking
 - Device mockup overlays with tilt and stabilization states
+- Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy` - To become standalone NPM package.
+- Fullscreen animation sequencer with imperative triggering
+- Query-string sprite/sequencer renderer overrides with DPR caps for live performance comparison
 - Logo/info swapper animations tied to active slide
 - Typewriter-style hero copy rotator (`TypewriterEffect`) with shuffled paragraph typing and pause-aware sequencing
 - Scroll-aware nav link highlighting by active section
@@ -22,6 +26,7 @@ Working list of notable features and technical systems
 - Animated barber-pole accent and border effects
 - Draggable and throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks, timed pointer gravity)
 - Dynamically triggered onboarding hints/tooltips for orb interaction
+- FPS counter/debug overlay with env and query-string toggles
 - Layered page slide-out nav
 - Dynamic/animated hamburger button
 - Transform-positioned footer with animated footer grid
@@ -69,7 +74,7 @@ Working list of notable features and technical systems
 
 ### Media / Storage Pipeline
 
-- Sprite sheet image processing scripts (exporter work extracted to `BBaysinger/fluxel-animations`)
+- Sprite sheet image processing scripts (exporter work extracted to [BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations))
 - Sharp-backed image processing and upload size limits
 - Media seeding/import pipeline from external seed folders (`media:seed`)
 - Image export pipeline to external seed folders/WebP outputs (`media:export`)
@@ -143,14 +148,6 @@ Working list of notable features and technical systems
 ## Spun-off Packages
 
 - `json5-manifest-sync`: extracted package for syncing documented `package.json5` companion manifests from canonical `package.json` files
-
-## Reviewer Signals / Why This Matters
-
-- Demonstrates comfort across UI, application architecture, CMS integration, infra, and deployment rather than isolated frontend styling alone
-- Shows deliberate handling of real-world concerns like NDA gating, auth-aware rendering, cache behavior, security headers, revalidation, and environment safety
-- Reflects a bias toward maintainability and repeatable workflows through typed models, seed/import-export pipelines, backup strategy, and deployment automation
-- Indicates strong product-minded frontend capability: custom interaction design, motion systems, responsive strategy, and performance-aware rendering decisions
-- Presents clear evidence of end-to-end ownership, from visual design and UX experimentation through backend integration and production delivery
 
 ## README Priorities
 
