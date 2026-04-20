@@ -38,7 +38,7 @@ Working list of notable features
 - SSG/ISR (24h) dynamic project routes
 - SSG/ISR (24h) CV route
 - On-demand frontend revalidation endpoint for project/CV/hero/media updates
-- NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
+- SSG/ISR NDA project routes with short-code static params, sanitized placeholders, and auth-aware runtime upgrade (SSR → CSR hydration)
 - Post-login redirect back to originally requested NDA content
 
 ### CMS / Data Modeling
