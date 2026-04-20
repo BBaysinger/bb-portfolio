@@ -18,6 +18,10 @@ const HOME_HERO_INTRO_SEEN_IN_SESSION_KEY = "home-hero-intro-seen-in-session";
 export const HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT =
   "home-hero-intro-replay-requested";
 
+type RequestHomeHeroIntroReplayOptions = {
+  dispatchEvent?: boolean;
+};
+
 const readSessionFlag = (key: string) => {
   if (typeof window === "undefined") return false;
 
@@ -43,10 +47,12 @@ const writeSessionFlag = (key: string, value: boolean) => {
   }
 };
 
-export const requestHomeHeroIntroReplay = () => {
+export const requestHomeHeroIntroReplay = ({
+  dispatchEvent = true,
+}: RequestHomeHeroIntroReplayOptions = {}) => {
   writeSessionFlag(HOME_HERO_REPLAY_ON_RETURN_KEY, true);
 
-  if (typeof window === "undefined") return;
+  if (!dispatchEvent || typeof window === "undefined") return;
 
   window.dispatchEvent(new CustomEvent(HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT));
 };
