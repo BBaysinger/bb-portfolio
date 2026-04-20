@@ -132,6 +132,7 @@ Working list of notable features
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
+- Detailed engineering standards, including AI assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
 - Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
 - Guarded dependency update workflow (`update:deps`) with blocked majors, lockstep upgrade families, and manifest/lockfile refresh
