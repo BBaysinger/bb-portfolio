@@ -2,6 +2,9 @@ import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
+const CV_EXPERIENCE_LOGO_COLLECTION = 'cvExperienceLogos'
+const CV_EXPERIENCE_LOGO_PREFIX = 'cv-experience-logos'
+
 type BrandLogoRef = {
   url?: unknown
   alt?: unknown
@@ -30,14 +33,80 @@ const asTrimmedString = (value: unknown): string => {
   return value.trim()
 }
 
+const trimTrailingSlashes = (value: string) => value.replace(/\/+$/, '')
+
+const encodePathSegments = (value: string) =>
+  value
+    .split('/')
+    .filter((segment) => segment.length > 0)
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+
+const getPublicMediaBaseUrl = () => {
+  const explicitBaseUrl = asTrimmedString(process.env.S3_BASE_URL)
+  if (explicitBaseUrl) return trimTrailingSlashes(explicitBaseUrl)
+
+  const bucket = asTrimmedString(process.env.S3_BUCKET)
+  const region = asTrimmedString(process.env.AWS_REGION) || asTrimmedString(process.env.S3_REGION)
+  if (bucket && region) {
+    return `https://${bucket}.s3.${region}.amazonaws.com`
+  }
+
+  return ''
+}
+
+const getPublicCvExperienceLogoUrl = (filename: string) => {
+  const encodedFilename = encodePathSegments(filename)
+  const publicMediaBaseUrl = getPublicMediaBaseUrl()
+
+  if (publicMediaBaseUrl) {
+    return `${publicMediaBaseUrl}/${CV_EXPERIENCE_LOGO_PREFIX}/${encodedFilename}`
+  }
+
+  return `/api/media/${CV_EXPERIENCE_LOGO_PREFIX}/${encodedFilename}`
+}
+
+const extractPayloadUploadFilename = (url: string) => {
+  const payloadUploadPrefix = `/api/${CV_EXPERIENCE_LOGO_COLLECTION}/file/`
+
+  try {
+    const parsedUrl = new URL(url, 'https://example.invalid')
+    if (!parsedUrl.pathname.startsWith(payloadUploadPrefix)) return ''
+    return decodeURIComponent(parsedUrl.pathname.slice(payloadUploadPrefix.length))
+  } catch {
+    return ''
+  }
+}
+
+const shouldReplaceCvExperienceLogoUrl = (url: string) => {
+  const payloadUploadPrefix = `/api/${CV_EXPERIENCE_LOGO_COLLECTION}/file/`
+
+  try {
+    const parsedUrl = new URL(url, 'https://example.invalid')
+    return (
+      parsedUrl.pathname.startsWith(payloadUploadPrefix) ||
+      parsedUrl.pathname.startsWith(`/media/${CV_EXPERIENCE_LOGO_PREFIX}/`) ||
+      parsedUrl.pathname.startsWith(`/api/media/${CV_EXPERIENCE_LOGO_PREFIX}/`)
+    )
+  } catch {
+    return false
+  }
+}
+
 const toLogo = (value: unknown): { url: string; alt: string } | null => {
   if (!value || typeof value !== 'object') return null
 
   const logo = value as BrandLogoRef
-  const url = asTrimmedString(logo.url)
+  const rawUrl = asTrimmedString(logo.url)
+  const filename =
+    asTrimmedString(logo.filename) || (rawUrl ? extractPayloadUploadFilename(rawUrl) : '')
+  const url =
+    filename && (!rawUrl || shouldReplaceCvExperienceLogoUrl(rawUrl))
+      ? getPublicCvExperienceLogoUrl(filename)
+      : rawUrl
   if (!url) return null
 
-  const alt = asTrimmedString(logo.alt) || asTrimmedString(logo.filename) || 'Company logo'
+  const alt = asTrimmedString(logo.alt) || filename || 'Company logo'
   return { url, alt }
 }
 
