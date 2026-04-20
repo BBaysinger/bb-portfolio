@@ -27,6 +27,29 @@ describe("homeHeroIntroReplay", () => {
     expect(consumeHomeHeroIntroReplayRequest()).toBe(false);
   });
 
+  it("ignores page-exit replay requests on reload", () => {
+    vi.spyOn(window.performance, "getEntriesByType").mockReturnValue([
+      { type: "reload" } as PerformanceNavigationTiming,
+    ]);
+
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(true);
+    requestHomeHeroIntroReplay({ dispatchEvent: false, source: "page-exit" });
+
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(false);
+    expect(consumeHomeHeroIntroReplayRequest()).toBe(false);
+  });
+
+  it("still honors explicit replay requests on reload", () => {
+    vi.spyOn(window.performance, "getEntriesByType").mockReturnValue([
+      { type: "reload" } as PerformanceNavigationTiming,
+    ]);
+
+    requestHomeHeroIntroReplay({ dispatchEvent: false, source: "explicit" });
+
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(true);
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(false);
+  });
+
   it("dispatches an immediate replay event by default", () => {
     const dispatchSpy = vi.spyOn(window, "dispatchEvent");
 

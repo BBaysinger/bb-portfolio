@@ -18,8 +18,11 @@ const HOME_HERO_INTRO_SEEN_IN_SESSION_KEY = "home-hero-intro-seen-in-session";
 export const HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT =
   "home-hero-intro-replay-requested";
 
+type HomeHeroIntroReplaySource = "explicit" | "page-exit";
+
 type RequestHomeHeroIntroReplayOptions = {
   dispatchEvent?: boolean;
+  source?: HomeHeroIntroReplaySource;
 };
 
 const readSessionFlag = (key: string) => {
@@ -47,10 +50,49 @@ const writeSessionFlag = (key: string, value: boolean) => {
   }
 };
 
+const readSessionValue = (key: string) => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const writeSessionValue = (key: string, value: string | null) => {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (value === null) {
+      sessionStorage.removeItem(key);
+      return;
+    }
+
+    sessionStorage.setItem(key, value);
+  } catch {
+    // Ignore storage failures; replay is best-effort.
+  }
+};
+
+const getNavigationType = () => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const navigationEntries = window.performance.getEntriesByType(
+      "navigation",
+    ) as PerformanceNavigationTiming[];
+    return navigationEntries[0]?.type ?? null;
+  } catch {
+    return null;
+  }
+};
+
 export const requestHomeHeroIntroReplay = ({
   dispatchEvent = true,
+  source = "explicit",
 }: RequestHomeHeroIntroReplayOptions = {}) => {
-  writeSessionFlag(HOME_HERO_REPLAY_ON_RETURN_KEY, true);
+  writeSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY, source);
 
   if (!dispatchEvent || typeof window === "undefined") return;
 
@@ -58,10 +100,11 @@ export const requestHomeHeroIntroReplay = ({
 };
 
 export const consumeHomeHeroIntroReplayRequest = () => {
-  const shouldReplay = readSessionFlag(HOME_HERO_REPLAY_ON_RETURN_KEY);
+  const replaySource = readSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY);
+  const shouldReplay = replaySource !== null;
 
   if (shouldReplay) {
-    writeSessionFlag(HOME_HERO_REPLAY_ON_RETURN_KEY, false);
+    writeSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY, null);
   }
 
   return shouldReplay;
@@ -69,6 +112,11 @@ export const consumeHomeHeroIntroReplayRequest = () => {
 
 export const shouldPlayHomeHeroIntroOnEntry = () => {
   if (typeof window === "undefined") return false;
+
+  const replaySource = readSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY);
+  if (replaySource === "page-exit" && getNavigationType() === "reload") {
+    writeSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY, null);
+  }
 
   if (consumeHomeHeroIntroReplayRequest()) {
     writeSessionFlag(HOME_HERO_INTRO_SEEN_IN_SESSION_KEY, true);

@@ -67,7 +67,7 @@ export function AppShell({
     if (typeof window === "undefined") return;
 
     const handlePageExit = (_event: PageTransitionEvent) => {
-      requestHomeHeroIntroReplay({ dispatchEvent: false });
+      requestHomeHeroIntroReplay({ dispatchEvent: false, source: "page-exit" });
     };
 
     // `pagehide` fires for full unloads and BFCache transitions, which is the
