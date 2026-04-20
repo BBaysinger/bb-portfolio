@@ -33,7 +33,10 @@ import useStableViewportHeightVar, {
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
-import { requestHomeHeroIntroReplay } from "@/utils/homeHeroIntroReplay";
+import {
+  clearPendingPageExitHomeHeroIntroReplay,
+  requestHomeHeroIntroReplay,
+} from "@/utils/homeHeroIntroReplay";
 import {
   getPublicRedirectForNdaUrl,
   isNdaRoutePath,
@@ -78,6 +81,14 @@ export function AppShell({
       window.removeEventListener("pagehide", handlePageExit);
     };
   }, []);
+
+  useEffect(() => {
+    if (pathname === "/") return;
+
+    // Internal route changes should not leave behind a pending replay meant
+    // only for true leave-and-return flows.
+    clearPendingPageExitHomeHeroIntroReplay();
+  }, [pathname]);
 
   // Runtime backend health check: logs backend connectivity status on startup.
   // Intentionally console-only (no UI) to avoid impacting UX.

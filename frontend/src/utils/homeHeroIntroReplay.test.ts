@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
+  clearPendingPageExitHomeHeroIntroReplay,
   consumeHomeHeroIntroReplayRequest,
   requestHomeHeroIntroReplay,
   shouldPlayHomeHeroIntroOnEntry,
@@ -48,6 +49,23 @@ describe("homeHeroIntroReplay", () => {
 
     expect(shouldPlayHomeHeroIntroOnEntry()).toBe(true);
     expect(shouldPlayHomeHeroIntroOnEntry()).toBe(false);
+  });
+
+  it("clears pending page-exit replay requests for in-app navigation", () => {
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(true);
+
+    requestHomeHeroIntroReplay({ dispatchEvent: false, source: "page-exit" });
+    clearPendingPageExitHomeHeroIntroReplay();
+
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(false);
+    expect(consumeHomeHeroIntroReplayRequest()).toBe(false);
+  });
+
+  it("does not clear explicit replay requests for in-app navigation", () => {
+    requestHomeHeroIntroReplay({ dispatchEvent: false, source: "explicit" });
+    clearPendingPageExitHomeHeroIntroReplay();
+
+    expect(shouldPlayHomeHeroIntroOnEntry()).toBe(true);
   });
 
   it("dispatches an immediate replay event by default", () => {

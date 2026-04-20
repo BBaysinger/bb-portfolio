@@ -99,6 +99,13 @@ export const requestHomeHeroIntroReplay = ({
   window.dispatchEvent(new CustomEvent(HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT));
 };
 
+export const clearPendingPageExitHomeHeroIntroReplay = () => {
+  const replaySource = readSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY);
+  if (replaySource !== "page-exit") return;
+
+  writeSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY, null);
+};
+
 export const consumeHomeHeroIntroReplayRequest = () => {
   const replaySource = readSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY);
   const shouldReplay = replaySource !== null;
@@ -113,9 +120,8 @@ export const consumeHomeHeroIntroReplayRequest = () => {
 export const shouldPlayHomeHeroIntroOnEntry = () => {
   if (typeof window === "undefined") return false;
 
-  const replaySource = readSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY);
-  if (replaySource === "page-exit" && getNavigationType() === "reload") {
-    writeSessionValue(HOME_HERO_REPLAY_ON_RETURN_KEY, null);
+  if (getNavigationType() === "reload") {
+    clearPendingPageExitHomeHeroIntroReplay();
   }
 
   if (consumeHomeHeroIntroReplayRequest()) {
