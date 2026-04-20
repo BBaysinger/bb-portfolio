@@ -132,13 +132,14 @@ Working list of notable features
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
+- Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
 - Guarded dependency update workflow (`update:deps`) with blocked majors, lockstep upgrade families, and manifest/lockfile refresh
 - Production-like local perf testing with standalone server builds
 
 ## Spun-off Packages
 
-- `json5-manifest-sync`: extracted package for syncing documented `package.json5` companion manifests from canonical `package.json` files while preserving mapped comments and stable JSON5 formatting
+- `json5-manifest-sync`: extracted package for syncing documented `package.json5` companion manifests from canonical `package.json` files
 
 ## README Priorities
 
