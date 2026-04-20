@@ -4,7 +4,7 @@ Working list of notable features
 
 ## Frontend UX / Interaction
 
-- Simulated depth magnetic “fluxel” grid
+- Simulated depth magnetic “fluxel” (fluxing pixel) grid
 - Parallax project carousel
 - Layered parallax carousel engine (master/slave synchronization)
 - Browser-native carousel swipe/gestures (horizontal scrolling)
