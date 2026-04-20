@@ -9,6 +9,7 @@ import {
   resetAuthState,
 } from "@/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { requestHomeHeroIntroReplay } from "@/utils/homeHeroIntroReplay";
 
 /**
  * Custom hook for authentication using Redux
@@ -119,6 +120,10 @@ export const useAuth = () => {
     // Clear all local storage
     localStorage.clear();
     sessionStorage.clear();
+
+    // Logout should make the next home-page entry behave like a fresh visit,
+    // even within the same browser session.
+    requestHomeHeroIntroReplay();
 
     // Proactively clear the auth cookie on the client as a safety net.
     // (The server-side logout should also expire it, but we don't want to depend on timing.)

@@ -62,17 +62,6 @@ export function AppShell({
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [reduceMotion, setReduceMotion] = useState(false);
-  const previousPathnameRef = useRef(pathname);
-
-  useEffect(() => {
-    const previousPathname = previousPathnameRef.current;
-
-    if (previousPathname === "/" && pathname !== "/") {
-      requestHomeHeroIntroReplay();
-    }
-
-    previousPathnameRef.current = pathname;
-  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -81,11 +70,9 @@ export function AppShell({
       requestHomeHeroIntroReplay();
     };
 
-    window.addEventListener("pagehide", handlePageExit);
     window.addEventListener("beforeunload", handlePageExit);
 
     return () => {
-      window.removeEventListener("pagehide", handlePageExit);
       window.removeEventListener("beforeunload", handlePageExit);
     };
   }, []);

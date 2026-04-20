@@ -38,6 +38,7 @@ import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
 import {
+  HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
   consumeHomeHeroIntroReplayRequest,
   shouldPlayHomeHeroIntroOnEntry,
 } from "@/utils/homeHeroIntroReplay";
@@ -426,9 +427,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const onPageShow = (event: PageTransitionEvent) => {
-      if (!event.persisted) return;
-
+    const replayHeroIntroIfRequested = () => {
       const shouldReplay = consumeHomeHeroIntroReplayRequest();
       if (!shouldReplay) return;
 
@@ -436,9 +435,23 @@ function Hero({ initialRoleTitle }: HeroProps) {
       setPlayHeroIntro(true);
     };
 
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+
+      replayHeroIntroIfRequested();
+    };
+
+    window.addEventListener(
+      HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
+      replayHeroIntroIfRequested,
+    );
     window.addEventListener("pageshow", onPageShow);
 
     return () => {
+      window.removeEventListener(
+        HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
+        replayHeroIntroIfRequested,
+      );
       window.removeEventListener("pageshow", onPageShow);
     };
   }, [restartHeroRuntime]);
