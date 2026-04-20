@@ -27,7 +27,7 @@ Working list of notable features
 - FPS counter/debug overlay with env and query-string toggles
 - Layered-depth page slide-out nav
 - Dynamic/animated hamburger button
-- Transform-positioned footer
+- Transform-positioned footer + animated footer grid
 - Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`
 - Fullscreen animation sequencer with imperative triggering
 - Query-string sprite/sequencer renderer overrides + DPR caps for live performance comparison
