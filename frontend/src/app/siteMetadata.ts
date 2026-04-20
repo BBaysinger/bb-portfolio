@@ -1,8 +1,30 @@
 import type { Metadata } from "next";
 
 export const defaultSiteOrigin = "https://bbaysinger.io";
+export const socialImageAlt =
+  "Bradley Baysinger frontend and UI developer portfolio social preview";
 
 const developmentSiteOrigin = "http://localhost:3000";
+const openGraphImagePath = "/opengraph-image";
+const twitterImagePath = "/twitter-image";
+
+const openGraphImages: NonNullable<Metadata["openGraph"]>["images"] = [
+  {
+    url: openGraphImagePath,
+    width: 1200,
+    height: 630,
+    alt: socialImageAlt,
+  },
+];
+
+const twitterImages: NonNullable<Metadata["twitter"]>["images"] = [
+  {
+    url: twitterImagePath,
+    width: 1200,
+    height: 600,
+    alt: socialImageAlt,
+  },
+];
 
 export const metadataBase = (() => {
   const configuredOrigin = process.env.NEXT_PUBLIC_SITE_ORIGIN?.trim();
@@ -26,6 +48,8 @@ export const siteTitle =
 
 export const siteDescription =
   "Portfolio of Bradley Baysinger, a frontend and UI developer specializing in JavaScript, React, TypeScript, Next.js, interaction systems, animation engineering, and performance-focused web interfaces.";
+
+export const siteHandle = "Bradley Baysinger Portfolio";
 
 export const siteKeywords = [
   "Bradley Baysinger",
@@ -83,15 +107,24 @@ export const buildPageMetadata = ({
   path,
   robots,
 }: BuildPageMetadataOptions = {}): Metadata => {
-  const metadata: Metadata = {};
+  const resolvedTitle = title ?? siteTitle;
+  const resolvedDescription = description ?? siteDescription;
 
-  if (title) {
-    metadata.title = title;
-  }
-
-  if (description) {
-    metadata.description = description;
-  }
+  const metadata: Metadata = {
+    title: resolvedTitle,
+    description: resolvedDescription,
+    openGraph: {
+      title: resolvedTitle,
+      description: resolvedDescription,
+      images: openGraphImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: resolvedTitle,
+      description: resolvedDescription,
+      images: twitterImages,
+    },
+  };
 
   if (robots) {
     metadata.robots = robots;
@@ -100,6 +133,7 @@ export const buildPageMetadata = ({
   if (path) {
     metadata.alternates = { canonical: path };
     metadata.openGraph = {
+      ...metadata.openGraph,
       url: path,
     };
   }

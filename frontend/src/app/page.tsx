@@ -1,5 +1,5 @@
-import React from "react";
 import type { Metadata } from "next";
+import React from "react";
 
 /**
  * Home page route (`/`).
@@ -15,12 +15,12 @@ import type { Metadata } from "next";
  * - Default export `HomePage` – async server component for the route.
  */
 
+import { buildPageMetadata } from "@/app/siteMetadata";
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
 import { getServerHeroBranding } from "@/data/HeroBranding";
 import { ProjectDataStore } from "@/data/ProjectData";
-import { buildPageMetadata } from "@/app/siteMetadata";
 
 export const metadata: Metadata = buildPageMetadata({ path: "/" });
 

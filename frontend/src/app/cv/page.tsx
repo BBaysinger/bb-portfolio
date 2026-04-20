@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import type { CvExperienceItemData } from "@/components/cv/ExperienceItem";
+
 import { buildPageMetadata } from "@/app/siteMetadata";
+import type { CvExperienceItemData } from "@/components/cv/ExperienceItem";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 import CvPageClient from "./CvPageClient";
