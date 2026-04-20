@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import clsx from "clsx";
+import type { Metadata } from "next";
 import { ReactNode, Suspense } from "react";
 
 /**
