@@ -66,14 +66,16 @@ export function AppShell({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const handlePageExit = () => {
+    const handlePageExit = (_event: PageTransitionEvent) => {
       requestHomeHeroIntroReplay();
     };
 
-    window.addEventListener("beforeunload", handlePageExit);
+    // `pagehide` fires for full unloads and BFCache transitions, which is the
+    // leave-and-return path that should replay the home hero intro.
+    window.addEventListener("pagehide", handlePageExit);
 
     return () => {
-      window.removeEventListener("beforeunload", handlePageExit);
+      window.removeEventListener("pagehide", handlePageExit);
     };
   }, []);
 
