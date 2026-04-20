@@ -15,14 +15,21 @@ import React from "react";
  * - Default export `HomePage` – async server component for the route.
  */
 
-import { buildPageMetadata } from "@/app/siteMetadata";
+import { buildHomePageTitle, buildPageMetadata } from "@/app/siteMetadata";
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
 import { getServerHeroBranding } from "@/data/HeroBranding";
 import { ProjectDataStore } from "@/data/ProjectData";
 
-export const metadata: Metadata = buildPageMetadata({ path: "/" });
+export async function generateMetadata(): Promise<Metadata> {
+  const heroBranding = await getServerHeroBranding();
+
+  return buildPageMetadata({
+    title: buildHomePageTitle(heroBranding.activeRoleTitle),
+    path: "/",
+  });
+}
 
 /**
  * Server component for the home page.

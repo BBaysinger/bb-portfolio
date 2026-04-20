@@ -11,6 +11,6 @@ export const size = {
 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
   return createPortfolioSocialImage(size);
 }

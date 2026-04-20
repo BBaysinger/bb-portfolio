@@ -11,6 +11,6 @@ export const size = {
 };
 export const contentType = "image/png";
 
-export default function TwitterImage() {
+export default async function TwitterImage() {
   return createPortfolioSocialImage(size);
 }

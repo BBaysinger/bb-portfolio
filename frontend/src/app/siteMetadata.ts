@@ -46,6 +46,12 @@ export const metadataBase = (() => {
 export const siteTitle =
   "Bradley Baysinger | Frontend / UI Developer Portfolio";
 
+export const buildHomePageTitle = (roleTitle?: string): string => {
+  const normalizedRoleTitle = roleTitle?.trim();
+  if (!normalizedRoleTitle) return siteTitle;
+  return `Bradley Baysinger | ${normalizedRoleTitle}`;
+};
+
 export const siteDescription =
   "Portfolio of Bradley Baysinger, a frontend and UI developer specializing in JavaScript, React, TypeScript, Next.js, interaction systems, animation engineering, and performance-focused web interfaces.";
 

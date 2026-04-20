@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 
+import { getServerHeroBranding } from "@/data/HeroBranding";
+
 import { siteDescription } from "./siteMetadata";
 
 type SocialImageOptions = {
@@ -9,10 +11,13 @@ type SocialImageOptions = {
 
 export const runtime = "edge";
 
-export const createPortfolioSocialImage = ({
+export const createPortfolioSocialImage = async ({
   width,
   height,
 }: SocialImageOptions) => {
+  const heroBranding = await getServerHeroBranding();
+  const activeRoleTitle = heroBranding.activeRoleTitle.trim();
+
   return new ImageResponse(
     <div
       style={{
@@ -110,7 +115,7 @@ export const createPortfolioSocialImage = ({
                 color: "rgba(243,246,248,0.78)",
               }}
             >
-              Frontend / UI Developer Portfolio
+              {activeRoleTitle}
             </div>
           </div>
         </div>
