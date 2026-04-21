@@ -2,6 +2,7 @@ import type { CollectionConfig, PayloadRequest, Where } from 'payload'
 import slugify from 'slugify'
 
 import { canReadNdaField } from '../access/nda'
+import { buildProjectWarmPaths } from '../utils/frontendRouteWarmup'
 import { generateShortCode } from '../utils/shortCode'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
@@ -137,13 +138,21 @@ export const Projects: CollectionConfig = {
       },
     ],
     afterChange: [
-      async () => {
-        await triggerFrontendProjectRevalidate('projects.afterChange')
+      async ({ doc }) => {
+        await triggerFrontendProjectRevalidate('projects.afterChange', {
+          warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
+            includeHome: true,
+          }),
+        })
       },
     ],
     afterDelete: [
-      async () => {
-        await triggerFrontendProjectRevalidate('projects.afterDelete')
+      async ({ doc }) => {
+        await triggerFrontendProjectRevalidate('projects.afterDelete', {
+          warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
+            includeHome: true,
+          }),
+        })
       },
     ],
   },

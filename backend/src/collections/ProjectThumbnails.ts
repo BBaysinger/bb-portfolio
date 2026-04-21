@@ -3,6 +3,7 @@ import path from 'path'
 
 import type { CollectionConfig, PayloadRequest, Where } from 'payload'
 
+import { buildProjectWarmPaths, loadProjectWarmTarget } from '../utils/frontendRouteWarmup'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 type RelRecord = Record<string, unknown>
@@ -195,13 +196,27 @@ export const ProjectThumbnails: CollectionConfig = {
       },
     ],
     afterChange: [
-      async () => {
-        await triggerFrontendProjectRevalidate('projectThumbnails.afterChange')
+      async ({ doc, req }) => {
+        const project = await loadProjectWarmTarget(
+          req.payload,
+          (doc as { project?: unknown })?.project,
+        )
+
+        await triggerFrontendProjectRevalidate('projectThumbnails.afterChange', {
+          warmPaths: buildProjectWarmPaths(project, { includeHome: true }),
+        })
       },
     ],
     afterDelete: [
-      async () => {
-        await triggerFrontendProjectRevalidate('projectThumbnails.afterDelete')
+      async ({ doc, req }) => {
+        const project = await loadProjectWarmTarget(
+          req.payload,
+          (doc as { project?: unknown })?.project,
+        )
+
+        await triggerFrontendProjectRevalidate('projectThumbnails.afterDelete', {
+          warmPaths: buildProjectWarmPaths(project, { includeHome: true }),
+        })
       },
     ],
   },

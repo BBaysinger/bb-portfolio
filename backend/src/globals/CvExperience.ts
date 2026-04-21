@@ -89,7 +89,9 @@ export const CvExperience: GlobalConfig = {
   hooks: {
     afterChange: [
       async () => {
-        await triggerFrontendProjectRevalidate('cvExperience.afterChange')
+        await triggerFrontendProjectRevalidate('cvExperience.afterChange', {
+          warmPaths: ['/cv/'],
+        })
       },
     ],
   },

@@ -1,6 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
 
 import { canReadNdaBrandAsset } from '../access/nda'
+import { buildProjectsWarmPaths, loadProjectsByBrand } from '../utils/frontendRouteWarmup'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 export const ProjectBrands: CollectionConfig = {
@@ -61,12 +62,26 @@ export const ProjectBrands: CollectionConfig = {
           console.warn('[project-brands] failed to propagate NDA flag to brandLogos:', e)
         }
 
-        await triggerFrontendProjectRevalidate('project-brands.afterChange')
+        const warmPaths = buildProjectsWarmPaths(
+          await loadProjectsByBrand(req.payload, (doc as { id?: unknown })?.id),
+          { includeHome: true },
+        )
+
+        await triggerFrontendProjectRevalidate('project-brands.afterChange', {
+          warmPaths,
+        })
       },
     ],
     afterDelete: [
-      async () => {
-        await triggerFrontendProjectRevalidate('project-brands.afterDelete')
+      async ({ doc, req }) => {
+        const warmPaths = buildProjectsWarmPaths(
+          await loadProjectsByBrand(req.payload, (doc as { id?: unknown })?.id),
+          { includeHome: true },
+        )
+
+        await triggerFrontendProjectRevalidate('project-brands.afterDelete', {
+          warmPaths,
+        })
       },
     ],
   },

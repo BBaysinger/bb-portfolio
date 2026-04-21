@@ -7,12 +7,16 @@ export const CvExperienceLogos: CollectionConfig = {
   hooks: {
     afterChange: [
       async () => {
-        await triggerFrontendProjectRevalidate('cvExperienceLogos.afterChange')
+        await triggerFrontendProjectRevalidate('cvExperienceLogos.afterChange', {
+          warmPaths: ['/cv/'],
+        })
       },
     ],
     afterDelete: [
       async () => {
-        await triggerFrontendProjectRevalidate('cvExperienceLogos.afterDelete')
+        await triggerFrontendProjectRevalidate('cvExperienceLogos.afterDelete', {
+          warmPaths: ['/cv/'],
+        })
       },
     ],
   },

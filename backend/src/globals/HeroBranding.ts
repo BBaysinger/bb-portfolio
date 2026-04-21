@@ -48,7 +48,9 @@ export const HeroBranding: GlobalConfig = {
   hooks: {
     afterChange: [
       async () => {
-        await triggerFrontendProjectRevalidate('heroBranding.afterChange')
+        await triggerFrontendProjectRevalidate('heroBranding.afterChange', {
+          warmPaths: ['/'],
+        })
       },
     ],
   },
