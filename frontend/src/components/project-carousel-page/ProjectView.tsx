@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 
+import { buildProjectPageTitle } from "@/app/siteMetadata";
 import HeaderSub from "@/components/layout/HeaderSub";
 import {
   DirectionType,
@@ -44,9 +45,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
 
   useEffect(() => {
     try {
-      const rec = projects?.[projectId];
-      const title = rec?.longTitle || rec?.title || "Project";
-      document.title = title;
+      document.title = buildProjectPageTitle(projects?.[projectId]);
     } catch {
       // ignore
     }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 export const defaultSiteOrigin = "https://bbaysinger.io";
+export const siteOwnerName = "Bradley Baysinger";
 export const socialImageAlt =
   "Bradley Baysinger frontend and UI developer portfolio social preview";
 
@@ -43,13 +44,34 @@ export const metadataBase = (() => {
   );
 })();
 
-export const siteTitle =
-  "Bradley Baysinger | Frontend / UI Developer Portfolio";
+export const defaultRoleTitle = "Front-End / UI Developer";
+
+export const siteTitle = `${siteOwnerName} | ${defaultRoleTitle}`;
+
+export const buildSectionTitle = (pageTitle?: string): string => {
+  const normalizedPageTitle = pageTitle?.trim();
+  if (!normalizedPageTitle) return siteOwnerName;
+  if (normalizedPageTitle.includes(siteOwnerName)) return normalizedPageTitle;
+  return `${normalizedPageTitle} | ${siteOwnerName}`;
+};
 
 export const buildHomePageTitle = (roleTitle?: string): string => {
   const normalizedRoleTitle = roleTitle?.trim();
   if (!normalizedRoleTitle) return siteTitle;
-  return `Bradley Baysinger | ${normalizedRoleTitle}`;
+  return `${siteOwnerName} | ${normalizedRoleTitle}`;
+};
+
+export const buildProjectPageTitle = (project?: {
+  longTitle?: string;
+  title?: string;
+}): string => {
+  const normalizedLongTitle = project?.longTitle?.trim();
+  if (normalizedLongTitle) return buildSectionTitle(normalizedLongTitle);
+
+  const normalizedTitle = project?.title?.trim();
+  if (normalizedTitle) return buildSectionTitle(normalizedTitle);
+
+  return buildSectionTitle("Project");
 };
 
 export const siteDescription =
@@ -101,7 +123,7 @@ export const siteKeywords = [
 ] as const;
 
 type BuildPageMetadataOptions = {
-  title?: Metadata["title"];
+  title?: string;
   description?: string;
   path?: string;
   robots?: Metadata["robots"];
@@ -113,7 +135,7 @@ export const buildPageMetadata = ({
   path,
   robots,
 }: BuildPageMetadataOptions = {}): Metadata => {
-  const resolvedTitle = title ?? siteTitle;
+  const resolvedTitle = title ? buildSectionTitle(title) : siteTitle;
   const resolvedDescription = description ?? siteDescription;
 
   const metadata: Metadata = {

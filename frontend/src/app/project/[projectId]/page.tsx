@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { buildPageMetadata } from "@/app/siteMetadata";
+import { buildPageMetadata, buildProjectPageTitle } from "@/app/siteMetadata";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 import ProjectClientBoundary from "./ProjectClientBoundary";
@@ -43,8 +43,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { projectId } = await params;
 
+  let title = buildProjectPageTitle();
+
+  try {
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+
+    title = buildProjectPageTitle(projectData.getProject(projectId));
+  } catch {
+    // Fall back to the generic project section title when prefetch fails.
+  }
+
   return buildPageMetadata({
-    title: "Project",
+    title,
     path: `/project/${encodeURIComponent(projectId)}/`,
   });
 }

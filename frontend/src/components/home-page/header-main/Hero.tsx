@@ -55,6 +55,7 @@ import TitleBranding from "./TitleBranding";
 import TypewriterEffect from "./TypewriterEffect";
 
 const quotes = [
+  // General UI/UX
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
   "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you'.",
   "Front-end development is storytelling in motion. It's not just about displaying content — it's about guiding, delighting, and responding to the user's curiosity.",

@@ -24,43 +24,46 @@ import { EnvironmentClassInitializer } from "./EnvironmentClassInitializer";
 import styles from "./layout.module.scss";
 import { AppProviders } from "./providers/AppProviders";
 import {
+  buildHomePageTitle,
   defaultSiteOrigin,
   metadataBase,
   siteDescription,
   siteKeywords,
-  siteTitle,
+  siteOwnerName,
 } from "./siteMetadata";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
 
-export const metadata: Metadata = {
-  metadataBase,
-  title: {
-    default: siteTitle,
-    template: "%s | Bradley Baysinger",
-  },
-  description: siteDescription,
-  keywords: [...siteKeywords],
-  applicationName: "Bradley Baysinger Portfolio",
-  authors: [{ name: "Bradley Baysinger", url: defaultSiteOrigin }],
-  creator: "Bradley Baysinger",
-  publisher: "Bradley Baysinger",
-  robots: {
-    index: true,
-    follow: true,
-  },
-  openGraph: {
-    type: "website",
-    siteName: "Bradley Baysinger Portfolio",
-    title: siteTitle,
+export async function generateMetadata(): Promise<Metadata> {
+  const heroBranding = await getServerHeroBranding();
+  const resolvedSiteTitle = buildHomePageTitle(heroBranding.activeRoleTitle);
+
+  return {
+    metadataBase,
+    title: resolvedSiteTitle,
     description: siteDescription,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
-  },
-};
+    keywords: [...siteKeywords],
+    applicationName: `${siteOwnerName} Portfolio`,
+    authors: [{ name: siteOwnerName, url: defaultSiteOrigin }],
+    creator: siteOwnerName,
+    publisher: siteOwnerName,
+    robots: {
+      index: true,
+      follow: true,
+    },
+    openGraph: {
+      type: "website",
+      siteName: siteOwnerName,
+      title: resolvedSiteTitle,
+      description: siteDescription,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: resolvedSiteTitle,
+      description: siteDescription,
+    },
+  };
+}
 
 /**
  * Root layout component.
