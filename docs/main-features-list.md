@@ -56,6 +56,7 @@ Working list of notable features and technical systems
 - SSG/ISR (24h) dynamic project routes
 - SSG/ISR (24h) CV route
 - On-demand frontend revalidation endpoint for project/CV/hero/media updates
+- Targeted post-revalidation route warming so low-traffic recruiter/employer visits usually hit already-regenerated pages
 - SSG/ISR NDA project routes with short-code static params, sanitized placeholders, and auth-aware runtime upgrade (SSR to CSR hydration)
 - Post-login redirect back to originally requested NDA content
 

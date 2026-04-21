@@ -58,6 +58,11 @@ const normalizeWarmPaths = (paths?: string[]): string[] => {
   return Array.from(normalized)
 }
 
+// Invalidation alone leaves regeneration to the next real request.
+// That is acceptable on high-traffic sites, but this portfolio can go a day with only a single
+// recruiter/employer visit. Warm the key public routes immediately after a successful
+// revalidation ping so the next human visitor is much more likely to receive already-regenerated
+// HTML instead of paying the first-hit regeneration cost.
 const warmFrontendPaths = async (paths: string[], reason: string): Promise<void> => {
   const normalizedPaths = normalizeWarmPaths(paths)
   if (normalizedPaths.length === 0) return
