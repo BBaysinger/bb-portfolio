@@ -1,181 +1,73 @@
-import { Fragment } from "react";
-import type { CSSProperties, ReactNode } from "react";
+"use client";
 
-type BrandLockupProps = {
-  roleTitle: string;
-  roleLetterSpacing?: string;
-  logoSrc?: string;
-  logoNode?: ReactNode;
-  logoAlt?: string;
-  scale?: number;
-  style?: CSSProperties;
-  className?: string;
-  logoStyle?: CSSProperties;
-  logoClassName?: string;
-  textClassName?: string;
-  nameClassName?: string;
-  roleClassName?: string;
-  firstNameColor?: string;
-  lastNameColor?: string;
-  roleColor?: string;
-  dropShadow?: string;
-  structure?: "wrapped" | "split";
+import clsx from "clsx";
+import { Fragment, useEffect, useState } from "react";
+
+import { defaultRoleTitle } from "@/app/siteMetadata";
+import type { ServerHeroBranding } from "@/data/HeroBranding";
+
+import styles from "./BrandLockup.module.scss";
+
+const LOGO_SRC = "/images/hero/bb-logo.svg";
+const LOGO_ALT = "BB Logo";
+const DEFAULT_BRANDING: ServerHeroBranding = {
+  activeRoleTitle: defaultRoleTitle,
 };
 
-const BASE_LOGO_HEIGHT = 38;
-const BASE_NAME_FONT_SIZE = 24;
-const BASE_ROLE_WRAP_FONT_SIZE = 13.9;
-const BASE_ROLE_FONT_SIZE = 16;
-const BASE_GAP = 8;
-const LIGHTER_THEME_COLOR = "rgba(141, 181, 40, 1)";
+const BrandLockup = () => {
+  const [branding, setBranding] =
+    useState<ServerHeroBranding>(DEFAULT_BRANDING);
 
-const BrandLockup = ({
-  roleTitle,
-  roleLetterSpacing,
-  logoSrc,
-  logoNode,
-  logoAlt = "BB Logo",
-  scale = 1,
-  style,
-  className,
-  logoStyle: logoStyleOverride,
-  logoClassName,
-  textClassName,
-  nameClassName,
-  roleClassName,
-  firstNameColor = "#999",
-  lastNameColor = LIGHTER_THEME_COLOR,
-  roleColor = "#fff",
-  dropShadow,
-  structure = "wrapped",
-}: BrandLockupProps) => {
-  const resolvedRoleTitle = roleTitle.trim();
-  const rootStyle: CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: BASE_GAP * scale,
-    color: roleColor,
-    ...style,
-  };
+  useEffect(() => {
+    const controller = new AbortController();
 
-  const resolvedLogoStyle: CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    maxHeight: BASE_LOGO_HEIGHT * scale,
-    height: "auto",
-    width: "auto",
-    flexShrink: 0,
-    position: "relative",
-    top: "50%",
-    transform: "translateY(-50%)",
-    ...(dropShadow ? { filter: dropShadow } : {}),
-    ...logoStyleOverride,
-  };
+    const loadBranding = async () => {
+      try {
+        const response = await fetch("/api/hero-branding", {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
 
-  const textColumnStyle: CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    minWidth: 0,
-  };
+        setBranding((await response.json()) as ServerHeroBranding);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+      }
+    };
 
-  const nameRowStyle: CSSProperties = {
-    display: "flex",
-    alignItems: "baseline",
-    gap: 0,
-    textTransform: "uppercase",
-    lineHeight: 1,
-    fontWeight: 400,
-    fontSize: BASE_NAME_FONT_SIZE * scale,
-    letterSpacing: 0,
-    whiteSpace: "nowrap",
-    marginTop: -3 * scale,
-    marginBottom: -7 * scale,
-  };
+    void loadBranding();
 
-  const roleWrapStyle: CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    fontSize: BASE_ROLE_WRAP_FONT_SIZE * scale,
-    color: roleColor,
-    marginTop: -3 * scale,
-    marginBottom: -2 * scale,
-    lineHeight: 1,
-  };
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
-  const roleTextStyle: CSSProperties = {
-    display: "block",
-    fontSize: BASE_ROLE_FONT_SIZE * scale,
-    color: roleColor,
-    marginLeft: 1 * scale,
-    letterSpacing: roleLetterSpacing,
-    whiteSpace: "nowrap",
-    lineHeight: 1,
-  };
-
-  const logoElement = logoNode ? (
-    <div aria-hidden="true" className={logoClassName} style={resolvedLogoStyle}>
-      {logoNode}
-    </div>
-  ) : (
-    <img
-      src={logoSrc}
-      alt={logoAlt}
-      className={logoClassName}
-      style={resolvedLogoStyle}
-    />
-  );
-
-  if (structure === "split") {
-    const splitLogoElement = logoNode ? (
-      <div aria-hidden="true" className={logoClassName}>
-        {logoNode}
-      </div>
-    ) : (
-      <img src={logoSrc} alt={logoAlt} className={logoClassName} />
-    );
-
-    return (
-      <Fragment>
-        {splitLogoElement}
-        <div className={textClassName}>
-          <div className={nameClassName}>
-            <span>BRADLEY</span> <span>BAYSINGER</span>
-          </div>
-          <div>
-            <span
-              className={roleClassName}
-              style={{ letterSpacing: roleLetterSpacing }}
-            >
-              {resolvedRoleTitle}
-            </span>
-          </div>
-        </div>
-      </Fragment>
-    );
-  }
-
-  const textElement = (
-    <div className={textClassName} style={textColumnStyle}>
-      <div className={nameClassName} style={nameRowStyle}>
-        <span style={{ color: firstNameColor, marginRight: -2 * scale }}>
-          Bradley
-        </span>
-        <span style={{ color: lastNameColor }}>Baysinger</span>
-      </div>
-      <div style={roleWrapStyle}>
-        <span className={roleClassName} style={roleTextStyle}>
-          {resolvedRoleTitle}
-        </span>
-      </div>
-    </div>
+  const resolvedRoleTitle = branding.activeRoleTitle.trim();
+  const logoElement = (
+    <img src={LOGO_SRC} alt={LOGO_ALT} className={styles.logo} />
   );
 
   return (
-    <div className={className} style={rootStyle}>
+    <Fragment>
       {logoElement}
-      {textElement}
-    </div>
+      <div className={styles.text}>
+        <div className={styles.name}>
+          <span>BRADLEY</span> <span>BAYSINGER</span>
+        </div>
+        <div>
+          <span
+            className={clsx(styles.roleTitle, "nobr")}
+            style={{ letterSpacing: branding.activeRoleLetterSpacing }}
+          >
+            {resolvedRoleTitle}
+          </span>
+        </div>
+      </div>
+    </Fragment>
   );
 };
 

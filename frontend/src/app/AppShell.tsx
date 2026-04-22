@@ -47,8 +47,6 @@ import styles from "./AppShell.module.scss";
 
 type AppShellProps = {
   children: React.ReactNode;
-  initialRoleTitle?: string;
-  initialRoleLetterSpacing?: string;
 };
 
 /**
@@ -56,11 +54,7 @@ type AppShellProps = {
  *
  * @param children - Route content rendered within the shell.
  */
-export function AppShell({
-  children,
-  initialRoleTitle,
-  initialRoleLetterSpacing,
-}: AppShellProps) {
+export function AppShell({ children }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
@@ -404,19 +398,11 @@ export function AppShell({
         reduceMotion && "reduce-motion",
       )}
     >
-      <NavVariant
-        variant={NavVariants.SLIDE_OUT}
-        initialRoleTitle={initialRoleTitle}
-        initialRoleLetterSpacing={initialRoleLetterSpacing}
-      />
+      <NavVariant variant={NavVariants.SLIDE_OUT} />
       {/* Anchor target for in-page navigation / scroll-to-top behaviors. */}
       <div id="top" style={{ position: "absolute", top: 0 }} />
       <div className={styles.underlay} />
-      <NavVariant
-        variant={NavVariants.TOP_BAR}
-        initialRoleTitle={initialRoleTitle}
-        initialRoleLetterSpacing={initialRoleLetterSpacing}
-      />
+      <NavVariant variant={NavVariants.TOP_BAR} />
       {/*
         SkipLink target. `tabIndex={-1}` allows programmatic focus after clicking
         the skip link, without inserting it into the normal tab order.

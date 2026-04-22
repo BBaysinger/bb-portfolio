@@ -15,11 +15,7 @@ import styles from "./NavVariant.module.scss";
 
 interface NavProps {
   variant: NavVariantClass;
-  initialRoleTitle?: string;
-  initialRoleLetterSpacing?: string;
 }
-
-const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
 
 /**
  * Adaptive navigation component with multiple display variants.
@@ -57,21 +53,7 @@ const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
  */
 const NAV_HAMBURGER_BREAKPOINT_VAR = "--nav-hamburger-breakpoint";
 
-const NavVariant: React.FC<NavProps> = ({
-  variant,
-  initialRoleTitle,
-  initialRoleLetterSpacing,
-}) => {
-  const roleTitle =
-    typeof initialRoleTitle === "string" && initialRoleTitle.trim()
-      ? initialRoleTitle.trim()
-      : DEFAULT_ROLE_TITLE;
-  const roleLetterSpacing =
-    typeof initialRoleLetterSpacing === "string" &&
-    initialRoleLetterSpacing.trim()
-      ? initialRoleLetterSpacing.trim()
-      : undefined;
-
+const NavVariant: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -261,16 +243,7 @@ const NavVariant: React.FC<NavProps> = ({
       )}
 
       <Link href="/#top" className={styles.title}>
-        <BrandLockup
-          roleTitle={roleTitle}
-          roleLetterSpacing={roleLetterSpacing}
-          logoSrc="/images/hero/bb-logo.svg"
-          structure="split"
-          logoClassName={styles.navLogo}
-          textClassName={styles.navLogoText}
-          nameClassName={styles.name}
-          roleClassName={clsx(styles.jobTitle, "nobr")}
-        />
+        <BrandLockup />
       </Link>
       <NavLinks
         onClick={closeMobileNavHandler}

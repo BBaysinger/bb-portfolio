@@ -1,35 +1,18 @@
 /**
- * Frontend API proxy for `GET /api/hero-branding`.
+ * Frontend API endpoint for `GET /api/hero-branding`.
  *
- * Keeps client-side fetches same-origin while forwarding to backend.
+ * Returns normalized hero branding data for client consumers.
  */
-import { NextRequest } from "next/server";
+import { getServerHeroBranding } from "@/data/HeroBranding";
 
-import { resolveBackendBase } from "@/utils/backend-base";
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const backendUrl = resolveBackendBase();
-
-    const response = await fetch(`${backendUrl}/api/hero-branding/`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        ...(request.headers.get("user-agent") && {
-          "User-Agent": request.headers.get("user-agent")!,
-        }),
-      },
-      cache: "no-store",
-    });
-
-    const data = await response.json();
-    return Response.json(data, { status: response.status });
+    return Response.json(await getServerHeroBranding());
   } catch (error) {
     console.error("Frontend hero-branding proxy error:", error);
     return Response.json(
       {
-        success: false,
-        error: "Failed to fetch hero branding",
+        activeRoleTitle: "Front-End / UI Developer",
       },
       { status: 500 },
     );

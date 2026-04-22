@@ -111,12 +111,7 @@ export default async function RootLayout({
         <EnvironmentClassInitializer />
         <SkipLink />
         <AppProviders>
-          <AppShell
-            initialRoleTitle={heroBranding.activeRoleTitle}
-            initialRoleLetterSpacing={heroBranding.activeRoleLetterSpacing}
-          >
-            {children}
-          </AppShell>
+          <AppShell>{children}</AppShell>
         </AppProviders>
       </body>
     </html>

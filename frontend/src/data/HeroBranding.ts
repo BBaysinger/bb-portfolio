@@ -1,3 +1,4 @@
+import { defaultRoleTitle } from "@/app/siteMetadata";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 export type ServerHeroBranding = {
@@ -13,7 +14,6 @@ type HeroBrandingApiResponse = {
   };
 };
 
-const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
 const LETTER_SPACING_TOKEN_REGEX =
   /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i;
 
@@ -34,10 +34,34 @@ const normalizeSpacingToken = (value: unknown): string | undefined => {
   return `${clamped}${unit}`;
 };
 
-export const getServerHeroBranding = async (): Promise<ServerHeroBranding> => {
-  const fallback: ServerHeroBranding = {
-    activeRoleTitle: DEFAULT_ROLE_TITLE,
+const getFallbackHeroBranding = (): ServerHeroBranding => ({
+  activeRoleTitle: defaultRoleTitle,
+});
+
+const parseHeroBrandingResponse = (payload: unknown): ServerHeroBranding => {
+  const fallback = getFallbackHeroBranding();
+
+  if (!payload || typeof payload !== "object") return fallback;
+
+  const response = payload as HeroBrandingApiResponse;
+  if (!response.success || !response.data) return fallback;
+
+  const activeRoleTitle =
+    typeof response.data.activeRoleTitle === "string" &&
+    response.data.activeRoleTitle.trim()
+      ? response.data.activeRoleTitle.trim()
+      : defaultRoleTitle;
+
+  return {
+    activeRoleTitle,
+    activeRoleLetterSpacing: normalizeSpacingToken(
+      response.data.activeRoleLetterSpacing,
+    ),
   };
+};
+
+export const getServerHeroBranding = async (): Promise<ServerHeroBranding> => {
+  const fallback = getFallbackHeroBranding();
 
   try {
     const backendUrl = resolveBackendBase();
@@ -49,21 +73,7 @@ export const getServerHeroBranding = async (): Promise<ServerHeroBranding> => {
 
     if (!response.ok) return fallback;
 
-    const payload = (await response.json()) as HeroBrandingApiResponse;
-    if (!payload.success || !payload.data) return fallback;
-
-    const activeRoleTitle =
-      typeof payload.data.activeRoleTitle === "string" &&
-      payload.data.activeRoleTitle.trim()
-        ? payload.data.activeRoleTitle.trim()
-        : DEFAULT_ROLE_TITLE;
-
-    return {
-      activeRoleTitle,
-      activeRoleLetterSpacing: normalizeSpacingToken(
-        payload.data.activeRoleLetterSpacing,
-      ),
-    };
+    return parseHeroBrandingResponse(await response.json());
   } catch {
     return fallback;
   }
