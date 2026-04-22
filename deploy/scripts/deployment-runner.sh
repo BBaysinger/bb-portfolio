@@ -511,15 +511,24 @@ fi
 
 if command -v certbot >/dev/null 2>&1; then
   if [ ! -d "/etc/letsencrypt/live/$SSL_DOMAIN" ]; then
-    echo "Issuing initial certificates via certbot for $SSL_DOMAIN";
+    echo "Issuing initial certificates via certbot for $SSL_DOMAIN and www.$SSL_DOMAIN";
     sudo certbot --nginx -n --agree-tos --email "$ACME_EMAIL" \
-      -d "$SSL_DOMAIN" -d "www.$SSL_DOMAIN" \
-      -d "dev.$SSL_DOMAIN" --redirect || echo "Certbot issuance failed";
-    sudo systemctl reload nginx || true
+      -d "$SSL_DOMAIN" -d "www.$SSL_DOMAIN" --redirect || echo "Certbot issuance failed";
   else
-    echo "Certificates already present for $SSL_DOMAIN; attempting quiet renewal";
-    sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
+    echo "Certificate already present for $SSL_DOMAIN";
   fi
+
+  if [ ! -d "/etc/letsencrypt/live/dev.$SSL_DOMAIN" ]; then
+    echo "Issuing initial certificate via certbot for dev.$SSL_DOMAIN";
+    sudo certbot --nginx -n --agree-tos --email "$ACME_EMAIL" \
+      -d "dev.$SSL_DOMAIN" --redirect || echo "Certbot issuance failed";
+  else
+    echo "Certificate already present for dev.$SSL_DOMAIN";
+  fi
+
+  echo "Attempting quiet renewal for existing certificates";
+  sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
+  sudo systemctl reload nginx || true
 else
   echo "certbot not installed on host; skipping HTTPS ensure";
 fi
@@ -648,45 +657,63 @@ ensure_ssl_blocks() {
 set -e
 SSL_DOMAIN="${SSL_DOMAIN:-}"
 SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
+PROD_CERT_DOMAIN="$SSL_DOMAIN"
+DEV_CERT_DOMAIN="dev.$SSL_DOMAIN"
 if [ -z "$SSL_DOMAIN" ]; then
   echo "SSL_DOMAIN not set; disabling SSL include"
   sudo rm -f "$SSL_CONF"
   exit 0
 fi
-    # certbot can create /etc/letsencrypt/live/<domain>/ even when issuance fails,
-    # so require the actual files to exist to avoid breaking nginx.
-      if ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
-        || ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" \
-        || ! sudo test -s /etc/letsencrypt/options-ssl-nginx.conf; then
-      echo "Certificates not present for $SSL_DOMAIN; removing SSL include"
+
+# certbot can create /etc/letsencrypt/live/<domain>/ even when issuance fails,
+# so require the actual files to exist to avoid breaking nginx.
+if ! sudo test -s "/etc/letsencrypt/live/$PROD_CERT_DOMAIN/fullchain.pem" \
+  || ! sudo test -s "/etc/letsencrypt/live/$PROD_CERT_DOMAIN/privkey.pem" \
+  || ! sudo test -s /etc/letsencrypt/options-ssl-nginx.conf; then
+      echo "Production certificates not present for $PROD_CERT_DOMAIN; removing SSL include"
       sudo rm -f "$SSL_CONF"
       exit 0
-    fi
-    echo "Installing SSL include for $SSL_DOMAIN"
-    sudo tee "$SSL_CONF" >/dev/null <<CONF
+fi
+
+DEV_CERT_PRESENT=0
+if sudo test -s "/etc/letsencrypt/live/$DEV_CERT_DOMAIN/fullchain.pem" \
+  && sudo test -s "/etc/letsencrypt/live/$DEV_CERT_DOMAIN/privkey.pem"; then
+  DEV_CERT_PRESENT=1
+fi
+
+echo "Installing SSL include for $SSL_DOMAIN"
+sudo tee "$SSL_CONF" >/dev/null <<CONF
 server {
   listen 443 ssl;
   http2 on;
   server_name $SSL_DOMAIN www.$SSL_DOMAIN;
-  ssl_certificate     /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
+  ssl_certificate     /etc/letsencrypt/live/$PROD_CERT_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$PROD_CERT_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
 }
+CONF
+
+if [ "$DEV_CERT_PRESENT" -eq 1 ]; then
+  sudo tee -a "$SSL_CONF" >/dev/null <<CONF
 server {
   listen 443 ssl;
   http2 on;
   server_name dev.$SSL_DOMAIN;
-  ssl_certificate     /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
+  ssl_certificate     /etc/letsencrypt/live/$DEV_CERT_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$DEV_CERT_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location /api/ { proxy_pass http://127.0.0.1:4001; }
   location / { proxy_pass http://127.0.0.1:4000/; }
 }
 CONF
+else
+  echo "Dev certificate not present for $DEV_CERT_DOMAIN; skipping dev SSL server block"
+fi
+
 sudo nginx -t && sudo systemctl reload nginx
 SSH
 }

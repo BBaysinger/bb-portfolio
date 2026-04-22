@@ -50,6 +50,8 @@ sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 # - Do NOT delete an existing SSL config automatically; doing so can drop :443.
 SSL_DOMAIN="${SSL_DOMAIN:-}"
 SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
+PROD_CERT_DOMAIN="$SSL_DOMAIN"
+DEV_CERT_DOMAIN="dev.$SSL_DOMAIN"
 
 if [ -z "$SSL_DOMAIN" ]; then
   echo "Skipping SSL nginx config: SSL_DOMAIN not provided. Keeping any existing SSL config as-is."
@@ -62,8 +64,8 @@ if [ -z "$SSL_DOMAIN" ]; then
 fi
 
 if [ -n "$SSL_DOMAIN" ] \
-  && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
-  && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" \
+  && sudo test -s "/etc/letsencrypt/live/$PROD_CERT_DOMAIN/fullchain.pem" \
+  && sudo test -s "/etc/letsencrypt/live/$PROD_CERT_DOMAIN/privkey.pem" \
   && sudo test -s /etc/letsencrypt/options-ssl-nginx.conf; then
   echo "Installing SSL nginx config for $SSL_DOMAIN";
   sudo tee "$SSL_CONF" >/dev/null <<CONF
@@ -71,8 +73,8 @@ server {
   listen 443 ssl;
   http2 on;
   server_name $SSL_DOMAIN www.$SSL_DOMAIN;
-  ssl_certificate     /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
+  ssl_certificate     /etc/letsencrypt/live/$PROD_CERT_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$PROD_CERT_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
 
   # Route Next.js assets based on referer.
@@ -98,12 +100,17 @@ server {
   location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
 }
+CONF
+
+  if sudo test -s "/etc/letsencrypt/live/$DEV_CERT_DOMAIN/fullchain.pem" \
+    && sudo test -s "/etc/letsencrypt/live/$DEV_CERT_DOMAIN/privkey.pem"; then
+    sudo tee -a "$SSL_CONF" >/dev/null <<CONF
 server {
   listen 443 ssl;
   http2 on;
   server_name dev.$SSL_DOMAIN;
-  ssl_certificate     /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
+  ssl_certificate     /etc/letsencrypt/live/$DEV_CERT_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$DEV_CERT_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
 
   set \$next_upstream_dev_local http://127.0.0.1:4000;
@@ -124,6 +131,9 @@ server {
   location / { proxy_pass http://127.0.0.1:4000/; }
 }
 CONF
+  else
+    echo "Skipping dev SSL nginx config for $DEV_CERT_DOMAIN (cert files missing)."
+  fi
 else
   echo "Skipping SSL nginx config for $SSL_DOMAIN (cert files missing). Keeping any existing SSL config as-is."
 fi
