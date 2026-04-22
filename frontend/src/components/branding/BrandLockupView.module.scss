@@ -8,6 +8,8 @@
 .text {
   display: flex;
   flex-direction: column;
+  position: relative;
+  top: -0.5px; // optical alignment
 
   > div {
     font-size: 24px;
