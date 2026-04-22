@@ -13,6 +13,54 @@ const DEFAULT_BRANDING: ServerHeroBranding = {
   activeRoleTitle: defaultRoleTitle,
 };
 
+type HeroBrandingResponse =
+  | ServerHeroBranding
+  | {
+      success?: boolean;
+      data?: {
+        activeRoleTitle?: unknown;
+        activeRoleLetterSpacing?: unknown;
+      };
+    };
+
+type HeroBrandingFields = {
+  activeRoleTitle?: unknown;
+  activeRoleLetterSpacing?: unknown;
+};
+
+const normalizeBrandingPayload = (
+  payload: HeroBrandingResponse,
+): ServerHeroBranding => {
+  let candidate: HeroBrandingFields | undefined;
+
+  if (payload && typeof payload === "object" && "data" in payload) {
+    candidate = payload.data;
+  } else {
+    candidate = payload as ServerHeroBranding;
+  }
+
+  const activeRoleTitle =
+    candidate &&
+    typeof candidate === "object" &&
+    typeof candidate.activeRoleTitle === "string" &&
+    candidate.activeRoleTitle.trim()
+      ? candidate.activeRoleTitle.trim()
+      : defaultRoleTitle;
+
+  const activeRoleLetterSpacing =
+    candidate &&
+    typeof candidate === "object" &&
+    typeof candidate.activeRoleLetterSpacing === "string" &&
+    candidate.activeRoleLetterSpacing.trim()
+      ? candidate.activeRoleLetterSpacing.trim()
+      : undefined;
+
+  return {
+    activeRoleTitle,
+    activeRoleLetterSpacing,
+  };
+};
+
 const BrandLockup = () => {
   const [branding, setBranding] =
     useState<ServerHeroBranding>(DEFAULT_BRANDING);
@@ -30,7 +78,11 @@ const BrandLockup = () => {
         });
         if (!response.ok) return;
 
-        setBranding((await response.json()) as ServerHeroBranding);
+        setBranding(
+          normalizeBrandingPayload(
+            (await response.json()) as HeroBrandingResponse,
+          ),
+        );
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;

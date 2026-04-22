@@ -19,7 +19,10 @@ const BrandLockupView = ({
   roleTitleClassName,
   layout = "wrapped",
 }: BrandLockupViewProps) => {
-  const resolvedRoleTitle = roleTitle.trim();
+  const resolvedRoleTitle =
+    typeof roleTitle === "string" && roleTitle.trim()
+      ? roleTitle.trim()
+      : "Front-End / UI Developer";
   const isBareLayout = layout === "bare";
 
   const content = (
