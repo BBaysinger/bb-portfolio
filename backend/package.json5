@@ -175,8 +175,6 @@
     // PNPM v9 or v10 (for workspace support and faster installs)
     "pnpm": "^9 || ^10",
   },
-  // Preferred package manager for installs and lockfile maintenance in this package.
-  "packageManager": "npm@11.12.1",
   // Only build native dependencies that need precompilation to make CI faster
   "onlyBuiltDependencies": [
     "sharp",

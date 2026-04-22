@@ -143,6 +143,4 @@
     // pnpm major versions supported (used by some scripts/workflows)
     "pnpm": "^9 || ^10",
   },
-  // Preferred package manager for installs and lockfile maintenance in this package.
-  "packageManager": "npm@11.12.1",
 }

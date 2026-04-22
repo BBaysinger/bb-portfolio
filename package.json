@@ -163,6 +163,5 @@
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.3"
-  },
-  "packageManager": "npm@11.12.1"
+  }
 }

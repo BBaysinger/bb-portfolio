@@ -417,6 +417,4 @@
     // JWT utilities used by local maintenance scripts
     "jsonwebtoken": "^9.0.3",
   },
-  //
-  "packageManager": "npm@11.12.1",
 }
