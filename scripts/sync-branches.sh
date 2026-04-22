@@ -77,7 +77,7 @@ else
   exit 1
 fi
 
-# Helper: checkout, fast-forward pull, merge, push
+# Helper: checkout, fast-forward pull, merge locally
 checkout_ff_pull() {
   local BR=$1
   log "Checking out $BR"
@@ -94,7 +94,7 @@ checkout_ff_pull() {
   }
 }
 
-merge_push() {
+merge_local() {
   local FROM=$1
   local TO=$2
   log "Merging $FROM into $TO"
@@ -112,8 +112,7 @@ merge_push() {
   }
   # Fast-forward only to keep linear history (no merge commits)
   if git merge --ff-only "$FROM"; then
-    log "Pushing $TO to origin"
-    git push origin "$TO"
+    log "$TO now matches $FROM locally"
   else
     err "Non fast-forward merge required merging $FROM into $TO. To keep a single-line history, resolve by rebasing or aligning branches (e.g., reset) and rerun."
     exit 1
@@ -122,9 +121,9 @@ merge_push() {
 
 # Sequence
 checkout_ff_pull "$FIRST"
-merge_push "$MERGE1_FROM" "$MERGE1_TO"
+merge_local "$MERGE1_FROM" "$MERGE1_TO"
 checkout_ff_pull "$SECOND"
-merge_push "$MERGE2_FROM" "$MERGE2_TO"
+merge_local "$MERGE2_FROM" "$MERGE2_TO"
 
 log "Branch histories synchronized. Switching to dev for version bump."
 git checkout dev
@@ -141,11 +140,16 @@ git add package.json package.json5 package-lock.json \
   backend/package.json backend/package.json5 backend/package-lock.json \
   frontend/package.json frontend/package.json5 frontend/package-lock.json
 git commit -m "Bump version to $NEW_VERSION"
-log "Pushing dev with version bump"
-git push origin dev
 
 log "Fast-forwarding main to version bump $NEW_VERSION"
-merge_push dev main
+merge_local dev main
+
+log "Pushing dev once"
+git push origin dev
+
+log "Pushing main once"
+git checkout main
+git push origin main
 
 log "Returning to dev."
 git checkout dev
