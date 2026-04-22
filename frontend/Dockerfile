@@ -8,12 +8,15 @@
 # Default to Docker Hub/ECR Node 22 slim to avoid registry availability issues
 ARG NODE_IMAGE="public.ecr.aws/docker/library/node:22-slim"
 ARG RUNNER_IMAGE="gcr.io/distroless/nodejs22-debian12"
+ARG NPM_VERSION="11.12.1"
 
 FROM ${NODE_IMAGE} AS base
+ARG NPM_VERSION
 # Recommendation: pin by digest for reproducibility (set via CI)
 # e.g. FROM cgr.dev/chainguard/node:22@sha256:<digest> AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN corepack enable npm && corepack prepare "npm@${NPM_VERSION}" --activate
 # Keep base minimal; Debian slim avoids Alpine CVEs and libc6-compat not required
 # Chainguard/Wolfi base is minimal and routinely patched; no extra packages
 

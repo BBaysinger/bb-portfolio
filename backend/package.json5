@@ -71,7 +71,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1032.0",
+    "@aws-sdk/client-ses": "^3.1034.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.8",
     // MongoDB adapter for Payload CMS
@@ -103,7 +103,7 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Direct MongoDB client used by database sync scripts
-    "mongodb": "~7.1.1",
+    "mongodb": "~7.2.0",
     // Next.js framework for frontend/backend integration
     "next": "16.2.4",
     // Payload CMS core package
@@ -156,7 +156,7 @@
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "6.1.1",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.1.4",
+    "vitest": "4.1.5",
   },
   // Pin patched versions of transitive dependencies.
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
@@ -170,9 +170,13 @@
   "engines": {
     // Node 18.20.2+ or 20.9.0+ (for ES modules and latest security patches)
     "node": "^18.20.2 || >=20.9.0",
+    // Pin npm 11 so lockfile writes stay consistent across local/dev/prod installs.
+    "npm": ">=11 <12",
     // PNPM v9 or v10 (for workspace support and faster installs)
     "pnpm": "^9 || ^10",
   },
+  // Preferred package manager for installs and lockfile maintenance in this package.
+  "packageManager": "npm@11.12.1",
   // Only build native dependencies that need precompilation to make CI faster
   "onlyBuiltDependencies": [
     "sharp",

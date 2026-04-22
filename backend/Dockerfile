@@ -13,6 +13,8 @@
 # Specify Dockerfile syntax version for advanced features
 # syntax=docker/dockerfile:1
 
+ARG NPM_VERSION=11.12.1
+
 #######################
 # Builder Stage
 #######################
@@ -21,6 +23,7 @@
 # Default to Alpine to reduce CVEs; can override with build arg NODE_IMAGE.
 ARG NODE_IMAGE=node:22-alpine3.20
 FROM ${NODE_IMAGE} AS builder
+ARG NPM_VERSION
 
 # Explicitly set build-time ENV_PROFILE via ARG and propagate to ENV for build steps
 ARG ENV_PROFILE=prod
@@ -36,6 +39,8 @@ ENV REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=${REQUIRED_ENVIRONMENT_VARIABLES_BACK
 
 # Set working directory for all subsequent commands
 WORKDIR /app
+
+RUN corepack enable npm && corepack prepare "npm@${NPM_VERSION}" --activate
 
 # Keep base packages minimal (Alpine or Debian) to reduce CVE churn
 RUN set -eu; \
@@ -142,6 +147,9 @@ CMD ["./bootstrap.cjs"]
 
 # Use same Debian slim base for consistency across all stages and with frontend
 FROM ${NODE_IMAGE} AS dev
+ARG NPM_VERSION
+
+RUN corepack enable npm && corepack prepare "npm@${NPM_VERSION}" --activate
 
 # Install basic tooling needed only for development
 # Basic tooling for development (curl)

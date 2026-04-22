@@ -14,8 +14,8 @@
   "engines": {
     // Node.js runtime version range supported by this repo
     "node": ">=18.20.2 <26",
-    // npm major version range supported (kept below breaking changes)
-    "npm": "<12",
+    // Pin npm 11 so lockfile writes stay consistent across local/dev/prod installs.
+    "npm": ">=11 <12",
     // pnpm major versions supported (used by some scripts/workflows)
     "pnpm": "^9 || ^10",
   },
@@ -378,9 +378,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.58.2",
+    "@typescript-eslint/eslint-plugin": "8.59.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.58.2",
+    "@typescript-eslint/parser": "8.59.0",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.20",
     // Run multiple commands concurrently in scripts
@@ -418,5 +418,5 @@
     "jsonwebtoken": "^9.0.3",
   },
   //
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "packageManager": "npm@11.12.1",
 }
