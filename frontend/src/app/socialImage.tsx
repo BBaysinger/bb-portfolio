@@ -1,8 +1,10 @@
+import { headers } from "next/headers";
 import { ImageResponse } from "next/og";
 
+import BrandLockupView from "@/components/branding/BrandLockupView";
 import { getServerHeroBranding } from "@/data/HeroBranding";
 
-import { siteDescription } from "./siteMetadata";
+import { defaultSiteOrigin } from "./siteMetadata";
 
 type SocialImageOptions = {
   width: number;
@@ -11,12 +13,44 @@ type SocialImageOptions = {
 
 export const runtime = "edge";
 
+const DEVELOPMENT_SITE_ORIGIN = "http://localhost:3000";
+const SOCIAL_BACKGROUND_PATH = "/images/social/bg.png";
+const LOGO_PATH = "/images/hero/bb-logo.svg";
+
+const resolveRequestOrigin = async () => {
+  const requestHeaders = await headers();
+  const host =
+    requestHeaders.get("x-forwarded-host") || requestHeaders.get("host");
+
+  if (host) {
+    const proto =
+      requestHeaders.get("x-forwarded-proto") ||
+      (host.includes("localhost") ? "http" : "https");
+    return `${proto}://${host}`.replace(/\/$/, "");
+  }
+
+  const configuredOrigin = process.env.NEXT_PUBLIC_SITE_ORIGIN?.trim();
+  if (configuredOrigin) return configuredOrigin.replace(/\/$/, "");
+
+  return process.env.NODE_ENV === "production"
+    ? defaultSiteOrigin
+    : DEVELOPMENT_SITE_ORIGIN;
+};
+
 export const createPortfolioSocialImage = async ({
   width,
   height,
 }: SocialImageOptions) => {
   const heroBranding = await getServerHeroBranding();
+  const requestOrigin = await resolveRequestOrigin();
+  const backgroundImageUrl = `${requestOrigin}${SOCIAL_BACKGROUND_PATH}`;
+  const logoImageUrl = `${requestOrigin}${LOGO_PATH}`;
   const activeRoleTitle = heroBranding.activeRoleTitle.trim();
+  const isWide = width >= 1000;
+  const lockupScale = isWide ? 1.82 : 1.58;
+  const roleLetterSpacing =
+    heroBranding.activeRoleLetterSpacing?.trim() ||
+    (isWide ? "0.1em" : "0.08em");
 
   return new ImageResponse(
     <div
@@ -24,158 +58,74 @@ export const createPortfolioSocialImage = async ({
         display: "flex",
         width: "100%",
         height: "100%",
-        background:
-          "linear-gradient(135deg, #0c1118 0%, #132333 45%, #223d2a 100%)",
+        background: "#050a10",
         color: "#f3f6f8",
-        padding: "56px 64px",
-        fontFamily: "Arial",
+        fontFamily: "Arial, Helvetica, sans-serif",
         position: "relative",
         overflow: "hidden",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      <div
+      <img
+        src={backgroundImageUrl}
+        alt=""
         style={{
           position: "absolute",
-          inset: "auto -120px -180px auto",
-          width: 460,
-          height: 460,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(197,255,70,0.28) 0%, rgba(197,255,70,0.08) 45%, rgba(197,255,70,0) 75%)",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          inset: "-120px auto auto -100px",
-          width: 380,
-          height: 380,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(77,169,255,0.16) 0%, rgba(77,169,255,0.05) 45%, rgba(77,169,255,0) 72%)",
-        }}
-      />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          inset: 0,
           width: "100%",
-          border: "1px solid rgba(255,255,255,0.14)",
-          borderRadius: 28,
-          padding: "44px 48px",
-          background: "rgba(8, 12, 18, 0.44)",
-          backdropFilter: "blur(10px)",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(90deg, rgba(2,6,10,0.9) 0%, rgba(2,6,10,0.74) 32%, rgba(2,6,10,0.46) 56%, rgba(2,6,10,0.6) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(180deg, rgba(3,7,13,0.28) 0%, rgba(3,7,13,0.42) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          padding: isWide ? "72px 84px" : "56px 64px",
         }}
       >
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 24,
+            justifyContent: "center",
+            padding: isWide ? "18px 32px 20px" : "16px 26px 18px",
+            background: "rgba(6, 10, 14, 0.86)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 8,
+            boxShadow: "0 18px 42px rgba(0,0,0,0.24)",
+            maxWidth: "100%",
+            transform: `scale(${lockupScale})`,
+            transformOrigin: "center center",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 92,
-              height: 92,
-              borderRadius: 22,
-              background:
-                "linear-gradient(180deg, rgba(207,255,80,1) 0%, rgba(130,180,28,1) 100%)",
-              color: "#10160f",
-              fontSize: 64,
-              fontWeight: 700,
-            }}
-          >
-            b
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 22,
-                letterSpacing: 4,
-                textTransform: "uppercase",
-                color: "#c7ff46",
-              }}
-            >
-              Bradley Baysinger
-            </div>
-            <div
-              style={{
-                fontSize: 26,
-                color: "rgba(243,246,248,0.78)",
-              }}
-            >
-              {activeRoleTitle}
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 18,
-            maxWidth: width > 1000 ? 760 : 700,
-          }}
-        >
-          <div
-            style={{
-              fontSize: width > 1000 ? 64 : 56,
-              lineHeight: 1.04,
-              fontWeight: 700,
-            }}
-          >
-            Interactive frontend systems with production-grade delivery.
-          </div>
-          <div
-            style={{
-              fontSize: 28,
-              lineHeight: 1.35,
-              color: "rgba(243,246,248,0.84)",
-            }}
-          >
-            {siteDescription}
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 14,
-            flexWrap: "wrap",
-          }}
-        >
-          {[
-            "React",
-            "TypeScript",
-            "Next.js",
-            "Animation Systems",
-            "AWS / Terraform",
-          ].map((label) => (
-            <div
-              key={label}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "12px 18px",
-                borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.16)",
-                background: "rgba(255,255,255,0.06)",
-                fontSize: 21,
-                color: "rgba(243,246,248,0.92)",
-              }}
-            >
-              {label}
-            </div>
-          ))}
+          <BrandLockupView
+            roleTitle={activeRoleTitle}
+            roleLetterSpacing={roleLetterSpacing}
+            logoSrc={logoImageUrl}
+            logoAlt=""
+            variant="og"
+          />
         </div>
       </div>
     </div>,

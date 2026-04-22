@@ -1,5 +1,11 @@
 @use "@/styles/variables" as *;
 
+.root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .text {
   display: flex;
   flex-direction: column;
@@ -31,7 +37,11 @@
 }
 
 .name > span:first-of-type {
-  margin-right: -2px;
+  margin-right: 0;
+}
+
+.name {
+  column-gap: 0.16em;
 }
 
 .roleTitle {
@@ -41,9 +51,9 @@
   white-space: nowrap;
 }
 
-img.logo {
+.logo {
   position: relative;
-  top: 50%;
+  top: calc(50% - 4px);
   max-height: 38px;
   transform: translateY(-50%);
   height: auto;

@@ -1,12 +1,11 @@
 "use client";
 
-import clsx from "clsx";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { defaultRoleTitle } from "@/app/siteMetadata";
 import type { ServerHeroBranding } from "@/data/HeroBranding";
 
-import styles from "./BrandLockup.module.scss";
+import BrandLockupView from "./BrandLockupView";
 
 const LOGO_SRC = "/images/hero/bb-logo.svg";
 const LOGO_ALT = "BB Logo";
@@ -46,28 +45,14 @@ const BrandLockup = () => {
     };
   }, []);
 
-  const resolvedRoleTitle = branding.activeRoleTitle.trim();
-  const logoElement = (
-    <img src={LOGO_SRC} alt={LOGO_ALT} className={styles.logo} />
-  );
-
   return (
-    <Fragment>
-      {logoElement}
-      <div className={styles.text}>
-        <div className={styles.name}>
-          <span>BRADLEY</span> <span>BAYSINGER</span>
-        </div>
-        <div>
-          <span
-            className={clsx(styles.roleTitle, "nobr")}
-            style={{ letterSpacing: branding.activeRoleLetterSpacing }}
-          >
-            {resolvedRoleTitle}
-          </span>
-        </div>
-      </div>
-    </Fragment>
+    <BrandLockupView
+      roleTitle={branding.activeRoleTitle}
+      roleLetterSpacing={branding.activeRoleLetterSpacing}
+      logoSrc={LOGO_SRC}
+      logoAlt={LOGO_ALT}
+      roleTitleClassName="nobr"
+    />
   );
 };
 
