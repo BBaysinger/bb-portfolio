@@ -56,7 +56,7 @@ COMPOSE_FILE="deploy/compose/docker-compose.yml"
 try_up() {
   local profile="$1"; local attempts=0
   until [ $attempts -ge 3 ]; do
-    if COMPOSE_PROFILES="$profile" docker-compose -f "$COMPOSE_FILE" up -d --force-recreate; then
+    if COMPOSE_PROFILES="$profile" docker-compose -f "$COMPOSE_FILE" up -d; then
       return 0
     fi
     attempts=$((attempts+1))
