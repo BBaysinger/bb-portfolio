@@ -1,3 +1,22 @@
+.lockup {
+  --lockup-base-height: 47px;
+  --lockup-base-width: 266px;
+  --lockup-scale: 2;
+  align-items: center;
+  display: flex;
+  height: calc(var(--lockup-base-height) * var(--lockup-scale));
+  justify-content: center;
+  transform-origin: center center;
+  width: calc(var(--lockup-base-width) * var(--lockup-scale));
+}
+
+.lockupInner {
+  align-items: center;
+  display: flex;
+  transform: scale(var(--lockup-scale));
+  transform-origin: center center;
+}
+
 .page {
   min-height: 100vh;
   margin: 0;
@@ -29,6 +48,7 @@
 .overlayPrimary {
   position: absolute;
   inset: 0;
+  opacity: 0;
   background: linear-gradient(
     90deg,
     rgba(2, 6, 10, 0.9) 0%,
@@ -41,6 +61,7 @@
 .overlaySecondary {
   position: absolute;
   inset: 0;
+  opacity: 0;
   background: linear-gradient(
     180deg,
     rgba(3, 7, 13, 0.28) 0%,
@@ -62,13 +83,9 @@
   justify-content: center;
   max-width: 100%;
   background: rgba(6, 10, 14, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
-}
-
-.lockup {
-  align-items: center;
-  display: flex;
-  transform-origin: center center;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 18px rgba(0, 0, 0, 0.12),
+    0 18px 42px rgba(0, 0, 0, 0.24);
 }

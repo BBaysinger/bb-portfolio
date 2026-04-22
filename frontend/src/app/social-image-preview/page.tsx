@@ -61,18 +61,20 @@ export default async function SocialImagePreview({
           <div
             className={styles.card}
             style={{
-              padding: isWide ? "18px 32px 20px" : "16px 26px 18px",
+              padding: isWide ? "9px 16px 10px" : "8px 13px 9px",
             }}
           >
             <div className={styles.lockup}>
-              <BrandLockupView
-                roleTitle={activeRoleTitle}
-                roleLetterSpacing={roleLetterSpacing}
-                logoSrc="/images/hero/bb-logo.svg"
-                logoAlt=""
-                roleTitleClassName="nobr"
-                layout="bare"
-              />
+              <div className={styles.lockupInner}>
+                <BrandLockupView
+                  roleTitle={activeRoleTitle}
+                  roleLetterSpacing={roleLetterSpacing}
+                  logoSrc="/images/hero/bb-logo.svg"
+                  logoAlt=""
+                  roleTitleClassName="nobr"
+                  layout="bare"
+                />
+              </div>
             </div>
           </div>
         </div>
