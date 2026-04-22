@@ -4,9 +4,9 @@ import { forwardRef } from "react";
 import BarberPole from "@/components/common/BarberPole";
 import { RawImg } from "@/components/common/RawImg";
 
-import styles from "./TitleBranding.module.scss";
+import styles from "./HeroLockup.module.scss";
 
-type TitleBrandingProps = {
+type HeroLockupProps = {
   className?: string;
   initialRoleTitle?: string;
 };
@@ -14,24 +14,12 @@ type TitleBrandingProps = {
 const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
 
 /**
- * TitleBranding component
+ * HeroLockup component
  *
- * Renders the site branding for the homepage hero section, including the BB logo,
+ * Renders the hero-specific brand lockup, including the BB logo,
  * animated barber pole accent, and the site owner's name and title.
- *
- * This component overlays the Fluxel grid on the home screen and serves as
- * the main identity marker for the user. It is typically placed in the hero section.
- *
- * @component
- * @example
- * <TitleBranding />
- *
- * @param {TitleBrandingProps} props
- * @param {string} [props.className] - Optional additional className(s) to append to the wrapper.
- * @param {React.Ref<HTMLDivElement>} ref - Forwarded ref to the root div.
- *
  */
-const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
+const HeroLockup = forwardRef<HTMLDivElement, HeroLockupProps>(
   ({ className = "", initialRoleTitle }, ref) => {
     const activeRoleText =
       typeof initialRoleTitle === "string" && initialRoleTitle.trim()
@@ -39,7 +27,6 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
         : DEFAULT_ROLE_TITLE;
 
     const handleHeroReset = () => {
-      // Minimal reset: clear session-scoped flags so the next interaction behaves like first visit
       try {
         sessionStorage.removeItem("hasDragged");
         sessionStorage.removeItem("hasCollided");
@@ -57,7 +44,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
     };
 
     return (
-      <div ref={ref} className={clsx(styles.titleBranding, className)}>
+      <div ref={ref} className={clsx(styles.heroLockup, className)}>
         <span className={styles.logoWrapper}>
           <div>
             <RawImg
@@ -88,6 +75,6 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
   },
 );
 
-TitleBranding.displayName = "TitleBranding";
+HeroLockup.displayName = "HeroLockup";
 
-export default TitleBranding;
+export default HeroLockup;

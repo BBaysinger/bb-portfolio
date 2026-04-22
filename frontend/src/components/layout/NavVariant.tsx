@@ -3,7 +3,7 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { RawImg } from "@/components/common/RawImg";
+import BrandLockup from "@/components/branding/BrandLockup";
 import Hamburger from "@/components/layout/Hamburger";
 import useLayoutMonitor from "@/hooks/useLayoutMonitor";
 import { RootState } from "@/store/store";
@@ -261,26 +261,12 @@ const NavVariant: React.FC<NavProps> = ({
       )}
 
       <Link href="/#top" className={styles.title}>
-        <RawImg
-          src={"/images/hero/bb-logo.svg"}
-          className={styles.navLogo}
-          alt="BB Logo"
+        <BrandLockup
+          roleTitle={roleTitle}
+          roleLetterSpacing={roleLetterSpacing}
+          logoSrc="/images/hero/bb-logo.svg"
+          style={{ marginLeft: 10 }}
         />
-        <div className={styles.navLogoText}>
-          <div className={styles.name}>
-            <span>BRADLEY</span> <span>BAYSINGER</span>
-          </div>
-          <div>
-            <span
-              className={clsx(styles.jobTitle, "nobr")}
-              style={{
-                letterSpacing: roleLetterSpacing,
-              }}
-            >
-              {roleTitle}
-            </span>
-          </div>
-        </div>
       </Link>
       <NavLinks
         onClick={closeMobileNavHandler}

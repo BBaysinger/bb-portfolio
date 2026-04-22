@@ -49,9 +49,9 @@ import GridController, {
 } from "./fluxel-grid/GridController";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
+import HeroLockup from "./HeroLockup";
 import HeroQueryConfig from "./HeroQueryConfig";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
-import TitleBranding from "./TitleBranding";
 import TypewriterEffect from "./TypewriterEffect";
 
 const quotes = [
@@ -557,7 +557,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
           />
         ) : null}
         {showFpsCounter && <FPSCounter />}
-        <TitleBranding
+        <HeroLockup
           className={styles.titleBranding}
           ref={titleRef}
           initialRoleTitle={initialRoleTitle}
