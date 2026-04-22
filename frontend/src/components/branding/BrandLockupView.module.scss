@@ -2,8 +2,6 @@
 
 .root {
   display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .text {
@@ -37,11 +35,7 @@
 }
 
 .name > span:first-of-type {
-  margin-right: 0;
-}
-
-.name {
-  column-gap: 0.16em;
+  margin-right: -2px;
 }
 
 .roleTitle {
@@ -51,9 +45,13 @@
   white-space: nowrap;
 }
 
+.root > .text {
+  margin-left: 8px;
+}
+
 .logo {
   position: relative;
-  top: calc(50% - 4px);
+  top: 50%;
   max-height: 38px;
   transform: translateY(-50%);
   height: auto;

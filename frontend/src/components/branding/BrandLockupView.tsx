@@ -65,6 +65,7 @@ type BrandLockupViewProps = {
   logoAlt?: string;
   roleTitleClassName?: string;
   variant?: "app" | "og";
+  layout?: "wrapped" | "bare";
 };
 
 const BrandLockupView = ({
@@ -74,12 +75,14 @@ const BrandLockupView = ({
   logoAlt = "BB Logo",
   roleTitleClassName,
   variant = "app",
+  layout = "wrapped",
 }: BrandLockupViewProps) => {
   const resolvedRoleTitle = roleTitle.trim();
   const isOg = variant === "og";
+  const isBareLayout = !isOg && layout === "bare";
 
-  return (
-    <div className={styles.root} style={isOg ? OG_ROOT_STYLE : undefined}>
+  const content = (
+    <>
       <img
         src={logoSrc}
         alt={logoAlt}
@@ -88,7 +91,7 @@ const BrandLockupView = ({
       />
       <div className={styles.text} style={isOg ? OG_TEXT_STYLE : undefined}>
         <div className={styles.name} style={isOg ? OG_NAME_STYLE : undefined}>
-          <span style={isOg ? OG_FIRST_NAME_STYLE : undefined}>BRADLEY</span>
+          <span style={isOg ? OG_FIRST_NAME_STYLE : undefined}>BRADLEY</span>{" "}
           <span style={isOg ? OG_LAST_NAME_STYLE : undefined}>BAYSINGER</span>
         </div>
         <div style={isOg ? OG_ROLE_CONTAINER_STYLE : undefined}>
@@ -103,6 +106,16 @@ const BrandLockupView = ({
           </span>
         </div>
       </div>
+    </>
+  );
+
+  if (isBareLayout) {
+    return content;
+  }
+
+  return (
+    <div className={styles.root} style={isOg ? OG_ROOT_STYLE : undefined}>
+      {content}
     </div>
   );
 };

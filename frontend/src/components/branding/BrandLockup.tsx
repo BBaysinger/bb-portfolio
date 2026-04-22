@@ -52,6 +52,7 @@ const BrandLockup = () => {
       logoSrc={LOGO_SRC}
       logoAlt={LOGO_ALT}
       roleTitleClassName="nobr"
+      layout="bare"
     />
   );
 };
