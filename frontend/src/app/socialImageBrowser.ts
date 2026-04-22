@@ -148,8 +148,9 @@ export const createPortfolioSocialImage = async ({
     await frame.waitFor({ state: "visible", timeout: SOCIAL_IMAGE_TIMEOUT_MS });
 
     const screenshot = await page.screenshot({ type: "png" });
+    const responseBody = new Uint8Array(screenshot);
 
-    return new Response(screenshot, {
+    return new Response(responseBody, {
       headers: {
         "content-type": "image/png",
         "cache-control":
