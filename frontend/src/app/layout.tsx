@@ -81,8 +81,6 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const heroBranding = await getServerHeroBranding();
-
   return (
     <html lang="en">
       <head>

@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createPortfolioSocialImage, runtime } from "./socialImage";
+import { createPortfolioSocialImage } from "./socialImage";
 
-export { runtime };
+export const runtime = "edge";
 
 export const alt =
   "Bradley Baysinger frontend and UI developer portfolio preview";
