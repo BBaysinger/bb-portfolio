@@ -64,6 +64,33 @@ err()  { echo -e "${RED}❌ $*${NC}"; }
 
 die() { err "$*"; exit 1; }
 
+resolve_ssh_key_path() {
+  local candidate="${EC2_SSH_KEY_PATH:-${EC2_SSH_KEY_PEM_PATH:-}}"
+  if [[ -n "$candidate" && -f "$candidate" ]]; then
+    echo "$candidate"
+    return 0
+  fi
+
+  candidate="$HOME/.ssh/bb-portfolio-site-key.pem"
+  if [[ -f "$candidate" ]]; then
+    echo "$candidate"
+    return 0
+  fi
+
+  local matches=()
+  shopt -s nullglob
+  matches=("$HOME"/.ssh/bb-portfolio*-ec2-ssh*.pem)
+  shopt -u nullglob
+  if [[ ${#matches[@]} -gt 0 ]]; then
+    echo "${matches[0]}"
+    return 0
+  fi
+
+  echo "$HOME/.ssh/bb-portfolio-site-key.pem"
+}
+
+SSH_KEY_PATH_RESOLVED="$(resolve_ssh_key_path)"
+
 force_destroy=false
 do_destroy=false    # Changed: preserve EC2 by default
 do_infra=true       # allow skip-infra mode
@@ -491,7 +518,7 @@ ensure_https_certs() {
   local ssl_domain="$1"; shift || true
   local email="$1"; shift || true
   [[ -n "$host" && -n "$ssl_domain" && -n "$email" ]] || return 0
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local key="$SSH_KEY_PATH_RESOLVED"
   if [[ ! -f "$key" ]]; then
     warn "HTTPS cert ensure skipped: SSH key not found at $key"
     return 0
@@ -510,7 +537,8 @@ if ! command -v certbot >/dev/null 2>&1; then
 fi
 
 if command -v certbot >/dev/null 2>&1; then
-  if [ ! -d "/etc/letsencrypt/live/$SSL_DOMAIN" ]; then
+  if ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
+    || ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem"; then
     echo "Issuing initial certificates via certbot for $SSL_DOMAIN and www.$SSL_DOMAIN";
     sudo certbot --nginx -n --agree-tos --email "$ACME_EMAIL" \
       -d "$SSL_DOMAIN" -d "www.$SSL_DOMAIN" --redirect || echo "Certbot issuance failed";
@@ -518,7 +546,8 @@ if command -v certbot >/dev/null 2>&1; then
     echo "Certificate already present for $SSL_DOMAIN";
   fi
 
-  if [ ! -d "/etc/letsencrypt/live/dev.$SSL_DOMAIN" ]; then
+  if ! sudo test -s "/etc/letsencrypt/live/dev.$SSL_DOMAIN/fullchain.pem" \
+    || ! sudo test -s "/etc/letsencrypt/live/dev.$SSL_DOMAIN/privkey.pem"; then
     echo "Issuing initial certificate via certbot for dev.$SSL_DOMAIN";
     sudo certbot --nginx -n --agree-tos --email "$ACME_EMAIL" \
       -d "dev.$SSL_DOMAIN" --redirect || echo "Certbot issuance failed";
@@ -538,7 +567,7 @@ SSH
 # Ensure nginx can read TLS assets and install a renewal hook to keep perms aligned.
 ensure_cert_permissions() {
   local host="$1"
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local key="$SSH_KEY_PATH_RESOLVED"
   [[ -n "$host" ]] || return 0
   if [[ ! -f "$key" ]]; then
     warn "Cert permission ensure skipped: SSH key not found at $key"
@@ -603,7 +632,7 @@ SSH
 # Ensure the canonical compose file exists on the host under deploy/compose/
 ensure_remote_compose() {
   local host="$1"
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local key="$SSH_KEY_PATH_RESOLVED"
   [[ -n "$host" ]] || return 0
   if [[ ! -f "$key" ]]; then
     warn "Compose sync skipped: SSH key not found at $key"
@@ -621,7 +650,7 @@ ensure_remote_compose() {
 # Sync nginx vhost config from repo and reload (idempotent). Certbot may later augment it with SSL blocks.
 sync_nginx_config() {
   local host="$1"
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local key="$SSH_KEY_PATH_RESOLVED"
   [[ -n "$host" ]] || return 0
   if [[ ! -f "$key" ]]; then
     warn "Nginx sync skipped: SSH key not found at $key"
@@ -644,7 +673,7 @@ sync_nginx_config() {
 # Ensure SSL server blocks exist; install a separate SSL include file if certificates are present.
 ensure_ssl_blocks() {
   local host="$1"
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local key="$SSH_KEY_PATH_RESOLVED"
   local ssl_domain="${2:-}"
   [[ -n "$host" ]] || return 0
   if [[ ! -f "$key" ]]; then
@@ -721,7 +750,7 @@ SSH
 # Ensure CloudWatch Agent (logs + metrics) is installed & configured.
 ensure_cloudwatch_agent() {
   local host="$1"
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local key="$SSH_KEY_PATH_RESOLVED"
   [[ -n "$host" ]] || return 0
   if [[ ! -f "$key" ]]; then
     warn "CloudWatch agent ensure skipped: SSH key not found at $key"
@@ -894,7 +923,7 @@ esac
 warn "All GitHub workflow dispatch attempts failed for requested profiles. Falling back to direct SSH restart from this script."
 
 # SSH fallback: generate env files locally if requested and upload, then restart compose profiles
-SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
+SSH_KEY="$SSH_KEY_PATH_RESOLVED"
 [[ -f "$SSH_KEY" ]] || die "SSH key not found at $SSH_KEY"
 
 # Determine EC2_HOST (prefer Terraform outputs; fallback to local private secrets)
