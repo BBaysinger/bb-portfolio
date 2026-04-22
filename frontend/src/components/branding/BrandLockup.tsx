@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 type BrandLockupProps = {
@@ -8,11 +9,17 @@ type BrandLockupProps = {
   logoAlt?: string;
   scale?: number;
   style?: CSSProperties;
+  className?: string;
   logoStyle?: CSSProperties;
+  logoClassName?: string;
+  textClassName?: string;
+  nameClassName?: string;
+  roleClassName?: string;
   firstNameColor?: string;
   lastNameColor?: string;
   roleColor?: string;
   dropShadow?: string;
+  structure?: "wrapped" | "split";
 };
 
 const BASE_LOGO_HEIGHT = 38;
@@ -30,11 +37,17 @@ const BrandLockup = ({
   logoAlt = "BB Logo",
   scale = 1,
   style,
+  className,
   logoStyle: logoStyleOverride,
+  logoClassName,
+  textClassName,
+  nameClassName,
+  roleClassName,
   firstNameColor = "#999",
   lastNameColor = LIGHTER_THEME_COLOR,
   roleColor = "#fff",
   dropShadow,
+  structure = "wrapped",
 }: BrandLockupProps) => {
   const resolvedRoleTitle = roleTitle.trim();
   const rootStyle: CSSProperties = {
@@ -100,26 +113,68 @@ const BrandLockup = ({
     lineHeight: 1,
   };
 
-  return (
-    <div style={rootStyle}>
-      {logoNode ? (
-        <div aria-hidden="true" style={resolvedLogoStyle}>
-          {logoNode}
-        </div>
-      ) : (
-        <img src={logoSrc} alt={logoAlt} style={resolvedLogoStyle} />
-      )}
-      <div style={textColumnStyle}>
-        <div style={nameRowStyle}>
-          <span style={{ color: firstNameColor, marginRight: -2 * scale }}>
-            Bradley
-          </span>
-          <span style={{ color: lastNameColor }}>Baysinger</span>
-        </div>
-        <div style={roleWrapStyle}>
-          <span style={roleTextStyle}>{resolvedRoleTitle}</span>
-        </div>
+  const logoElement = logoNode ? (
+    <div aria-hidden="true" className={logoClassName} style={resolvedLogoStyle}>
+      {logoNode}
+    </div>
+  ) : (
+    <img
+      src={logoSrc}
+      alt={logoAlt}
+      className={logoClassName}
+      style={resolvedLogoStyle}
+    />
+  );
+
+  if (structure === "split") {
+    const splitLogoElement = logoNode ? (
+      <div aria-hidden="true" className={logoClassName}>
+        {logoNode}
       </div>
+    ) : (
+      <img src={logoSrc} alt={logoAlt} className={logoClassName} />
+    );
+
+    return (
+      <Fragment>
+        {splitLogoElement}
+        <div className={textClassName}>
+          <div className={nameClassName}>
+            <span>BRADLEY</span> <span>BAYSINGER</span>
+          </div>
+          <div>
+            <span
+              className={roleClassName}
+              style={{ letterSpacing: roleLetterSpacing }}
+            >
+              {resolvedRoleTitle}
+            </span>
+          </div>
+        </div>
+      </Fragment>
+    );
+  }
+
+  const textElement = (
+    <div className={textClassName} style={textColumnStyle}>
+      <div className={nameClassName} style={nameRowStyle}>
+        <span style={{ color: firstNameColor, marginRight: -2 * scale }}>
+          Bradley
+        </span>
+        <span style={{ color: lastNameColor }}>Baysinger</span>
+      </div>
+      <div style={roleWrapStyle}>
+        <span className={roleClassName} style={roleTextStyle}>
+          {resolvedRoleTitle}
+        </span>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={className} style={rootStyle}>
+      {logoElement}
+      {textElement}
     </div>
   );
 };

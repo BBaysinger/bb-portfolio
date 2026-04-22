@@ -265,7 +265,11 @@ const NavVariant: React.FC<NavProps> = ({
           roleTitle={roleTitle}
           roleLetterSpacing={roleLetterSpacing}
           logoSrc="/images/hero/bb-logo.svg"
-          style={{ marginLeft: 10 }}
+          structure="split"
+          logoClassName={styles.navLogo}
+          textClassName={styles.navLogoText}
+          nameClassName={styles.name}
+          roleClassName={clsx(styles.jobTitle, "nobr")}
         />
       </Link>
       <NavLinks
