@@ -71,23 +71,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1034.0",
+    "@aws-sdk/client-ses": "^3.1035.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.8",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.83.0",
+    "@payloadcms/db-mongodb": "3.84.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.83.0",
+    "@payloadcms/email-nodemailer": "3.84.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.83.0",
+    "@payloadcms/next": "3.84.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.83.0",
+    "@payloadcms/payload-cloud": "3.84.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.83.0",
+    "@payloadcms/richtext-lexical": "3.84.0",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.83.0",
+    "@payloadcms/storage-s3": "3.84.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.83.0",
+    "@payloadcms/ui": "3.84.0",
     // BSON/EJSON utilities used by database migration and snapshot scripts
     "bson": "^7.2.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
@@ -107,7 +107,7 @@
     // Next.js framework for frontend/backend integration
     "next": "16.2.4",
     // Payload CMS core package
-    "payload": "3.83.0",
+    "payload": "3.84.0",
     // React version to match Next.js 15
     "react": "19.2.5",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -136,7 +136,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "6.0.1",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.20",
+    "baseline-browser-mapping": "^2.10.21",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
