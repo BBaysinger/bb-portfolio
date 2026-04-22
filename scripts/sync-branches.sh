@@ -5,12 +5,44 @@
 # - Finally fast-forward main to the new version-bump commit and push both branches
 # - Always ends on dev (even on failure it will attempt to switch back)
 #
-# Usage: npm run sync:branches
+# Usage:
+#   npm run sync:branches
+#   npm run sync:branches -- --no-version-bump
 
 set -euo pipefail
 
 log() { echo -e "\033[1;34m[sync-branches]\033[0m $*"; }
 err() { echo -e "\033[1;31m[sync-branches]\033[0m $*" 1>&2; }
+
+print_usage() {
+  cat <<'EOF'
+Usage: npm run sync:branches [-- --no-version-bump]
+
+Options:
+  --no-version-bump  Sync branches without incrementing package versions.
+  -h, --help         Show this help text.
+EOF
+}
+
+SKIP_VERSION_BUMP=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-version-bump)
+      SKIP_VERSION_BUMP=true
+      shift
+      ;;
+    -h|--help)
+      print_usage
+      exit 0
+      ;;
+    *)
+      err "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
 
 # Ensure we're in a git repo
 if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
@@ -125,23 +157,28 @@ merge_local "$MERGE1_FROM" "$MERGE1_TO"
 checkout_ff_pull "$SECOND"
 merge_local "$MERGE2_FROM" "$MERGE2_TO"
 
-log "Branch histories synchronized. Switching to dev for version bump."
+log "Branch histories synchronized. Switching to dev."
 git checkout dev
-log "Bumping canonical repo version on dev."
 
-log "Incrementing root package version and propagating to backend/frontend"
-npm run version:bump:sync
-log "Syncing package.json5 mirrors"
-npm run sync:packages
+if [[ "$SKIP_VERSION_BUMP" == true ]]; then
+  log "Skipping version bump; syncing main to current dev state."
+else
+  log "Bumping canonical repo version on dev."
 
-NEW_VERSION=$(node -p "require('./package.json').version")
-log "Committing version bump $NEW_VERSION on dev"
-git add package.json package.json5 package-lock.json \
-  backend/package.json backend/package.json5 backend/package-lock.json \
-  frontend/package.json frontend/package.json5 frontend/package-lock.json
-git commit -m "Bump version to $NEW_VERSION"
+  log "Incrementing root package version and propagating to backend/frontend"
+  npm run version:bump:sync
+  log "Syncing package.json5 mirrors"
+  npm run sync:packages
 
-log "Fast-forwarding main to version bump $NEW_VERSION"
+  NEW_VERSION=$(node -p "require('./package.json').version")
+  log "Committing version bump $NEW_VERSION on dev"
+  git add package.json package.json5 package-lock.json \
+    backend/package.json backend/package.json5 backend/package-lock.json \
+    frontend/package.json frontend/package.json5 frontend/package-lock.json
+  git commit -m "Bump version to $NEW_VERSION"
+fi
+
+log "Fast-forwarding main to current dev state"
 merge_local dev main
 
 log "Pushing dev once"
