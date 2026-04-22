@@ -37,6 +37,8 @@ export const createPortfolioSocialImage = async ({
   width,
   height,
 }: SocialImageOptions) => {
+  // Canonical social-image renderer: capture the dedicated preview route in a
+  // headless browser so OG/Twitter images match the actual app styling.
   const origin = await resolveRequestOrigin();
   const previewUrl = new URL("/social-image-preview", origin);
   previewUrl.searchParams.set("width", String(width));

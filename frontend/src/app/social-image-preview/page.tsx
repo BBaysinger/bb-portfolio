@@ -40,7 +40,6 @@ export default async function SocialImagePreview({
   const heroBranding = await getServerHeroBranding();
   const activeRoleTitle = heroBranding.activeRoleTitle.trim();
   const isWide = width >= 1000;
-  const lockupScale = isWide ? 1.82 : 1.58;
   const roleLetterSpacing =
     heroBranding.activeRoleLetterSpacing?.trim() ||
     (isWide ? "0.1em" : "0.08em");
@@ -65,16 +64,14 @@ export default async function SocialImagePreview({
               padding: isWide ? "18px 32px 20px" : "16px 26px 18px",
             }}
           >
-            <div
-              className={styles.lockup}
-              style={{ transform: `scale(${lockupScale})` }}
-            >
+            <div className={styles.lockup}>
               <BrandLockupView
                 roleTitle={activeRoleTitle}
                 roleLetterSpacing={roleLetterSpacing}
                 logoSrc="/images/hero/bb-logo.svg"
                 logoAlt=""
-                roleTitleClassName={styles.roleTitle}
+                roleTitleClassName="nobr"
+                layout="bare"
               />
             </div>
           </div>
