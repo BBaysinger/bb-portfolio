@@ -1,5 +1,6 @@
 {
   "name": "bb-portfolio-monorepo-root",
+  "version": "1.0.1",
   "private": true,
   "engines": {
     "node": ">=18.20.2 <26",
@@ -65,6 +66,7 @@
     "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
     "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
+    "version:bump:sync": "tsx scripts/bump-sync-version.ts",
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
     "snapshot:projects": "npm --prefix frontend run snapshot:projects",
     "snapshot:projects:secret": "npm --prefix frontend run snapshot:projects:secret",

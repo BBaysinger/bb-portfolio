@@ -7,6 +7,8 @@
   // Root package name for the portfolio monorepo
   // Monorepo root name (not a real app or package)
   "name": "bb-portfolio-monorepo-root",
+  // Canonical repo version; child packages are kept in sync from this value.
+  "version": "1.0.1",
   // Prevents accidental publishing to npm registry
   // Prevent publishing to npm registry
   "private": true,
@@ -197,6 +199,8 @@
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
     // 🔐 Populate local GitHub secrets JSON5 files from Terraform outputs + AWS profile creds.
     "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
+    // 🔢 Increment the canonical root patch version and copy it to backend/frontend package manifests.
+    "version:bump:sync": "tsx scripts/bump-sync-version.ts",
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",

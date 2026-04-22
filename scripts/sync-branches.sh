@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Sync dev and main branches:
-# - If on dev: switch to main, merge dev->main, push main, switch to dev, merge main->dev, push dev
-# - If on main: switch to dev, merge main->dev, push dev, switch to main, merge dev->main, push main
+# Sync dev and main branches, then bump the canonical repo patch version on dev:
+# - First, keep existing branch alignment behavior between dev and main
+# - Then increment the root package version once, copy it to child packages, sync JSON5 mirrors, commit on dev
+# - Finally fast-forward main to the new version-bump commit and push both branches
 # - Always ends on dev (even on failure it will attempt to switch back)
 #
 # Usage: npm run sync:branches
@@ -125,6 +126,27 @@ merge_push "$MERGE1_FROM" "$MERGE1_TO"
 checkout_ff_pull "$SECOND"
 merge_push "$MERGE2_FROM" "$MERGE2_TO"
 
-log "Branches synchronized. Returning to dev."
+log "Branch histories synchronized. Switching to dev for version bump."
+git checkout dev
+log "Bumping canonical repo version on dev."
+
+log "Incrementing root package version and propagating to backend/frontend"
+npm run version:bump:sync
+log "Syncing package.json5 mirrors"
+npm run sync:packages
+
+NEW_VERSION=$(node -p "require('./package.json').version")
+log "Committing version bump $NEW_VERSION on dev"
+git add package.json package.json5 package-lock.json \
+  backend/package.json backend/package.json5 backend/package-lock.json \
+  frontend/package.json frontend/package.json5 frontend/package-lock.json
+git commit -m "Bump version to $NEW_VERSION"
+log "Pushing dev with version bump"
+git push origin dev
+
+log "Fast-forwarding main to version bump $NEW_VERSION"
+merge_push dev main
+
+log "Returning to dev."
 git checkout dev
 log "Done."
