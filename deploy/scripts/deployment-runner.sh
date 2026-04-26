@@ -499,6 +499,15 @@ resolve_ssl_domain() {
   echo ""; return 1
 }
 
+validate_ssl_domain() {
+  local domain="${1:-}"
+  [[ -n "$domain" ]] || return 0
+
+  if ! bb_is_apex_ssl_domain "$domain"; then
+    die "Resolved SSL domain must be the apex domain, got: $domain"
+  fi
+}
+
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
 
 need jq
@@ -683,8 +692,8 @@ SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
 PROD_CERT_DOMAIN="$SSL_DOMAIN"
 DEV_CERT_DOMAIN="dev.$SSL_DOMAIN"
 if [ -z "$SSL_DOMAIN" ]; then
-  echo "SSL_DOMAIN not set; disabling SSL include"
-  sudo rm -f "$SSL_CONF"
+  echo "SSL_DOMAIN not set; keeping existing SSL include as-is"
+  sudo nginx -t && sudo systemctl reload nginx
   exit 0
 fi
 
@@ -693,8 +702,8 @@ fi
 if ! sudo test -s "/etc/letsencrypt/live/$PROD_CERT_DOMAIN/fullchain.pem" \
   || ! sudo test -s "/etc/letsencrypt/live/$PROD_CERT_DOMAIN/privkey.pem" \
   || ! sudo test -s /etc/letsencrypt/options-ssl-nginx.conf; then
-      echo "Production certificates not present for $PROD_CERT_DOMAIN; removing SSL include"
-      sudo rm -f "$SSL_CONF"
+      echo "Production certificates not present for $PROD_CERT_DOMAIN; keeping existing SSL include as-is"
+      sudo nginx -t && sudo systemctl reload nginx
       exit 0
 fi
 
@@ -788,6 +797,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
   if [[ -n "$EC2_HOST_RESOLVE" ]]; then
     log "Resolved EC2 host: $EC2_HOST_RESOLVE"
     SSL_DOMAIN_RESOLVE=$(resolve_ssl_domain || true)
+    validate_ssl_domain "${SSL_DOMAIN_RESOLVE:-}"
     ensure_remote_compose "$EC2_HOST_RESOLVE"
     sync_nginx_config "$EC2_HOST_RESOLVE"
     ensure_https_certs "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"
@@ -802,6 +812,7 @@ fi
 # If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
 if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   SSL_DOMAIN_RESOLVE=$(resolve_ssl_domain || true)
+  validate_ssl_domain "${SSL_DOMAIN_RESOLVE:-}"
   ensure_remote_compose "${POST_ENFORCE_HOST}"
   sync_nginx_config "${POST_ENFORCE_HOST}"
   ensure_https_certs "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"

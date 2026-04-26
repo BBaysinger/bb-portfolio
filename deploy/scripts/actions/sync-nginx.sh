@@ -20,6 +20,11 @@ KEY_PATH="${1:?ssh key path arg required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 SSL_DOMAIN_LOCAL="$(resolve_ssl_domain || true)"
 
+if [[ -n "$SSL_DOMAIN_LOCAL" ]] && ! bb_is_apex_ssl_domain "$SSL_DOMAIN_LOCAL"; then
+  echo "Refusing to sync nginx with non-canonical SSL domain: $SSL_DOMAIN_LOCAL" >&2
+  exit 1
+fi
+
 echo "== Uploading Nginx vhost config =="
 scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
   deploy/nginx/bb-portfolio.conf ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/bb-portfolio.conf

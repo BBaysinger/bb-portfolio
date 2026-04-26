@@ -96,3 +96,9 @@ const preferred = candidates.find((candidate) => !/^dev\./i.test(candidate)) || 
 process.stdout.write(preferred)
 NODE
 }
+
+bb_is_apex_ssl_domain() {
+  local domain="${1:-}"
+  domain="${domain#www.}"
+  [[ -n "$domain" && ! "$domain" =~ ^dev\. ]]
+}
