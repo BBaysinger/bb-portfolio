@@ -670,15 +670,17 @@ function Hero({ initialRoleTitle }: HeroProps) {
       </div>
 
       <div className={styles.foreground}>
-        {mounted ? (
-          <TypewriterEffect
-            key={`typewriter-${heroRuntimeKey}-${playHeroIntro ? "intro" : "quotes"}`}
-            paragraphs={heroParagraphs}
-            className={styles.message}
-            onParagraphComplete={handleHeroParagraphComplete}
-          />
-        ) : null}
-        {showFpsCounter && <FPSCounter />}
+        <div className={styles.foregroundTop}>
+          {mounted ? (
+            <TypewriterEffect
+              key={`typewriter-${heroRuntimeKey}-${playHeroIntro ? "intro" : "quotes"}`}
+              paragraphs={heroParagraphs}
+              className={styles.message}
+              onParagraphComplete={handleHeroParagraphComplete}
+            />
+          ) : null}
+          {showFpsCounter && <FPSCounter />}
+        </div>
         <HeroLockup
           className={styles.titleBranding}
           ref={titleRef}
