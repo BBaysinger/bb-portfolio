@@ -19,6 +19,14 @@ type ProjectFindResult = {
   docs: ProjectDoc[]
 }
 
+type RetryableMongoError = {
+  code?: unknown
+  errorLabelSet?: unknown
+  errorResponse?: {
+    errorLabels?: unknown
+  }
+}
+
 const VOID_TAGS = new Set([
   'area',
   'base',
@@ -35,6 +43,63 @@ const VOID_TAGS = new Set([
   'track',
   'wbr',
 ])
+
+const PROJECT_UPDATE_MAX_RETRIES = 3
+const PROJECT_UPDATE_RETRY_BASE_DELAY_MS = 500
+
+const wait = async (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
+  })
+
+const isTransientWriteConflictError = (error: unknown) => {
+  if (!error || typeof error !== 'object') return false
+
+  const maybeError = error as RetryableMongoError
+  if (maybeError.code === 112) return true
+
+  const topLevelLabels = maybeError.errorLabelSet
+  if (topLevelLabels instanceof Set && topLevelLabels.has('TransientTransactionError')) {
+    return true
+  }
+
+  const nestedLabels = maybeError.errorResponse?.errorLabels
+  return Array.isArray(nestedLabels) && nestedLabels.includes('TransientTransactionError')
+}
+
+const updateProjectDescriptionsWithRetry = async (
+  payload: Payload,
+  projectId: string | number,
+  blocks: string[],
+) => {
+  let attempt = 0
+
+  while (true) {
+    try {
+      await payload.update({
+        collection: 'projects',
+        id: projectId,
+        data: {
+          desc: blocks.map((block) => ({ block })),
+        },
+        overrideAccess: true,
+      })
+      return
+    } catch (error) {
+      attempt += 1
+
+      if (!isTransientWriteConflictError(error) || attempt >= PROJECT_UPDATE_MAX_RETRIES) {
+        throw error
+      }
+
+      console.warn(
+        `Transient Mongo write conflict while updating project ${String(projectId)}. Retrying (${attempt}/${PROJECT_UPDATE_MAX_RETRIES - 1}).`,
+      )
+
+      await wait(PROJECT_UPDATE_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1))
+    }
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -248,14 +313,7 @@ async function main() {
     }
 
     for (const match of matches) {
-      await payload.update({
-        collection: 'projects',
-        id: match.projectId,
-        data: {
-          desc: match.blocks.map((block) => ({ block })),
-        },
-        overrideAccess: true,
-      })
+      await updateProjectDescriptionsWithRetry(payload, match.projectId, match.blocks)
     }
 
     console.info(

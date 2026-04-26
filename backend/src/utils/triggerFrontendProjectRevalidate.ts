@@ -9,6 +9,11 @@ const isLocalProfile = (): boolean => {
   return profile === '' || profile === 'local'
 }
 
+const shouldSkipFrontendRevalidation = (): boolean => {
+  const value = (process.env.SKIP_FRONTEND_REVALIDATE || '').trim().toLowerCase()
+  return value === '1' || value === 'true' || value === 'yes'
+}
+
 const resolveEndpoint = (): string | undefined => {
   const explicit = (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
   if (explicit) return explicit
@@ -108,6 +113,8 @@ export const triggerFrontendProjectRevalidate = async (
   reason: string,
   options: TriggerFrontendProjectRevalidateOptions = {},
 ): Promise<void> => {
+  if (shouldSkipFrontendRevalidation()) return
+
   const endpoint = resolveEndpoint()
   if (!endpoint) return
 
