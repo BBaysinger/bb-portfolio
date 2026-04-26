@@ -24,15 +24,15 @@
   // Optional: Enable npm workspaces by uncommenting the line below
   // "workspaces": ["frontend", "backend"],
   "scripts": {
-    //
+    // Short alias for starting backend and frontend together in the current terminal.
     "local": "npm run local:all",
-    //
+    // Run both local app servers concurrently with labeled output.
     "local:all": "concurrently \"npm run local:backend\" \"npm run local:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
-    //
+    // Start only the backend app in local dev mode.
     "local:backend": "cd backend && npm run dev",
-    //
+    // Start only the frontend app in local dev mode.
     "local:frontend": "cd frontend && npm run dev",
-    //
+    // Open backend and frontend dev servers in separate Terminal.app tabs.
     "local:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
     // =============================================================================
     // 🚀 DEVELOPMENT MODES OVERVIEW (for junior developers)
@@ -71,7 +71,7 @@
     // NOTE: Builds the production runner stage with ENV_PROFILE=dev (no hot reload)
     // Dev internal URL points to the dev compose service name for server-to-server calls.
     "docker:build:frontend": "bash deploy/scripts/docker-build-frontend-dev-image.sh",
-    //
+    // Build and push both dev Docker images to Docker Hub in one guarded flow.
     "docker:build:push": "bash deploy/scripts/publish-dockerhub-dev-images.sh",
     // 🛑 Stop and remove all local development containers
     // Cleans up containers, networks, and anonymous volumes created by docker:up
@@ -157,13 +157,13 @@
     "frontend:prod-like:down": "cd frontend && PORT=${PORT:-3004} sh ./scripts/stop-prod-like.sh",
     // Tail logs from the detached production-like frontend instance.
     "frontend:prod-like:logs": "cd frontend && tail -f ./.runtime/prod-like/logs/prod-like-${PORT:-3004}.log",
-    //
+    // Restart the detached production-like frontend process for the selected port.
     "frontend:prod-like:restart": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached:restart",
     // Show whether the detached production-like frontend is running and where its logs live.
     "frontend:prod-like:status": "cd frontend && PORT=${PORT:-3004} sh ./scripts/status-prod-like.sh",
     // Start the frontend in detached production-like mode on port 3004 by default so Docker local can stay up.
     "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
-    //
+    // Watch and rebuild the detached production-like frontend against a local backend.
     "frontend:prod-like:watch": "cd frontend && PORT=${PORT:-3004} BACKEND_INTERNAL_URL=${BACKEND_INTERNAL_URL:-http://localhost:8081} npm run start:prod-like:watch",
     // Purge .next inside the running frontend dev container (forces clean rebuild on next request)
     "frontend:purge": "docker exec -t bb-portfolio-frontend-local sh -lc 'rm -rf .next && echo Purged .next'",
@@ -204,13 +204,13 @@
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
-    //
+    // Export the current frontend project-data snapshot used for regression comparisons.
     "snapshot:projects": "npm --prefix frontend run snapshot:projects",
-    //
+    // Prepare the redacted project snapshot payload for secret storage or sharing.
     "snapshot:projects:secret": "npm --prefix frontend run snapshot:projects:secret",
-    //
+    // Write the redacted project snapshot to the frontend cache directory.
     "snapshot:projects:secret:file": "npm --prefix frontend run snapshot:projects:secret:file",
-    //
+    // Refresh both the raw snapshot and the cached secret snapshot file in one run.
     "snapshot:projects:refresh-secret-file": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:file",
     // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
@@ -266,7 +266,7 @@
     "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
     // 🪄 Import images from ../cms-media-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
-    //
+    // Upload media using the script defaults or explicit CLI flags.
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     // 🪄 Upload media only to the development S3 bucket
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
@@ -298,7 +298,7 @@
     "migrate:all:prod:dry": "npm run media:upload:prod:dry && npm run migrate:media-urls:prod:dry",
     // 📦 Complete media migration to production environment (upload + URL sync)
     "migrate:all:prod": "npm run media:upload:prod && npm run migrate:media-urls:prod",
-    //
+    // Upload project files to S3 using the script defaults or explicit CLI flags.
     "projects:upload": "tsx scripts/upload-projects-to-s3.ts",
     // 📁 Upload project files to public S3 bucket
     "projects:upload:public": "tsx scripts/upload-projects-to-s3.ts --env public",
@@ -348,7 +348,7 @@
     // Rebuilds/pushes images (unless --no-build) then asks GH Actions to restart containers
     // Useful for application updates when infrastructure is stable
     "deploy:skip-infra": "bash deploy/scripts/deployment-runner.sh --profiles both --skip-infra --refresh-env",
-    //
+    // Build and push production images to ECR using the current deployment configuration.
     "ecr:build:push": "bash deploy/scripts/publish-ecr-images.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",

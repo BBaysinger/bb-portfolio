@@ -39,19 +39,19 @@
     "start:prod-like:detached": "DETACH=1 sh ./scripts/start-prod-like.sh",
     // Same as start:prod-like:local, but detached for side-by-side testing with Docker local.
     "start:prod-like:local:detached": "BACKEND_INTERNAL_URL=http://localhost:8081 DETACH=1 sh ./scripts/start-prod-like.sh",
-    //
+    // Restart the detached production-like frontend process without changing its port selection.
     "start:prod-like:detached:restart": "DETACH=1 RESTART=1 sh ./scripts/start-prod-like.sh",
-    //
+    // Restart the detached production-like frontend with the local backend URL preconfigured.
     "start:prod-like:local:detached:restart": "BACKEND_INTERNAL_URL=http://localhost:8081 DETACH=1 RESTART=1 sh ./scripts/start-prod-like.sh",
     // Report whether the detached production-like frontend is running for the selected port.
     "start:prod-like:status": "sh ./scripts/status-prod-like.sh",
-    //
+    // Rebuild and restart the production-like frontend when watched files change.
     "start:prod-like:watch": "tsx ./scripts/watch-prod-like.ts",
-    //
+    // Export the current project-data snapshot consumed by the portfolio frontend.
     "snapshot:projects": "tsx ./scripts/export-project-data-snapshot.ts",
-    //
+    // Produce a redacted version of the project-data snapshot for secret-safe sharing.
     "snapshot:projects:secret": "tsx ./scripts/prepare-project-data-snapshot-secret.ts",
-    //
+    // Write the redacted project-data snapshot to a cache file for later reuse.
     "snapshot:projects:secret:file": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
     // Run Next.js ESLint configuration
     "lint": "eslint .",
@@ -82,7 +82,7 @@
     "next": "^16.2.4",
     // PixiJS renderer for interactive canvas experiences
     "pixi.js": "^8.18.1",
-    //
+    // End-to-end browser automation used for UI and deployment smoke tests.
     "playwright": "^1.59.1",
     // React library for building user interfaces (v19 for latest features)
     "react": "^19.2.5",
@@ -99,7 +99,7 @@
   "devDependencies": {
     // ESLint configuration utilities (required by some plugins)
     "@eslint/eslintrc": "^3",
-    //
+    // Browser testing utilities for rendering React components in unit/integration tests.
     "@testing-library/react": "^16.3.2",
     // TypeScript definitions for jsonwebtoken library
     "@types/jsonwebtoken": "^9.0.10",
@@ -123,7 +123,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.5.2",
-    //
+    // Browser-like DOM environment used by Vitest component and hook tests.
     "jsdom": "^29.0.2",
     // Opinionated code formatter for consistent style
     "prettier": "^3.8.3",
@@ -131,7 +131,7 @@
     "tsx": "^4.21.0",
     // TypeScript compiler (v5 for latest language features)
     "typescript": "6.0.3",
-    //
+    // Fast unit and integration test runner for the frontend package.
     "vitest": "^4.1.5",
   },
   // Toolchain version constraints for local dev and CI
