@@ -51,13 +51,13 @@ jobs:
     steps:
       # Checkout source code
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Setup Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20 # LTS version for stability
+          node-version: 24
           # Do not use pnpm cache here to avoid requiring pnpm before it's installed
 
       # Install pnpm explicitly to ensure availability on runner
@@ -194,7 +194,7 @@ jobs:
     environment: prod
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Sanitize required env lists (prod images)
         id: sanitize-prod-req
         env:
@@ -327,7 +327,7 @@ jobs:
     environment: dev
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Sanitize required env lists (dev images)
         id: sanitize-dev-req
         env:
