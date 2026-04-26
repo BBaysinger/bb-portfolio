@@ -107,6 +107,7 @@ Working list of notable features and technical systems
 ### Observability / Analytics
 
 - AWS CloudWatch RUM integration with production-only and HTTPS-only guardrails
+- Version-aware CloudWatch RUM tagging using the synced frontend package version as the app version and session attribute context
 - CloudWatch Agent for host metrics and log ingestion (nginx + system logs)
 - Auto page-view tracking and route-change tracking in the App Router
 - Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)

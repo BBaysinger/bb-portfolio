@@ -38,9 +38,12 @@
 
 "use client";
 
+import frontendPackageJson from "../../package.json";
+
 const RUM_DEBUG =
   process.env.NEXT_PUBLIC_RUM_DEBUG === "true" &&
   process.env.NODE_ENV !== "production";
+const RUM_APP_VERSION = frontendPackageJson.version || "1.0.0";
 
 // Use eager dynamic import (webpackMode: "eager") inside initializer to bundle without runtime resolution issues.
 type AwsRumConfig = {
@@ -214,7 +217,15 @@ export async function initializeRUM() {
       config.guestRoleArn = guestRoleArn;
     }
     // Static import path bundling already ensured; construct directly
-    rumInstance = new AwsRumCtor(appMonitorId, "1.0.0", region, config);
+    rumInstance = new AwsRumCtor(appMonitorId, RUM_APP_VERSION, region, config);
+
+    try {
+      rumInstance.addSessionAttributes({
+        bb_appVersion: RUM_APP_VERSION,
+      });
+    } catch {
+      // Best-effort only.
+    }
 
     // Intercept dispatch to log what's being sent
 
@@ -237,6 +248,7 @@ export async function initializeRUM() {
         identityPoolId: config.identityPoolId,
         guestRoleArn: config.guestRoleArn,
         appMonitorId,
+        appVersion: RUM_APP_VERSION,
         region,
       });
     }
