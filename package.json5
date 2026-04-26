@@ -374,6 +374,8 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
     "sync:branches": "bash ./scripts/sync-branches.sh",
+    // 🔁 Same branch sync flow, but skip the canonical version bump commit.
+    "sync:branches:no-version-bump": "bash ./scripts/sync-branches.sh --no-version-bump",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
