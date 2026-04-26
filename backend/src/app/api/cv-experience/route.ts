@@ -33,6 +33,14 @@ const asTrimmedString = (value: unknown): string => {
   return value.trim()
 }
 
+const normalizeEnvProfile = (value: string) => {
+  const normalized = value.toLowerCase().trim()
+  if (normalized.startsWith('local')) return 'local'
+  if (normalized === 'development' || normalized.startsWith('dev')) return 'dev'
+  if (normalized.startsWith('prod')) return 'prod'
+  return normalized
+}
+
 const trimTrailingSlashes = (value: string) => value.replace(/\/+$/, '')
 
 const encodePathSegments = (value: string) =>
@@ -43,6 +51,11 @@ const encodePathSegments = (value: string) =>
     .join('/')
 
 const getPublicMediaBaseUrl = () => {
+  const envProfile = normalizeEnvProfile(
+    asTrimmedString(process.env.ENV_PROFILE || process.env.NODE_ENV || ''),
+  )
+  if (envProfile === 'local') return ''
+
   const explicitBaseUrl = asTrimmedString(process.env.S3_BASE_URL)
   if (explicitBaseUrl) return trimTrailingSlashes(explicitBaseUrl)
 
