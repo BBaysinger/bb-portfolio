@@ -173,16 +173,16 @@ jobs:
         # letting the sync script guess (prevents accidental :443 drops).
         env:
           PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL }}
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
         run: |
           set -euo pipefail
-          origin="${PUBLIC_SERVER_URL:-${FRONTEND_URL:-}}"
-          origin="${origin%%,*}"
+          origin="${PUBLIC_SERVER_URL:-${PAYLOAD_PUBLIC_SERVER_URL:-${FRONTEND_URL:-}}}"
           if [ -z "$origin" ]; then
-            echo "No PUBLIC_SERVER_URL or FRONTEND_URL available to derive SSL_DOMAIN" >&2
+            echo "No PUBLIC_SERVER_URL, PAYLOAD_PUBLIC_SERVER_URL, or FRONTEND_URL available to derive SSL_DOMAIN" >&2
             exit 1
           fi
-          ssl_domain=$(node -e "const u=new URL(process.argv[1]); process.stdout.write(u.hostname.replace(/^www\./,''));" "$origin")
+          ssl_domain=$(node -e "const values=process.argv.slice(1).flatMap((value)=>String(value||'').split(',')); const canonicalize=(hostname)=>hostname.replace(/^www\./i,'').replace(/^dev\./i,''); const hosts=values.map((value)=>{const trimmed=String(value||'').trim(); if(!trimmed) return ''; try { return canonicalize(new URL(trimmed).hostname); } catch { return canonicalize(trimmed.replace(/^https?:\/\//i,'').replace(/\/.*$/,'')); }}).filter(Boolean); process.stdout.write(hosts[0]||'');" "$origin")
           if [ -z "$ssl_domain" ]; then
             echo "Failed to derive SSL_DOMAIN from origin: $origin" >&2
             exit 1

@@ -73,10 +73,12 @@ const normalizeHostname = (value) => {
   const trimmed = String(value || '').trim()
   if (!trimmed) return ''
 
+  const canonicalize = (hostname) => hostname.replace(/^www\./i, '').replace(/^dev\./i, '')
+
   try {
-    return new URL(trimmed).hostname.replace(/^www\./i, '')
+    return canonicalize(new URL(trimmed).hostname)
   } catch {
-    return trimmed.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').replace(/^www\./i, '')
+    return canonicalize(trimmed.replace(/^https?:\/\//i, '').replace(/\/.*$/, ''))
   }
 }
 
@@ -92,7 +94,7 @@ const candidates = collectCandidates(
   process.env.FRONTEND_URL,
 )
 
-const preferred = candidates.find((candidate) => !/^dev\./i.test(candidate)) || candidates[0] || ''
+const preferred = candidates[0] || ''
 process.stdout.write(preferred)
 NODE
 }
