@@ -75,23 +75,61 @@ server {
   set \$next_upstream_prod_local http://127.0.0.1:3000;
   if (\$http_referer ~* /admin/) { set \$next_upstream_prod_local http://127.0.0.1:3001; }
 
+  proxy_intercept_errors on;
+  error_page 418 502 503 504 =503 /__deploying.html;
+
+  location = /__deploying.html {
+    internal;
+    default_type text/html;
+    add_header Cache-Control "no-store, max-age=0" always;
+    add_header Retry-After "15" always;
+    return 503 '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy in progress</title><style>body{margin:0;font-family:Georgia,"Times New Roman",serif;background:#f5efe6;color:#1f1a17}main{min-height:100vh;display:grid;place-items:center;padding:2rem}.card{max-width:34rem;padding:2rem 2.25rem;border:1px solid rgba(31,26,23,.14);background:rgba(255,252,247,.96);box-shadow:0 20px 50px rgba(31,26,23,.08)}h1{margin:0 0 .75rem;font-size:clamp(2rem,4vw,3rem);line-height:1}.eyebrow{display:block;margin-bottom:1rem;font:700 .8rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#8a5a36}p{margin:0;font-size:1.05rem;line-height:1.65}</style></head><body><main><section class="card"><span class="eyebrow">Temporary</span><h1>Deploy in progress</h1><p>The site is switching to a fresh release. Please retry in a few seconds.</p></section></main></body></html>';
+  }
+
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
-  location = /admin { return 308 /admin/; }
-  location ^~ /admin/ { proxy_pass http://127.0.0.1:3001; }
+  location = /admin {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    return 308 /admin/;
+  }
+  location ^~ /admin/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3001;
+  }
 
   # Let Payload-specific assets win even if referer is missing.
-  location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ { proxy_pass http://127.0.0.1:3001; }
-  location ~ ^/_next/static/media/payload- { proxy_pass http://127.0.0.1:3001; }
+  location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3001;
+  }
+  location ~ ^/_next/static/media/payload- {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3001;
+  }
 
   # Generic Next.js assets: frontend by default, backend for admin pages.
   # (No ^~ here so the regex rules above can still match.)
-  location /_next/ { proxy_pass \$next_upstream_prod_local; }
+  location /_next/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass \$next_upstream_prod_local;
+  }
 
-  location = /api/revalidate/projects { proxy_pass http://127.0.0.1:3000; }
-  location = /api/revalidate/projects/ { proxy_pass http://127.0.0.1:3000; }
+  location = /api/revalidate/projects {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000;
+  }
+  location = /api/revalidate/projects/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000;
+  }
 
-  location /api/ { proxy_pass http://127.0.0.1:3001; }
-  location / { proxy_pass http://127.0.0.1:3000/; }
+  location /api/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3001;
+  }
+  location / {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000/;
+  }
 }
 CONF
 
@@ -109,19 +147,57 @@ server {
   set \$next_upstream_dev_local http://127.0.0.1:4000;
   if (\$http_referer ~* /admin/) { set \$next_upstream_dev_local http://127.0.0.1:4001; }
 
+  proxy_intercept_errors on;
+  error_page 418 502 503 504 =503 /__deploying.html;
+
+  location = /__deploying.html {
+    internal;
+    default_type text/html;
+    add_header Cache-Control "no-store, max-age=0" always;
+    add_header Retry-After "15" always;
+    return 503 '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy in progress</title><style>body{margin:0;font-family:Georgia,"Times New Roman",serif;background:#f5efe6;color:#1f1a17}main{min-height:100vh;display:grid;place-items:center;padding:2rem}.card{max-width:34rem;padding:2rem 2.25rem;border:1px solid rgba(31,26,23,.14);background:rgba(255,252,247,.96);box-shadow:0 20px 50px rgba(31,26,23,.08)}h1{margin:0 0 .75rem;font-size:clamp(2rem,4vw,3rem);line-height:1}.eyebrow{display:block;margin-bottom:1rem;font:700 .8rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#8a5a36}p{margin:0;font-size:1.05rem;line-height:1.65}</style></head><body><main><section class="card"><span class="eyebrow">Temporary</span><h1>Deploy in progress</h1><p>The dev site is switching to a fresh release. Please retry in a few seconds.</p></section></main></body></html>';
+  }
+
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
-  location = /admin { return 308 /admin/; }
-  location ^~ /admin/ { proxy_pass http://127.0.0.1:4001; }
+  location = /admin {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    return 308 /admin/;
+  }
+  location ^~ /admin/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4001;
+  }
 
-  location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ { proxy_pass http://127.0.0.1:4001; }
-  location ~ ^/_next/static/media/payload- { proxy_pass http://127.0.0.1:4001; }
-  location /_next/ { proxy_pass \$next_upstream_dev_local; }
+  location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4001;
+  }
+  location ~ ^/_next/static/media/payload- {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4001;
+  }
+  location /_next/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass \$next_upstream_dev_local;
+  }
 
-  location = /api/revalidate/projects { proxy_pass http://127.0.0.1:4000; }
-  location = /api/revalidate/projects/ { proxy_pass http://127.0.0.1:4000; }
+  location = /api/revalidate/projects {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000;
+  }
+  location = /api/revalidate/projects/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000;
+  }
 
-  location /api/ { proxy_pass http://127.0.0.1:4001; }
-  location / { proxy_pass http://127.0.0.1:4000/; }
+  location /api/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4001;
+  }
+  location / {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000/;
+  }
 }
 CONF
   else

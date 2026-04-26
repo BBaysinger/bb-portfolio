@@ -18,13 +18,7 @@ set -e
 echo "== Disk usage before =="
 df -h / || true
 docker system df || true
-echo "== Stop/remove stale containers (ignore errors) =="
-case "${ENVIRONMENT}" in
-  prod) docker rm -f bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true ;;
-  dev)  docker rm -f bb-portfolio-backend-dev  bb-portfolio-frontend-dev  2>/dev/null || true ;;
-  both) docker rm -f bb-portfolio-backend-dev  bb-portfolio-frontend-dev  bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true ;;
- esac
-echo "== Prune unused images/containers/networks (no volumes) =="
+echo "== Preserve live containers; prune only unused Docker resources =="
 docker system prune -af || true
 echo "== Prune builder cache =="
 docker builder prune -af || true
@@ -56,7 +50,7 @@ COMPOSE_FILE="deploy/compose/docker-compose.yml"
 try_up() {
   local profile="$1"; local attempts=0
   until [ $attempts -ge 3 ]; do
-    if COMPOSE_PROFILES="$profile" docker-compose -f "$COMPOSE_FILE" up -d --force-recreate; then
+    if COMPOSE_PROFILES="$profile" docker-compose -f "$COMPOSE_FILE" up -d; then
       return 0
     fi
     attempts=$((attempts+1))

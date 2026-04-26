@@ -623,6 +623,11 @@ New decisions should be appended chronologically.
   - First-time friendly: If no EC2 exists, Terraform apply bootstraps a new instance automatically.
   - Zero/minimal downtime: Profiles allow prod/dev independence; targeted restarts minimize disruption.
 
+- **Operational tradeoff (2026-04-26):**
+  - This remains a single-instance EC2 deployment, not a blue/green or rolling system.
+  - The deploy path now intentionally serves a short-lived "deploy in progress" response during restart/health-check windows instead of exposing raw upstream `502 Bad Gateway` errors.
+  - For this portfolio site, that tradeoff is acceptable: it keeps the deploy model simple while making transient cutovers predictable for users and reviewers.
+
 - **Operation & Flags (highly used):**
   - `--profiles prod|dev|both` choose which environment(s) to deploy.
   - Images are always rebuilt and pushed automatically (both frontend and backend) to ensure consistency.

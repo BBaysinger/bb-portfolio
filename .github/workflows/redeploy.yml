@@ -195,6 +195,14 @@ jobs:
           ENVIRONMENT: ${{ matrix.target }}
         run: bash deploy/scripts/actions/sync-nginx.sh "${{ steps.ssh.outputs.key }}"
 
+      - name: Enable deploy mode
+        if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
+        env:
+          ENVIRONMENT: ${{ matrix.target }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          DEPLOY_MODE_ACTION: enable
+        run: bash deploy/scripts/actions/deploy-mode.sh "${{ steps.ssh.outputs.key }}"
+
       - name: (Re)start containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
         env:
@@ -225,6 +233,14 @@ jobs:
           CURL_CONNECT_TIMEOUT: 2
           HEALTH_STARTING_GRACE_SECONDS: 40
         run: bash deploy/scripts/actions/health-checks.sh "${{ steps.ssh.outputs.key }}"
+
+      - name: Disable deploy mode
+        if: ${{ success() && (inputs.restart_containers == 'true' || inputs.restart_containers == true) }}
+        env:
+          ENVIRONMENT: ${{ matrix.target }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          DEPLOY_MODE_ACTION: disable
+        run: bash deploy/scripts/actions/deploy-mode.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Trigger frontend revalidation
         if: ${{ (inputs.restart_containers == 'true' || inputs.restart_containers == true) && (inputs.refresh_env == 'true' || inputs.refresh_env == true) }}

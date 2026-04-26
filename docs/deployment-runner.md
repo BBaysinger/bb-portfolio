@@ -70,3 +70,6 @@ The host can run two Compose profiles:
 ## Notes
 
 - Use `--help` on the script for the authoritative option list.
+- This is a single-host, in-place deploy model. It does not provide full blue/green zero-downtime cutover.
+- During container restart and readiness windows, nginx now serves a temporary deploy page instead of surfacing raw upstream `502` errors.
+- That behavior is intentional: for a portfolio site, a short, explicit maintenance response is a better tradeoff than adding much heavier deployment infrastructure.
