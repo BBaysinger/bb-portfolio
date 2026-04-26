@@ -668,14 +668,17 @@ function Hero({ initialRoleTitle }: HeroProps) {
       if (!payload) return;
 
       recordEvent("hero_viewport_diagnostics", {
-        page: typeof window !== "undefined" ? window.location.pathname : undefined,
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
         ...payload,
       });
 
       if (payload.suspicious) {
         recordEvent("hero_viewport_anomaly", {
           page:
-            typeof window !== "undefined" ? window.location.pathname : undefined,
+            typeof window !== "undefined"
+              ? window.location.pathname
+              : undefined,
           ...payload,
         });
       }
