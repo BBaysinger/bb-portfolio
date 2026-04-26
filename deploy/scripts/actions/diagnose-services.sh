@@ -8,15 +8,10 @@ source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
 resolve_ssl_domain() {
-  local domain="${SSL_DOMAIN:-}"
+  local domain
+  domain="$(bb_resolve_ssl_domain)"
   if [[ -n "$domain" ]]; then
-    echo "${domain#www.}"; return 0
-  fi
-  if [[ -n "${FRONTEND_URL:-}" ]]; then
-    domain=$(node -e "try{process.stdout.write(new URL(process.env.FRONTEND_URL).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
-    if [[ -n "$domain" ]]; then
-      echo "$domain"; return 0
-    fi
+    echo "$domain"; return 0
   fi
   echo ""; return 1
 }

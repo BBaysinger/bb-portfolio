@@ -60,3 +60,39 @@ bb_ec2_ssh_target() {
   [[ -n "$host" ]] || return 1
   echo "$(bb_ec2_ssh_user)@$host"
 }
+
+bb_resolve_ssl_domain() {
+  local explicit_domain="${SSL_DOMAIN:-}"
+  if [[ -n "$explicit_domain" ]]; then
+    echo "${explicit_domain#www.}"
+    return 0
+  fi
+
+  node - <<'NODE'
+const normalizeHostname = (value) => {
+  const trimmed = String(value || '').trim()
+  if (!trimmed) return ''
+
+  try {
+    return new URL(trimmed).hostname.replace(/^www\./i, '')
+  } catch {
+    return trimmed.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').replace(/^www\./i, '')
+  }
+}
+
+const collectCandidates = (...values) =>
+  values
+    .flatMap((value) => String(value || '').split(','))
+    .map((value) => normalizeHostname(value))
+    .filter(Boolean)
+
+const candidates = collectCandidates(
+  process.env.PUBLIC_SERVER_URL,
+  process.env.PAYLOAD_PUBLIC_SERVER_URL,
+  process.env.FRONTEND_URL,
+)
+
+const preferred = candidates.find((candidate) => !/^dev\./i.test(candidate)) || candidates[0] || ''
+process.stdout.write(preferred)
+NODE
+}

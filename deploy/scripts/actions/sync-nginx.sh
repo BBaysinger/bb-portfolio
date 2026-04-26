@@ -8,23 +8,11 @@ source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
 resolve_ssl_domain() {
-  local domain="${SSL_DOMAIN:-}"
+  local domain
+  domain="$(bb_resolve_ssl_domain)"
   if [[ -n "$domain" ]]; then
-    echo "${domain#www.}"; return 0
+    echo "$domain"; return 0
   fi
-
-  # Prefer the canonical origin (Payload admin/API), then fall back to frontend origins.
-  # Note: FRONTEND_URL is commonly comma-separated (CORS/CSRF allowlist), so only
-  # the first origin is parseable as a URL.
-  local origin="${PUBLIC_SERVER_URL:-${PAYLOAD_PUBLIC_SERVER_URL:-${FRONTEND_URL:-}}}"
-  if [[ -n "$origin" ]]; then
-    origin="${origin%%,*}"
-    domain=$(node -e "try{process.stdout.write(new URL(process.argv[1]).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}" "$origin")
-    if [[ -n "$domain" ]]; then
-      echo "$domain"; return 0
-    fi
-  fi
-
   echo ""; return 1
 }
 

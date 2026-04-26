@@ -483,20 +483,14 @@ resolve_ec2_host() {
 # 2) FRONTEND_URL env var (parse hostname)
 # 3) Local private secrets JSON5 (FRONTEND_URL)
 resolve_ssl_domain() {
-  local domain="${SSL_DOMAIN:-}"
+  local domain
+  domain="$(bb_resolve_ssl_domain)"
   if [[ -n "$domain" ]]; then
-    echo "${domain#www.}"; return 0
-  fi
-
-  if [[ -n "${FRONTEND_URL:-}" ]]; then
-    domain=$(node -e "try{process.stdout.write(new URL(process.env.FRONTEND_URL).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
-    if [[ -n "$domain" ]]; then
-      echo "$domain"; return 0
-    fi
+    echo "$domain"; return 0
   fi
 
   if [[ -f "$REPO_ROOT/.github-secrets.private.json5" ]]; then
-    domain=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const url=(s.FRONTEND_URL||'').trim();if(!url){process.stdout.write('');process.exit(0);}process.stdout.write((new URL(url).hostname||'').replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
+    domain=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const values=[s.PUBLIC_SERVER_URL,s.PAYLOAD_PUBLIC_SERVER_URL,s.FRONTEND_URL].flatMap((value)=>String(value||'').split(','));const hosts=values.map((value)=>{const trimmed=String(value||'').trim();if(!trimmed) return '';try{return new URL(trimmed).hostname.replace(/^www\\./i,'');}catch{return trimmed.replace(/^https?:\\/\\//i,'').replace(/\\/.*$/,'').replace(/^www\\./i,'');}}).filter(Boolean);const preferred=hosts.find((host)=>!/^dev\\./i.test(host))||hosts[0]||'';process.stdout.write(preferred);}catch(e){process.stdout.write('');}")
     if [[ -n "$domain" ]]; then
       echo "$domain"; return 0
     fi
