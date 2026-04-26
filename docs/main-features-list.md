@@ -55,6 +55,7 @@ Working list of notable features and technical systems
 - SSG/ISR (24h) portfolio projects list
 - SSG/ISR (24h) dynamic project routes
 - SSG/ISR (24h) CV route
+- Generated Open Graph / Twitter social share images rendered from a dedicated portfolio preview route with browser capture
 - On-demand frontend revalidation endpoint for project/CV/hero/media updates
 - Targeted post-revalidation route warming so low-traffic recruiter/employer visits usually hit already-regenerated pages
 - SSG/ISR NDA project routes with short-code static params, sanitized placeholders, and auth-aware runtime upgrade (SSR to CSR hydration)
@@ -140,6 +141,7 @@ Working list of notable features and technical systems
 - Unified ESLint configs for frontend/backend
 - Playwright end-to-end and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
+- `sync:branches` automation that synchronizes `dev`/`main`, bumps the canonical root patch version, propagates it to frontend/backend manifests and lockfiles, syncs JSON5 mirrors, and fast-forwards both branches
 - Detailed engineering standards, including AI assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
 - Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
