@@ -175,7 +175,7 @@ else
   git add package.json package.json5 package-lock.json \
     backend/package.json backend/package.json5 backend/package-lock.json \
     frontend/package.json frontend/package.json5 frontend/package-lock.json
-  git commit -m "Bump version to $NEW_VERSION"
+  git commit -m "Kick off deploy and bump version to $NEW_VERSION"
 fi
 
 log "Fast-forwarding main to current dev state"
