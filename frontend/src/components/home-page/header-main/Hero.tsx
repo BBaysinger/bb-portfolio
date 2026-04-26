@@ -131,6 +131,20 @@ type ViewportDebugSnapshot = {
   clientHeight: number | null;
 };
 
+type HeroViewportRumPayload = ViewportDebugSnapshot & {
+  browser: string;
+  mode: "svh" | "managed";
+  heroHeight: number | null;
+  heroBottom: number | null;
+  lockupTop: number | null;
+  lockupBottom: number | null;
+  navHeight: number | null;
+  scrollY: number | null;
+  lockupOffscreenPx: number;
+  heroOvershootPx: number;
+  suspicious: boolean;
+};
+
 const roundViewportValue = (value: number | null | undefined) => {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
     return null;
@@ -156,6 +170,69 @@ const getViewportDebugSnapshot = (
     visualViewportHeight: roundViewportValue(window.visualViewport?.height),
     innerHeight: roundViewportValue(window.innerHeight),
     clientHeight: roundViewportValue(document.documentElement?.clientHeight),
+  };
+};
+
+const getRoundedRectValue = (value: number | null | undefined) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.round(value);
+};
+
+const buildHeroViewportRumPayload = ({
+  stableHeightPx,
+  viewportHeightMode,
+  viewportBrowserLabel,
+  heroElement,
+  lockupElement,
+}: {
+  stableHeightPx: number | null;
+  viewportHeightMode: "svh" | "managed";
+  viewportBrowserLabel: string;
+  heroElement: HTMLElement | null;
+  lockupElement: HTMLElement | null;
+}): HeroViewportRumPayload | null => {
+  if (typeof window === "undefined") return null;
+
+  const viewport = getViewportDebugSnapshot(stableHeightPx);
+  const heroRect = heroElement?.getBoundingClientRect();
+  const lockupRect = lockupElement?.getBoundingClientRect();
+  const navElement = document.querySelector<HTMLElement>("nav.topBar");
+  const navRect = navElement?.getBoundingClientRect();
+  const referenceViewportHeight =
+    viewport.visualViewportHeight ??
+    viewport.innerHeight ??
+    viewport.clientHeight ??
+    stableHeightPx ??
+    null;
+  const heroHeight = getRoundedRectValue(heroRect?.height);
+  const heroBottom = getRoundedRectValue(heroRect?.bottom);
+  const lockupTop = getRoundedRectValue(lockupRect?.top);
+  const lockupBottom = getRoundedRectValue(lockupRect?.bottom);
+  const navHeight = getRoundedRectValue(navRect?.height);
+  const scrollY = roundViewportValue(window.scrollY);
+  const lockupOffscreenPx =
+    lockupBottom !== null && referenceViewportHeight !== null
+      ? Math.max(0, lockupBottom - referenceViewportHeight)
+      : 0;
+  const heroOvershootPx =
+    heroHeight !== null && referenceViewportHeight !== null
+      ? Math.max(0, heroHeight - referenceViewportHeight)
+      : 0;
+  const suspicious = lockupOffscreenPx >= 24 || heroOvershootPx >= 24;
+
+  return {
+    ...viewport,
+    browser: viewportBrowserLabel,
+    mode: viewportHeightMode,
+    heroHeight,
+    heroBottom,
+    lockupTop,
+    lockupBottom,
+    navHeight,
+    scrollY,
+    lockupOffscreenPx,
+    heroOvershootPx,
+    suspicious,
   };
 };
 
@@ -194,6 +271,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const isSlingerInFlightRef = useRef(false);
+  const hasRecordedViewportRumRef = useRef(false);
 
   const stableHeightPx = useStableViewportHeightVar(heroRef, {
     cssVarName: "--hero-stable-vh",
@@ -567,6 +645,56 @@ function Hero({ initialRoleTitle }: HeroProps) {
       );
     };
   }, [showViewportDebug]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window === "undefined") return;
+    if (hasRecordedViewportRumRef.current) return;
+
+    let cancelled = false;
+    let timeoutId: number | null = null;
+
+    const recordViewportTelemetry = () => {
+      if (cancelled || hasRecordedViewportRumRef.current) return;
+
+      const payload = buildHeroViewportRumPayload({
+        stableHeightPx,
+        viewportHeightMode,
+        viewportBrowserLabel,
+        heroElement: heroRef.current,
+        lockupElement: titleRef.current,
+      });
+
+      if (!payload) return;
+
+      recordEvent("hero_viewport_diagnostics", {
+        page: typeof window !== "undefined" ? window.location.pathname : undefined,
+        ...payload,
+      });
+
+      if (payload.suspicious) {
+        recordEvent("hero_viewport_anomaly", {
+          page:
+            typeof window !== "undefined" ? window.location.pathname : undefined,
+          ...payload,
+        });
+      }
+
+      hasRecordedViewportRumRef.current = true;
+    };
+
+    requestAnimationFrame(() => {
+      if (cancelled) return;
+      timeoutId = window.setTimeout(recordViewportTelemetry, 150);
+    });
+
+    return () => {
+      cancelled = true;
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [mounted, stableHeightPx, viewportBrowserLabel, viewportHeightMode]);
 
   const handleHeroParagraphComplete = useCallback(() => {
     if (!playHeroIntro) return;
