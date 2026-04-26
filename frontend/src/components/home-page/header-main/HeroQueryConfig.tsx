@@ -18,6 +18,7 @@ import useQueryParams from "@/hooks/useQueryParams";
 type Props = {
   onUpdate: (value: boolean) => void;
   onFpsOverride?: (value: boolean | null) => void;
+  onViewportDebugOverride?: (value: boolean) => void;
 };
 
 type QueryParamValue = string | number | boolean;
@@ -62,7 +63,11 @@ const parseBooleanParam = (value?: QueryParamValue): boolean | null => {
  * @see useQueryParams
  *
  */
-export default function HeroQueryConfig({ onUpdate, onFpsOverride }: Props) {
+export default function HeroQueryConfig({
+  onUpdate,
+  onFpsOverride,
+  onViewportDebugOverride,
+}: Props) {
   const queryParams = useQueryParams();
 
   const slingerTrackingParam = queryParams?.useSlingerTracking;
@@ -71,9 +76,15 @@ export default function HeroQueryConfig({ onUpdate, onFpsOverride }: Props) {
     queryParams?.fpsCounter ??
     queryParams?.showFps ??
     queryParams?.showFpsCounter;
+  // TODO(viewport-debug-cleanup): Remove temporary hero viewport-debug query params after the iOS Safari height investigation.
+  const viewportDebugParam =
+    queryParams?.heroViewportDebug ??
+    queryParams?.viewportDebug ??
+    queryParams?.vhDebug;
 
   const slingerTracking = parseBooleanParam(slingerTrackingParam) ?? false;
   const fpsOverride = parseBooleanParam(fpsParam);
+  const viewportDebug = parseBooleanParam(viewportDebugParam) ?? false;
 
   useEffect(() => {
     onUpdate(slingerTracking);
@@ -83,6 +94,11 @@ export default function HeroQueryConfig({ onUpdate, onFpsOverride }: Props) {
     if (!onFpsOverride) return;
     onFpsOverride(fpsOverride);
   }, [fpsOverride, onFpsOverride]);
+
+  useEffect(() => {
+    if (!onViewportDebugOverride) return;
+    onViewportDebugOverride(viewportDebug);
+  }, [onViewportDebugOverride, viewportDebug]);
 
   return null;
 }

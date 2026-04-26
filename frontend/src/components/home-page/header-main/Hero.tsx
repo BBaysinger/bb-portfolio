@@ -21,6 +21,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
 } from "react";
@@ -37,6 +38,7 @@ import useStableViewportHeightVar, {
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
+import { detectOs, isEdge, isFirefox, isSafari } from "@/utils/browser";
 import {
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
   consumeHomeHeroIntroReplayRequest,
@@ -122,6 +124,41 @@ type HeroProps = {
   initialRoleTitle?: string;
 };
 
+type ViewportDebugSnapshot = {
+  stableHeightPx: number | null;
+  visualViewportHeight: number | null;
+  innerHeight: number | null;
+  clientHeight: number | null;
+};
+
+const roundViewportValue = (value: number | null | undefined) => {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return Math.round(value);
+};
+
+const getViewportDebugSnapshot = (
+  stableHeightPx: number | null,
+): ViewportDebugSnapshot => {
+  if (typeof window === "undefined") {
+    return {
+      stableHeightPx,
+      visualViewportHeight: null,
+      innerHeight: null,
+      clientHeight: null,
+    };
+  }
+
+  return {
+    stableHeightPx,
+    visualViewportHeight: roundViewportValue(window.visualViewport?.height),
+    innerHeight: roundViewportValue(window.innerHeight),
+    clientHeight: roundViewportValue(document.documentElement?.clientHeight),
+  };
+};
+
 function Hero({ initialRoleTitle }: HeroProps) {
   const id = "hero";
   const initialRows = 12;
@@ -142,6 +179,12 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
   const [playHeroIntro, setPlayHeroIntro] = useState(false);
   const [heroRuntimeKey, setHeroRuntimeKey] = useState(0);
+  // TODO(viewport-debug-cleanup): Remove this temporary hero viewport-debug state once the iOS Safari height issue is resolved.
+  const [showViewportDebug, setShowViewportDebug] = useState(false);
+  const [, bumpViewportDebugVersion] = useReducer(
+    (value: number) => value + 1,
+    0,
+  );
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -152,7 +195,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const isSlingerInFlightRef = useRef(false);
 
-  useStableViewportHeightVar(heroRef, {
+  const stableHeightPx = useStableViewportHeightVar(heroRef, {
     cssVarName: "--hero-stable-vh",
     mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
     heightOnlyResizePolicy: "pointer-fine-or-shrink",
@@ -168,6 +211,32 @@ function Hero({ initialRoleTitle }: HeroProps) {
     () => getMaxSlingerReleaseSpeed(viewportWidth),
     [viewportWidth],
   );
+  const viewportHeightMode = stableHeightPx === null ? "svh" : "managed";
+  const viewportBrowserLabel = useMemo(() => {
+    if (!mounted || typeof window === "undefined") return "unknown";
+
+    const os = detectOs();
+    if (isFirefox()) return `${os}-firefox`;
+    if (isEdge()) return `${os}-edge`;
+    if (isSafari()) return `${os}-safari`;
+    return os;
+  }, [mounted]);
+  const viewportDebugSnapshot =
+    showViewportDebug && typeof window !== "undefined"
+      ? getViewportDebugSnapshot(stableHeightPx)
+      : null;
+  const viewportDebugSummary = useMemo(() => {
+    if (!viewportDebugSnapshot) return null;
+
+    return [
+      `mode:${viewportHeightMode}`,
+      `stable:${viewportDebugSnapshot.stableHeightPx ?? "-"}`,
+      `vv:${viewportDebugSnapshot.visualViewportHeight ?? "-"}`,
+      `inner:${viewportDebugSnapshot.innerHeight ?? "-"}`,
+      `client:${viewportDebugSnapshot.clientHeight ?? "-"}`,
+      viewportBrowserLabel,
+    ].join(" ");
+  }, [viewportBrowserLabel, viewportDebugSnapshot, viewportHeightMode]);
 
   // useEffect(() => {
   //   if (viewportWidth === null) return;
@@ -457,6 +526,48 @@ function Hero({ initialRoleTitle }: HeroProps) {
     };
   }, [restartHeroRuntime]);
 
+  useEffect(() => {
+    if (!showViewportDebug) return;
+
+    const updateViewportDebugSnapshot = () => {
+      bumpViewportDebugVersion();
+    };
+
+    const visualViewport = window.visualViewport;
+    window.addEventListener("resize", updateViewportDebugSnapshot, {
+      passive: true,
+    });
+    window.addEventListener("orientationchange", updateViewportDebugSnapshot, {
+      passive: true,
+    });
+    window.addEventListener("scroll", updateViewportDebugSnapshot, {
+      passive: true,
+    });
+    visualViewport?.addEventListener("resize", updateViewportDebugSnapshot, {
+      passive: true,
+    });
+    visualViewport?.addEventListener("scroll", updateViewportDebugSnapshot, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("resize", updateViewportDebugSnapshot);
+      window.removeEventListener(
+        "orientationchange",
+        updateViewportDebugSnapshot,
+      );
+      window.removeEventListener("scroll", updateViewportDebugSnapshot);
+      visualViewport?.removeEventListener(
+        "resize",
+        updateViewportDebugSnapshot,
+      );
+      visualViewport?.removeEventListener(
+        "scroll",
+        updateViewportDebugSnapshot,
+      );
+    };
+  }, [showViewportDebug]);
+
   const handleHeroParagraphComplete = useCallback(() => {
     if (!playHeroIntro) return;
 
@@ -476,6 +587,9 @@ function Hero({ initialRoleTitle }: HeroProps) {
       id={id}
       ref={heroRef}
       data-nav="hero"
+      // TODO(viewport-debug-cleanup): Remove these temporary debug attributes after viewport-height investigation is complete.
+      data-viewport-height-mode={viewportHeightMode}
+      data-viewport-browser={viewportBrowserLabel}
       onContextMenu={handleSuppressContextMenu}
       className={clsx(
         // Scoped module class + global hook for easier debugging/targeting
@@ -501,11 +615,19 @@ function Hero({ initialRoleTitle }: HeroProps) {
       )}
     >
       <Suspense fallback={null}>
+        {/* TODO(viewport-debug-cleanup): Remove temporary query-param wiring used to toggle hero viewport diagnostics. */}
         <HeroQueryConfig
           onUpdate={setUseSlingerTracking}
           onFpsOverride={setFpsOverride}
+          onViewportDebugOverride={setShowViewportDebug}
         />
       </Suspense>
+      {showViewportDebug && viewportDebugSummary ? (
+        // TODO(viewport-debug-cleanup): Remove temporary on-page viewport debug overlay after Safari investigation.
+        <div className={styles.viewportDebug} aria-live="polite">
+          {viewportDebugSummary}
+        </div>
+      ) : null}
       <div>
         <GridController
           key={`grid-${heroRuntimeKey}`}
