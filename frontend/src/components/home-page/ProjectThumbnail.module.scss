@@ -3,6 +3,7 @@
 @use "./ProjectsList.module.scss" as projectsList;
 
 $hoverPersists: var(--hover-persists, 600ms);
+$fadeOutPersists: 300ms;
 
 .projectThumbnail {
   aspect-ratio: 3 / 2;
@@ -41,10 +42,8 @@ $hoverPersists: var(--hover-persists, 600ms);
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
     filter: saturate(0) contrast(1.1) brightness(1);
-    transition:
-      filter $hoverPersists,
-      opacity 1.2s;
-    opacity: 0.5;
+    transition: filter $fadeOutPersists linear;
+    // opacity: 0.5;
 
     // Prevent Microsoft Edge from attaching image hover UI (e.g. Visual Search)
     // by ensuring the <img> itself is never the hovered/click target.
@@ -55,10 +54,8 @@ $hoverPersists: var(--hover-persists, 600ms);
   &.focused {
     .thumbBg {
       filter: none;
-      transition:
-        filter $hoverPersists,
-        opacity $hoverPersists;
-      opacity: 1;
+      transition: filter $hoverPersists linear;
+      // opacity: 1;
       transition-delay: 0;
     }
   }
