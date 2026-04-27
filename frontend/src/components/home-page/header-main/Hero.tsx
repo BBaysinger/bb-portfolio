@@ -100,6 +100,7 @@ const MIN_SLINGER_RELEASE_SPEED = 240;
 const MAX_SLINGER_RELEASE_SPEED = 650;
 const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
 const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 1792; // My laptop
+const ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT = 1280;
 
 const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
   if (viewportWidth === null) return MAX_SLINGER_RELEASE_SPEED;
@@ -289,6 +290,10 @@ function Hero({ initialRoleTitle }: HeroProps) {
     () => getMaxSlingerReleaseSpeed(viewportWidth),
     [viewportWidth],
   );
+  const shouldPauseAnimationSequencer =
+    viewportWidth !== null &&
+    viewportWidth > ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT &&
+    !isSlingerIdle;
   const viewportHeightMode = stableHeightPx === null ? "svh" : "managed";
   const viewportBrowserLabel = useMemo(() => {
     if (!mounted || typeof window === "undefined") return "unknown";
@@ -763,6 +768,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
         <GridController
           key={`grid-${heroRuntimeKey}`}
           useSlingerTracking={useSlingerTracking}
+          isAnimationSequencerPaused={shouldPauseAnimationSequencer}
           className={styles.gridController}
           ref={gridControllerRef}
           rows={initialRows}

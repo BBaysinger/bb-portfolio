@@ -52,6 +52,7 @@ interface GridControllerProps {
   cols: number;
   className?: string;
   useSlingerTracking?: boolean;
+  isAnimationSequencerPaused?: boolean;
 }
 
 type GridType = "svg" | "canvas" | "pixi";
@@ -134,7 +135,16 @@ const getShowProjectilesFromLocation = (): boolean => {
  * ```
  */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
-  ({ rows, cols, className, useSlingerTracking = false }, ref) => {
+  (
+    {
+      rows,
+      cols,
+      className,
+      useSlingerTracking = false,
+      isAnimationSequencerPaused = false,
+    },
+    ref,
+  ) => {
     const [gridType, setGridType] = useState<GridType>(() =>
       getGridTypeFromLocation(),
     );
@@ -435,7 +445,10 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
     return (
       <div ref={wrapperRef} className={clsx(styles.gridController, className)}>
-        <AnimationSequencer className={styles.animationSequencer} />
+        <AnimationSequencer
+          className={styles.animationSequencer}
+          isPaused={isAnimationSequencerPaused}
+        />
 
         {gridType === "svg" ? (
           <FluxelSvgGrid

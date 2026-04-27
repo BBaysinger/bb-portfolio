@@ -87,6 +87,7 @@ export interface AnimationSequencerHandle {
 
 export interface AnimationSequencerProps {
   className?: string;
+  isPaused?: boolean;
 }
 
 interface AnimationMeta {
@@ -111,15 +112,17 @@ interface AnimationMeta {
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
   AnimationSequencerProps
->(({ className = "" }, ref) => {
+>(({ className = "", isPaused = false }, ref) => {
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);
   const [shouldPlay, setShouldPlay] = useState(false);
+  const [currentFrame, setCurrentFrame] = useState<number | null>(null);
 
   // `setTimeout` return type differs between DOM and Node typings; keep it portable.
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPlayedIndexRef = useRef<number | null>(null);
   const startRafRef = useRef<number | null>(null);
+  const wasPausedRef = useRef(isPaused);
 
   const delay = 15000;
   const initialDelay = 8000;
@@ -291,6 +294,7 @@ const AnimationSequencer = forwardRef<
     clearStartRafIfSet();
     // Mount hidden first to avoid flashing frame 0 before playback begins.
     setShouldPlay(false);
+    setCurrentFrame(null);
     setActiveAnim(anim);
     setAnimKey((k) => k + 1);
 
@@ -318,6 +322,7 @@ const AnimationSequencer = forwardRef<
 
   const playImperativeAnimation = useCallback(
     (index = 0) => {
+      if (isPaused) return;
       if (imperativeAnimations.length === 0) return;
 
       const anim = imperativeAnimations[index % imperativeAnimations.length];
@@ -333,7 +338,7 @@ const AnimationSequencer = forwardRef<
         setActiveAnim(null);
       }, delay);
     },
-    [imperativeAnimations, isNarrow, safeSetAnim],
+    [imperativeAnimations, isNarrow, isPaused, safeSetAnim],
   );
 
   useImperativeHandle(ref, () => ({ playImperativeAnimation }), [
@@ -355,26 +360,66 @@ const AnimationSequencer = forwardRef<
 
     warmNext(0);
 
-    timeoutRef.current = setTimeout(updateAnimation, initialDelay);
     return () => {
       isCancelled = true;
       if (preloadTimeout !== null) {
         clearTimeout(preloadTimeout);
       }
+    };
+  }, [inactivityAnimationSources]);
+
+  useEffect(() => {
+    const wasPaused = wasPausedRef.current;
+    wasPausedRef.current = isPaused;
+
+    if (isPaused) {
       clearTimeoutIfSet();
       clearStartRafIfSet();
+      setShouldPlay(false);
+      return;
+    }
+
+    if (wasPaused && activeAnim) {
+      clearStartRafIfSet();
+      startRafRef.current = requestAnimationFrame(() => {
+        setShouldPlay(true);
+        startRafRef.current = null;
+      });
+
+      return () => {
+        clearStartRafIfSet();
+      };
+    }
+
+    if (!activeAnim) {
+      clearTimeoutIfSet();
+      timeoutRef.current = setTimeout(updateAnimation, initialDelay);
+    }
+
+    return () => {
+      if (!isPaused && !activeAnim) {
+        clearTimeoutIfSet();
+      }
     };
-  }, [inactivityAnimationSources, initialDelay, updateAnimation]);
+  }, [activeAnim, initialDelay, isPaused, updateAnimation]);
 
   const handleEnd = useCallback(() => {
+    if (isPaused) return;
     clearTimeoutIfSet();
     timeoutRef.current = setTimeout(updateAnimation, delay);
-  }, [delay, updateAnimation]);
+  }, [delay, isPaused, updateAnimation]);
 
   const currentSrc = useMemo(() => {
     if (!activeAnim) return null;
     return isNarrow() ? activeAnim.narrow : activeAnim.wide;
   }, [activeAnim, isNarrow]);
+  const frameControl = useMemo(() => {
+    if (isPaused) return currentFrame;
+    if (!shouldPlay && activeAnim && currentFrame !== null) {
+      return currentFrame;
+    }
+    return shouldPlay ? null : -1;
+  }, [activeAnim, currentFrame, isPaused, shouldPlay]);
 
   return (
     <div className={clsx(styles.animationSequencer, className)}>
@@ -386,7 +431,8 @@ const AnimationSequencer = forwardRef<
           loops={activeAnim.loops}
           onEnd={handleEnd}
           endFrame={-1}
-          frameControl={shouldPlay ? null : -1}
+          frameControl={frameControl}
+          onFrameChange={setCurrentFrame}
           renderStrategyQueryParam={SEQUENCER_RENDER_STRATEGY_QUERY_PARAM}
           maxDevicePixelRatioQueryParam={SEQUENCER_MAX_DPR_QUERY_PARAM}
         />

@@ -81,6 +81,8 @@ interface SpriteSheetPlayerProps {
   endFrame?: number | "last";
   /** Manually control the frame index; `null` = autoplay; `-1` hides but keeps resources warm. */
   frameControl?: number | null;
+  /** Notifies the caller when the visible frame changes. */
+  onFrameChange?: (frameIndex: number) => void;
   /** Extra class name(s) for the wrapper element. */
   className?: string;
   /** Rendering backend to use. Explicit prop wins over any query-string override. */
@@ -110,6 +112,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   onEnd,
   endFrame = 0,
   frameControl = null,
+  onFrameChange,
   className = "",
   renderStrategy,
   renderStrategyQueryParam,
@@ -123,10 +126,16 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const frameRef = useRef<number>(0);
+  const prevFrameControlRef = useRef<number | null>(null);
   const hiddenRef = useRef<boolean>(false);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
   const rendererSignatureRef = useRef<string>("");
+  const onFrameChangeRef = useRef(onFrameChange);
+
+  useEffect(() => {
+    onFrameChangeRef.current = onFrameChange;
+  }, [onFrameChange]);
 
   const effectiveRenderStrategy = useMemo(() => {
     if (renderStrategy) return renderStrategy;
@@ -181,6 +190,18 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     [],
   );
 
+  const setFrame = useCallback(
+    (targetFrameIndex: number, hidden: boolean) => {
+      frameRef.current = targetFrameIndex;
+      drawWithRenderer(targetFrameIndex, hidden);
+
+      if (!hidden) {
+        onFrameChangeRef.current?.(targetFrameIndex);
+      }
+    },
+    [drawWithRenderer],
+  );
+
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
     if (!match) {
@@ -224,6 +245,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   useEffect(() => {
     if (!meta) return;
 
+    const previousFrameControl = prevFrameControlRef.current;
+    prevFrameControlRef.current = frameControl;
+
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
@@ -232,28 +256,29 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     completedLoopsRef.current = 0;
 
     if (frameControl === -1) {
-      frameRef.current = 0;
-      drawWithRenderer(0, true);
+      setFrame(0, true);
       return;
     }
 
     if (typeof frameControl === "number") {
-      frameRef.current = frameControl;
-      drawWithRenderer(frameControl, false);
+      setFrame(frameControl, false);
+      return;
+    }
+
+    if (previousFrameControl !== null && previousFrameControl !== -1) {
+      drawWithRenderer(frameRef.current, false);
       return;
     }
 
     if (randomFrame) {
       const initialRandomFrame = Math.floor(Math.random() * meta.frameCount);
-      frameRef.current = initialRandomFrame;
-      drawWithRenderer(initialRandomFrame, false);
+      setFrame(initialRandomFrame, false);
       return;
     }
 
     // Sequential autoplay still starts on the first frame.
-    frameRef.current = 0;
-    drawWithRenderer(0, false);
-  }, [drawWithRenderer, frameControl, meta, randomFrame, src]);
+    setFrame(0, false);
+  }, [drawWithRenderer, frameControl, meta, randomFrame, setFrame, src]);
 
   useEffect(() => {
     if (!meta || frameControl === -1) return;
@@ -282,14 +307,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
         if (randomFrame) {
           const random = Math.floor(Math.random() * meta.frameCount);
-          frameRef.current = random;
-          drawWithRenderer(random, false);
+          setFrame(random, false);
 
           completedLoopsRef.current++;
           if (loops !== 0 && completedLoopsRef.current >= loops) {
             const resolved = resolveEndFrameIndex(meta.frameCount);
-            frameRef.current = resolved === -1 ? 0 : resolved;
-            drawWithRenderer(frameRef.current, resolved === -1);
+            setFrame(resolved === -1 ? 0 : resolved, resolved === -1);
             isCancelled = true;
             onEnd?.();
             return;
@@ -301,8 +324,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             completedLoopsRef.current++;
             if (loops !== 0 && completedLoopsRef.current >= loops) {
               const resolved = resolveEndFrameIndex(meta.frameCount);
-              frameRef.current = resolved === -1 ? 0 : resolved;
-              drawWithRenderer(frameRef.current, resolved === -1);
+              setFrame(resolved === -1 ? 0 : resolved, resolved === -1);
               isCancelled = true;
               onEnd?.();
               return;
@@ -311,8 +333,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             }
           }
 
-          frameRef.current = next;
-          drawWithRenderer(next, false);
+          setFrame(next, false);
         }
       }
 
@@ -338,6 +359,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     randomFrame,
     onEnd,
     resolveEndFrameIndex,
+    setFrame,
   ]);
 
   useEffect(() => {
