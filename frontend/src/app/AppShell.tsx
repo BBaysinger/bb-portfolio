@@ -182,7 +182,7 @@ export function AppShell({ children }: AppShellProps) {
     dispatch(checkAuthStatus());
   }, [dispatch]);
 
-  // Conventional cross-tab/session sync: when the tab becomes visible or regains focus,
+  // Conventional cross-tab/session sync: when the tab becomes visible again,
   // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
   useEffect(() => {
     let ticking = false;
@@ -218,7 +218,12 @@ export function AppShell({ children }: AppShellProps) {
           //   the projects list can momentarily render empty (a visible flicker).
           // - When client auth is already consistent, there's no need to refresh.
           const clientAuthed = Boolean(isLoggedIn) || Boolean(user);
-          if (!clientAuthed || !hasInitialized) {
+          if (!hasInitialized) {
+            dispatch(checkAuthStatus());
+            return;
+          }
+
+          if (!clientAuthed) {
             dispatch(checkAuthStatus());
             // Avoid refreshing on project carousel pages where URL is client-managed.
             if (!shouldSkipRefreshForCarousel()) {
@@ -257,10 +262,8 @@ export function AppShell({ children }: AppShellProps) {
         checkAndRefresh().finally(() => (ticking = false));
       });
     };
-    window.addEventListener("focus", onVisible);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
-      window.removeEventListener("focus", onVisible);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [router, dispatch, pathname, isLoggedIn, user, hasInitialized]);
