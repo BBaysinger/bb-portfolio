@@ -70,6 +70,7 @@ type SlingerBoxProps = {
   children?: React.ReactNode;
   pointerGravity?: number;
   ballSize?: number;
+  boundsInset?: number;
   maxReleaseSpeed?: number;
 };
 
@@ -108,18 +109,20 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       children,
       pointerGravity = 1,
       ballSize = 50,
+      boundsInset = 0,
       maxReleaseSpeed = 350,
     },
     ref,
   ) => {
     const radius = ballSize / 2;
+    const collisionRadius = Math.max(1, radius - boundsInset);
     const idleSpeedThreshold = 2.25;
     const desiredFPS = 60;
     const frameInterval = 1000 / desiredFPS;
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
     const childArray = React.Children.toArray(children);
     const gravityRange = 300;
-    const gravityWallInset = Math.min(12, radius * 0.5);
+    const gravityWallInset = Math.min(12, collisionRadius * 0.5);
     const wallSeparationNudge = 1;
     const collisionRestitution = 0.88;
     const minimumBounceSpeed = 0.9;
@@ -167,19 +170,19 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       if (!container) return;
 
       const bounds = container.getBoundingClientRect();
-      const maxX = Math.max(radius, bounds.width - radius);
-      const maxY = Math.max(radius, bounds.height - radius);
+      const maxX = Math.max(collisionRadius, bounds.width - collisionRadius);
+      const maxY = Math.max(collisionRadius, bounds.height - collisionRadius);
 
       objectsRef.current.forEach((obj) => {
-        obj.x = Math.min(Math.max(obj.x, radius), maxX);
-        obj.y = Math.min(Math.max(obj.y, radius), maxY);
+        obj.x = Math.min(Math.max(obj.x, collisionRadius), maxX);
+        obj.y = Math.min(Math.max(obj.y, collisionRadius), maxY);
 
         const el = slingerRefs.current.get(obj.id);
         if (el) {
           el.style.transform = `translate(${Math.round(obj.x - radius)}px, ${Math.round(obj.y - radius)}px)`;
         }
       });
-    }, [radius]);
+    }, [collisionRadius, radius]);
 
     useElementMonitor(
       containerRef,
@@ -472,10 +475,10 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
             top: bounds.top,
             width: bounds.width,
             height: bounds.height,
-            minX: radius,
-            maxX: Math.max(radius, bounds.width - radius),
-            minY: radius,
-            maxY: Math.max(radius, bounds.height - radius),
+            minX: collisionRadius,
+            maxX: Math.max(collisionRadius, bounds.width - collisionRadius),
+            minY: collisionRadius,
+            maxY: Math.max(collisionRadius, bounds.height - collisionRadius),
           };
 
           objectsRef.current.forEach((obj) => {
@@ -551,6 +554,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       [
         applyFreeFlightDamping,
         applyPointerAttraction,
+        collisionRadius,
         frameInterval,
         onIdle,
         radius,
@@ -660,10 +664,14 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
 
         const container = containerRef.current;
         const bounds = container?.getBoundingClientRect();
-        const minX = radius;
-        const maxX = bounds ? Math.max(radius, bounds.width - radius) : null;
-        const minY = radius;
-        const maxY = bounds ? Math.max(radius, bounds.height - radius) : null;
+        const minX = collisionRadius;
+        const maxX = bounds
+          ? Math.max(collisionRadius, bounds.width - collisionRadius)
+          : null;
+        const minY = collisionRadius;
+        const maxY = bounds
+          ? Math.max(collisionRadius, bounds.height - collisionRadius)
+          : null;
         const eventTime = getEventTime(e.timeStamp);
 
         const previousSample = movementHistory.current.at(-1);
@@ -831,6 +839,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         collisionRestitution,
         minimumDragReleaseSpeed,
         notifyWallCollisionIfNeeded,
+        collisionRadius,
         radius,
         releaseDraggedObject,
       ],

@@ -101,6 +101,7 @@ const MAX_SLINGER_RELEASE_SPEED = 650;
 const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
 const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 1792; // My laptop
 const ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT = 1280;
+const SLINGER_BOUNDS_INSET = 5;
 
 const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
   if (viewportWidth === null) return MAX_SLINGER_RELEASE_SPEED;
@@ -786,6 +787,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
+            boundsInset={SLINGER_BOUNDS_INSET}
             maxReleaseSpeed={maxSlingerReleaseSpeed}
           >
             <>
