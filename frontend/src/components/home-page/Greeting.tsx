@@ -63,8 +63,9 @@ const Greeting: React.FC = () => {
               <p>
                 I build <strong>front-end systems</strong> for{" "}
                 <strong>reliable, polished product UI</strong> — with a focus on
-                structure, styling, behavior, and interaction. Some earlier work
-                is included here for context, showing variety and the{" "}
+                structure, styling, behavior, and interaction. This portfolio
+                combines recent projects with selected earlier work to show
+                range, continuity, and the{" "}
                 <strong>creative/technical foundation</strong> behind my current
                 direction.
               </p>
