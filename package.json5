@@ -8,7 +8,7 @@
   // Monorepo root name (not a real app or package)
   "name": "bb-portfolio-monorepo-root",
   // Canonical repo version; child packages are kept in sync from this value.
-  "version": "1.0.20",
+  "version": "1.0.21",
   // Prevents accidental publishing to npm registry
   // Prevent publishing to npm registry
   "private": true,
