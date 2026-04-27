@@ -96,8 +96,8 @@ const isDevLikeProfile = envProfile === "local" || envProfile === "dev";
 const defaultFpsCounterEnabled =
   envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
 
-const MIN_SLINGER_RELEASE_SPEED = 230;
-const MAX_SLINGER_RELEASE_SPEED = 600;
+const MIN_SLINGER_RELEASE_SPEED = 240;
+const MAX_SLINGER_RELEASE_SPEED = 650;
 const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
 const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 1792; // My laptop
 
