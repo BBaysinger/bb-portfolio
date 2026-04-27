@@ -124,7 +124,7 @@
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.5.2",
     // Browser-like DOM environment used by Vitest component and hook tests.
-    "jsdom": "^29.0.2",
+    "jsdom": "^29.1.0",
     // Opinionated code formatter for consistent style
     "prettier": "^3.8.3",
     // Lightweight TypeScript runtime for executing guard scripts

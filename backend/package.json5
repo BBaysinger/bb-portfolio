@@ -136,13 +136,13 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "6.0.1",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.22",
+    "baseline-browser-mapping": "^2.10.23",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
     "eslint-config-next": "16.2.4",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "29.0.2",
+    "jsdom": "29.1.0",
     // Standalone version of Playwright test runner
     "playwright": "1.59.1",
     // Playwright core library (used for browser automation)
