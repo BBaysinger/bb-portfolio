@@ -123,6 +123,9 @@ const AnimationSequencer = forwardRef<
   const lastPlayedIndexRef = useRef<number | null>(null);
   const startRafRef = useRef<number | null>(null);
   const wasPausedRef = useRef(isPaused);
+  const awaitingNextAnimationRef = useRef(false);
+  const nextAnimationDeadlineRef = useRef<number | null>(null);
+  const remainingDelayRef = useRef<number | null>(null);
 
   const delay = 15000;
   const initialDelay = 8000;
@@ -292,6 +295,7 @@ const AnimationSequencer = forwardRef<
   const safeSetAnim = useCallback((anim: AnimationMeta) => {
     clearTimeoutIfSet();
     clearStartRafIfSet();
+    awaitingNextAnimationRef.current = false;
     // Mount hidden first to avoid flashing frame 0 before playback begins.
     setShouldPlay(false);
     setCurrentFrame(null);
@@ -306,6 +310,8 @@ const AnimationSequencer = forwardRef<
   }, []);
 
   const updateAnimation = useCallback(() => {
+    nextAnimationDeadlineRef.current = null;
+    remainingDelayRef.current = null;
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
     const filename = isNarrow() ? anim.narrow : anim.wide;
@@ -319,6 +325,22 @@ const AnimationSequencer = forwardRef<
       narrow: resolvedSrc,
     });
   }, [getNextIndex, inactivityAnimations, isNarrow, safeSetAnim]);
+
+  const scheduleNextAnimation = useCallback(
+    (delayMs: number, awaitingNextAnimation: boolean) => {
+      clearTimeoutIfSet();
+      awaitingNextAnimationRef.current = awaitingNextAnimation;
+      remainingDelayRef.current = delayMs;
+      nextAnimationDeadlineRef.current = Date.now() + delayMs;
+      timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = null;
+        nextAnimationDeadlineRef.current = null;
+        remainingDelayRef.current = null;
+        updateAnimation();
+      }, delayMs);
+    },
+    [updateAnimation],
+  );
 
   const playImperativeAnimation = useCallback(
     (index = 0) => {
@@ -373,13 +395,22 @@ const AnimationSequencer = forwardRef<
     wasPausedRef.current = isPaused;
 
     if (isPaused) {
+      if (
+        timeoutRef.current !== null &&
+        nextAnimationDeadlineRef.current !== null
+      ) {
+        remainingDelayRef.current = Math.max(
+          0,
+          nextAnimationDeadlineRef.current - Date.now(),
+        );
+      }
       clearTimeoutIfSet();
       clearStartRafIfSet();
       setShouldPlay(false);
       return;
     }
 
-    if (wasPaused && activeAnim) {
+    if (wasPaused && activeAnim && !awaitingNextAnimationRef.current) {
       clearStartRafIfSet();
       startRafRef.current = requestAnimationFrame(() => {
         setShouldPlay(true);
@@ -391,23 +422,32 @@ const AnimationSequencer = forwardRef<
       };
     }
 
-    if (!activeAnim) {
-      clearTimeoutIfSet();
-      timeoutRef.current = setTimeout(updateAnimation, initialDelay);
+    if (!activeAnim || awaitingNextAnimationRef.current) {
+      scheduleNextAnimation(
+        awaitingNextAnimationRef.current
+          ? (remainingDelayRef.current ?? delay)
+          : initialDelay,
+        awaitingNextAnimationRef.current,
+      );
     }
 
     return () => {
-      if (!isPaused && !activeAnim) {
+      if (!isPaused && (!activeAnim || awaitingNextAnimationRef.current)) {
         clearTimeoutIfSet();
       }
     };
-  }, [activeAnim, initialDelay, isPaused, updateAnimation]);
+  }, [activeAnim, delay, initialDelay, isPaused, scheduleNextAnimation]);
 
   const handleEnd = useCallback(() => {
-    if (isPaused) return;
+    awaitingNextAnimationRef.current = true;
+    remainingDelayRef.current = delay;
+    nextAnimationDeadlineRef.current = Date.now() + delay;
     clearTimeoutIfSet();
-    timeoutRef.current = setTimeout(updateAnimation, delay);
-  }, [delay, isPaused, updateAnimation]);
+    clearStartRafIfSet();
+    setShouldPlay(false);
+    setCurrentFrame(null);
+    setActiveAnim(null);
+  }, [delay]);
 
   const currentSrc = useMemo(() => {
     if (!activeAnim) return null;
