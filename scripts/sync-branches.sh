@@ -34,6 +34,7 @@ SKIP_VERSION_BUMP=false
 DEPLOY_ALL=false
 CI_WORKFLOW_FILE=".github/workflows/ci-cd.yml"
 DEV_SKIP_DEPLOY_TOKEN="[skip dev deploy]"
+DEV_SKIP_CI_TOKEN="[skip ci]"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -230,10 +231,14 @@ create_version_bump_commit() {
     backend/package.json backend/package.json5 backend/package-lock.json \
     frontend/package.json frontend/package.json5 frontend/package-lock.json
   VERSION_BUMP_MESSAGE="Bump version to $NEW_VERSION"
-  if [[ "$DEPLOY_ALL" != true ]]; then
-    VERSION_BUMP_MESSAGE+=" $DEV_SKIP_DEPLOY_TOKEN"
-  fi
   git commit -m "$VERSION_BUMP_MESSAGE"
+}
+
+create_dev_sync_skip_commit() {
+  NEW_VERSION=$(node -p "require('./package.json').version")
+  SYNC_MESSAGE="Sync dev to main after release $NEW_VERSION $DEV_SKIP_CI_TOKEN $DEV_SKIP_DEPLOY_TOKEN"
+  log "Creating dev-only sync marker commit to suppress the final dev workflow run"
+  git commit --allow-empty -m "$SYNC_MESSAGE"
 }
 
 # Sequence
@@ -285,7 +290,9 @@ else
   git push origin main
   wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
 
-  log "Pushing dev version bump without dev deploy"
+  create_dev_sync_skip_commit
+
+  log "Pushing dev sync commit without rerunning CI/CD or dev deploy"
   git checkout dev
   git push origin dev
 fi
