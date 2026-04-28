@@ -36,23 +36,22 @@ For backend-only development:
 4. Start development server: `npm run dev`
 5. Access admin panel at `http://localhost:3001`
 
-## Collections
+## Service Notes
 
-### Projects
+Keep the canonical feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
 
-- Portfolio projects with rich metadata (brand, tags, role, year, awards)
-- NDA filtering for confidential content
-- Automatic slug generation and sorting
+This service README should stay focused on backend-local concerns:
 
-### Media Collections
+- how to run the Payload service by itself or under Docker Compose
+- which environment profiles exist and how they change storage/runtime behavior
+- where the main maintenance and migration scripts live
+- the small set of URLs and admin entrypoints you need during backend work
 
-- **Project Screenshots**: Full-size project images
-- **Project Thumbnails**: Carousel thumbnail images
-- **Brand Logos**: Client brand assets
+Useful root sections:
 
-### Users
-
-- Admin authentication and role-based access control
+- [Backend / Platform Systems](../README.md#backend-platform-systems)
+- [Deployment conveniences catalog](../README.md#-deployment-conveniences-catalog)
+- [Secrets & Environment Management](../README.md#-secrets--environment-management)
 
 ## Environment Configuration
 
@@ -70,12 +69,12 @@ Note for local Docker Compose:
 - Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that the canonical variables (`MONGODB_URI`, `PAYLOAD_SECRET`, `FRONTEND_URL`, etc.) are used correctly for whichever profile is active.
 - If you see 500 errors like "Missing required DEV\*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` (or `.env.local`) contains the canonical variables listed above.
 
-## API Endpoints
+## Frequently Used URLs
 
-- `/api/projects` - Project collection API
-- `/api/health` - Health check endpoint
-- `/api/contact` - Contact form submission (SES email)
 - `/admin` - Payload CMS admin interface
+- `/api/health` - Health check endpoint
+
+For the broader API/security surface, content model, and delivery behavior, use the root [README](../README.md) as the canonical reference.
 
 ## Maintenance Scripts
 

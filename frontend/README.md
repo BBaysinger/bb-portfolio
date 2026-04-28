@@ -75,25 +75,22 @@ PORT=3010 npm run frontend:prod-like:logs
 PORT=3010 npm run frontend:prod-like:down
 ```
 
-## Key Components
+## Service Notes
 
-### Interactive Systems
+Keep the canonical feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
 
-- **Parallax Carousel**: Multi-layer synchronized scrolling with touch/swipe support
-- **Fluxel Grid**: Animated pixel grid with simulated 3D depth effects
-- **Kinetic Orb**: Physics-based interactive animation
+This service README should stay focused on frontend-local concerns:
 
-### Responsive Design
+- how to run the frontend in normal dev and production-like local modes
+- how the hermetic snapshot flow works for frontend builds
+- which environment variables matter when the frontend runs by itself
+- where to start when debugging frontend-specific runtime or build issues
 
-- **Clamped Linear Interpolation (LERP) Fluid Scaling**: SCSS mixins that interpolate values across viewport ranges (layout with px precision; text/UI with rem-safe scaling) to avoid breakpoint jumps
-- **SCSS Mixins**: `remRange`, `lerpRange`, and `scaleRange` for different scaling needs
-- **Mobile-First**: Progressive enhancement approach
+Useful root sections:
 
-### Routing & Data
-
-- **SSR Projects List**: Server-side rendered project listings
-- **SSG Project Pages**: Static generation with ISR for performance
-- **NDA Segmentation**: Separate `/project/` and `/nda/` routes for content safety
+- [Frontend UX & Interaction](../README.md#frontend-ux-interaction)
+- [Backend / Platform Systems](../README.md#backend-platform-systems)
+- [Deployment conveniences catalog](../README.md#-deployment-conveniences-catalog)
 
 ### Hermetic SSG Snapshot (Optional)
 
@@ -171,11 +168,7 @@ Key variables commonly needed:
 - `AWS_REGION` (region for the S3 client)
 - `REACT_STRICT_MODE` (optional override; defaults remain profile-driven, but `.env.local` can disable it for temporary local testing)
 
-The frontend adapts to different environments:
-
-- Backend health check optimization for CI/CD vs runtime
-- Environment-aware API endpoints
-- Dynamic route generation based on available projects
+The frontend adapts to different environments through environment-aware API wiring, build-time snapshot support, and runtime behavior that differs between local dev, CI/CD, and deployed containers.
 
 ## Deployment
 

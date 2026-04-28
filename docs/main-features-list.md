@@ -134,6 +134,7 @@ Working list of notable features and technical systems
 - Reverse proxy options (Caddy or Nginx)
 - Profile-driven Docker Compose stacks (local / dev / prod)
 - Single-command redeploy scripts for dev/prod or both
+- Reusable redeploy workflow with post-restart container readiness polling and HTTP health gates for dev/prod before deployment is treated as successful
 - Hardened backend runtime with distroless container and Next.js standalone entrypoint
 - Deploy-enforced HTTPS renewal timer hardening plus scheduled certificate health checks with GitHub issue alerts and SES recovery/failure email notifications
 
