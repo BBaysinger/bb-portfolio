@@ -141,8 +141,8 @@
     "images:verify:login": "bash ./scripts/images-verify.sh --login --profile bb-portfolio-user --region us-west-2",
     "search:repo": "rg --line-number --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
-    "sync:branches": "bash ./scripts/sync-branches.sh",
-    "sync:branches:no-version-bump": "bash ./scripts/sync-branches.sh --no-version-bump"
+    "release:promote": "bash ./scripts/sync-branches.sh",
+    "release:promote:no-version-bump": "bash ./scripts/sync-branches.sh --no-version-bump"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.4",

@@ -374,10 +374,10 @@
     "search:repo": "rg --line-number --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     // 📄 Quickly list files matching glob filters (shares ignore rules above)
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
-    // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
-    "sync:branches": "bash ./scripts/sync-branches.sh",
-    // 🔁 Same branch sync flow, but skip the canonical version bump commit.
-    "sync:branches:no-version-bump": "bash ./scripts/sync-branches.sh --no-version-bump",
+    // 🚀 Promote the validated dev branch through the release flow and return to dev.
+    "release:promote": "bash ./scripts/sync-branches.sh",
+    // 🚀 Same release-promotion flow, but skip the canonical version bump commit.
+    "release:promote:no-version-bump": "bash ./scripts/sync-branches.sh --no-version-bump",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {

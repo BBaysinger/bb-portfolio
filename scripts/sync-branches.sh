@@ -10,9 +10,9 @@
 # - Always ends on dev (even on failure it will attempt to switch back)
 #
 # Usage:
-#   npm run sync:branches
-#   npm run sync:branches -- --no-version-bump
-#   npm run sync:branches -- --deploy-all
+#   npm run release:promote
+#   npm run release:promote -- --no-version-bump
+#   npm run release:promote -- --deploy-all
 
 set -euo pipefail
 
@@ -21,7 +21,7 @@ err() { echo -e "\033[1;31m[sync-branches]\033[0m $*" 1>&2; }
 
 print_usage() {
   cat <<'EOF'
-Usage: npm run sync:branches [-- --no-version-bump] [--deploy-all]
+Usage: npm run release:promote [-- --no-version-bump] [--deploy-all]
 
 Options:
   --no-version-bump  Sync branches without incrementing package versions.
@@ -166,7 +166,7 @@ merge_local() {
 
 require_gh() {
   if ! command -v gh >/dev/null 2>&1; then
-    err "GitHub CLI (gh) is required for sync:branches deploy orchestration."
+    err "GitHub CLI (gh) is required for release:promote orchestration."
     exit 1
   fi
 

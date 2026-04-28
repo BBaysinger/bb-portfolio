@@ -144,7 +144,7 @@ Working list of notable features and technical systems
 - `shfmt`-based shell formatting integrated into repo formatting/precommit workflows, with explicit exclusions for non-Bash scripts
 - Playwright end-to-end and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
-- `sync:branches` automation with staged promotion flow: synchronize `dev`/`main`, deploy current `dev`, wait for successful CI/CD, bump and propagate the canonical root patch version, deploy `main`, then fast-forward `dev` to the same version-bump commit without re-running the dev deploy (plus a legacy deploy-all override)
+- `release:promote` automation with staged promotion flow: synchronize `dev`/`main`, deploy current `dev`, wait for successful CI/CD, bump and propagate the canonical root patch version, deploy `main`, then fast-forward `dev` to the same version-bump commit without re-running the dev deploy (plus a legacy deploy-all override)
 - Detailed engineering standards, including AI assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
 - Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
