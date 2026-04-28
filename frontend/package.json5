@@ -2,7 +2,7 @@
   // Frontend package name for the portfolio site
   "name": "frontend",
   // Version of this frontend package
-  "version": "1.0.25",
+  "version": "1.0.26",
   // Prevents accidental publishing to npm registry
   "private": true,
   // Use ECMAScript modules (ESM)
