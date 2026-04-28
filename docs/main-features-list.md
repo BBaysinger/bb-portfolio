@@ -135,14 +135,16 @@ Working list of notable features and technical systems
 - Profile-driven Docker Compose stacks (local / dev / prod)
 - Single-command redeploy scripts for dev/prod or both
 - Hardened backend runtime with distroless container and Next.js standalone entrypoint
+- Deploy-enforced HTTPS renewal timer hardening plus scheduled certificate health checks with GitHub issue alerts and SES recovery/failure email notifications
 
 ### Developer Experience / Testing
 
 - Monorepo with strict TypeScript on frontend and backend
 - Unified ESLint configs for frontend/backend
+- `shfmt`-based shell formatting integrated into repo formatting/precommit workflows, with explicit exclusions for non-Bash scripts
 - Playwright end-to-end and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
-- `sync:branches` automation that synchronizes `dev`/`main`, bumps the canonical root patch version, propagates it to frontend/backend manifests and lockfiles, syncs JSON5 mirrors, and fast-forwards both branches
+- `sync:branches` automation with staged promotion flow: synchronize `dev`/`main`, deploy current `dev`, wait for successful CI/CD, bump and propagate the canonical root patch version, deploy `main`, then fast-forward `dev` to the same version-bump commit without re-running the dev deploy (plus a legacy deploy-all override)
 - Detailed engineering standards, including AI assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
 - Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
