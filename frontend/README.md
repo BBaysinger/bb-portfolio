@@ -134,7 +134,7 @@ npm run snapshot:projects:secret --prefix frontend > /tmp/project-data-snapshot.
 Or write directly to a tracked local temp path:
 
 ```bash
-npm run snapshot:projects:secret:file --prefix frontend
+npm run snapshot:projects:secret:write --prefix frontend
 ```
 
 The secret-prep command enforces a size budget (default `65000` bytes) and fails early if exceeded.

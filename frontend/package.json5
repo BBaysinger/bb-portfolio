@@ -52,7 +52,7 @@
     // Produce a redacted version of the project-data snapshot for secret-safe sharing.
     "snapshot:projects:secret": "tsx ./scripts/prepare-project-data-snapshot-secret.ts",
     // Write the redacted project-data snapshot to a cache file for later reuse.
-    "snapshot:projects:secret:file": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
+    "snapshot:projects:secret:write": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
     // Run Next.js ESLint configuration
     "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation

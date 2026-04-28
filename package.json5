@@ -211,9 +211,9 @@
     // Prepare the redacted project snapshot payload for secret storage or sharing.
     "snapshot:projects:secret": "npm --prefix frontend run snapshot:projects:secret",
     // Write the redacted project snapshot to the frontend cache directory.
-    "snapshot:projects:secret:file": "npm --prefix frontend run snapshot:projects:secret:file",
+    "snapshot:projects:secret:write": "npm --prefix frontend run snapshot:projects:secret:write",
     // Refresh both the raw snapshot and the cached secret snapshot file in one run.
-    "snapshot:projects:refresh-secret-file": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:file",
+    "snapshot:projects:secret:refresh": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:write",
     // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     // 🧪 Same as above but performs only a dry run.
