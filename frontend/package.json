@@ -11,7 +11,7 @@
     "build": "next build --webpack",
     "build:webpack": "next build --webpack",
     "build:when-ready": "node ./scripts/pre-build.mjs",
-    "turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
+    "build:turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     "preview": "npx serve out",
     "prestart": "tsx ./scripts/check-required-env.ts",
     "start": "next start",
@@ -31,8 +31,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1037.0",
-    "@aws-sdk/s3-request-presigner": "^3.1037.0",
+    "@aws-sdk/client-s3": "^3.1038.0",
+    "@aws-sdk/s3-request-presigner": "^3.1038.0",
     "@reduxjs/toolkit": "^2.11.2",
     "aws-rum-web": "^2.1.0",
     "bootstrap": "^5.3.8",

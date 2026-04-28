@@ -24,16 +24,16 @@
   // Optional: Enable npm workspaces by uncommenting the line below
   // "workspaces": ["frontend", "backend"],
   "scripts": {
-    // Short alias for starting backend and frontend together in the current terminal.
-    "local": "npm run local:all",
+    // Primary root dev entrypoint for running backend and frontend together.
+    "dev": "npm run dev:all",
     // Run both local app servers concurrently with labeled output.
-    "local:all": "concurrently \"npm run local:backend\" \"npm run local:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
     // Start only the backend app in local dev mode.
-    "local:backend": "cd backend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
     // Start only the frontend app in local dev mode.
-    "local:frontend": "cd frontend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
     // Open backend and frontend dev servers in separate Terminal.app tabs.
-    "local:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
+    "dev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
     // =============================================================================
     // 🚀 DEVELOPMENT MODES OVERVIEW (for junior developers)
     // =============================================================================
@@ -55,8 +55,8 @@
     "build:frontend": "cd frontend && npm run build",
     // 🧰 Force a plain Webpack build to reproduce issues that only happen outside Turbopack.
     "build:frontend:webpack": "cd frontend && npm run build:webpack",
-    // 🚀 Experimental build using Turbopack for faster frontend builds
-    "turbopack": "cd frontend && NEXT_TELEMETRY_DISABLED=1 npx next build --turbopack",
+    // 🚀 Experimental Turbopack build path for the frontend package.
+    "build:frontend:turbopack": "cd frontend && npm run build:turbopack",
     // =============================================================================
     // 🐳 DOCKER DEVELOPMENT (Containerized - consistent across machines)
     // =============================================================================
@@ -71,8 +71,8 @@
     // NOTE: Builds the production runner stage with ENV_PROFILE=dev (no hot reload)
     // Dev internal URL points to the dev compose service name for server-to-server calls.
     "docker:build:frontend": "bash deploy/scripts/docker-build-frontend-dev-image.sh",
-    // Build and push both dev Docker images to Docker Hub in one guarded flow.
-    "docker:build:push": "bash deploy/scripts/publish-dockerhub-dev-images.sh",
+    // Build and publish both dev Docker images to Docker Hub in one guarded flow.
+    "images:publish:dev": "bash deploy/scripts/publish-dockerhub-dev-images.sh",
     // 🛑 Stop and remove all local development containers
     // Cleans up containers, networks, and anonymous volumes created by docker:up
     "docker:down": "docker compose -f deploy/compose/docker-compose.yml --profile local down",
@@ -341,7 +341,7 @@
     "deploy": "bash deploy/scripts/deployment-runner.sh --profiles both --refresh-env",
     // Rebuild+push both prod/dev images before dispatching redeploy workflows
     // Useful when backend/frontend code changed and new images must be published
-    "deploy:rebuild-images": "bash deploy/scripts/deployment-runner.sh --profiles both --rebuild-images --refresh-env",
+    "deploy:rebuild": "bash deploy/scripts/deployment-runner.sh --profiles both --rebuild-images --refresh-env",
     // Deploy using existing images (skip Docker build/push to registries)
     // Useful for config-only changes or when images are already built and pushed
     // Still provisions infrastructure and deploys containers from DockerHub/ECR
@@ -376,8 +376,8 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     // 🚀 Promote the validated dev branch through the release flow and return to dev.
     "release:promote": "bash ./scripts/sync-branches.sh",
-    // 🚀 Same release-promotion flow, but skip the canonical version bump commit.
-    "release:promote:no-version-bump": "bash ./scripts/sync-branches.sh --no-version-bump",
+    // 🚀 Same release-promotion flow, but only synchronize branches without the canonical version bump commit.
+    "release:promote:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
@@ -386,9 +386,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.59.0",
+    "@typescript-eslint/eslint-plugin": "8.59.1",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.59.0",
+    "@typescript-eslint/parser": "8.59.1",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.23",
     // Run multiple commands concurrently in scripts

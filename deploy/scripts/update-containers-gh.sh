@@ -104,7 +104,7 @@ if [[ "$build" == "prod" || "$build" == "both" ]]; then
   npm run ecr:build:push
 fi
 if [[ "$build" == "dev" || "$build" == "both" ]]; then
-  npm run docker:build:push
+  npm run images:publish:dev
 fi
 
 restart_containers=true

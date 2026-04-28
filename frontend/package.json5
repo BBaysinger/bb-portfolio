@@ -24,7 +24,7 @@
     // 🏗️ Build the "when-ready" component (pre-build step to prepare assets used to gate rendering until env is ready)
     "build:when-ready": "node ./scripts/pre-build.mjs",
     // Experimental build with Turbopack (faster bundling)
-    "turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
+    "build:turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     // Preview the built static site using serve
     "preview": "npx serve out",
     // Validate required environment variables before starting production server
@@ -63,9 +63,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.1037.0",
+    "@aws-sdk/client-s3": "^3.1038.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.1037.0",
+    "@aws-sdk/s3-request-presigner": "^3.1038.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking

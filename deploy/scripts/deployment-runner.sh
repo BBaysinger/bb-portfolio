@@ -371,7 +371,7 @@ if [[ -n "$build_images" ]]; then
   fi
   if [[ "$build_images" == "dev" || "$build_images" == "both" ]]; then
     log "Building & pushing development images to Docker Hub"
-    npm run docker:build:push
+    npm run images:publish:dev
     ok "Pushed dev images"
   fi
 fi
