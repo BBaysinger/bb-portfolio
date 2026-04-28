@@ -321,7 +321,7 @@ jobs:
     # Only run for dev branch pushes or manual runs targeted at the dev branch.
     # Prevents accidental triggering from manual runs on main, which could
     # overlap with prod deploy and get canceled by concurrency.
-    if: github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')
+    if: (github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip dev deploy]'))
     needs: build-and-test
     runs-on: ubuntu-latest
     environment: dev
@@ -420,7 +420,7 @@ jobs:
   deploy-dev:
     # Only run for dev branch pushes or manual runs targeted at the dev branch.
     # Avoids concurrent dev/prod redeploys when manually dispatching the workflow on main.
-    if: github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')
+    if: (github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip dev deploy]'))
     needs: build-push-dev-images
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit

@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
-# Sync dev and main branches, then bump the canonical repo patch version on dev:
+# Sync dev and main branches, then drive either a staged release flow or the
+# legacy deploy-all flow:
 # - First, keep existing branch alignment behavior between dev and main
-# - Then increment the root package version once, copy it to child packages, sync JSON5 mirrors, commit on dev
-# - Finally fast-forward main to the new version-bump commit and push both branches
+# - Default flow: push current dev, wait for a successful dev deploy, then bump
+#   versions locally, deploy main with that version, and finally fast-forward
+#   dev to the same version-bump commit without running a second dev deploy
+# - Override flow: preserve the prior behavior and deploy the version-bump push
+#   on both dev and main
 # - Always ends on dev (even on failure it will attempt to switch back)
 #
 # Usage:
 #   npm run sync:branches
 #   npm run sync:branches -- --no-version-bump
+#   npm run sync:branches -- --deploy-all
 
 set -euo pipefail
 
@@ -16,20 +21,28 @@ err() { echo -e "\033[1;31m[sync-branches]\033[0m $*" 1>&2; }
 
 print_usage() {
   cat <<'EOF'
-Usage: npm run sync:branches [-- --no-version-bump]
+Usage: npm run sync:branches [-- --no-version-bump] [--deploy-all]
 
 Options:
   --no-version-bump  Sync branches without incrementing package versions.
+  --deploy-all       Use the legacy flow: bump once, then push/deploy both dev and main.
   -h, --help         Show this help text.
 EOF
 }
 
 SKIP_VERSION_BUMP=false
+DEPLOY_ALL=false
+CI_WORKFLOW_FILE=".github/workflows/ci-cd.yml"
+DEV_SKIP_DEPLOY_TOKEN="[skip dev deploy]"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-version-bump)
       SKIP_VERSION_BUMP=true
+      shift
+      ;;
+    --deploy-all)
+      DEPLOY_ALL=true
       shift
       ;;
     -h | --help)
@@ -151,18 +164,59 @@ merge_local() {
   fi
 }
 
-# Sequence
-checkout_ff_pull "$FIRST"
-merge_local "$MERGE1_FROM" "$MERGE1_TO"
-checkout_ff_pull "$SECOND"
-merge_local "$MERGE2_FROM" "$MERGE2_TO"
+require_gh() {
+  if ! command -v gh >/dev/null 2>&1; then
+    err "GitHub CLI (gh) is required for sync:branches deploy orchestration."
+    exit 1
+  fi
 
-log "Branch histories synchronized. Switching to dev."
-git checkout dev
+  if ! gh auth status >/dev/null 2>&1; then
+    err "GitHub CLI is not authenticated. Run 'gh auth login' and rerun."
+    exit 1
+  fi
+}
 
-if [[ "$SKIP_VERSION_BUMP" == true ]]; then
-  log "Skipping version bump; syncing main to current dev state."
-else
+wait_for_push_workflow() {
+  local BRANCH=$1
+  local SHA=$2
+  local LABEL=$3
+  local RUN_ID=""
+  local ATTEMPTS=0
+
+  require_gh
+
+  log "Waiting for CI/CD workflow to start for $LABEL ($SHA)"
+  until [[ -n "$RUN_ID" ]]; do
+    RUN_ID=$(gh run list \
+      --workflow "$CI_WORKFLOW_FILE" \
+      --branch "$BRANCH" \
+      --event push \
+      --limit 20 \
+      --json databaseId,headSha \
+      --jq ".[] | select(.headSha == \"$SHA\") | .databaseId" | head -n 1)
+
+    if [[ -n "$RUN_ID" ]]; then
+      break
+    fi
+
+    ATTEMPTS=$((ATTEMPTS + 1))
+    if [[ $ATTEMPTS -ge 30 ]]; then
+      err "Timed out waiting for CI/CD workflow on $BRANCH for $SHA."
+      exit 1
+    fi
+
+    sleep 10
+  done
+
+  log "Watching CI/CD workflow run $RUN_ID for $LABEL"
+  if ! gh run watch "$RUN_ID" --exit-status; then
+    err "CI/CD workflow failed for $LABEL."
+    gh run view "$RUN_ID" --log || true
+    exit 1
+  fi
+}
+
+create_version_bump_commit() {
   log "Bumping canonical repo version on dev."
 
   log "Incrementing root package version and propagating to backend/frontend"
@@ -175,18 +229,66 @@ else
   git add package.json package.json5 package-lock.json \
     backend/package.json backend/package.json5 backend/package-lock.json \
     frontend/package.json frontend/package.json5 frontend/package-lock.json
-  git commit -m "Kick off deploy and bump version to $NEW_VERSION"
+  VERSION_BUMP_MESSAGE="Bump version to $NEW_VERSION"
+  if [[ "$DEPLOY_ALL" != true ]]; then
+    VERSION_BUMP_MESSAGE+=" $DEV_SKIP_DEPLOY_TOKEN"
+  fi
+  git commit -m "$VERSION_BUMP_MESSAGE"
+}
+
+# Sequence
+checkout_ff_pull "$FIRST"
+merge_local "$MERGE1_FROM" "$MERGE1_TO"
+checkout_ff_pull "$SECOND"
+merge_local "$MERGE2_FROM" "$MERGE2_TO"
+
+log "Branch histories synchronized. Switching to dev."
+git checkout dev
+
+if [[ "$SKIP_VERSION_BUMP" == true ]]; then
+  log "Skipping version bump; syncing main to current dev state."
 fi
 
-log "Fast-forwarding main to current dev state"
-merge_local dev main
+if [[ "$SKIP_VERSION_BUMP" == true ]]; then
+  log "Pushing dev once"
+  git push origin dev
 
-log "Pushing dev once"
-git push origin dev
+  log "Pushing main once"
+  git checkout main
+  git push origin main
+elif [[ "$DEPLOY_ALL" == true ]]; then
+  create_version_bump_commit
 
-log "Pushing main once"
-git checkout main
-git push origin main
+  log "Fast-forwarding main to current dev state"
+  merge_local dev main
+
+  log "Pushing dev once"
+  git push origin dev
+
+  log "Pushing main once"
+  git checkout main
+  git push origin main
+else
+  DEV_SYNC_SHA=$(git rev-parse dev)
+  log "Pushing dev before version bump"
+  git push origin dev
+  wait_for_push_workflow dev "$DEV_SYNC_SHA" "dev pre-version deploy"
+
+  create_version_bump_commit
+
+  log "Fast-forwarding main to current dev state"
+  merge_local dev main
+
+  MAIN_BUMP_SHA=$(git rev-parse main)
+  log "Pushing main with version bump"
+  git checkout main
+  git push origin main
+  wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
+
+  log "Pushing dev version bump without dev deploy"
+  git checkout dev
+  git push origin dev
+fi
 
 log "Returning to dev."
 git checkout dev
