@@ -137,15 +137,17 @@ for SUB in "${SUBDIRS[@]}"; do
 
   # Convert PSD (case-insensitive) to WebP into the OUTPUT_DIR.
   # We process files one-by-one and flatten layers to avoid animated WebP.
-  shopt -s nullglob
-  PSD_FILES=("$INPUT_DIR"/*.[Pp][Ss][Dd])
-  if [[ -z "${PSD_FILES[*]-}" ]]; then
-    echo "No PSD files found in $INPUT_DIR; nothing to convert."
-    continue
-  fi
+  shopt -s nullglob nocasematch
+  found_psd=false
 
-  for PSD in "${PSD_FILES[@]}"; do
-  base="$(basename "${PSD%.*}")"
+  for PSD in "$INPUT_DIR"/*; do
+    [[ -f "$PSD" ]] || continue
+    if [[ "${PSD##*.}" != "psd" ]]; then
+      continue
+    fi
+
+    found_psd=true
+    base="$(basename "${PSD%.*}")"
     out="$OUTPUT_DIR/${base}.webp"
     # macOS ColorSync pipeline (sips -> png -> cwebp):
     if [[ "$USE_SIPS" == "1" ]]; then
@@ -226,11 +228,11 @@ for SUB in "${SUBDIRS[@]}"; do
       # This avoids the typical brightness/desaturation shift from wide-gamut -> sRGB.
       # Compose layers first
       if [[ "$NO_FLATTEN" == "1" ]]; then
-        COMPOSE_OPTS=( -background "$BACKGROUND" -alpha on -layers merge )
+        COMPOSE_OPTS=(-background "$BACKGROUND" -alpha on -layers merge)
       else
-        COMPOSE_OPTS=( -background "$BACKGROUND" -alpha on -flatten )
+        COMPOSE_OPTS=(-background "$BACKGROUND" -alpha on -flatten)
       fi
-  CONVERT_CHAIN=( "${COMPOSE_OPTS[@]}" -intent "$RENDERING_INTENT" -black-point-compensation true )
+      CONVERT_CHAIN=("${COMPOSE_OPTS[@]}" -intent "$RENDERING_INTENT" -black-point-compensation true)
       # Detect whether the input already carries an embedded ICC profile. If yes, skip assigning
       # SOURCE_PROFILE and let the embedded profile drive the conversion to sRGB. If not, assign
       # SOURCE_PROFILE first (when provided) so the transform to sRGB is correct.
@@ -243,12 +245,12 @@ for SUB in "${SUBDIRS[@]}"; do
       else
         if [[ -n "$SOURCE_PROFILE" ]]; then
           echo "No ICC detected -> assigning SOURCE_PROFILE then converting to sRGB for $PSD"
-          CONVERT_CHAIN+=( -profile "$SOURCE_PROFILE" )
+          CONVERT_CHAIN+=(-profile "$SOURCE_PROFILE")
         else
           echo "No ICC detected and no SOURCE_PROFILE set"
           if [[ "$FORCE_ASSIGN_SRGB" == "1" ]]; then
             echo "FORCE_ASSIGN_SRGB=1 -> tagging as sRGB without transform"
-            CONVERT_CHAIN+=( -set colorspace sRGB )
+            CONVERT_CHAIN+=(-set colorspace sRGB)
           fi
         fi
       fi
@@ -256,11 +258,11 @@ for SUB in "${SUBDIRS[@]}"; do
         # In exact mode, do not transform colors — just keep the embedded profile (if any)
         echo "EXACT_MODE=1 -> preserving embedded ICC without transform for $PSD"
       else
-        CONVERT_CHAIN+=( -profile "$SRGB_PROFILE" )
+        CONVERT_CHAIN+=(-profile "$SRGB_PROFILE")
       fi
       # Optional subtle gamma tweak
       if [[ -n "$GAMMA_TWEAK" && "$EXACT_MODE" != "1" ]]; then
-        CONVERT_CHAIN+=( -gamma "$GAMMA_TWEAK" )
+        CONVERT_CHAIN+=(-gamma "$GAMMA_TWEAK")
       fi
       if [[ "$KEEP_ICC" == "1" ]]; then
         if [[ "$LOSSLESS" == "1" ]]; then
@@ -312,6 +314,11 @@ for SUB in "${SUBDIRS[@]}"; do
       fi
     fi
   done
+
+  if [[ "$found_psd" != true ]]; then
+    echo "No PSD files found in $INPUT_DIR; nothing to convert."
+    continue
+  fi
 done
 
 echo "✅ Done!"
