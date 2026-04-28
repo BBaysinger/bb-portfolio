@@ -312,7 +312,7 @@ sudo certbot --nginx -n --agree-tos --email you@example.com \
 
 ### 6. Renewal
 
-Certbot installs a systemd timer (`certbot-renew.timer`) which runs twice daily. You can confirm:
+The deployment automation now explicitly enables the systemd timer (`certbot-renew.timer`) whenever certbot is present on the host. You can confirm:
 
 ```bash
 systemctl list-timers | grep certbot
@@ -320,6 +320,19 @@ sudo certbot renew --dry-run
 ```
 
 If renewal succeeds, no action needed. Certificates are typically valid for 90 days; certbot renews at ~30 day threshold.
+
+### 6.1 Alerts
+
+The repo now includes a scheduled GitHub Actions workflow at [.github/workflows/https-certificate-health.yml](.github/workflows/https-certificate-health.yml).
+
+It runs twice daily and checks:
+
+- the production certificate is not within 21 days of expiry
+- `certbot-renew.timer` exists, is enabled, and is active
+- origin HTTPS responds locally for the apex and `www` domains
+- `certbot renew --dry-run` succeeds
+
+If any check fails, the workflow fails, opens or updates a GitHub issue titled `HTTPS certificate health alert`, and sends an email via AWS SES using `SES_FROM_EMAIL` -> `SES_TO_EMAIL`. When the checks recover, the workflow comments on that issue, closes it, and sends a recovery email.
 
 ### 7. Fallback / Troubleshooting
 

@@ -540,6 +540,10 @@ if ! command -v certbot >/dev/null 2>&1; then
 fi
 
 if command -v certbot >/dev/null 2>&1; then
+  if systemctl list-unit-files | grep -q '^certbot-renew.timer'; then
+    sudo systemctl enable --now certbot-renew.timer || echo "Failed to enable certbot-renew.timer"
+  fi
+
   if ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
     || ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem"; then
     echo "Issuing initial certificates via certbot for $SSL_DOMAIN and www.$SSL_DOMAIN";

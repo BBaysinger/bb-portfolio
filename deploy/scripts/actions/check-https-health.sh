@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
+KEY_PATH="${1:?ssh key path arg required}"
+EC2_HOST="$(bb_ec2_host_or_die)"
+HTTPS_ALERT_DAYS="${HTTPS_ALERT_DAYS:-21}"
+
+resolve_ssl_domain() {
+  local domain
+  domain="$(bb_resolve_ssl_domain)"
+  if [[ -n "$domain" ]]; then
+    echo "$domain"
+    return 0
+  fi
+  echo "Unable to resolve SSL domain from SSL_DOMAIN, PUBLIC_SERVER_URL, PAYLOAD_PUBLIC_SERVER_URL, or FRONTEND_URL" >&2
+  return 1
+}
+
+SSL_DOMAIN="$(resolve_ssl_domain)"
+if ! bb_is_apex_ssl_domain "$SSL_DOMAIN"; then
+  echo "Resolved SSL domain must be an apex domain, got: $SSL_DOMAIN" >&2
+  exit 1
+fi
+
+ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+  ec2-user@"$EC2_HOST" \
+  "SSL_DOMAIN='$SSL_DOMAIN' HTTPS_ALERT_DAYS='$HTTPS_ALERT_DAYS' bash -s" <<'SSH'
+set -euo pipefail
+
+SSL_DOMAIN="${SSL_DOMAIN:?SSL_DOMAIN required}"
+HTTPS_ALERT_DAYS="${HTTPS_ALERT_DAYS:?HTTPS_ALERT_DAYS required}"
+
+if ! command -v certbot >/dev/null 2>&1; then
+  echo "certbot is not installed on host" >&2
+  exit 1
+fi
+
+timer_state="$(sudo systemctl is-enabled certbot-renew.timer || true)"
+if [[ "$timer_state" != "enabled" ]]; then
+  echo "certbot-renew.timer is not enabled (state: $timer_state)" >&2
+  exit 1
+fi
+
+timer_active="$(sudo systemctl is-active certbot-renew.timer || true)"
+if [[ "$timer_active" != "active" ]]; then
+  echo "certbot-renew.timer is not active (state: $timer_active)" >&2
+  exit 1
+fi
+
+for domain in "$SSL_DOMAIN" "www.$SSL_DOMAIN"; do
+  cert_path="/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem"
+  if ! sudo test -s "$cert_path"; then
+    echo "Certificate file missing: $cert_path" >&2
+    exit 1
+  fi
+
+  if ! sudo openssl x509 -checkend "$((HTTPS_ALERT_DAYS * 86400))" -noout -in "$cert_path" >/dev/null; then
+    end_date="$(sudo openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2-)"
+    echo "Certificate for $domain expires within ${HTTPS_ALERT_DAYS} days: $end_date" >&2
+    exit 1
+  fi
+
+  status_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:443:127.0.0.1" "https://$domain/")"
+  if [[ ! "$status_code" =~ ^(200|301|302|307|308)$ ]]; then
+    echo "Unexpected HTTPS status for $domain: $status_code" >&2
+    exit 1
+  fi
+done
+
+if ! sudo certbot renew --dry-run >/tmp/certbot-dry-run.log 2>&1; then
+  if grep -q 'Another instance of Certbot is already running' /tmp/certbot-dry-run.log; then
+    echo 'certbot renew --dry-run skipped because another certbot process is already running'
+  else
+    cat /tmp/certbot-dry-run.log >&2
+    exit 1
+  fi
+fi
+
+echo "HTTPS health check passed for $SSL_DOMAIN"
+SSH

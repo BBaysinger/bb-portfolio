@@ -37,6 +37,10 @@ sudo mkdir -p /etc/nginx/conf.d
 sudo mv -f /home/ec2-user/bb-portfolio/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
 sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 
+if command -v certbot >/dev/null 2>&1 && systemctl list-unit-files | grep -q '^certbot-renew.timer'; then
+  sudo systemctl enable --now certbot-renew.timer || echo "Failed to enable certbot-renew.timer"
+fi
+
 # Optional SSL config:
 # - Keep SSL blocks in a separate include file.
 # - SSL_DOMAIN must be explicitly provided by the deployment runner (CI/manual deploy flow).
