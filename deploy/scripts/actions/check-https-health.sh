@@ -10,6 +10,7 @@ bb_load_repo_env "$REPO_ROOT"
 KEY_PATH="${1:?ssh key path arg required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 HTTPS_ALERT_DAYS="${HTTPS_ALERT_DAYS:-21}"
+CERTBOT_DRY_RUN_ATTEMPTS="${CERTBOT_DRY_RUN_ATTEMPTS:-3}"
 
 resolve_ssl_domain() {
   local domain
@@ -32,12 +33,13 @@ DEV_SSL_DOMAIN="dev.$SSL_DOMAIN"
 
 ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
   ec2-user@"$EC2_HOST" \
-  "SSL_DOMAIN='$SSL_DOMAIN' DEV_SSL_DOMAIN='$DEV_SSL_DOMAIN' HTTPS_ALERT_DAYS='$HTTPS_ALERT_DAYS' bash -s" <<'SSH'
+  "SSL_DOMAIN='$SSL_DOMAIN' DEV_SSL_DOMAIN='$DEV_SSL_DOMAIN' HTTPS_ALERT_DAYS='$HTTPS_ALERT_DAYS' CERTBOT_DRY_RUN_ATTEMPTS='$CERTBOT_DRY_RUN_ATTEMPTS' bash -s" <<'SSH'
 set -euo pipefail
 
 SSL_DOMAIN="${SSL_DOMAIN:?SSL_DOMAIN required}"
 DEV_SSL_DOMAIN="${DEV_SSL_DOMAIN:?DEV_SSL_DOMAIN required}"
 HTTPS_ALERT_DAYS="${HTTPS_ALERT_DAYS:?HTTPS_ALERT_DAYS required}"
+CERTBOT_DRY_RUN_ATTEMPTS="${CERTBOT_DRY_RUN_ATTEMPTS:?CERTBOT_DRY_RUN_ATTEMPTS required}"
 
 if ! command -v certbot >/dev/null 2>&1; then
   echo "certbot is not installed on host" >&2
@@ -92,14 +94,25 @@ if sudo test -s "/etc/letsencrypt/live/$DEV_SSL_DOMAIN/fullchain.pem"; then
   check_https_domain "$DEV_SSL_DOMAIN" "$DEV_SSL_DOMAIN"
 fi
 
-if ! sudo certbot renew --dry-run >/tmp/certbot-dry-run.log 2>&1; then
+certbot_dry_run_attempt=1
+while true; do
+  if sudo certbot renew --dry-run >/tmp/certbot-dry-run.log 2>&1; then
+    break
+  fi
+
   if grep -q 'Another instance of Certbot is already running' /tmp/certbot-dry-run.log; then
     echo 'certbot renew --dry-run skipped because another certbot process is already running'
-  else
+    break
+  fi
+
+  if [[ "$certbot_dry_run_attempt" -ge "$CERTBOT_DRY_RUN_ATTEMPTS" ]]; then
     cat /tmp/certbot-dry-run.log >&2
     exit 1
   fi
-fi
+
+  echo "certbot renew --dry-run failed on attempt ${certbot_dry_run_attempt}/${CERTBOT_DRY_RUN_ATTEMPTS}; retrying" >&2
+  certbot_dry_run_attempt="$((certbot_dry_run_attempt + 1))"
+done
 
 echo "HTTPS health check passed for $SSL_DOMAIN"
 SSH
