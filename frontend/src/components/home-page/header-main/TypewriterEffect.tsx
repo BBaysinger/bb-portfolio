@@ -2,6 +2,7 @@ import clsx from "clsx";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 
+import { buildParagraphQueue } from "./TypewriterEffect.utils";
 import styles from "./TypewriterEffect.module.scss";
 
 interface TypewriterEffectProps {
@@ -14,10 +15,6 @@ interface TypewriterEffectProps {
   style?: React.CSSProperties;
   children?: React.ReactNode;
 }
-
-const shuffleArray = (array: number[]) => {
-  return array.sort(() => Math.random() - 0.5);
-};
 
 /**
  * TypewriterEffect
@@ -59,8 +56,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
       }
     };
 
-    const generateShuffledQueue = () =>
-      shuffleArray(paragraphs.map((_, i) => i));
+    const generateShuffledQueue = () => buildParagraphQueue(paragraphs.length);
 
     const playParagraph = () => {
       const index = queue.current[currentIndex.current];

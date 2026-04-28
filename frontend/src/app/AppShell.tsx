@@ -30,6 +30,7 @@ import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import useStableViewportHeightVar, {
   STABLE_VIEWPORT_HEIGHT_MODES,
 } from "@/hooks/viewport/useStableViewportHeightVar";
+import { recordEvent } from "@/services/rum";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
@@ -49,6 +50,30 @@ type AppShellProps = {
   children: React.ReactNode;
 };
 
+function getLifecycleProbePayload(pathname: string | null) {
+  if (typeof window === "undefined") return null;
+
+  const navEntry = performance
+    .getEntriesByType("navigation")
+    .find(
+      (
+        entry,
+      ): entry is PerformanceNavigationTiming =>
+        entry instanceof PerformanceNavigationTiming,
+    );
+
+  return {
+    path: pathname || window.location.pathname,
+    visibilityState:
+      typeof document === "undefined" ? undefined : document.visibilityState,
+    navType: navEntry?.type,
+    wasDiscarded:
+      typeof document === "undefined"
+        ? undefined
+        : (document as Document & { wasDiscarded?: boolean }).wasDiscarded,
+  };
+}
+
 /**
  * App shell wrapper for all routed pages.
  *
@@ -59,6 +84,48 @@ export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const lifecycleProbeSentRef = useRef(false);
+
+  useEffect(() => {
+    if (lifecycleProbeSentRef.current) return;
+
+    lifecycleProbeSentRef.current = true;
+    const payload = getLifecycleProbePayload(pathname);
+    if (!payload) return;
+
+    recordEvent("app_lifecycle_resume_probe", {
+      ...payload,
+      phase: "mount",
+      restoreKind: payload.wasDiscarded
+        ? "discard-reload"
+        : payload.navType === "reload"
+          ? "reload"
+          : payload.navType === "back_forward"
+            ? "history"
+            : "navigate",
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onPageShow = (event: PageTransitionEvent) => {
+      const payload = getLifecycleProbePayload(pathname);
+      if (!payload) return;
+
+      recordEvent("app_lifecycle_resume_probe", {
+        ...payload,
+        phase: "pageshow",
+        persisted: event.persisted,
+        restoreKind: event.persisted ? "bfcache" : "pageshow",
+      });
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -200,6 +267,7 @@ export function AppShell({ children }: AppShellProps) {
       }
     };
     const checkAndRefresh = async () => {
+      const lifecyclePayload = getLifecycleProbePayload(pathname);
       try {
         // This probe intentionally checks server truth (cookie-backed session) even if
         // client Redux state says we're logged out. It enables cross-tab sync.
@@ -219,18 +287,52 @@ export function AppShell({ children }: AppShellProps) {
           // - When client auth is already consistent, there's no need to refresh.
           const clientAuthed = Boolean(isLoggedIn) || Boolean(user);
           if (!hasInitialized) {
+            if (lifecyclePayload) {
+              recordEvent("app_lifecycle_resume_probe", {
+                ...lifecyclePayload,
+                phase: "visibility-resume",
+                restoreKind: "visible-auth-pending",
+                authStatus: res.status,
+              });
+            }
             dispatch(checkAuthStatus());
             return;
           }
 
           if (!clientAuthed) {
+            const shouldRefresh = !shouldSkipRefreshForCarousel();
+            if (lifecyclePayload) {
+              recordEvent("app_lifecycle_resume_probe", {
+                ...lifecyclePayload,
+                phase: "visibility-resume",
+                restoreKind: shouldRefresh
+                  ? "router-refresh"
+                  : "visible-no-refresh",
+                authStatus: res.status,
+              });
+            }
             dispatch(checkAuthStatus());
             // Avoid refreshing on project carousel pages where URL is client-managed.
-            if (!shouldSkipRefreshForCarousel()) {
+            if (shouldRefresh) {
               router.refresh();
             }
+          } else if (lifecyclePayload) {
+            recordEvent("app_lifecycle_resume_probe", {
+              ...lifecyclePayload,
+              phase: "visibility-resume",
+              restoreKind: "visible-no-refresh",
+              authStatus: res.status,
+            });
           }
         } else if (res.status === 401) {
+          if (lifecyclePayload) {
+            recordEvent("app_lifecycle_resume_probe", {
+              ...lifecyclePayload,
+              phase: "visibility-resume",
+              restoreKind: "visible-logged-out",
+              authStatus: res.status,
+            });
+          }
           // Session no longer valid (e.g., logged out in another tab): clear stale client auth
           dispatch(resetAuthState());
           // If currently on an NDA route, immediately navigate away for privacy.
@@ -248,9 +350,24 @@ export function AppShell({ children }: AppShellProps) {
             }
           } catch {}
         } else if (res.status >= 500) {
+          if (lifecyclePayload) {
+            recordEvent("app_lifecycle_resume_probe", {
+              ...lifecyclePayload,
+              phase: "visibility-resume",
+              restoreKind: "visible-server-error",
+              authStatus: res.status,
+            });
+          }
           // Optionally re-check later; do nothing now
         }
       } catch {
+        if (lifecyclePayload) {
+          recordEvent("app_lifecycle_resume_probe", {
+            ...lifecyclePayload,
+            phase: "visibility-resume",
+            restoreKind: "visible-network-error",
+          });
+        }
         // Network error: silent
       }
     };

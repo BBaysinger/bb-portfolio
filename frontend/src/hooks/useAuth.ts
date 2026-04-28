@@ -152,22 +152,6 @@ export const useAuth = () => {
     }
   };
 
-  const resetExperience = () => {
-    console.info("Resetting local + session storage + cookies");
-    localStorage.clear();
-    sessionStorage.clear();
-
-    // Clear all cookies by setting them to expire
-    document.cookie.split(";").forEach((cookie) => {
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-      document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-    });
-
-    dispatch(resetAuthState());
-    window.location.reload();
-  };
-
   const clearAuthError = () => {
     dispatch(clearError());
   };
@@ -179,7 +163,6 @@ export const useAuth = () => {
     error,
     login,
     logout,
-    resetExperience,
     clearAuthError,
   };
 };
