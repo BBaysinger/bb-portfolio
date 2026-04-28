@@ -179,11 +179,13 @@
     // 💅 Format all files with Prettier
     // Ensures consistent code style across the entire monorepo
     "format": "prettier --write . && npm run format:shell",
-    //
+    // 🐚 Format supported shell scripts with shfmt via the repo wrapper
     "format:shell": "bash scripts/format-shell.sh --write",
     // 🧼 Run ESLint on the full codebase
     // Great for catching JS/TS issues or team rule violations
     "lint": "eslint .",
+    //
+    "test": "npm --prefix frontend test",
     // ✅ Fast pre-commit validation (format + lint + type check + package sync)
     // Run before every commit for quick validation (~5-10 seconds)
     // Attempts to auto-fix fixable ESLint issues, then syncs package.json5 annotations back from package.json
