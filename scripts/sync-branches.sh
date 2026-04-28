@@ -290,10 +290,9 @@ else
   git push origin main
   wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
 
-  create_dev_sync_skip_commit
-
   log "Pushing dev sync commit without rerunning CI/CD or dev deploy"
   git checkout dev
+  create_dev_sync_skip_commit
   git push origin dev
 fi
 
