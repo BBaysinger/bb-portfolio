@@ -54,15 +54,21 @@ COMPOSE_FILE_LOCAL="${REPO_ROOT}/deploy/compose/docker-compose.yml"
 source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
-
-log()  { echo -e "${BLUE}ℹ️  $*${NC}"; }
-ok()   { echo -e "${GREEN}✅ $*${NC}"; }
+log() { echo -e "${BLUE}ℹ️  $*${NC}"; }
+ok() { echo -e "${GREEN}✅ $*${NC}"; }
 warn() { echo -e "${YELLOW}⚠️  $*${NC}"; }
-err()  { echo -e "${RED}❌ $*${NC}"; }
+err() { echo -e "${RED}❌ $*${NC}"; }
 
-die() { err "$*"; exit 1; }
+die() {
+  err "$*"
+  exit 1
+}
 
 resolve_ssh_key_path() {
   local candidate="${EC2_SSH_KEY_PATH:-${EC2_SSH_KEY_PEM_PATH:-}}"
@@ -92,15 +98,15 @@ resolve_ssh_key_path() {
 SSH_KEY_PATH_RESOLVED="$(resolve_ssh_key_path)"
 
 force_destroy=false
-do_destroy=false    # Changed: preserve EC2 by default
-do_infra=true       # allow skip-infra mode
+do_destroy=false # Changed: preserve EC2 by default
+do_infra=true    # allow skip-infra mode
 skip_infra=false
-build_images=""   # prod|dev|both|""
-profiles="both"   # prod|dev|both
+build_images=""          # prod|dev|both|""
+profiles="both"          # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
-refresh_env=false   # whether GH workflow should regenerate/upload env files
-restart_containers=true # whether GH workflow should restart containers
-watch_logs=true     # whether to watch GH workflow logs
+refresh_env=false        # whether GH workflow should regenerate/upload env files
+restart_containers=true  # whether GH workflow should restart containers
+watch_logs=true          # whether to watch GH workflow logs
 secrets_sync_args=()
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
@@ -132,49 +138,94 @@ USAGE
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --force) force_destroy=true; shift ;;
+    --force)
+      force_destroy=true
+      shift
+      ;;
     --build-images)
-      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
-    --no-build) build_images=""; shift ;;
-    --profiles|--profile)
-      profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
-    --destroy) do_destroy=true; shift ;;
+      build_images="${2:-}"
+      [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"
+      shift 2
+      ;;
+    --no-build)
+      build_images=""
+      shift
+      ;;
+    --profiles | --profile)
+      profiles="${2:-}"
+      [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"
+      shift 2
+      ;;
+    --destroy)
+      do_destroy=true
+      shift
+      ;;
     --skip-infra)
       do_infra=false
       skip_infra=true
-      shift ;;
+      shift
+      ;;
     --rebuild-images)
       if [[ -n "$build_images" && "$build_images" != "both" ]]; then
         warn "--rebuild-images overrides previous --build-images value '$build_images'"
       fi
       build_images="both"
-      shift ;;
+      shift
+      ;;
     --gh-workflows)
-      workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
-    --refresh-env) refresh_env=true; shift ;;
-    --no-restart) restart_containers=false; shift ;;
-    --no-watch) watch_logs=false; shift ;;
+      workflows="${2:-}"
+      [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"
+      shift 2
+      ;;
+    --refresh-env)
+      refresh_env=true
+      shift
+      ;;
+    --no-restart)
+      restart_containers=false
+      shift
+      ;;
+    --no-watch)
+      watch_logs=false
+      shift
+      ;;
     --secrets-omit-env)
       [[ -n "${2:-}" ]] || die "--secrets-omit-env requires a value (e.g., dev, prod, stage, all)"
       secrets_sync_args+=("--omit-env" "$2")
-      shift 2 ;;
+      shift 2
+      ;;
     --secrets-omit-envs)
       [[ -n "${2:-}" ]] || die "--secrets-omit-envs requires a comma-separated list"
       secrets_sync_args+=("--omit-envs" "$2")
-      shift 2 ;;
+      shift 2
+      ;;
     --secrets-dry-run)
       secrets_sync_args+=("--dry-run")
-      shift ;;
-    --discover-only) discover_only=true; shift ;;
-    --plan-only) plan_only=true; shift ;;
-    -h|--help) usage; exit 0 ;;
+      shift
+      ;;
+    --discover-only)
+      discover_only=true
+      shift
+      ;;
+    --plan-only)
+      plan_only=true
+      shift
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
     *) die "Unknown option: $1" ;;
   esac
 done
 
 # Prereqs
 need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required"; }
-need aws; need terraform; need node; need npm; need gh
+need aws
+need terraform
+need node
+need npm
+need gh
 if [[ -n "$build_images" ]]; then need docker; fi
 
 # Ensure gh is authenticated and repo is set
@@ -251,7 +302,7 @@ tf_discovery() {
   echo "Security group present:     $([[ $has_sg -gt 0 ]] && echo yes || echo no)"
   echo "Elastic IP present:         $([[ $has_eip -gt 0 ]] && echo yes || echo no)"
   echo "EIP association present:    $([[ $has_eip_assoc -gt 0 ]] && echo yes || echo no)"
-  echo "S3 buckets (dev/prod):      $([[ $has_s3_dev -gt 0 ]] && echo dev || echo - ) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo - )"
+  echo "S3 buckets (dev/prod):      $([[ $has_s3_dev -gt 0 ]] && echo dev || echo -) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo -)"
   echo "ECR repos (fe/be):          $([[ $has_ecr_fe -gt 0 ]] && echo yes || echo no) / $([[ $has_ecr_be -gt 0 ]] && echo yes || echo no)"
   [[ -n "$EIP" ]] && echo "Elastic IP output:          $EIP" || true
   [[ -n "$PUB" ]] && echo "Instance public IP:         $PUB" || true
@@ -332,35 +383,38 @@ if [[ "$do_infra" == true ]]; then
   terraform init -input=false
 
   if [[ "$do_destroy" == true ]]; then
-  # Determine resources to destroy (skip S3/ECR/EIP)
+    # Determine resources to destroy (skip S3/ECR/EIP)
     to_destroy=()
     if terraform state list >/dev/null 2>&1; then
       while IFS= read -r r; do
-  [[ "$r" =~ ^aws_s3_bucket(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_ecr_repository(\.|$)|^aws_ecr_lifecycle_policy(\.|$) ]] && continue
-  # Preserve Elastic IP resources under all names and modules
-  [[ "$r" =~ ^aws_eip(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_eip_association(\.|$) ]] && continue
-  # Avoid IAM churn under least-priv users: do not attempt to detach/destroy IAM
-  [[ "$r" =~ ^aws_iam_role(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_iam_instance_profile(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_iam_role_policy_attachment(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_iam_policy(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_iam_user_policy(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_s3_bucket(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_ecr_repository(\.|$)|^aws_ecr_lifecycle_policy(\.|$) ]] && continue
+        # Preserve Elastic IP resources under all names and modules
+        [[ "$r" =~ ^aws_eip(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_eip_association(\.|$) ]] && continue
+        # Avoid IAM churn under least-priv users: do not attempt to detach/destroy IAM
+        [[ "$r" =~ ^aws_iam_role(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_iam_instance_profile(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_iam_role_policy_attachment(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_iam_policy(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_iam_user_policy(\.|$) ]] && continue
         to_destroy+=("$r")
       done < <(terraform state list)
     fi
 
-    if (( ${#to_destroy[@]} > 0 )); then
+    if ((${#to_destroy[@]} > 0)); then
       warn "Planned destroy targets (preserving S3/ECR/EIP):"
       printf '  - %s\n' "${to_destroy[@]}"
       if [[ "$force_destroy" != true ]]; then
-        echo "Type 'yes' to confirm destroy:"; read -r ans; [[ "$ans" == yes ]] || die "Cancelled"
+        echo "Type 'yes' to confirm destroy:"
+        read -r ans
+        [[ "$ans" == yes ]] || die "Cancelled"
       else
         warn "Force mode enabled - skipping confirmation"
       fi
       log "Destroying targeted resources"
-      args=(); for r in "${to_destroy[@]}"; do args+=("-target=$r"); done
+      args=()
+      for r in "${to_destroy[@]}"; do args+=("-target=$r"); done
       terraform destroy "${args[@]}" -auto-approve
     else
       warn "No destroyable resources (or state not present)"
@@ -382,7 +436,7 @@ if [[ "$do_infra" == true ]]; then
   # Regenerate tfvars in case IP-based URLs in secrets changed locally
   log "Regenerating terraform vars after apply"
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
-  
+
   # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
   if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
     log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP}"
@@ -440,7 +494,8 @@ resolve_ec2_host() {
   # 0) Explicit env vars (prefer repo-root .env)
   host="${EC2_HOST:-${EC2_INSTANCE_IP:-${EC2_IP:-}}}"
   if [[ -n "$host" ]]; then
-    echo "$host"; return 0
+    echo "$host"
+    return 0
   fi
   # 1) Terraform outputs (prefer Elastic IP)
   if command -v terraform >/dev/null 2>&1 && [ -d "$INFRA_DIR" ]; then
@@ -453,28 +508,32 @@ resolve_ec2_host() {
     set -e
     popd >/dev/null || true
     if [[ -n "$host" ]]; then
-      echo "$host"; return 0
+      echo "$host"
+      return 0
     fi
   fi
   # 2) Local private secrets
   if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
     host=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.EC2_HOST||'').trim());}catch(e){process.stdout.write('');}")
     if [[ -n "$host" ]]; then
-      echo "$host"; return 0
+      echo "$host"
+      return 0
     fi
   fi
   # 3) DNS fallback (best-effort): derive apex from URLs in secrets and resolve A record
   local apex=""
   if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
-    apex=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const pickHost=(file)=>{if(!fs.existsSync(file))return '';const raw=fs.readFileSync(file,'utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const url=(s.FRONTEND_URL||'').trim();if(!url)return '';try{return new URL(url).hostname||'';}catch{return '';}};const host=pickHost('.github-secrets.private.json5')||pickHost('.github-secrets.private.prod.json5')||pickHost('.github-secrets.private.dev.json5');process.stdout.write(host);}catch(e){}");
+    apex=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const pickHost=(file)=>{if(!fs.existsSync(file))return '';const raw=fs.readFileSync(file,'utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const url=(s.FRONTEND_URL||'').trim();if(!url)return '';try{return new URL(url).hostname||'';}catch{return '';}};const host=pickHost('.github-secrets.private.json5')||pickHost('.github-secrets.private.prod.json5')||pickHost('.github-secrets.private.dev.json5');process.stdout.write(host);}catch(e){}")
   fi
   if [[ -n "$apex" ]] && command -v dig >/dev/null 2>&1; then
     host=$(dig +short A "$apex" | head -n1)
     if [[ -n "$host" ]]; then
-      echo "$host"; return 0
+      echo "$host"
+      return 0
     fi
   fi
-  echo ""; return 1
+  echo ""
+  return 1
 }
 
 # Resolve the apex domain used for TLS certificates and Host-based routing.
@@ -486,17 +545,20 @@ resolve_ssl_domain() {
   local domain
   domain="$(bb_resolve_ssl_domain)"
   if [[ -n "$domain" ]]; then
-    echo "$domain"; return 0
+    echo "$domain"
+    return 0
   fi
 
   if [[ -f "$REPO_ROOT/.github-secrets.private.json5" ]]; then
     domain=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const values=[s.PUBLIC_SERVER_URL,s.PAYLOAD_PUBLIC_SERVER_URL,s.FRONTEND_URL].flatMap((value)=>String(value||'').split(','));const hosts=values.map((value)=>{const trimmed=String(value||'').trim();if(!trimmed) return '';try{return new URL(trimmed).hostname.replace(/^www\\./i,'');}catch{return trimmed.replace(/^https?:\\/\\//i,'').replace(/\\/.*$/,'').replace(/^www\\./i,'');}}).filter(Boolean);const preferred=hosts.find((host)=>!/^dev\\./i.test(host))||hosts[0]||'';process.stdout.write(preferred);}catch(e){process.stdout.write('');}")
     if [[ -n "$domain" ]]; then
-      echo "$domain"; return 0
+      echo "$domain"
+      return 0
     fi
   fi
 
-  echo ""; return 1
+  echo ""
+  return 1
 }
 
 validate_ssl_domain() {
@@ -517,9 +579,12 @@ WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeplo
 
 # Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
 ensure_https_certs() {
-  local host="$1"; shift || true
-  local ssl_domain="$1"; shift || true
-  local email="$1"; shift || true
+  local host="$1"
+  shift || true
+  local ssl_domain="$1"
+  shift || true
+  local email="$1"
+  shift || true
   [[ -n "$host" && -n "$ssl_domain" && -n "$email" ]] || return 0
   local key="$SSH_KEY_PATH_RESOLVED"
   if [[ ! -f "$key" ]]; then
@@ -770,7 +835,8 @@ ensure_cloudwatch_agent() {
   fi
   log "Ensuring CloudWatch Agent installed & configured on $host"
   scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$CFG_LOCAL" ec2-user@"$host":/home/ec2-user/cloudwatch-agent-config.json || {
-    warn "Failed to upload CloudWatch agent config to $host"; return 0;
+    warn "Failed to upload CloudWatch agent config to $host"
+    return 0
   }
   ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
     if ! systemctl is-active --quiet amazon-cloudwatch-agent; then
@@ -793,7 +859,6 @@ if [[ -z "$AWS_ACCOUNT_ID_LOCAL" || "$AWS_ACCOUNT_ID_LOCAL" == "None" ]]; then
   AWS_ACCOUNT_ID_LOCAL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_ACCOUNT_ID||'')+'');}catch(e){process.stdout.write('');}")"
 fi
 [[ -n "$AWS_ACCOUNT_ID_LOCAL" ]] || die "Unable to determine AWS account id for ECR (AWS_ACCOUNT_ID_LOCAL)"
-
 
 # If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
 if [[ -z "${EC2_IP:-}" ]]; then
@@ -827,7 +892,8 @@ fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
 dispatch_redeploy() {
-  local ENV_IN=$1; shift
+  local ENV_IN=$1
+  shift
   local -a REFS=("$@")
   local DISPATCHED=false
   local RUN_ID="" RUN_URL=""
@@ -867,7 +933,7 @@ dispatch_redeploy() {
             echo "\n--- Logs ($ENV_IN) ---"
             attempts=0
             until gh run view "$RUN_ID" --repo "$GH_REPO" --log >/dev/null 2>&1 || [[ $attempts -ge 5 ]]; do
-              attempts=$((attempts+1))
+              attempts=$((attempts + 1))
               sleep 2
             done
             gh run view "$RUN_ID" --repo "$GH_REPO" --log || warn "failed to get run log after retries ($ENV_IN)"
@@ -898,7 +964,8 @@ case "$profiles" in
     if dispatch_redeploy prod main "$BRANCH"; then
       RESOLVED_HOST=$(resolve_ec2_host || true)
       ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${RESOLVED_HOST:-${EC2_IP:-unknown}}"
-      popd >/dev/null; exit 0
+      popd >/dev/null
+      exit 0
     fi
     ;;
   dev)
@@ -906,7 +973,8 @@ case "$profiles" in
     if dispatch_redeploy dev "$BRANCH" dev main; then
       RESOLVED_HOST=$(resolve_ec2_host || true)
       ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${RESOLVED_HOST:-${EC2_IP:-unknown}}"
-      popd >/dev/null; exit 0
+      popd >/dev/null
+      exit 0
     fi
     ;;
   both)
@@ -924,7 +992,8 @@ case "$profiles" in
       else
         warn "Dev redeploy dispatched, but prod dispatch failed. You can re-run prod via: gh workflow run redeploy.yml -f environment=prod --ref main"
       fi
-      popd >/dev/null; exit 0
+      popd >/dev/null
+      exit 0
     fi
     ;;
 esac
@@ -956,10 +1025,10 @@ if [[ "$refresh_env" == true ]]; then
   )
   log "Uploading env files to EC2 ($EC2_HOST)"
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
   scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
@@ -1010,6 +1079,5 @@ esac
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
 ok "Full deploy completed (fallback path)."
-
 
 popd >/dev/null

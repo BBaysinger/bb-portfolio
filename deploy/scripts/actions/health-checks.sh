@@ -7,16 +7,19 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
-KEY_PATH="${1:?ssh key path arg required}" 
+KEY_PATH="${1:?ssh key path arg required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 ENVIRONMENT="${ENVIRONMENT:?ENVIRONMENT env required}"
 START_DEV="${START_DEV:-true}"
-ATTEMPTS="${HEALTH_ATTEMPTS:-12}"; DELAY="${HEALTH_DELAY_SECONDS:-5}"
-CURL_ATTEMPTS="${CURL_ATTEMPTS:-3}"; CURL_DELAY="${CURL_DELAY_SECONDS:-2}"
-CURL_MAX_TIME="${CURL_MAX_TIME_SECONDS:-3}"; CURL_CONNECT_TIMEOUT_SEC="${CURL_CONNECT_TIMEOUT:-1}"
+ATTEMPTS="${HEALTH_ATTEMPTS:-12}"
+DELAY="${HEALTH_DELAY_SECONDS:-5}"
+CURL_ATTEMPTS="${CURL_ATTEMPTS:-3}"
+CURL_DELAY="${CURL_DELAY_SECONDS:-2}"
+CURL_MAX_TIME="${CURL_MAX_TIME_SECONDS:-3}"
+CURL_CONNECT_TIMEOUT_SEC="${CURL_CONNECT_TIMEOUT:-1}"
 CURL_ZERO_EXTRA_ATTEMPTS="${CURL_ZERO_EXTRA_ATTEMPTS:-6}"
 CURL_ZERO_DELAY="${CURL_ZERO_DELAY_SECONDS:-$CURL_DELAY}"
-GRACE="${HEALTH_STARTING_GRACE_SECONDS:-40}" # Allow backend health: starting state for this many seconds
+GRACE="${HEALTH_STARTING_GRACE_SECONDS:-40}"                # Allow backend health: starting state for this many seconds
 POST_GRACE_WAIT="${HEALTH_POST_GRACE_WAIT_SECONDS:-$GRACE}" # Additional wait before HTTP checks if we relied on grace
 
 DEV_GRACE_USED=false
@@ -30,29 +33,46 @@ parse_uptime_seconds() {
   local raw
   # Try seconds
   raw=$(echo "$status" | sed -nE 's/.*Up ([0-9]+) second(s)? .*/\1/p')
-  if [ -n "$raw" ]; then echo "$raw"; return 0; fi
+  if [ -n "$raw" ]; then
+    echo "$raw"
+    return 0
+  fi
   # Try minutes
   raw=$(echo "$status" | sed -nE 's/.*Up ([0-9]+) minute(s)? .*/\1/p')
-  if [ -n "$raw" ]; then echo $((raw*60)); return 0; fi
+  if [ -n "$raw" ]; then
+    echo $((raw * 60))
+    return 0
+  fi
   # Try hours
   raw=$(echo "$status" | sed -nE 's/.*Up ([0-9]+) hour(s)? .*/\1/p')
-  if [ -n "$raw" ]; then echo $((raw*3600)); return 0; fi
+  if [ -n "$raw" ]; then
+    echo $((raw * 3600))
+    return 0
+  fi
   echo 0
 }
 
 poll_containers() {
-  local env="$1"; local tries=0
+  local env="$1"
+  local tries=0
   local be_name fe_name
   case "$env" in
-    prod) be_name="bb-portfolio-backend-prod"; fe_name="bb-portfolio-frontend-prod";;
-    dev)  be_name="bb-portfolio-backend-dev";  fe_name="bb-portfolio-frontend-dev";;
+    prod)
+      be_name="bb-portfolio-backend-prod"
+      fe_name="bb-portfolio-frontend-prod"
+      ;;
+    dev)
+      be_name="bb-portfolio-backend-dev"
+      fe_name="bb-portfolio-frontend-dev"
+      ;;
   esac
   echo "Polling container health for $env (max $ATTEMPTS attempts, $DELAY s delay)" >&2
   while [ $tries -lt $ATTEMPTS ]; do
     local be_status fe_status
     be_status=$(ssh_cmd "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
     fe_status=$(ssh_cmd "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
-    be_ready=false; fe_ready=false
+    be_ready=false
+    fe_ready=false
     # Frontend readiness: simply Up
     if echo "$fe_status" | grep -qi '^Up '; then fe_ready=true; fi
     # Backend readiness: healthy OR grace allowance if still starting
@@ -77,7 +97,7 @@ poll_containers() {
       echo "Containers ready for $env (backend: $be_status, frontend: $fe_status)" >&2
       return 0
     fi
-    tries=$((tries+1))
+    tries=$((tries + 1))
     echo "Attempt $tries/$ATTEMPTS ($env) not ready yet (be='$be_status' fe='$fe_status')" >&2
     sleep "$DELAY"
   done
@@ -109,23 +129,28 @@ maybe_wait_post_grace() {
 }
 
 curl_with_retry() {
-  local port="$1"; local path="$2"; local label="$3"
-  local attempt=0; local code=""; local zero_retry_count=0
+  local port="$1"
+  local path="$2"
+  local label="$3"
+  local attempt=0
+  local code=""
+  local zero_retry_count=0
   local zero_limit="$CURL_ZERO_EXTRA_ATTEMPTS"
   while [ $attempt -lt "$CURL_ATTEMPTS" ]; do
     code=$(ssh_cmd "curl --max-time ${CURL_MAX_TIME} --connect-timeout ${CURL_CONNECT_TIMEOUT_SEC} -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000000')
     if [[ "$code" == 2* || "$code" == 3* ]]; then
-      echo "OK $label HTTP $code" >&2; return 0
+      echo "OK $label HTTP $code" >&2
+      return 0
     fi
 
     if [[ "$code" == 0* && "$zero_limit" -gt 0 && $zero_retry_count -lt "$zero_limit" ]]; then
-      zero_retry_count=$((zero_retry_count+1))
+      zero_retry_count=$((zero_retry_count + 1))
       echo "Transient $label code $code (zero retry $zero_retry_count/$zero_limit)" >&2
       sleep "$CURL_ZERO_DELAY"
       continue
     fi
 
-    attempt=$((attempt+1))
+    attempt=$((attempt + 1))
     echo "Attempt $attempt/$CURL_ATTEMPTS $label code=$code" >&2
     if [ $attempt -lt "$CURL_ATTEMPTS" ]; then sleep "$CURL_DELAY"; fi
   done

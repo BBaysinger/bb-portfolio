@@ -35,7 +35,7 @@ warn_if_prune_stale() {
     local now_epoch=$(date +%s)
     local max_age_sec=$((PRUNE_MAX_AGE_HOURS * 3600))
     local age_sec=$((now_epoch - last_epoch))
-    if (( age_sec > max_age_sec )); then
+    if ((age_sec > max_age_sec)); then
       echo "[caddy-helper] Reminder: Last prune at $last_ts (> ${PRUNE_MAX_AGE_HOURS}h). Consider: zsh deploy/scripts/docker-maintenance.sh"
     fi
   else
@@ -49,18 +49,25 @@ cmd=${1:-}
 case "$cmd" in
   up)
     warn_if_prune_stale
-    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" up -d bb-portfolio-frontend-local caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" up -d bb-portfolio-frontend-local caddy-local
+    ;;
   down)
     warn_if_prune_stale
-    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local
+    ;;
   stop)
     warn_if_prune_stale
-    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local
+    ;;
   restart)
     warn_if_prune_stale
-    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" restart caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" restart caddy-local
+    ;;
   logs)
-    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" logs -f caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" logs -f caddy-local
+    ;;
   *)
-    usage; exit 2;;
+    usage
+    exit 2
+    ;;
 esac

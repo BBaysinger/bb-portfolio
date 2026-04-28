@@ -28,7 +28,7 @@ for profile in "${PROFILE_QUEUE[@]}"; do
 done
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+  echo "dir=$OUT_DIR" >>"$GITHUB_OUTPUT"
 else
   printf '%s\n' "dir=$OUT_DIR"
 fi

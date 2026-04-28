@@ -7,7 +7,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
-KEY_PATH="${1:?ssh key path arg required}" 
+KEY_PATH="${1:?ssh key path arg required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 ENVIRONMENT="${ENVIRONMENT:?ENVIRONMENT env required}"
 START_DEV="${START_DEV:-true}"

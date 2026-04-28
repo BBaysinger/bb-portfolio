@@ -29,7 +29,7 @@ echo "[docker-maintenance] Pruning BuildKit/buildx caches older than 7 days..."
 docker buildx prune -af --filter until=168h || true
 
 mkdir -p "$PRUNE_STATE_DIR" || true
-date -u +%Y-%m-%dT%H:%M:%SZ > "$PRUNE_STATE_FILE" || true
+date -u +%Y-%m-%dT%H:%M:%SZ >"$PRUNE_STATE_FILE" || true
 echo "[docker-maintenance] Recorded last prune at: $(cat "$PRUNE_STATE_FILE")"
 
 echo "[docker-maintenance] Done. You can start services again with:"

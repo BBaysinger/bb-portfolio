@@ -17,7 +17,7 @@ replace_or_append() {
   if grep -qi "^${key}" "$CONF"; then
     sed -i "s/^${key}.*/${key} ${value}/I" "$CONF"
   else
-    echo "${key} ${value}" >> "$CONF"
+    echo "${key} ${value}" >>"$CONF"
   fi
 }
 

@@ -40,19 +40,39 @@ EOF
 while [[ ${1:-} ]]; do
   case "${1}" in
     --profile)
-      [[ $# -lt 2 ]] && { echo "--profile requires a value" >&2; exit 1; }
-      AWS_PROFILE_ARG="$2"; shift 2 ;;
+      [[ $# -lt 2 ]] && {
+        echo "--profile requires a value" >&2
+        exit 1
+      }
+      AWS_PROFILE_ARG="$2"
+      shift 2
+      ;;
     --region)
-      [[ $# -lt 2 ]] && { echo "--region requires a value" >&2; exit 1; }
-      AWS_REGION="$2"; shift 2 ;;
+      [[ $# -lt 2 ]] && {
+        echo "--region requires a value" >&2
+        exit 1
+      }
+      AWS_REGION="$2"
+      shift 2
+      ;;
     --skip-ecr)
-      SKIP_ECR=true; shift ;;
-    --login|--auto-login)
-      AUTO_LOGIN=true; shift ;;
-    --help|-h)
-      print_help; exit 0 ;;
+      SKIP_ECR=true
+      shift
+      ;;
+    --login | --auto-login)
+      AUTO_LOGIN=true
+      shift
+      ;;
+    --help | -h)
+      print_help
+      exit 0
+      ;;
     *)
-      echo "Unknown argument: $1" >&2; echo; print_help; exit 1 ;;
+      echo "Unknown argument: $1" >&2
+      echo
+      print_help
+      exit 1
+      ;;
   esac
 done
 
@@ -63,7 +83,7 @@ fi
 
 have_node() { command -v node >/dev/null 2>&1; }
 have_curl() { command -v curl >/dev/null 2>&1; }
-have_aws()  { command -v aws  >/dev/null 2>&1; }
+have_aws() { command -v aws >/dev/null 2>&1; }
 have_docker() { command -v docker >/dev/null 2>&1; }
 
 ensure_aws_login() {
@@ -137,11 +157,11 @@ if have_curl && have_node; then
   for repo in "${DH_REPOS[@]}"; do
     echo -e "\n🧾 Docker Hub: $repo (top 5 by last_updated)"
     if [[ -n "$DH_TOKEN" ]]; then
-      curl -sS -H "Authorization: JWT $DH_TOKEN" "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100" | \
+      curl -sS -H "Authorization: JWT $DH_TOKEN" "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100" |
         node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));const rows=(o.results||[]).map(r=>[r.last_updated,r.name]);rows.sort((a,b)=>a[0]<b[0]?1:-1);for(const [ts,name] of rows.slice(0,5)){console.info(ts+'\t'+name)};console.info('TOTAL:',rows.length)"
     else
       # Attempt unauthenticated listing for public repositories
-      curl -sS "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100" | \
+      curl -sS "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100" |
         node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));const rows=(o.results||[]).map(r=>[r.last_updated,r.name]);rows.sort((a,b)=>a[0]<b[0]?1:-1);for(const [ts,name] of rows.slice(0,5)){console.info(ts+'\t'+name)};console.info('TOTAL:',rows.length)"
     fi
   done

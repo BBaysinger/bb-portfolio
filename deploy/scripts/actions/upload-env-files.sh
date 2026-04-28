@@ -7,12 +7,15 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
-KEY_PATH="${1:?ssh key path arg required}" 
+KEY_PATH="${1:?ssh key path arg required}"
 OUT_DIR="${OUT_DIR:?OUT_DIR env required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 SSH_OPTS=${SSH_OPTS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes -o TCPKeepAlive=yes -o Compression=yes"}
 
-[ -d "$OUT_DIR" ] || { echo "OUT_DIR not a directory: $OUT_DIR" >&2; exit 1; }
+[ -d "$OUT_DIR" ] || {
+  echo "OUT_DIR not a directory: $OUT_DIR" >&2
+  exit 1
+}
 
 echo "== Packaging env files for single transfer =="
 BUNDLE_PATH="$OUT_DIR/env-bundle.tgz"
@@ -38,7 +41,7 @@ ssh -i "$KEY_PATH" $SSH_OPTS ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/
 
 upload_attempts=0
 until scp -i "$KEY_PATH" $SSH_OPTS "$BUNDLE_PATH" ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/env-bundle.tgz; do
-  upload_attempts=$((upload_attempts+1))
+  upload_attempts=$((upload_attempts + 1))
   if [ $upload_attempts -ge 3 ]; then
     echo "Env bundle upload failed after $upload_attempts attempts" >&2
     exit 1

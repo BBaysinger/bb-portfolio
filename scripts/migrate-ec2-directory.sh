@@ -44,11 +44,27 @@ EOF
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --host) HOST="$2"; shift 2;;
-    --key) KEY="$2"; shift 2;;
-    --dry-run) DRY_RUN=true; shift;;
-    -h|--help) usage; exit 0;;
-    *) err "Unknown arg $1"; usage; exit 1;;
+    --host)
+      HOST="$2"
+      shift 2
+      ;;
+    --key)
+      KEY="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      err "Unknown arg $1"
+      usage
+      exit 1
+      ;;
   esac
 done
 
@@ -57,10 +73,16 @@ if [[ -z "$HOST" ]]; then
   if [[ -n "${EC2_INSTANCE_IP:-}" ]]; then
     HOST="$SSH_USER@$EC2_INSTANCE_IP"
   else
-    err "--host is required (or set EC2_INSTANCE_IP in repo-root .env)"; usage; exit 1
+    err "--host is required (or set EC2_INSTANCE_IP in repo-root .env)"
+    usage
+    exit 1
   fi
 fi
-[[ -z "$KEY" ]] && { err "--key required"; usage; exit 1; }
+[[ -z "$KEY" ]] && {
+  err "--key required"
+  usage
+  exit 1
+}
 
 REMOTE_CMDS='set -euo pipefail
 OLD=/home/ec2-user/portfolio

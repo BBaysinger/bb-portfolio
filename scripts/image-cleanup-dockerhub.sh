@@ -52,24 +52,42 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --retain)
-      RETAIN_COUNT=${2:-}; shift 2 ;;
+      RETAIN_COUNT=${2:-}
+      shift 2
+      ;;
     --repositories)
-      REPOS_CSV=${2:-}; shift 2 ;;
+      REPOS_CSV=${2:-}
+      shift 2
+      ;;
     --region)
-      REGION=${2:-}; shift 2 ;;
+      REGION=${2:-}
+      shift 2
+      ;;
     --profile)
-      PROFILE=${2:-}; shift 2 ;;
-    --login|--auto-login)
-      AUTO_LOGIN=true; shift ;;
+      PROFILE=${2:-}
+      shift 2
+      ;;
+    --login | --auto-login)
+      AUTO_LOGIN=true
+      shift
+      ;;
     --include-untagged)
-      INCLUDE_UNTAGGED=true; shift ;;
+      INCLUDE_UNTAGGED=true
+      shift
+      ;;
     --dry-run)
-      DRY_RUN=true; shift ;;
-    --help|-h)
-      usage; exit 0 ;;
+      DRY_RUN=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
     *)
       echo "Unknown argument: $1" >&2
-      usage; exit 1 ;;
+      usage
+      exit 1
+      ;;
   esac
 done
 
@@ -93,7 +111,7 @@ DOCKERHUB_PASSWORD="${DOCKERHUB_PASSWORD:-${DOCKER_HUB_ACCESS_TOKEN:-}}"
 DOCKERHUB_TOKEN="${DOCKERHUB_TOKEN:-}"
 
 # If no credentials provided via env, try to read from .github-secrets.private.json5
-if [[ -z "$DOCKERHUB_TOKEN" && ( -z "$DOCKERHUB_USERNAME" || -z "$DOCKERHUB_PASSWORD" ) ]]; then
+if [[ -z "$DOCKERHUB_TOKEN" && (-z "$DOCKERHUB_USERNAME" || -z "$DOCKERHUB_PASSWORD") ]]; then
   ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
   SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
   if [[ -f "$SECRETS_FILE" ]]; then
@@ -176,8 +194,8 @@ for repo in "${REPOS[@]}"; do
   total=${#tag_lines[@]}
   echo "  Tags found          : $total"
 
-  if (( total > RETAIN_COUNT )); then
-    delete_count=$(( total - RETAIN_COUNT ))
+  if ((total > RETAIN_COUNT)); then
+    delete_count=$((total - RETAIN_COUNT))
     echo "  Will delete oldest  : $delete_count tag(s)"
     # Sort by last_updated desc (column 1), then emit tag names after retaining top N
     # shellcheck disable=SC2002

@@ -44,7 +44,7 @@ load_env_file() {
     local value
     value="$(trim "${line#*=}")"
     export "$key=$value"
-  done < "$file"
+  done <"$file"
 }
 
 require_env() {
@@ -68,7 +68,10 @@ echo "Generating ${PROFILE} env bundle..."
 (cd "$ROOT_DIR" && npx --yes tsx scripts/generate-env-files.ts --out "$TMP_ENV_DIR" --profiles "$PROFILE" --targets backend >/dev/null)
 
 ENV_FILE="$TMP_ENV_DIR/backend.env.${PROFILE}"
-[[ -f "$ENV_FILE" ]] || { echo "❌ Env file missing: $ENV_FILE" >&2; exit 1; }
+[[ -f "$ENV_FILE" ]] || {
+  echo "❌ Env file missing: $ENV_FILE" >&2
+  exit 1
+}
 load_env_file "$ENV_FILE"
 
 for var in BACKEND_INTERNAL_URL FRONTEND_URL S3_BUCKET AWS_REGION MONGODB_URI PAYLOAD_SECRET SES_FROM_EMAIL SES_TO_EMAIL; do

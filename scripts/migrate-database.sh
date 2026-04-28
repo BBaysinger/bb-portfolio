@@ -3,13 +3,13 @@
 # MongoDB Database Migration Script
 # =============================================================================
 # This script uses mongodump/mongorestore to copy data between environments
-# 
+#
 # Usage:
 #   ./migrate-database.sh <source> <target> [--dry-run] [--no-backup]
 #
 # Examples:
 #   ./migrate-database.sh local prod            # Copy local → production
-#   ./migrate-database.sh local dev             # Copy local → development  
+#   ./migrate-database.sh local dev             # Copy local → development
 #   ./migrate-database.sh prod dev              # Copy production → development
 #   ./migrate-database.sh local dev --dry-run   # Plan only (no backup/restore)
 #   ./migrate-database.sh prod dev --no-backup  # Skip target backup (not recommended)
@@ -19,7 +19,7 @@
 #   - Network access to MongoDB Atlas cluster
 # =============================================================================
 
-set -eEo pipefail  # Exit on error, propagate ERR in functions, and fail on pipeline errors
+set -eEo pipefail # Exit on error, propagate ERR in functions, and fail on pipeline errors
 # Flags (default values)
 DRY_RUN=false
 NO_BACKUP=false
@@ -68,10 +68,12 @@ parse_flags() {
         shift
         ;;
       --source-db)
-        SOURCE_DB_OVERRIDE="$2"; shift 2
+        SOURCE_DB_OVERRIDE="$2"
+        shift 2
         ;;
       --target-db)
-        TARGET_DB_OVERRIDE="$2"; shift 2
+        TARGET_DB_OVERRIDE="$2"
+        shift 2
         ;;
       *)
         log_warning "Unknown option: $1"
@@ -80,7 +82,6 @@ parse_flags() {
     esac
   done
 }
-
 
 # Color codes for output
 RED='\033[0;31m'
@@ -176,18 +177,20 @@ get_db_name() {
 
 # Resolve DB name by environment with optional role-specific override
 resolve_db_name() {
-  local env_key="$1"   # local|dev|prod
-  local role="$2"      # source|target
+  local env_key="$1" # local|dev|prod
+  local role="$2"    # source|target
   if [[ "$role" == "source" && -n "$SOURCE_DB_OVERRIDE" ]]; then
-    echo "$SOURCE_DB_OVERRIDE"; return
+    echo "$SOURCE_DB_OVERRIDE"
+    return
   fi
   if [[ "$role" == "target" && -n "$TARGET_DB_OVERRIDE" ]]; then
-    echo "$TARGET_DB_OVERRIDE"; return
+    echo "$TARGET_DB_OVERRIDE"
+    return
   fi
   get_db_name "$env_key"
 }
 
-# Function to get database URI by environment  
+# Function to get database URI by environment
 get_db_uri() {
   local env_key="$1"
   local db_name=$(get_db_name "$env_key")
@@ -199,13 +202,13 @@ get_db_uri() {
 
 # Function to check if MongoDB tools are installed
 check_mongodb_tools() {
-  if ! command -v mongodump &> /dev/null; then
+  if ! command -v mongodump &>/dev/null; then
     log_error "mongodump not found. Please install MongoDB Database Tools:"
     echo "  brew install mongodb/brew/mongodb-database-tools"
     exit 1
   fi
-  
-  if ! command -v mongorestore &> /dev/null; then
+
+  if ! command -v mongorestore &>/dev/null; then
     log_error "mongorestore not found. Please install MongoDB Database Tools:"
     echo "  brew install mongodb/brew/mongodb-database-tools"
     exit 1
@@ -216,26 +219,26 @@ check_mongodb_tools() {
 validate_environments() {
   local source_env=$1
   local target_env=$2
-  
+
   if [[ -z "$source_env" || -z "$target_env" ]]; then
     log_error "Usage: $0 <source_env> <target_env>"
     echo "  Valid environments: local, dev, prod"
     echo "  Example: $0 local prod"
     exit 1
   fi
-  
+
   if [[ "$(get_db_name $source_env)" == "unknown" ]]; then
     log_error "Invalid source environment: $source_env"
     echo "  Valid environments: local, dev, prod"
     exit 1
   fi
-  
+
   if [[ "$(get_db_name $target_env)" == "unknown" ]]; then
     log_error "Invalid target environment: $target_env"
     echo "  Valid environments: local, dev, prod"
     exit 1
   fi
-  
+
   if [[ "$source_env" == "$target_env" ]]; then
     # Allow same environment only when overriding DB names and they differ
     if [[ -n "$SOURCE_DB_OVERRIDE" || -n "$TARGET_DB_OVERRIDE" ]]; then
@@ -259,7 +262,7 @@ confirm_migration() {
   local target_env=$2
   local source_db_name=$(resolve_db_name "$source_env" source)
   local target_db_name=$(resolve_db_name "$target_env" target)
-  
+
   echo
   log_warning "DESTRUCTIVE OPERATION WARNING"
   echo "  This will COMPLETELY REPLACE all data in: $target_db_name"
@@ -267,7 +270,7 @@ confirm_migration() {
   echo
   echo "  Collections that will be overwritten:"
   echo "    - projects"
-  echo "    - projectThumbnails"  
+  echo "    - projectThumbnails"
   echo "    - projectScreenshots"
   echo "    - brandLogos"
   echo "    - clients"
@@ -275,7 +278,7 @@ confirm_migration() {
   echo "    - payload-preferences"
   echo "    - payload-migrations"
   echo
-  
+
   if [[ "$target_env" == "prod" ]]; then
     log_error "⚠️  PRODUCTION DATABASE WILL BE OVERWRITTEN ⚠️"
     echo
@@ -310,21 +313,21 @@ create_backup() {
   local target_db_name=$(get_db_name $target_env)
   local target_db_uri=$(get_db_uri $target_env)
   local backup_dir="data/database-backups/$(date +%Y%m%d_%H%M%S)_${target_env}_backup"
-  
+
   if [[ "$DRY_RUN" == "true" || "$NO_BACKUP" == "true" ]]; then
     log_warning "Skipping target backup (${target_db_name}) due to ${DRY_RUN:+--dry-run }${NO_BACKUP:+--no-backup}."
     return
   fi
 
   log_info "Creating backup of target database: $target_db_name"
-  
+
   mkdir -p "$backup_dir"
-  
+
   mongodump \
     --uri "$target_db_uri" \
     --out "$backup_dir" \
     ${QUIET_FLAG:+$QUIET_FLAG} </dev/null
-  
+
   log_success "Backup created: $backup_dir"
   echo "  Use this to restore if needed:"
   echo "  mongorestore --uri \"$target_db_uri\" --drop \"$backup_dir/$target_db_name\""
@@ -343,7 +346,7 @@ migrate_database() {
   local source_db_uri="${source_base}/${source_db_name}?retryWrites=true&w=majority&appName=bb-portfolio-2025"
   local target_db_uri="${target_base}/${target_db_name}?retryWrites=true&w=majority&appName=bb-portfolio-2025"
   local temp_dump_dir="./temp_dump_$$"
-  
+
   log_info "Starting database migration: $source_db_name → $target_db_name"
   if [[ "$DRY_RUN" == "true" ]]; then
     echo
@@ -355,7 +358,7 @@ migrate_database() {
     echo
     return
   fi
-  
+
   # Step 1: Dump source database
   log_info "Step 1: Dumping source database ($source_db_name)"
   mkdir -p "$temp_dump_dir"
@@ -366,10 +369,10 @@ migrate_database() {
     --uri "$source_db_uri" \
     --out "$temp_dump_dir" \
     ${QUIET_FLAG:+$QUIET_FLAG} </dev/null 2>"$dump_log"; then
-      log_error "mongodump failed. Last lines from dump log:"
-      tail -n 50 "$dump_log"
-      rm -f "$dump_log"
-      exit 1
+    log_error "mongodump failed. Last lines from dump log:"
+    tail -n 50 "$dump_log"
+    rm -f "$dump_log"
+    exit 1
   fi
 
   # Determine actual dump directory name (some versions may not match the db name exactly)
@@ -397,8 +400,8 @@ migrate_database() {
   local source_dump_name
   source_dump_name=$(basename "$source_dump_dir")
   log_success "Source database dumped to: $temp_dump_dir (dir: $source_dump_name)"
-  
-  # Step 2: Restoring to target database  
+
+  # Step 2: Restoring to target database
   log_info "Step 2: Restoring to target database ($target_db_name)"
   # Map source DB namespace to target DB to ensure correct restore
   local restore_log
@@ -410,15 +413,15 @@ migrate_database() {
     --nsTo "${target_db_name}.*" \
     "$source_dump_dir" \
     ${QUIET_FLAG:+$QUIET_FLAG} </dev/null 2>"$restore_log"; then
-      log_error "mongorestore failed. Last lines from restore log:"
-      tail -n 50 "$restore_log"
-      rm -f "$restore_log"
-      exit 1
+    log_error "mongorestore failed. Last lines from restore log:"
+    tail -n 50 "$restore_log"
+    rm -f "$restore_log"
+    exit 1
   fi
   rm -f "$restore_log"
-  
+
   log_success "Data restored to: $target_db_name"
-  
+
   # Cleanup
   rm -rf "$temp_dump_dir"
   log_info "Temporary files cleaned up"
@@ -435,7 +438,7 @@ main() {
     set -x
     QUIET_FLAG=
   fi
-  
+
   echo "🔄 MongoDB Database Migration Tool"
   echo "=================================="
   echo
@@ -461,20 +464,20 @@ main() {
       exit 1
     fi
   fi
-  
+
   # Validation
   check_mongodb_tools
   validate_environments "$source_env" "$target_env"
-  
+
   # Confirmation (handles dry-run printout)
   confirm_migration "$source_env" "$target_env"
-  
+
   # Create backup of target (skipped in dry-run / when --no-backup)
   create_backup "$target_env"
-  
+
   # Perform migration
   migrate_database "$source_env" "$target_env"
-  
+
   echo
   if [[ "$DRY_RUN" == "true" ]]; then
     log_success "🧪 Dry run completed. No changes were made."
@@ -483,7 +486,7 @@ main() {
     log_info "Next steps:"
     echo "  1. Test the target environment to verify data integrity"
     echo "  2. Deploy/restart applications if needed"
-    
+
     if [[ "$target_env" == "prod" ]]; then
       echo "  3. Trigger production build to regenerate static pages"
     fi

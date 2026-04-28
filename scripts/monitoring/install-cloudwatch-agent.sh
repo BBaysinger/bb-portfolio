@@ -13,14 +13,27 @@ CFG_PATH="scripts/monitoring/cloudwatch-agent-config.json"
 AWS_REGION=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --config) CFG_PATH="$2"; shift 2;;
-    --region) AWS_REGION="$2"; shift 2;;
-    -h|--help) grep '^# ' "$0" | sed 's/^# //'; exit 0;;
-    *) echo "Unknown arg: $1" >&2; exit 1;;
+    --config)
+      CFG_PATH="$2"
+      shift 2
+      ;;
+    --region)
+      AWS_REGION="$2"
+      shift 2
+      ;;
+    -h | --help)
+      grep '^# ' "$0" | sed 's/^# //'
+      exit 0
+      ;;
+    *)
+      echo "Unknown arg: $1" >&2
+      exit 1
+      ;;
   esac
 done
 if [[ ! -f "$CFG_PATH" ]]; then
-  echo "Config file not found: $CFG_PATH" >&2; exit 1
+  echo "Config file not found: $CFG_PATH" >&2
+  exit 1
 fi
 if ! command -v amazon-cloudwatch-agent >/dev/null 2>&1; then
   echo "Installing amazon-cloudwatch-agent..."
@@ -33,6 +46,9 @@ CMD=(sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fe
 if [[ -n "$AWS_REGION" ]]; then
   export AWS_REGION
 fi
-"${CMD[@]}" || { echo "Agent start failed" >&2; exit 1; }
+"${CMD[@]}" || {
+  echo "Agent start failed" >&2
+  exit 1
+}
 systemctl status amazon-cloudwatch-agent --no-pager || true
 echo "CloudWatch Agent installed & running with config: $DEST"

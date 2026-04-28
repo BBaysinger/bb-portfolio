@@ -51,7 +51,7 @@ case "$COMMAND" in
   pull-prod-dry)
     run_pull_prod_dry
     ;;
-  ""|-h|--help|help)
+  "" | -h | --help | help)
     usage
     exit 1
     ;;

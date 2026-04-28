@@ -11,12 +11,14 @@ resolve_ssl_domain() {
   local domain
   domain="$(bb_resolve_ssl_domain)"
   if [[ -n "$domain" ]]; then
-    echo "$domain"; return 0
+    echo "$domain"
+    return 0
   fi
-  echo ""; return 1
+  echo ""
+  return 1
 }
 
-KEY_PATH="${1:?ssh key path arg required}" 
+KEY_PATH="${1:?ssh key path arg required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" $'set -e
   echo "== Docker ps =="

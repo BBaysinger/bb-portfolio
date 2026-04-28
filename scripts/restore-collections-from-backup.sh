@@ -31,9 +31,9 @@ if [[ -n "$BACKUP_DIR" && "$BACKUP_DIR" == --* ]]; then
   BACKUP_DIR=""
 fi
 
-shift $(( $# > 0 ? 1 : 0 ))
+shift $(($# > 0 ? 1 : 0))
 if [[ -n "$BACKUP_DIR" ]]; then
-  shift $(( $# > 0 ? 1 : 0 ))
+  shift $(($# > 0 ? 1 : 0))
 fi
 
 DRY_RUN=false
@@ -132,7 +132,7 @@ get_db_name() {
 }
 
 check_mongorestore() {
-  if ! command -v mongorestore &> /dev/null; then
+  if ! command -v mongorestore &>/dev/null; then
     log_error "mongorestore not found. Install MongoDB Database Tools:"
     echo "  brew install mongodb/brew/mongodb-database-tools"
     exit 1
@@ -160,10 +160,12 @@ parse_flags() {
         shift
         ;;
       --target-db)
-        TARGET_DB_OVERRIDE="$2"; shift 2
+        TARGET_DB_OVERRIDE="$2"
+        shift 2
         ;;
       --collections)
-        COLLECTIONS_CSV="$2"; shift 2
+        COLLECTIONS_CSV="$2"
+        shift 2
         ;;
       *)
         log_warning "Unknown option: $1"
@@ -291,7 +293,7 @@ main() {
   log_info "Collections: ${COLLECTIONS_CSV}"
 
   local IFS=','
-  read -r -a collections <<< "$COLLECTIONS_CSV"
+  read -r -a collections <<<"$COLLECTIONS_CSV"
 
   local cmd=(mongorestore)
   if [[ -n "$QUIET_FLAG" ]]; then
@@ -322,9 +324,9 @@ main() {
   log_info "Command:"
   # Never print the raw URI (it contains credentials). Print a sanitized equivalent.
   local cmd_print=("${cmd[@]}")
-  for ((i=0; i<${#cmd_print[@]}; i++)); do
+  for ((i = 0; i < ${#cmd_print[@]}; i++)); do
     if [[ "${cmd_print[$i]}" == "--uri" ]]; then
-      cmd_print[$((i+1))]="$target_uri_masked"
+      cmd_print[$((i + 1))]="$target_uri_masked"
       break
     fi
   done

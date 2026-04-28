@@ -23,11 +23,26 @@ bb_load_repo_env "$REPO_ROOT"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --host) HOST="$2"; shift 2;;
-    --key) KEY="$2"; shift 2;;
-    --user) USER="$2"; shift 2;;
-    --dry-run) DRY_RUN=1; shift;;
-    *) echo "[!] Unknown arg: $1" >&2; exit 1;;
+    --host)
+      HOST="$2"
+      shift 2
+      ;;
+    --key)
+      KEY="$2"
+      shift 2
+      ;;
+    --user)
+      USER="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    *)
+      echo "[!] Unknown arg: $1" >&2
+      exit 1
+      ;;
   esac
 done
 
@@ -65,7 +80,8 @@ fi
 for f in "${FILES[@]}"; do
   SRC="$REPO_ROOT/$f"
   if [[ ! -f "$SRC" ]]; then
-    echo "[!] Missing file: $SRC" >&2; exit 1
+    echo "[!] Missing file: $SRC" >&2
+    exit 1
   fi
   echo "[scp] $f -> $HOST:$REMOTE_TMP/"
   if [[ $DRY_RUN -eq 0 ]]; then

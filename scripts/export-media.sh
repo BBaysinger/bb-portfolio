@@ -139,7 +139,7 @@ for SUB in "${SUBDIRS[@]}"; do
   # We process files one-by-one and flatten layers to avoid animated WebP.
   shopt -s nullglob
   PSD_FILES=("$INPUT_DIR"/*.[Pp][Ss][Dd])
-  if (( ${#PSD_FILES[@]} == 0 )); then
+  if [[ -z "${PSD_FILES[*]-}" ]]; then
     echo "No PSD files found in $INPUT_DIR; nothing to convert."
     continue
   fi

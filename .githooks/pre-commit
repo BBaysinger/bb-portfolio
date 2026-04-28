@@ -5,9 +5,10 @@ set -eu
 
 # Return 0 if path should be ignored; 1 otherwise
 should_ignore() {
-  case "$1" in 
-    *node_modules/*|*.next/*|*/.next/*|*out/*|*dist/*|*build/*|*coverage/*|*.turbo/*|*.vercel/*|*.vscode/*|database-backups/*|data/dump/*)
-      return 0 ;;
+  case "$1" in
+    *node_modules/* | *.next/* | */.next/* | *out/* | *dist/* | *build/* | *coverage/* | *.turbo/* | *.vercel/* | *.vscode/* | database-backups/* | data/dump/*)
+      return 0
+      ;;
   esac
   return 1
 }

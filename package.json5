@@ -178,14 +178,16 @@
     "frontend:restart": "docker restart bb-portfolio-frontend-local",
     // 💅 Format all files with Prettier
     // Ensures consistent code style across the entire monorepo
-    "format": "prettier --write .",
+    "format": "prettier --write . && npm run format:shell",
+    //
+    "format:shell": "bash scripts/format-shell.sh --write",
     // 🧼 Run ESLint on the full codebase
     // Great for catching JS/TS issues or team rule violations
     "lint": "eslint .",
     // ✅ Fast pre-commit validation (format + lint + type check + package sync)
     // Run before every commit for quick validation (~5-10 seconds)
     // Attempts to auto-fix fixable ESLint issues, then syncs package.json5 annotations back from package.json
-    "precommit": "prettier --write . && eslint . --fix && tsc --noEmit && npm run sync:packages",
+    "precommit": "prettier --write . && npm run format:shell && eslint . --fix && tsc --noEmit && npm run sync:packages",
     // 🛡️ Comprehensive pre-push validation (precommit + tests)
     // Run before pushing to ensure everything works (1-5 minutes)
     // Includes all precommit checks plus full test suite

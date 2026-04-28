@@ -27,18 +27,19 @@ BACKEND_REQ=$(printf "%s" "$BACKEND_BASE" | sed -E 's/(^|,)(SECURITY_TXT_EXPIRES
 # Emit outputs
 case "$PROFILE" in
   dev)
-    echo "dev_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
-    echo "dev_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
+    echo "dev_req_frontend=$FRONTEND_REQ" >>"$GITHUB_OUTPUT"
+    echo "dev_req_backend=$BACKEND_REQ" >>"$GITHUB_OUTPUT"
     ;;
   prod)
-    echo "prod_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
-    echo "prod_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
+    echo "prod_req_frontend=$FRONTEND_REQ" >>"$GITHUB_OUTPUT"
+    echo "prod_req_backend=$BACKEND_REQ" >>"$GITHUB_OUTPUT"
     ;;
   stage)
-    echo "stage_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
-    echo "stage_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
+    echo "stage_req_frontend=$FRONTEND_REQ" >>"$GITHUB_OUTPUT"
+    echo "stage_req_backend=$BACKEND_REQ" >>"$GITHUB_OUTPUT"
     ;;
   *)
-    echo "Unsupported profile: $PROFILE" >&2; exit 1;
+    echo "Unsupported profile: $PROFILE" >&2
+    exit 1
     ;;
 esac

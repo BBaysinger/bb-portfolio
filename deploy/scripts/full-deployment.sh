@@ -22,25 +22,32 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 INFRA_DIR="${REPO_ROOT}/infra"
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-log()  { echo -e "${BLUE}ℹ️  $*${NC}"; }
-ok()   { echo -e "${GREEN}✅ $*${NC}"; }
+log() { echo -e "${BLUE}ℹ️  $*${NC}"; }
+ok() { echo -e "${GREEN}✅ $*${NC}"; }
 warn() { echo -e "${YELLOW}⚠️  $*${NC}"; }
-err()  { echo -e "${RED}❌ $*${NC}"; }
+err() { echo -e "${RED}❌ $*${NC}"; }
 
-die() { err "$*"; exit 1; }
+die() {
+  err "$*"
+  exit 1
+}
 
 force_destroy=false
 do_destroy=true
-do_infra=true       # allow skip-infra mode
+do_infra=true # allow skip-infra mode
 skip_infra=false
-build_images=""   # prod|dev|both|""
-profiles="both"   # prod|dev|both
+build_images=""          # prod|dev|both|""
+profiles="both"          # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
-refresh_env=false   # whether GH workflow should regenerate/upload env files
-restart_containers=true # whether GH workflow should restart containers
-watch_logs=true     # whether to watch GH workflow logs
+refresh_env=false        # whether GH workflow should regenerate/upload env files
+restart_containers=true  # whether GH workflow should restart containers
+watch_logs=true          # whether to watch GH workflow logs
 secrets_sync_args=()
 
 usage() {
@@ -67,41 +74,79 @@ USAGE
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --force) force_destroy=true; shift ;;
+    --force)
+      force_destroy=true
+      shift
+      ;;
     --build-images)
-      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
-    --no-build) build_images=""; shift ;;
+      build_images="${2:-}"
+      [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"
+      shift 2
+      ;;
+    --no-build)
+      build_images=""
+      shift
+      ;;
     --profiles)
-      profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
-    --no-destroy) do_destroy=false; shift ;;
+      profiles="${2:-}"
+      [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"
+      shift 2
+      ;;
+    --no-destroy)
+      do_destroy=false
+      shift
+      ;;
     --skip-infra)
       do_infra=false
       skip_infra=true
-      shift ;;
+      shift
+      ;;
     --gh-workflows)
-      workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
-    --refresh-env) refresh_env=true; shift ;;
-    --no-restart) restart_containers=false; shift ;;
-    --no-watch) watch_logs=false; shift ;;
+      workflows="${2:-}"
+      [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"
+      shift 2
+      ;;
+    --refresh-env)
+      refresh_env=true
+      shift
+      ;;
+    --no-restart)
+      restart_containers=false
+      shift
+      ;;
+    --no-watch)
+      watch_logs=false
+      shift
+      ;;
     --secrets-omit-env)
       [[ -n "${2:-}" ]] || die "--secrets-omit-env requires a value (e.g., dev, prod, stage, all)"
       secrets_sync_args+=("--omit-env" "$2")
-      shift 2 ;;
+      shift 2
+      ;;
     --secrets-omit-envs)
       [[ -n "${2:-}" ]] || die "--secrets-omit-envs requires a comma-separated list"
       secrets_sync_args+=("--omit-envs" "$2")
-      shift 2 ;;
+      shift 2
+      ;;
     --secrets-dry-run)
       secrets_sync_args+=("--dry-run")
-      shift ;;
-    -h|--help) usage; exit 0 ;;
+      shift
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
     *) die "Unknown option: $1" ;;
   esac
 done
 
 # Prereqs
 need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required"; }
-need aws; need terraform; need node; need npm; need gh
+need aws
+need terraform
+need node
+need npm
+need gh
 if [[ -n "$build_images" ]]; then need docker; fi
 
 # Ensure gh is authenticated and repo is set
@@ -145,35 +190,37 @@ if [[ -n "$build_images" ]]; then
 fi
 
 # Terraform: optional targeted destroy preserving S3/ECR/EIP, then apply
-if [[ "$do_infra" != true ]]; then
-  if [[ "$skip_infra" == true ]]; then
-    warn "Discovery: skipping Terraform (skip-infra mode)"
+if [[ "$do_infra" == true ]]; then
+  pushd "$INFRA_DIR" >/dev/null
   terraform init -input=false
 
   if [[ "$do_destroy" == true ]]; then
-  # Determine resources to destroy (skip S3/ECR/EIP)
+    # Determine resources to destroy (skip S3/ECR/EIP)
     to_destroy=()
     if terraform state list >/dev/null 2>&1; then
       while IFS= read -r r; do
-  [[ "$r" =~ ^aws_s3_bucket(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_ecr_repository(\.|$)|^aws_ecr_lifecycle_policy(\.|$) ]] && continue
-  # Preserve Elastic IP resources under all names and modules
-  [[ "$r" =~ ^aws_eip(\.|$) ]] && continue
-  [[ "$r" =~ ^aws_eip_association(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_s3_bucket(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_ecr_repository(\.|$)|^aws_ecr_lifecycle_policy(\.|$) ]] && continue
+        # Preserve Elastic IP resources under all names and modules
+        [[ "$r" =~ ^aws_eip(\.|$) ]] && continue
+        [[ "$r" =~ ^aws_eip_association(\.|$) ]] && continue
         to_destroy+=("$r")
       done < <(terraform state list)
     fi
 
-    if (( ${#to_destroy[@]} > 0 )); then
+    if ((${#to_destroy[@]} > 0)); then
       warn "Planned destroy targets (preserving S3/ECR/EIP):"
       printf '  - %s\n' "${to_destroy[@]}"
       if [[ "$force_destroy" != true ]]; then
-        echo "Type 'yes' to confirm destroy:"; read -r ans; [[ "$ans" == yes ]] || die "Cancelled"
+        echo "Type 'yes' to confirm destroy:"
+        read -r ans
+        [[ "$ans" == yes ]] || die "Cancelled"
       else
         warn "Force mode enabled - skipping confirmation"
       fi
       log "Destroying targeted resources"
-      args=(); for r in "${to_destroy[@]}"; do args+=("-target=$r"); done
+      args=()
+      for r in "${to_destroy[@]}"; do args+=("-target=$r"); done
       terraform destroy "${args[@]}" -auto-approve
     else
       warn "No destroyable resources (or state not present)"
@@ -195,7 +242,7 @@ if [[ "$do_infra" != true ]]; then
   # Regenerate tfvars in case IP-based URLs in secrets changed locally
   log "Regenerating terraform vars after apply"
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
-  
+
   # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
   if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
     log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP}"
@@ -321,10 +368,10 @@ if [[ "$refresh_env" == true ]]; then
   )
   log "Uploading env files to EC2 ($EC2_HOST)"
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
   scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"

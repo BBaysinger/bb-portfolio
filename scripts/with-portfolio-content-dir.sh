@@ -29,7 +29,7 @@ load_content_dir_from_env_file() {
       CONTENT_DIR_RAW="$value"
       return 0
     fi
-  done < "$env_file"
+  done <"$env_file"
 
   return 1
 }

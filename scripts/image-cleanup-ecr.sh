@@ -48,24 +48,42 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --retain)
-      RETAIN_COUNT=${2:-}; shift 2 ;;
+      RETAIN_COUNT=${2:-}
+      shift 2
+      ;;
     --repositories)
-      REPOS_CSV=${2:-}; shift 2 ;;
+      REPOS_CSV=${2:-}
+      shift 2
+      ;;
     --region)
-      REGION=${2:-}; shift 2 ;;
+      REGION=${2:-}
+      shift 2
+      ;;
     --profile)
-      PROFILE=${2:-}; shift 2 ;;
-    --login|--auto-login)
-      AUTO_LOGIN=true; shift ;;
+      PROFILE=${2:-}
+      shift 2
+      ;;
+    --login | --auto-login)
+      AUTO_LOGIN=true
+      shift
+      ;;
     --include-untagged)
-      INCLUDE_UNTAGGED=true; shift ;;
+      INCLUDE_UNTAGGED=true
+      shift
+      ;;
     --dry-run)
-      DRY_RUN=true; shift ;;
-    --help|-h)
-      usage; exit 0 ;;
+      DRY_RUN=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
     *)
       echo "Unknown argument: $1" >&2
-      usage; exit 1 ;;
+      usage
+      exit 1
+      ;;
   esac
 done
 
@@ -147,7 +165,8 @@ fi
 
 # Helper: delete images by digests
 _delete_digests() {
-  local repo="$1"; shift
+  local repo="$1"
+  shift
   local -a digests=("$@")
   [[ ${#digests[@]} -eq 0 ]] && return 0
 
@@ -185,12 +204,12 @@ for repo in "${REPOS[@]}"; do
   echo "  Tagged images found : $total_tagged"
 
   # Determine which tagged images to delete (beyond RETAIN_COUNT)
-  if (( total_tagged > RETAIN_COUNT )); then
-    delete_count=$(( total_tagged - RETAIN_COUNT ))
+  if ((total_tagged > RETAIN_COUNT)); then
+    delete_count=$((total_tagged - RETAIN_COUNT))
     echo "  Will delete oldest  : $delete_count tagged image(s)"
     # Collect digests to delete
     digests_to_delete=()
-    for (( i=RETAIN_COUNT; i<total_tagged; i++ )); do
+    for ((i = RETAIN_COUNT; i < total_tagged; i++)); do
       # Each line: "<pushedAt>\t<digest>\t<tag>"
       line="${tagged[$i]}"
       digest=$(echo "$line" | awk '{print $2}')
@@ -216,7 +235,7 @@ for repo in "${REPOS[@]}"; do
       --query 'imageIds[*].imageDigest' \
       --output text \
       "${AWS_ARGS[@]}" || true)
-    if (( ${#untagged[@]} > 0 )); then
+    if ((${#untagged[@]} > 0)); then
       echo "  Untagged images     : ${#untagged[@]} (will delete all)"
       _delete_digests "$repo" "${untagged[@]}"
     else
@@ -226,7 +245,7 @@ for repo in "${REPOS[@]}"; do
     echo "  Untagged images     : skipped (use --include-untagged)"
   fi
 
-echo "  ✅ Repo complete"
+  echo "  ✅ Repo complete"
 done
 
 echo "\n🎉 ECR cleanup finished"

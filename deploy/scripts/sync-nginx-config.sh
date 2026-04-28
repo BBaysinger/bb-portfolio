@@ -30,13 +30,22 @@ KEY="${HOME}/.ssh/bb-portfolio-site-key.pem"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --host)
-      HOST="$2"; shift 2;;
+      HOST="$2"
+      shift 2
+      ;;
     --key)
-      KEY="$2"; shift 2;;
-    -h|--help)
-      usage; exit 0;;
+      KEY="$2"
+      shift 2
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
     *)
-      echo "Unknown option: $1" >&2; usage; exit 1;;
+      echo "Unknown option: $1" >&2
+      usage
+      exit 1
+      ;;
   esac
 done
 

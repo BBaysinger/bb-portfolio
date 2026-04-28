@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
       SKIP_VERSION_BUMP=true
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit 0
       ;;
@@ -93,16 +93,16 @@ ensure_local_branch main
 if [[ "$START_BRANCH" == "dev" ]]; then
   FIRST=main
   SECOND=dev
-  MERGE1_FROM=dev   # dev -> main
+  MERGE1_FROM=dev # dev -> main
   MERGE1_TO=main
-  MERGE2_FROM=main  # main -> dev
+  MERGE2_FROM=main # main -> dev
   MERGE2_TO=dev
 elif [[ "$START_BRANCH" == "main" ]]; then
   FIRST=dev
   SECOND=main
-  MERGE1_FROM=main  # main -> dev
+  MERGE1_FROM=main # main -> dev
   MERGE1_TO=dev
-  MERGE2_FROM=dev   # dev -> main
+  MERGE2_FROM=dev # dev -> main
   MERGE2_TO=main
 else
   err "This script is intended to be run from 'dev' or 'main'. Current: '$START_BRANCH'"

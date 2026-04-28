@@ -8,7 +8,7 @@ set -euo pipefail
 
 REPOS_CSV="bhbaysinger/bb-portfolio-backend,bhbaysinger/bb-portfolio-frontend"
 
-usage(){
+usage() {
   cat <<USAGE
 Ensure Docker Hub repositories are private
 
@@ -25,20 +25,27 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repositories)
-      REPOS_CSV=${2:-}; shift 2 ;;
-    --help|-h)
-      usage; exit 0 ;;
+      REPOS_CSV=${2:-}
+      shift 2
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
     *)
-      echo "Unknown argument: $1" >&2; usage; exit 1 ;;
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
   esac
 done
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
 
-have_node(){ command -v node >/dev/null 2>&1; }
+have_node() { command -v node >/dev/null 2>&1; }
 
-read_secret(){
+read_secret() {
   local key="$1"
   [[ ! -f "$SECRETS_FILE" ]] && return 0
   have_node || return 0
@@ -74,11 +81,13 @@ echo "🔧 Ensuring Docker Hub repos are private: ${REPOS[*]}"
 
 for repo in "${REPOS[@]}"; do
   echo -e "\n📦 Repo: $repo"
-  body=$(mktemp); code=0
+  body=$(mktemp)
+  code=0
   code=$(curl -sS -o "$body" -w "%{http_code}" "${AUTH_HEADER[@]}" "https://hub.docker.com/v2/repositories/${repo}/" || echo 000)
   if [[ "$code" == "404" ]]; then
     # Create repository as private
-    ns="${repo%%/*}"; name="${repo##*/}"
+    ns="${repo%%/*}"
+    name="${repo##*/}"
     echo "  ℹ️  Repo not found. Creating $ns/$name as private..."
     create_code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST "${AUTH_HEADER[@]}" -H 'Content-Type: application/json' \
       -d '{"name":"'"$name"'","namespace":"'"$ns"'","is_private":true}' "https://hub.docker.com/v2/repositories/")

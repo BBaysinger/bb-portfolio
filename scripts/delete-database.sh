@@ -54,17 +54,29 @@ parse_flags() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --env)
-        ENV_KEY="$2"; shift 2;;
+        ENV_KEY="$2"
+        shift 2
+        ;;
       --db)
-        DB_NAME="$2"; shift 2;;
+        DB_NAME="$2"
+        shift 2
+        ;;
       --dry-run)
-        DRY_RUN=true; shift;;
+        DRY_RUN=true
+        shift
+        ;;
       --yes)
-        ASSUME_YES=true; shift;;
+        ASSUME_YES=true
+        shift
+        ;;
       --verbose)
-        VERBOSE=true; shift;;
+        VERBOSE=true
+        shift
+        ;;
       *)
-        log_warning "Unknown option: $1"; shift;;
+        log_warning "Unknown option: $1"
+        shift
+        ;;
     esac
   done
 }
@@ -79,16 +91,17 @@ normalize_base_uri() {
 get_default_db_name() {
   local key="$1"
   case "$key" in
-    local) echo "portfolio-local";;
-    dev) echo "portfolio-dev";;
-    prod) echo "portfolio-prod";;
-    *) echo "unknown";;
+    local) echo "portfolio-local" ;;
+    dev) echo "portfolio-dev" ;;
+    prod) echo "portfolio-prod" ;;
+    *) echo "unknown" ;;
   esac
 }
 
 get_env_db_name() {
   local key="$1"
-  local upper; upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+  local upper
+  upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
   local var="MONGODB_DB_NAME_${upper}"
   local val="${!var}"
   if [[ -n "$val" ]]; then echo "$val"; else echo "$(get_default_db_name "$key")"; fi
@@ -96,7 +109,8 @@ get_env_db_name() {
 
 get_base_uri_for_env() {
   local key="$1"
-  local upper; upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+  local upper
+  upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
   local var="MONGODB_BASE_URI_${upper}"
   local val="${!var}"
   if [[ -n "$val" ]]; then echo "$val"; else echo "$MONGODB_BASE_URI"; fi
@@ -155,7 +169,10 @@ confirm_delete() {
 
 main() {
   parse_flags "$@"
-  if [[ "$VERBOSE" == "true" ]]; then set -x; QUIET_FLAG=; fi
+  if [[ "$VERBOSE" == "true" ]]; then
+    set -x
+    QUIET_FLAG=
+  fi
   echo "🗑️  MongoDB Database Deletion Tool"
   echo "=================================="
   echo
