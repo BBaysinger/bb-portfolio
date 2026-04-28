@@ -4,7 +4,8 @@
 # - First, keep existing branch alignment behavior between dev and main
 # - Default flow: push current dev, wait for a successful dev deploy, then bump
 #   versions locally, deploy main with that version, and finally fast-forward
-#   dev to the same version-bump commit without running a second dev deploy
+#   dev to the same version-bump commit while the workflow skips redundant
+#   dev jobs when the pushed dev head matches main
 # - Override flow: preserve the prior behavior and deploy the version-bump push
 #   on both dev and main
 # - Always ends on dev (even on failure it will attempt to switch back)
@@ -33,8 +34,6 @@ EOF
 SKIP_VERSION_BUMP=false
 DEPLOY_ALL=false
 CI_WORKFLOW_FILE=".github/workflows/ci-cd.yml"
-DEV_SKIP_DEPLOY_TOKEN="[skip dev deploy]"
-DEV_SKIP_CI_TOKEN="[skip ci]"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -234,13 +233,6 @@ create_version_bump_commit() {
   git commit -m "$VERSION_BUMP_MESSAGE"
 }
 
-create_dev_sync_skip_commit() {
-  NEW_VERSION=$(node -p "require('./package.json').version")
-  SYNC_MESSAGE="Sync dev to main after release $NEW_VERSION $DEV_SKIP_CI_TOKEN $DEV_SKIP_DEPLOY_TOKEN"
-  log "Creating dev-only sync marker commit to suppress the final dev workflow run"
-  git commit --allow-empty -m "$SYNC_MESSAGE"
-}
-
 # Sequence
 checkout_ff_pull "$FIRST"
 merge_local "$MERGE1_FROM" "$MERGE1_TO"
@@ -290,9 +282,8 @@ else
   git push origin main
   wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
 
-  log "Pushing dev sync commit without rerunning CI/CD or dev deploy"
+  log "Pushing dev to the released main commit; workflow will skip redundant dev jobs"
   git checkout dev
-  create_dev_sync_skip_commit
   git push origin dev
 fi
 

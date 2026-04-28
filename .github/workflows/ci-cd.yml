@@ -39,6 +39,39 @@ on:
   workflow_dispatch: # Manual trigger for any branch
 
 jobs:
+  # GitHub still creates a workflow run for the final dev fast-forward push after
+  # release. This classifier turns that run into a no-op when dev is intentionally
+  # advanced to the just-released main SHA.
+  classify-run:
+    runs-on: ubuntu-latest
+    outputs:
+      skip-dev-post-release-sync: ${{ steps.classify.outputs.skip_dev_post_release_sync }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Classify post-release dev sync
+        id: classify
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          skip_dev_post_release_sync=false
+
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/dev" ]]; then
+            git fetch origin main --depth=1
+            main_sha="$(git rev-parse origin/main)"
+            # In this release flow, a dev push whose head exactly matches main is the
+            # post-release branch sync, not a normal dev change that should redeploy.
+            if [[ "$main_sha" == "$GITHUB_SHA" ]]; then
+              skip_dev_post_release_sync=true
+            fi
+          fi
+
+          echo "skip_dev_post_release_sync=$skip_dev_post_release_sync" >> "$GITHUB_OUTPUT"
+
   # ==========================================================================
   # BUILD AND TEST JOB
   # ==========================================================================
@@ -46,6 +79,8 @@ jobs:
   # can be built successfully before any deployment occurs
   # ==========================================================================
   build-and-test:
+    if: needs.classify-run.outputs.skip-dev-post-release-sync != 'true'
+    needs: classify-run
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -189,7 +224,7 @@ jobs:
   # Build and push production images to ECR (main branch)
   build-push-prod-images:
     if: github.ref == 'refs/heads/main'
-    needs: build-and-test
+    needs: [classify-run, build-and-test]
     runs-on: ubuntu-latest
     environment: prod
     steps:
@@ -307,7 +342,7 @@ jobs:
   # Deploy to EC2 via reusable workflow (prod)
   deploy-prod:
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, build-push-prod-images]
+    needs: [classify-run, build-and-test, build-push-prod-images]
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit
     with:
@@ -321,8 +356,8 @@ jobs:
     # Only run for dev branch pushes or manual runs targeted at the dev branch.
     # Prevents accidental triggering from manual runs on main, which could
     # overlap with prod deploy and get canceled by concurrency.
-    if: (github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip dev deploy]'))
-    needs: build-and-test
+    if: needs.classify-run.outputs.skip-dev-post-release-sync != 'true' && (github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip dev deploy]'))
+    needs: [classify-run, build-and-test]
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -420,8 +455,8 @@ jobs:
   deploy-dev:
     # Only run for dev branch pushes or manual runs targeted at the dev branch.
     # Avoids concurrent dev/prod redeploys when manually dispatching the workflow on main.
-    if: (github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip dev deploy]'))
-    needs: build-push-dev-images
+    if: needs.classify-run.outputs.skip-dev-post-release-sync != 'true' && (github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip dev deploy]'))
+    needs: [classify-run, build-push-dev-images]
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit
     with:
