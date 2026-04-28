@@ -391,8 +391,11 @@ Earlier iterations used a small client-side fallback to reduce UX flicker (an `a
 - Remove development env files from runtime images.
 - Validate CORS/CSRF origins using environment variables; do not hardcode.
 - Dependency updates:
-  - Use Dependabot or Renovate to track and apply upstream security patches.
-  - PRs must not disable or bypass automated security checks.
+  - Use `npm run update:deps:dry` to review routine dependency updates safely before changing manifests.
+  - Use `npm run update:deps` for standard refreshes so the repo guardrails, per-package installs, lockfile refresh, and `package.json5` sync all stay in one path.
+  - Use `npm run update:deps:raw` only for intentional investigation; do not use it as the default upgrade path.
+  - Refresh dependencies on a regular cadence, such as weekly or before a release, rather than letting upgrades pile up.
+  - Validate dependency update PRs with the normal repo checks; PRs must not disable or bypass automated security checks.
 
 ---
 

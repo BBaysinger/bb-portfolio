@@ -26,6 +26,12 @@ These are low-risk follow-ups to improve CI coverage and stability once the site
     - Unit tests always run
     - Integration tests gated by `RUN_INT_TESTS` and executed in dedicated CI job
 
+- Dependency automation (optional)
+  - Evaluate adding a conservative Dependabot config for automated dependency monitoring.
+  - Scope a first pass to the three npm roots plus GitHub Actions; consider Docker and Terraform only if the PR volume stays manageable.
+  - Keep `npm run update:deps` as the guarded/manual upgrade path for coordinated Next/React/Payload changes even if Dependabot is enabled.
+  - Rationale: useful for visibility and security patch awareness, but not clearly high-value enough yet to prioritize over product and deployment work.
+
 - Nice-to-have later
   - Optional E2E smoke path via Playwright against a running backend in CI
   - Consider mongodb-memory-server for fully ephemeral int tests (trade-offs: slower, sometimes flaky in CI)
