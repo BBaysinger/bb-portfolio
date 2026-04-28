@@ -28,12 +28,15 @@ if ! bb_is_apex_ssl_domain "$SSL_DOMAIN"; then
   exit 1
 fi
 
+DEV_SSL_DOMAIN="dev.$SSL_DOMAIN"
+
 ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
   ec2-user@"$EC2_HOST" \
-  "SSL_DOMAIN='$SSL_DOMAIN' HTTPS_ALERT_DAYS='$HTTPS_ALERT_DAYS' bash -s" <<'SSH'
+  "SSL_DOMAIN='$SSL_DOMAIN' DEV_SSL_DOMAIN='$DEV_SSL_DOMAIN' HTTPS_ALERT_DAYS='$HTTPS_ALERT_DAYS' bash -s" <<'SSH'
 set -euo pipefail
 
 SSL_DOMAIN="${SSL_DOMAIN:?SSL_DOMAIN required}"
+DEV_SSL_DOMAIN="${DEV_SSL_DOMAIN:?DEV_SSL_DOMAIN required}"
 HTTPS_ALERT_DAYS="${HTTPS_ALERT_DAYS:?HTTPS_ALERT_DAYS required}"
 
 if ! command -v certbot >/dev/null 2>&1; then
@@ -53,8 +56,11 @@ if [[ "$timer_active" != "active" ]]; then
   exit 1
 fi
 
-for domain in "$SSL_DOMAIN" "www.$SSL_DOMAIN"; do
-  cert_path="/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem"
+check_https_domain() {
+  local domain="$1"
+  local cert_domain="$2"
+  local cert_path="/etc/letsencrypt/live/$cert_domain/fullchain.pem"
+
   if ! sudo test -s "$cert_path"; then
     echo "Certificate file missing: $cert_path" >&2
     exit 1
@@ -71,7 +77,20 @@ for domain in "$SSL_DOMAIN" "www.$SSL_DOMAIN"; do
     echo "Unexpected HTTPS status for $domain: $status_code" >&2
     exit 1
   fi
-done
+
+  redirect_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:80:127.0.0.1" "http://$domain/")"
+  if [[ ! "$redirect_code" =~ ^(301|302|307|308)$ ]]; then
+    echo "Unexpected HTTP status for $domain (expected redirect to HTTPS): $redirect_code" >&2
+    exit 1
+  fi
+}
+
+check_https_domain "$SSL_DOMAIN" "$SSL_DOMAIN"
+check_https_domain "www.$SSL_DOMAIN" "$SSL_DOMAIN"
+
+if sudo test -s "/etc/letsencrypt/live/$DEV_SSL_DOMAIN/fullchain.pem"; then
+  check_https_domain "$DEV_SSL_DOMAIN" "$DEV_SSL_DOMAIN"
+fi
 
 if ! sudo certbot renew --dry-run >/tmp/certbot-dry-run.log 2>&1; then
   if grep -q 'Another instance of Certbot is already running' /tmp/certbot-dry-run.log; then
