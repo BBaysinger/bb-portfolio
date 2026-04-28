@@ -1,6 +1,6 @@
 {
   "name": "bb-portfolio-monorepo-root",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "private": true,
   "engines": {
     "node": ">=18.20.2 <26",
