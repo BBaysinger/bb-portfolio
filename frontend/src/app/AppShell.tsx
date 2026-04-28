@@ -56,9 +56,7 @@ function getLifecycleProbePayload(pathname: string | null) {
   const navEntry = performance
     .getEntriesByType("navigation")
     .find(
-      (
-        entry,
-      ): entry is PerformanceNavigationTiming =>
+      (entry): entry is PerformanceNavigationTiming =>
         entry instanceof PerformanceNavigationTiming,
     );
 

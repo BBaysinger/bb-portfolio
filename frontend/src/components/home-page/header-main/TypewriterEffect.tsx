@@ -2,8 +2,8 @@ import clsx from "clsx";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 
-import { buildParagraphQueue } from "./TypewriterEffect.utils";
 import styles from "./TypewriterEffect.module.scss";
+import { buildParagraphQueue } from "./TypewriterEffect.utils";
 
 interface TypewriterEffectProps {
   paragraphs: string[];

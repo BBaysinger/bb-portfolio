@@ -50,15 +50,14 @@ import GridController, {
   GridControllerHandle,
 } from "./fluxel-grid/GridController";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
+import styles from "./Hero.module.scss";
+import HeroLockup from "./HeroLockup";
+import HeroQueryConfig from "./HeroQueryConfig";
 import {
   buildHeroViewportRumPayload,
   getViewportDebugSnapshot,
   parseComputedPixelValue,
-  type ViewportDebugSnapshot,
 } from "./heroViewportDiagnostics";
-import styles from "./Hero.module.scss";
-import HeroLockup from "./HeroLockup";
-import HeroQueryConfig from "./HeroQueryConfig";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import TypewriterEffect from "./TypewriterEffect";
 
@@ -552,13 +551,18 @@ function Hero({ initialRoleTitle }: HeroProps) {
     if (typeof window === "undefined") return;
     const timeouts: number[] = [];
 
-    const recordViewportTelemetry = (sampleLabel: string, sampleIndex: number) => {
+    const recordViewportTelemetry = (
+      sampleLabel: string,
+      sampleIndex: number,
+    ) => {
       if (recordedViewportSampleLabelsRef.current.has(sampleLabel)) return;
 
       const heroElement = heroRef.current;
       const lockupElement = titleRef.current;
       const navElement = document.querySelector<HTMLElement>("nav.topBar");
-      const computedStyle = heroElement ? window.getComputedStyle(heroElement) : null;
+      const computedStyle = heroElement
+        ? window.getComputedStyle(heroElement)
+        : null;
       const payload = buildHeroViewportRumPayload({
         viewport: getViewportDebugSnapshot(stableHeightPx),
         viewportHeightMode,
