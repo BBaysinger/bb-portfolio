@@ -30,7 +30,7 @@ import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import useStableViewportHeightVar, {
   STABLE_VIEWPORT_HEIGHT_MODES,
 } from "@/hooks/viewport/useStableViewportHeightVar";
-import { recordEvent } from "@/services/rum";
+import { recordEvent, setRUMSessionAttributes } from "@/services/rum";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
@@ -72,6 +72,32 @@ function getLifecycleProbePayload(pathname: string | null) {
   };
 }
 
+type LifecycleProbePayload = NonNullable<
+  ReturnType<typeof getLifecycleProbePayload>
+>;
+
+function buildLifecycleSessionAttributes(
+  prefix: "bb_resume" | "bb_lastBackground",
+  payload: LifecycleProbePayload,
+  extra: Record<string, unknown>,
+) {
+  return Object.fromEntries(
+    Object.entries({
+      [`${prefix}Path`]: payload.path,
+      [`${prefix}VisibilityState`]: payload.visibilityState,
+      [`${prefix}NavType`]: payload.navType,
+      [`${prefix}WasDiscarded`]: payload.wasDiscarded,
+      [`${prefix}At`]: Date.now(),
+      ...Object.fromEntries(
+        Object.entries(extra).map(([key, value]) => [
+          `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`,
+          value,
+        ]),
+      ),
+    }).filter(([, value]) => value !== undefined && value !== null),
+  );
+}
+
 /**
  * App shell wrapper for all routed pages.
  *
@@ -91,16 +117,25 @@ export function AppShell({ children }: AppShellProps) {
     const payload = getLifecycleProbePayload(pathname);
     if (!payload) return;
 
+    const restoreKind = payload.wasDiscarded
+      ? "discard-reload"
+      : payload.navType === "reload"
+        ? "reload"
+        : payload.navType === "back_forward"
+          ? "history"
+          : "navigate";
+
+    setRUMSessionAttributes(
+      buildLifecycleSessionAttributes("bb_resume", payload, {
+        phase: "mount",
+        restoreKind,
+      }),
+    );
+
     recordEvent("app_lifecycle_resume_probe", {
       ...payload,
       phase: "mount",
-      restoreKind: payload.wasDiscarded
-        ? "discard-reload"
-        : payload.navType === "reload"
-          ? "reload"
-          : payload.navType === "back_forward"
-            ? "history"
-            : "navigate",
+      restoreKind,
     });
   }, [pathname]);
 
@@ -110,6 +145,14 @@ export function AppShell({ children }: AppShellProps) {
     const onPageShow = (event: PageTransitionEvent) => {
       const payload = getLifecycleProbePayload(pathname);
       if (!payload) return;
+
+      setRUMSessionAttributes(
+        buildLifecycleSessionAttributes("bb_resume", payload, {
+          phase: "pageshow",
+          persisted: event.persisted,
+          restoreKind: event.persisted ? "bfcache" : "pageshow",
+        }),
+      );
 
       recordEvent("app_lifecycle_resume_probe", {
         ...payload,
@@ -128,7 +171,18 @@ export function AppShell({ children }: AppShellProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const handlePageExit = (_event: PageTransitionEvent) => {
+    const handlePageExit = (event: PageTransitionEvent) => {
+      const payload = getLifecycleProbePayload(pathname);
+      if (payload) {
+        setRUMSessionAttributes(
+          buildLifecycleSessionAttributes("bb_lastBackground", payload, {
+            phase: "pagehide",
+            persisted: event.persisted,
+            restoreKind: event.persisted ? "bfcache" : "pagehide",
+          }),
+        );
+      }
+
       requestHomeHeroIntroReplay({ dispatchEvent: false, source: "page-exit" });
     };
 
@@ -139,7 +193,7 @@ export function AppShell({ children }: AppShellProps) {
     return () => {
       window.removeEventListener("pagehide", handlePageExit);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (pathname === "/") return;
@@ -286,6 +340,15 @@ export function AppShell({ children }: AppShellProps) {
           const clientAuthed = Boolean(isLoggedIn) || Boolean(user);
           if (!hasInitialized) {
             if (lifecyclePayload) {
+              setRUMSessionAttributes(
+                buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
+                  phase: "visibility-resume",
+                  restoreKind: "visible-auth-pending",
+                  authStatus: res.status,
+                }),
+              );
+            }
+            if (lifecyclePayload) {
               recordEvent("app_lifecycle_resume_probe", {
                 ...lifecyclePayload,
                 phase: "visibility-resume",
@@ -300,6 +363,15 @@ export function AppShell({ children }: AppShellProps) {
           if (!clientAuthed) {
             const shouldRefresh = !shouldSkipRefreshForCarousel();
             if (lifecyclePayload) {
+              setRUMSessionAttributes(
+                buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
+                  phase: "visibility-resume",
+                  restoreKind: shouldRefresh
+                    ? "router-refresh"
+                    : "visible-no-refresh",
+                  authStatus: res.status,
+                }),
+              );
               recordEvent("app_lifecycle_resume_probe", {
                 ...lifecyclePayload,
                 phase: "visibility-resume",
@@ -315,6 +387,13 @@ export function AppShell({ children }: AppShellProps) {
               router.refresh();
             }
           } else if (lifecyclePayload) {
+            setRUMSessionAttributes(
+              buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
+                phase: "visibility-resume",
+                restoreKind: "visible-no-refresh",
+                authStatus: res.status,
+              }),
+            );
             recordEvent("app_lifecycle_resume_probe", {
               ...lifecyclePayload,
               phase: "visibility-resume",
@@ -324,6 +403,13 @@ export function AppShell({ children }: AppShellProps) {
           }
         } else if (res.status === 401) {
           if (lifecyclePayload) {
+            setRUMSessionAttributes(
+              buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
+                phase: "visibility-resume",
+                restoreKind: "visible-logged-out",
+                authStatus: res.status,
+              }),
+            );
             recordEvent("app_lifecycle_resume_probe", {
               ...lifecyclePayload,
               phase: "visibility-resume",
@@ -349,6 +435,13 @@ export function AppShell({ children }: AppShellProps) {
           } catch {}
         } else if (res.status >= 500) {
           if (lifecyclePayload) {
+            setRUMSessionAttributes(
+              buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
+                phase: "visibility-resume",
+                restoreKind: "visible-server-error",
+                authStatus: res.status,
+              }),
+            );
             recordEvent("app_lifecycle_resume_probe", {
               ...lifecyclePayload,
               phase: "visibility-resume",
@@ -360,6 +453,12 @@ export function AppShell({ children }: AppShellProps) {
         }
       } catch {
         if (lifecyclePayload) {
+          setRUMSessionAttributes(
+            buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
+              phase: "visibility-resume",
+              restoreKind: "visible-network-error",
+            }),
+          );
           recordEvent("app_lifecycle_resume_probe", {
             ...lifecyclePayload,
             phase: "visibility-resume",
@@ -369,17 +468,34 @@ export function AppShell({ children }: AppShellProps) {
         // Network error: silent
       }
     };
-    const onVisible = () => {
-      if (document.visibilityState !== "visible") return;
+    const onVisibilityChange = () => {
+      const lifecyclePayload = getLifecycleProbePayload(pathname);
+
+      if (document.visibilityState !== "visible") {
+        if (lifecyclePayload) {
+          setRUMSessionAttributes(
+            buildLifecycleSessionAttributes(
+              "bb_lastBackground",
+              lifecyclePayload,
+              {
+                phase: "visibility-hidden",
+                restoreKind: "hidden",
+              },
+            ),
+          );
+        }
+        return;
+      }
+
       if (ticking) return;
       ticking = true;
       Promise.resolve().then(() => {
         checkAndRefresh().finally(() => (ticking = false));
       });
     };
-    document.addEventListener("visibilitychange", onVisible);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
-      document.removeEventListener("visibilitychange", onVisible);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [router, dispatch, pathname, isLoggedIn, user, hasInitialized]);
 

@@ -44,6 +44,7 @@ const RUM_DEBUG =
   process.env.NEXT_PUBLIC_RUM_DEBUG === "true" &&
   process.env.NODE_ENV !== "production";
 const RUM_APP_VERSION = frontendPackageJson.version || "1.0.0";
+const RUM_SESSION_ATTRIBUTES_STORAGE_KEY = "bb_rum_session_attributes";
 
 // Use eager dynamic import (webpackMode: "eager") inside initializer to bundle without runtime resolution issues.
 type AwsRumConfig = {
@@ -69,6 +70,45 @@ type AwsRumLike = {
 
 /** Singleton instance of AWS CloudWatch RUM client */
 let rumInstance: AwsRumLike | null = null;
+
+function sanitizeSessionAttributes(attrs: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(attrs).filter(
+      ([, value]) => value !== undefined && value !== null,
+    ),
+  );
+}
+
+function readPersistedSessionAttributes() {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const raw = sessionStorage.getItem(RUM_SESSION_ATTRIBUTES_STORAGE_KEY);
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return sanitizeSessionAttributes(parsed);
+  } catch {
+    return {};
+  }
+}
+
+function persistSessionAttributes(attrs: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const next = {
+      ...readPersistedSessionAttributes(),
+      ...sanitizeSessionAttributes(attrs),
+    };
+    sessionStorage.setItem(
+      RUM_SESSION_ATTRIBUTES_STORAGE_KEY,
+      JSON.stringify(next),
+    );
+  } catch {
+    // sessionStorage can fail in privacy modes; continue without persistence.
+  }
+}
 
 /**
  * Initializes AWS CloudWatch Real User Monitoring (RUM) for the application.
@@ -294,6 +334,34 @@ export async function initializeRUM() {
 
 export function getRUM(): AwsRumLike | null {
   return rumInstance;
+}
+
+export function setRUMSessionAttributes(attrs: Record<string, unknown>) {
+  const sanitized = sanitizeSessionAttributes(attrs);
+  if (Object.keys(sanitized).length === 0) return;
+
+  persistSessionAttributes(sanitized);
+
+  if (rumInstance) {
+    try {
+      rumInstance.addSessionAttributes(sanitized);
+    } catch (error) {
+      console.error("[RUM] Failed to set session attributes:", error);
+    }
+  }
+}
+
+export function rehydratePersistedRUMSessionAttributes() {
+  if (!rumInstance) return;
+
+  const attrs = readPersistedSessionAttributes();
+  if (Object.keys(attrs).length === 0) return;
+
+  try {
+    rumInstance.addSessionAttributes(attrs);
+  } catch (error) {
+    console.error("[RUM] Failed to rehydrate session attributes:", error);
+  }
 }
 
 /**

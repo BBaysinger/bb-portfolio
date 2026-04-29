@@ -42,6 +42,7 @@ import { useEffect } from "react";
 
 import {
   initializeRUM,
+  rehydratePersistedRUMSessionAttributes,
   recordInitialReferrer,
   recordPageView,
   setRUMUser,
@@ -57,6 +58,7 @@ export function RUMInitializer() {
   useEffect(() => {
     (async () => {
       await initializeRUM();
+      rehydratePersistedRUMSessionAttributes();
 
       // Capture inbound referrer once per browser session.
       // RUM is only enabled in production + HTTPS, so this stays quiet in dev/local.
