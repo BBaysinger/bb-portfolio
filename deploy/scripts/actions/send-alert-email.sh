@@ -11,7 +11,7 @@ BODY="${2:?email body arg required}"
 EMAIL_JSON_FILE="$(mktemp)"
 trap 'rm -f "$EMAIL_JSON_FILE"' EXIT
 
-python3 - <<'PY' >"$EMAIL_JSON_FILE"
+SUBJECT="$SUBJECT" BODY="$BODY" python3 - <<'PY' >"$EMAIL_JSON_FILE"
 import json
 import os
 
