@@ -67,7 +67,9 @@ const Greeting: React.FC = () => {
                 combines recent projects with selected earlier work to show
                 range, continuity, and the{" "}
                 <strong>creative/technical foundation</strong> behind my current
-                direction.
+                direction. I&apos;m currently available for{" "}
+                <strong>freelance, contract, and production support</strong>{" "}
+                where polished front-end execution is needed.
               </p>
             </div>
             <a
