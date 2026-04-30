@@ -11,6 +11,8 @@ KEY_PATH="${1:?ssh key path arg required}"
 EC2_HOST="$(bb_ec2_host_or_die)"
 HTTPS_ALERT_DAYS="${HTTPS_ALERT_DAYS:-21}"
 CERTBOT_DRY_RUN_ATTEMPTS="${CERTBOT_DRY_RUN_ATTEMPTS:-3}"
+SSH_SERVER_ALIVE_INTERVAL="${SSH_SERVER_ALIVE_INTERVAL:-30}"
+SSH_SERVER_ALIVE_COUNT_MAX="${SSH_SERVER_ALIVE_COUNT_MAX:-6}"
 
 resolve_ssl_domain() {
   local domain
@@ -31,7 +33,12 @@ fi
 
 DEV_SSL_DOMAIN="dev.$SSL_DOMAIN"
 
-ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+ssh -i "$KEY_PATH" \
+  -o StrictHostKeyChecking=no \
+  -o UserKnownHostsFile=/dev/null \
+  -o TCPKeepAlive=yes \
+  -o ServerAliveInterval="$SSH_SERVER_ALIVE_INTERVAL" \
+  -o ServerAliveCountMax="$SSH_SERVER_ALIVE_COUNT_MAX" \
   ec2-user@"$EC2_HOST" \
   "SSL_DOMAIN='$SSL_DOMAIN' DEV_SSL_DOMAIN='$DEV_SSL_DOMAIN' HTTPS_ALERT_DAYS='$HTTPS_ALERT_DAYS' CERTBOT_DRY_RUN_ATTEMPTS='$CERTBOT_DRY_RUN_ATTEMPTS' bash -s" <<'SSH'
 set -euo pipefail
