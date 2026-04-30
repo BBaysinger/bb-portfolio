@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 
 import { defaultRoleTitle } from "@/app/siteMetadata";
 import type { ServerHeroBranding } from "@/data/HeroBranding";
+import {
+  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
+  isHeroRoleTitleClassName,
+} from "@/data/heroRoleTitleClasses";
 
 import BrandLockupView from "./BrandLockupView";
 
@@ -19,13 +23,13 @@ type HeroBrandingResponse =
       success?: boolean;
       data?: {
         activeRoleTitle?: unknown;
-        activeRoleLetterSpacing?: unknown;
+        activeRoleTitleClassName?: unknown;
       };
     };
 
 type HeroBrandingFields = {
   activeRoleTitle?: unknown;
-  activeRoleLetterSpacing?: unknown;
+  activeRoleTitleClassName?: unknown;
 };
 
 const normalizeBrandingPayload = (
@@ -47,17 +51,16 @@ const normalizeBrandingPayload = (
       ? candidate.activeRoleTitle.trim()
       : defaultRoleTitle;
 
-  const activeRoleLetterSpacing =
+  const activeRoleTitleClassName =
     candidate &&
     typeof candidate === "object" &&
-    typeof candidate.activeRoleLetterSpacing === "string" &&
-    candidate.activeRoleLetterSpacing.trim()
-      ? candidate.activeRoleLetterSpacing.trim()
-      : undefined;
+    isHeroRoleTitleClassName(candidate.activeRoleTitleClassName)
+      ? candidate.activeRoleTitleClassName
+      : DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
 
   return {
     activeRoleTitle,
-    activeRoleLetterSpacing,
+    activeRoleTitleClassName,
   };
 };
 
@@ -100,7 +103,7 @@ const BrandLockup = () => {
   return (
     <BrandLockupView
       roleTitle={branding.activeRoleTitle}
-      roleLetterSpacing={branding.activeRoleLetterSpacing}
+      roleTitleStyle={branding.activeRoleTitleClassName}
       logoSrc={LOGO_SRC}
       logoAlt={LOGO_ALT}
       roleTitleClassName="nobr"

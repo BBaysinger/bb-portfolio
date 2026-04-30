@@ -4,9 +4,16 @@ import { fileURLToPath } from "node:url";
 
 import { chromium } from "playwright";
 
+import {
+  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
+  HERO_ROLE_TITLE_CLASS_TO_LETTER_SPACING,
+  isHeroRoleTitleClassName,
+  type HeroRoleTitleClassName,
+} from "../src/data/heroRoleTitleClasses";
+
 type HeroBranding = {
   roleTitle: string;
-  roleLetterSpacing?: string;
+  roleTitleClassName?: HeroRoleTitleClassName;
 };
 
 const IMAGE_WIDTH = 1200;
@@ -16,6 +23,14 @@ const DEFAULT_OUTPUT_RELATIVE_PATH = "public/images/social/portfolio-share.png";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const frontendDir = path.resolve(scriptDir, "..");
+
+const buildRoleTitleClassRules = () =>
+  Object.entries(HERO_ROLE_TITLE_CLASS_TO_LETTER_SPACING)
+    .map(
+      ([className, letterSpacing]) =>
+        `.${className} { letter-spacing: ${letterSpacing}; }`,
+    )
+    .join("\n");
 
 const encodeDataUrl = (mimeType: string, contents: Buffer | string) => {
   const buffer =
@@ -44,7 +59,7 @@ const parseArgs = () => {
   return {
     outputPath: parsed.get("output")?.trim(),
     roleTitle: parsed.get("role-title")?.trim(),
-    roleLetterSpacing: parsed.get("role-letter-spacing")?.trim(),
+    roleTitleClassName: parsed.get("role-title-class-name")?.trim(),
     backendUrl:
       parsed.get("backend-url")?.trim() ||
       process.env.SOCIAL_IMAGE_BACKEND_URL?.trim() ||
@@ -71,7 +86,7 @@ const fetchHeroBranding = async (
       success?: boolean;
       data?: {
         activeRoleTitle?: unknown;
-        activeRoleLetterSpacing?: unknown;
+        activeRoleTitleClassName?: unknown;
       };
     };
 
@@ -83,13 +98,13 @@ const fetchHeroBranding = async (
         ? payload.data.activeRoleTitle.trim()
         : FALLBACK_ROLE_TITLE;
 
-    const roleLetterSpacing =
-      typeof payload.data.activeRoleLetterSpacing === "string" &&
-      payload.data.activeRoleLetterSpacing.trim()
-        ? payload.data.activeRoleLetterSpacing.trim()
-        : undefined;
+    const roleTitleClassName = isHeroRoleTitleClassName(
+      payload.data.activeRoleTitleClassName,
+    )
+      ? payload.data.activeRoleTitleClassName
+      : DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
 
-    return { roleTitle, roleLetterSpacing };
+    return { roleTitle, roleTitleClassName };
   } catch {
     return undefined;
   }
@@ -99,12 +114,12 @@ const buildMarkup = ({
   backgroundDataUrl,
   logoDataUrl,
   roleTitle,
-  roleLetterSpacing,
+  roleTitleClassName,
 }: {
   backgroundDataUrl: string;
   logoDataUrl: string;
   roleTitle: string;
-  roleLetterSpacing?: string;
+  roleTitleClassName: HeroRoleTitleClassName;
 }) => `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -251,7 +266,7 @@ const buildMarkup = ({
       .name {
         margin-top: -3px;
         margin-bottom: -7px;
-        letter-spacing: 0.015em;
+        letter-spacing: 0em;
       }
 
       .name span:first-child {
@@ -267,6 +282,7 @@ const buildMarkup = ({
         margin-top: -3px;
         font-size: 13.9px;
         color: #fff;
+        transform: translateY(-1.5px);
       }
 
       .role-title {
@@ -274,8 +290,19 @@ const buildMarkup = ({
         color: #fff;
         font-size: 16px;
         white-space: nowrap;
-        letter-spacing: ${roleLetterSpacing || "0.1em"};
       }
+
+      .FEUIDev.role-title {
+        letter-spacing: 2.55px;
+      }
+
+      .FEDev.role-title {
+      }
+
+      .UIDev.role-title {
+      }
+
+      ${buildRoleTitleClassRules()}
     </style>
   </head>
   <body>
@@ -291,7 +318,7 @@ const buildMarkup = ({
                 <img class="logo" src="${logoDataUrl}" alt="" />
                 <div class="text">
                   <div class="name"><span>BRADLEY</span> <span>BAYSINGER</span></div>
-                  <div class="role-row"><span class="role-title">${roleTitle}</span></div>
+                  <div class="role-row"><span class="role-title ${roleTitleClassName}">${roleTitle}</span></div>
                 </div>
               </div>
             </div>
@@ -317,14 +344,16 @@ const main = async () => {
 
   const roleTitle =
     args.roleTitle || remoteHeroBranding?.roleTitle || FALLBACK_ROLE_TITLE;
-  const roleLetterSpacing =
-    args.roleLetterSpacing || remoteHeroBranding?.roleLetterSpacing;
+  const roleTitleClassName = isHeroRoleTitleClassName(args.roleTitleClassName)
+    ? args.roleTitleClassName
+    : remoteHeroBranding?.roleTitleClassName ||
+      DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
 
   const markup = buildMarkup({
     backgroundDataUrl: encodeDataUrl("image/png", backgroundBuffer),
     logoDataUrl: encodeDataUrl("image/svg+xml", logoBuffer),
     roleTitle,
-    roleLetterSpacing,
+    roleTitleClassName,
   });
 
   const browser = await chromium.launch({ headless: true });

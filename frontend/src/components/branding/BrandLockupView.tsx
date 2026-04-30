@@ -1,10 +1,15 @@
 import clsx from "clsx";
 
+import {
+  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
+  type HeroRoleTitleClassName,
+} from "@/data/heroRoleTitleClasses";
+
 import styles from "./BrandLockupView.module.scss";
 
 type BrandLockupViewProps = {
   roleTitle: string;
-  roleLetterSpacing?: string;
+  roleTitleStyle?: HeroRoleTitleClassName;
   logoSrc: string;
   logoAlt?: string;
   roleTitleClassName?: string;
@@ -13,7 +18,7 @@ type BrandLockupViewProps = {
 
 const BrandLockupView = ({
   roleTitle,
-  roleLetterSpacing,
+  roleTitleStyle,
   logoSrc,
   logoAlt = "BB Logo",
   roleTitleClassName,
@@ -23,6 +28,8 @@ const BrandLockupView = ({
     typeof roleTitle === "string" && roleTitle.trim()
       ? roleTitle.trim()
       : "Front-End / UI Developer";
+  const resolvedRoleTitleStyle =
+    roleTitleStyle ?? DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
   const isBareLayout = layout === "bare";
 
   const content = (
@@ -34,8 +41,11 @@ const BrandLockupView = ({
         </div>
         <div>
           <span
-            className={clsx(styles.roleTitle, roleTitleClassName)}
-            style={{ letterSpacing: roleLetterSpacing }}
+            className={clsx(
+              styles.roleTitle,
+              styles[resolvedRoleTitleStyle],
+              roleTitleClassName,
+            )}
           >
             {resolvedRoleTitle}
           </span>

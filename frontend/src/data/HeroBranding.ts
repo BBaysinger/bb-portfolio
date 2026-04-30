@@ -1,41 +1,27 @@
 import { defaultRoleTitle } from "@/app/siteMetadata";
+import {
+  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
+  isHeroRoleTitleClassName,
+  type HeroRoleTitleClassName,
+} from "@/data/heroRoleTitleClasses";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 export type ServerHeroBranding = {
   activeRoleTitle: string;
-  activeRoleLetterSpacing?: string;
+  activeRoleTitleClassName?: HeroRoleTitleClassName;
 };
 
 type HeroBrandingApiResponse = {
   success?: boolean;
   data?: {
     activeRoleTitle?: unknown;
-    activeRoleLetterSpacing?: unknown;
+    activeRoleTitleClassName?: unknown;
   };
-};
-
-const LETTER_SPACING_TOKEN_REGEX =
-  /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i;
-
-const clampSpacingByUnit = (value: number, unit: "em" | "rem" | "px") => {
-  if (unit === "px") return Math.max(-4, Math.min(8, value));
-  return Math.max(-0.2, Math.min(0.4, value));
-};
-
-const normalizeSpacingToken = (value: unknown): string | undefined => {
-  if (typeof value !== "string" || !value.trim()) return undefined;
-
-  const match = value.match(LETTER_SPACING_TOKEN_REGEX);
-  if (!match) return undefined;
-
-  const numeric = Number.parseFloat(match[1]);
-  const unit = (match[2]?.toLowerCase() ?? "em") as "em" | "rem" | "px";
-  const clamped = clampSpacingByUnit(numeric, unit);
-  return `${clamped}${unit}`;
 };
 
 const getFallbackHeroBranding = (): ServerHeroBranding => ({
   activeRoleTitle: defaultRoleTitle,
+  activeRoleTitleClassName: DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
 });
 
 const parseHeroBrandingResponse = (payload: unknown): ServerHeroBranding => {
@@ -54,9 +40,11 @@ const parseHeroBrandingResponse = (payload: unknown): ServerHeroBranding => {
 
   return {
     activeRoleTitle,
-    activeRoleLetterSpacing: normalizeSpacingToken(
-      response.data.activeRoleLetterSpacing,
-    ),
+    activeRoleTitleClassName: isHeroRoleTitleClassName(
+      response.data.activeRoleTitleClassName,
+    )
+      ? response.data.activeRoleTitleClassName
+      : DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
   };
 };
 

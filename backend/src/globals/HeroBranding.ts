@@ -2,43 +2,29 @@ import type { GlobalConfig } from 'payload'
 
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
-const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i
-
-const letterSpacingField = (defaultValue: string) => ({
-  name: 'letterSpacing',
-  label: 'Letter Spacing',
-  type: 'text' as const,
+const roleTitleClassNameField = (defaultValue: string) => ({
+  name: 'roleTitleClassName',
+  label: 'Lockup Style',
+  type: 'select' as const,
   required: true,
-  defaultValue,
+  ...(defaultValue ? { defaultValue } : {}),
+  options: [
+    {
+      label: 'FEDev',
+      value: 'FEDev',
+    },
+    {
+      label: 'UIDev',
+      value: 'UIDev',
+    },
+    {
+      label: 'FEUIDev',
+      value: 'FEUIDev',
+    },
+  ],
   admin: {
     width: '30%',
-    description: 'Use a value like 0.171 (defaults to em), 0.12em, 1px, or 0.08rem.',
-  },
-  validate: (val: unknown) => {
-    if (typeof val !== 'string' || !val.trim()) {
-      return 'Must be a value like 0.171, 0.12em, 1px, or 0.08rem.'
-    }
-
-    const match = val.match(LETTER_SPACING_TOKEN_REGEX)
-    if (!match) {
-      return 'Use format: <number> or <number><unit>, where unit is em, rem, or px.'
-    }
-
-    const numeric = Number.parseFloat(match[1])
-    const unit = (match[2] || 'em').toLowerCase()
-
-    if (unit === 'px') {
-      if (numeric < -4 || numeric > 8) {
-        return 'Use a value between -4 and 8 for px.'
-      }
-      return true
-    }
-
-    if (numeric < -0.2 || numeric > 0.4) {
-      return 'Use a value between -0.2 and 0.4 for em/rem.'
-    }
-
-    return true
+    description: 'Select the semantic lockup style to apply. Spacing rules live in code.',
   },
 })
 
@@ -65,26 +51,6 @@ export const HeroBranding: GlobalConfig = {
       type: 'array',
       required: true,
       minRows: 1,
-      defaultValue: [
-        {
-          presetLabel: 'Agency / Interactive roles',
-          title: 'Interactive UI Developer',
-          letterSpacing: '0.12em',
-          isActive: false,
-        },
-        {
-          presetLabel: 'Standard frontend roles',
-          title: 'Front-End Developer',
-          letterSpacing: '0.12em',
-          isActive: false,
-        },
-        {
-          presetLabel: 'Hybrid product roles',
-          title: 'Front-End / UI Developer',
-          letterSpacing: '0.12em',
-          isActive: true,
-        },
-      ],
       admin: {
         description: 'Add as many roles as you want. Mark one row active to use it on the site.',
       },
@@ -119,7 +85,7 @@ export const HeroBranding: GlobalConfig = {
             description: 'Use this role on the live site.',
           },
         },
-        letterSpacingField('0.12em'),
+        roleTitleClassNameField(''),
       ],
     },
   ],
