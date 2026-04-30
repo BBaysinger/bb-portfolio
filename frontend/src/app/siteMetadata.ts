@@ -6,12 +6,11 @@ export const socialImageAlt =
   "Bradley Baysinger frontend and UI developer portfolio social preview";
 
 const developmentSiteOrigin = "http://localhost:3000";
-const openGraphImagePath = "/opengraph-image";
-const twitterImagePath = "/twitter-image";
+const socialImagePath = "/images/social/portfolio-share.png";
 
 const openGraphImages: NonNullable<Metadata["openGraph"]>["images"] = [
   {
-    url: openGraphImagePath,
+    url: socialImagePath,
     width: 1200,
     height: 630,
     alt: socialImageAlt,
@@ -20,9 +19,9 @@ const openGraphImages: NonNullable<Metadata["openGraph"]>["images"] = [
 
 const twitterImages: NonNullable<Metadata["twitter"]>["images"] = [
   {
-    url: twitterImagePath,
+    url: socialImagePath,
     width: 1200,
-    height: 600,
+    height: 630,
     alt: socialImageAlt,
   },
 ];

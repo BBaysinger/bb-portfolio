@@ -26,6 +26,7 @@
     "snapshot:projects": "tsx ./scripts/export-project-data-snapshot.ts",
     "snapshot:projects:secret": "tsx ./scripts/prepare-project-data-snapshot-secret.ts",
     "snapshot:projects:secret:write": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
+    "social-image:generate": "tsx ./scripts/generate-social-image.ts",
     "lint": "eslint .",
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
     "test": "vitest run"

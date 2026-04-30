@@ -74,6 +74,7 @@
     "snapshot:projects:secret": "npm --prefix frontend run snapshot:projects:secret",
     "snapshot:projects:secret:write": "npm --prefix frontend run snapshot:projects:secret:write",
     "snapshot:projects:secret:refresh": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:write",
+    "social-image:generate": "npm --prefix frontend run social-image:generate",
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",

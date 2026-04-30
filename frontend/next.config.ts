@@ -101,6 +101,9 @@ console.info("[next.config.ts] React StrictMode:", {
 });
 
 const nextConfig: NextConfig = {
+  // Disable metadata streaming so the initial HTML source contains literal
+  // Open Graph and Twitter meta tags instead of the streamed metadata payload.
+  htmlLimitedBots: /.*/,
   // No custom transpile/alias for aws-rum-web; rely on standard resolution under webpack.
   output: "standalone",
   allowedDevOrigins,
