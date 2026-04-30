@@ -28,6 +28,10 @@ const roleTitleClassNameField = (defaultValue: string) => ({
   },
 })
 
+const greetingIntroHtmlDefault = `<p>Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.</p>`
+
+const greetingBodyHtmlDefault = `<p>I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.</p><p>I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.</p>`
+
 export const HeroBranding: GlobalConfig = {
   slug: 'heroBranding',
   label: 'Site Branding',
@@ -45,6 +49,28 @@ export const HeroBranding: GlobalConfig = {
     update: ({ req }) => req.user?.role === 'admin',
   },
   fields: [
+    {
+      name: 'greetingIntroHtml',
+      label: 'Greeting Intro HTML',
+      type: 'textarea',
+      required: true,
+      defaultValue: greetingIntroHtmlDefault,
+      admin: {
+        rows: 6,
+        description: 'Paste raw HTML like <p>...</p>. This field supports multiple paragraphs.',
+      },
+    },
+    {
+      name: 'greetingBodyHtml',
+      label: 'Greeting Body HTML',
+      type: 'textarea',
+      required: true,
+      defaultValue: greetingBodyHtmlDefault,
+      admin: {
+        rows: 10,
+        description: 'Paste raw HTML like <p>...</p>. This field supports multiple paragraphs.',
+      },
+    },
     {
       name: 'roleVariants',
       label: 'Role Variants',

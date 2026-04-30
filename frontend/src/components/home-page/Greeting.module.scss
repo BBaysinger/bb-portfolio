@@ -217,7 +217,7 @@
           top: -72px;
           right: -6px;
         }
-        p {
+        .copyHtml {
           &:before,
           &:after {
             content: "";
@@ -264,10 +264,18 @@
         margin-bottom: 0;
       }
 
-      p {
+      .copyHtml {
         background-color: #e7eaec;
-        margin: 0;
         padding: 6px 0;
+        position: relative;
+
+        p {
+          margin: 0.3em;
+        }
+
+        p:last-child {
+          margin-bottom: 0;
+        }
       }
     }
 

@@ -8,6 +8,8 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 const DEFAULT_TITLE = 'Front-End / UI Developer'
+const DEFAULT_GREETING_INTRO_HTML = `<p>Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.</p>`
+const DEFAULT_GREETING_BODY_HTML = `<p>I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.</p><p>I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.</p>`
 const LOCKUP_ROLE_TITLE_CLASS_NAMES = new Set(['FEDev', 'UIDev', 'FEUIDev'])
 const DEFAULT_ROLE_TITLE_CLASS_NAME = 'FEUIDev'
 
@@ -48,6 +50,14 @@ export async function GET() {
     const active = getActiveVariant(variants)
     const activeTitle =
       typeof active?.title === 'string' && active.title.trim() ? active.title.trim() : DEFAULT_TITLE
+    const greetingIntroHtml =
+      typeof branding?.greetingIntroHtml === 'string' && branding.greetingIntroHtml.trim()
+        ? branding.greetingIntroHtml.trim()
+        : DEFAULT_GREETING_INTRO_HTML
+    const greetingBodyHtml =
+      typeof branding?.greetingBodyHtml === 'string' && branding.greetingBodyHtml.trim()
+        ? branding.greetingBodyHtml.trim()
+        : DEFAULT_GREETING_BODY_HTML
     const activeRoleTitleClassName =
       toRoleTitleClassName(active?.roleTitleClassName) || DEFAULT_ROLE_TITLE_CLASS_NAME
     const activePresetLabel =
@@ -61,6 +71,8 @@ export async function GET() {
         activeRoleTitle: activeTitle,
         activeRoleTitleClassName,
         activeRolePresetLabel: activePresetLabel,
+        greetingIntroHtml,
+        greetingBodyHtml,
         roleVariants: variants
           .map((item) => {
             const title = typeof item?.title === 'string' ? item.title.trim() : ''

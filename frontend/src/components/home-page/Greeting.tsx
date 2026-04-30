@@ -8,6 +8,11 @@ import useInViewAnimation from "@/hooks/useInViewAnimation";
 
 import styles from "./Greeting.module.scss";
 
+type GreetingProps = {
+  introHtml: string;
+  bodyHtml: string;
+};
+
 /**
  * Hello section component for the home page
  *
@@ -33,7 +38,7 @@ import styles from "./Greeting.module.scss";
  * - Links to #projects-list for portfolio exploration
  * - Provides data-nav="hello" for scroll-based navigation
  */
-const Greeting: React.FC = () => {
+const Greeting: React.FC<GreetingProps> = ({ introHtml, bodyHtml }) => {
   const addToRefs = useInViewAnimation("in-view");
 
   return (
@@ -52,25 +57,16 @@ const Greeting: React.FC = () => {
         <div>
           <div className={styles.infoSection}>
             <div ref={addToRefs}>
-              <p>
-                Hi, I'm Bradley — a <strong>UI</strong> and{" "}
-                <strong>front-end developer</strong> in Spokane, WA. I
-                specialize in building polished, custom interfaces with a strong
-                emphasis on interaction, behavior, and detail.
-              </p>
+              <div
+                className={styles.copyHtml}
+                dangerouslySetInnerHTML={{ __html: introHtml }}
+              />
             </div>
             <div ref={addToRefs}>
-              <p>
-                I build <strong>front-end systems</strong> for{" "}
-                <strong>reliable, polished product UI</strong> — with a focus on
-                structure, styling, behavior, and interaction. This portfolio
-                combines recent projects with selected earlier work to show
-                range, continuity, and the{" "}
-                <strong>creative/technical foundation</strong> behind my current
-                direction. I&apos;m currently available for{" "}
-                <strong>freelance, contract, and production support</strong>{" "}
-                where polished front-end execution is needed.
-              </p>
+              <div
+                className={styles.copyHtml}
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+              />
             </div>
             <a
               ref={addToRefs}

@@ -15,6 +15,8 @@ const LOGO_SRC = "/images/hero/bb-logo.svg";
 const LOGO_ALT = "BB Logo";
 const DEFAULT_BRANDING: ServerHeroBranding = {
   activeRoleTitle: defaultRoleTitle,
+  greetingIntroHtml: "",
+  greetingBodyHtml: "",
 };
 
 type HeroBrandingResponse =
@@ -61,6 +63,8 @@ const normalizeBrandingPayload = (
   return {
     activeRoleTitle,
     activeRoleTitleClassName,
+    greetingIntroHtml: "",
+    greetingBodyHtml: "",
   };
 };
 

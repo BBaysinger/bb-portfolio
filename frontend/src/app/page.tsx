@@ -69,7 +69,10 @@ const HomePage = async () => {
   return (
     <>
       <Hero initialRoleTitle={heroBranding.activeRoleTitle} />
-      <Greeting />
+      <Greeting
+        introHtml={heroBranding.greetingIntroHtml}
+        bodyHtml={heroBranding.greetingBodyHtml}
+      />
       <HomePageClient
         ssrProjects={ssrProjects}
         ssrProjectRecord={ssrProjectRecord}
