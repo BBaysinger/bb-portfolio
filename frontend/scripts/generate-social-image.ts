@@ -11,6 +11,9 @@ import {
   type HeroRoleTitleClassName,
 } from "../src/data/heroRoleTitleClasses";
 
+// TODO: Replace this manual static generator with a share-image pipeline that
+// updates automatically and supports per-page text/image variants.
+
 type HeroBranding = {
   roleTitle: string;
   roleTitleClassName?: HeroRoleTitleClassName;
