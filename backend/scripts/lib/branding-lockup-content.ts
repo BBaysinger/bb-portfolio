@@ -211,7 +211,9 @@ export const importBrandingLockupContent = async () => {
   }
 }
 
-export const exportBrandingLockupContent = async ({ dryRun = false }: { dryRun?: boolean } = {}) => {
+export const exportBrandingLockupContent = async ({
+  dryRun = false,
+}: { dryRun?: boolean } = {}) => {
   loadBackendScriptEnvironment(scriptsDir)
 
   let payload: Payload | null = null

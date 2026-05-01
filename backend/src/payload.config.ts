@@ -22,9 +22,9 @@ import { Projects } from './collections/Projects'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
+import { BrandingLockup } from './globals/BrandingLockup'
 import { ContactInfo } from './globals/ContactInfo'
 import { CvExperience } from './globals/CvExperience'
-import { BrandingLockup } from './globals/BrandingLockup'
 
 // ===============================================================
 // ENVIRONMENT FILES (.env.dev, .env.prod)

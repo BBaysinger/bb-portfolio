@@ -52,7 +52,8 @@ export async function GET() {
     const activeTitle =
       typeof active?.title === 'string' && active.title.trim() ? active.title.trim() : DEFAULT_TITLE
     const greetingIntroHtml =
-      typeof brandingLockup?.greetingIntroHtml === 'string' && brandingLockup.greetingIntroHtml.trim()
+      typeof brandingLockup?.greetingIntroHtml === 'string' &&
+      brandingLockup.greetingIntroHtml.trim()
         ? brandingLockup.greetingIntroHtml.trim()
         : DEFAULT_GREETING_INTRO_HTML
     const greetingBodyHtml =

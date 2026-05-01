@@ -72,21 +72,22 @@ const parseBrandingLockupResponse = (
   };
 };
 
-export const getServerBrandingLockup = async (): Promise<ServerBrandingLockup> => {
-  const fallback = getFallbackBrandingLockup();
+export const getServerBrandingLockup =
+  async (): Promise<ServerBrandingLockup> => {
+    const fallback = getFallbackBrandingLockup();
 
-  try {
-    const backendUrl = resolveBackendBase();
-    const response = await fetch(`${backendUrl}/api/branding-lockup/`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      next: { revalidate: 86400 },
-    });
+    try {
+      const backendUrl = resolveBackendBase();
+      const response = await fetch(`${backendUrl}/api/branding-lockup/`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        next: { revalidate: 86400 },
+      });
 
-    if (!response.ok) return fallback;
+      if (!response.ok) return fallback;
 
-    return parseBrandingLockupResponse(await response.json());
-  } catch {
-    return fallback;
-  }
-};
+      return parseBrandingLockupResponse(await response.json());
+    } catch {
+      return fallback;
+    }
+  };

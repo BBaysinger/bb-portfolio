@@ -339,11 +339,12 @@ const main = async () => {
     args.outputPath || DEFAULT_OUTPUT_RELATIVE_PATH,
   );
 
-  const [backgroundBuffer, logoBuffer, remoteBrandingLockup] = await Promise.all([
-    readFile(path.join(frontendDir, "public/images/social/bg.png")),
-    readFile(path.join(frontendDir, "public/images/hero/bb-logo.svg")),
-    fetchBrandingLockup(args.backendUrl),
-  ]);
+  const [backgroundBuffer, logoBuffer, remoteBrandingLockup] =
+    await Promise.all([
+      readFile(path.join(frontendDir, "public/images/social/bg.png")),
+      readFile(path.join(frontendDir, "public/images/hero/bb-logo.svg")),
+      fetchBrandingLockup(args.backendUrl),
+    ]);
 
   const roleTitle =
     args.roleTitle || remoteBrandingLockup?.roleTitle || FALLBACK_ROLE_TITLE;
