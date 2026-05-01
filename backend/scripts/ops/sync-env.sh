@@ -31,7 +31,7 @@ fi
 shift 2
 
 case "${SOURCE_PROFILE}" in
-  local|dev|prod) ;;
+  local | dev | prod) ;;
   *)
     echo "Invalid source profile: ${SOURCE_PROFILE}" >&2
     usage
@@ -40,7 +40,7 @@ case "${SOURCE_PROFILE}" in
 esac
 
 case "${TARGET_PROFILE}" in
-  local|dev|prod) ;;
+  local | dev | prod) ;;
   *)
     echo "Invalid target profile: ${TARGET_PROFILE}" >&2
     usage
