@@ -4,6 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const isLocalProfile = (): boolean => {
+  const profile = (process.env.ENV_PROFILE || "").trim().toLowerCase();
+  return profile === "" || profile === "local";
+};
+
 const getTokenFromRequest = (req: NextRequest): string => {
   const auth = req.headers.get("authorization") || "";
   if (auth.toLowerCase().startsWith("bearer ")) {
@@ -32,6 +37,25 @@ export async function POST(req: NextRequest) {
   ).trim();
 
   if (!expected) {
+    if (isLocalProfile()) {
+      revalidateProjectRoutes();
+
+      return NextResponse.json({
+        ok: true,
+        revalidated: [
+          "/ (layout)",
+          "/",
+          "/cv",
+          "/project",
+          "/project/[projectId]",
+          "/nda-included",
+          "/nda-included/[projectId]",
+        ],
+        at: new Date().toISOString(),
+        authMode: "local-no-secret",
+      });
+    }
+
     return NextResponse.json(
       { error: "FRONTEND_PROJECTS_REVALIDATE_SECRET is not configured." },
       { status: 500 },

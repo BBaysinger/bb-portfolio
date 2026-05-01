@@ -4,6 +4,15 @@ let hasWarnedMissingSecret = false
 
 const withNoTrailingSlash = (value: string): string => value.replace(/\/+$/, '')
 
+const getPrimaryOrigin = (raw: string): string | undefined => {
+  const first = raw
+    .split(',')
+    .map((value) => value.trim())
+    .find(Boolean)
+
+  return first ? withNoTrailingSlash(first) : undefined
+}
+
 const isLocalProfile = (): boolean => {
   const profile = (process.env.ENV_PROFILE || '').trim().toLowerCase()
   return profile === '' || profile === 'local'
@@ -17,6 +26,9 @@ const shouldSkipFrontendRevalidation = (): boolean => {
 const resolveEndpoint = (): string | undefined => {
   const explicit = (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
   if (explicit) return explicit
+
+  const frontendUrl = getPrimaryOrigin(process.env.FRONTEND_URL || '')
+  if (frontendUrl) return `${frontendUrl}/api/revalidate/projects`
 
   const publicUrl = (process.env.PUBLIC_SERVER_URL || '').trim()
   if (!publicUrl) return undefined
@@ -33,6 +45,9 @@ const resolvePublicOrigin = (): string | undefined => {
       // Fall through to PUBLIC_SERVER_URL.
     }
   }
+
+  const frontendUrl = getPrimaryOrigin(process.env.FRONTEND_URL || '')
+  if (frontendUrl) return frontendUrl
 
   const publicUrl = (process.env.PUBLIC_SERVER_URL || '').trim()
   return publicUrl ? withNoTrailingSlash(publicUrl) : undefined
@@ -119,7 +134,9 @@ export const triggerFrontendProjectRevalidate = async (
   if (!endpoint) return
 
   const secret = (process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET || '').trim()
-  if (!secret) {
+  const isLocal = isLocalProfile()
+
+  if (!secret && !isLocal) {
     if (!isLocalProfile() && !hasWarnedMissingSecret) {
       hasWarnedMissingSecret = true
       console.warn(
@@ -137,7 +154,7 @@ export const triggerFrontendProjectRevalidate = async (
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${secret}`,
+        ...(secret ? { authorization: `Bearer ${secret}` } : {}),
       },
       body: JSON.stringify({ reason, source: 'payload-cms' }),
       signal: controller.signal,
