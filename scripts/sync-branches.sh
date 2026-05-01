@@ -323,8 +323,11 @@ else
   git push origin main
   wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
 
-  log "Pushing dev to the released main commit; workflow will skip redundant dev jobs"
+  log "Fast-forwarding dev to the released main commit"
   git checkout dev
+  git merge --ff-only main
+
+  log "Pushing dev to the released main commit; workflow will skip redundant dev jobs"
   git push origin dev
 fi
 
