@@ -19,14 +19,14 @@ import { buildHomePageTitle, buildPageMetadata } from "@/app/siteMetadata";
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
-import { getServerHeroBranding } from "@/data/HeroBranding";
+import { getServerBrandingLockup } from "@/data/BrandingLockup";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const heroBranding = await getServerHeroBranding();
+  const brandingLockup = await getServerBrandingLockup();
 
   return buildPageMetadata({
-    title: buildHomePageTitle(heroBranding.activeRoleTitle),
+    title: buildHomePageTitle(brandingLockup.activeRoleTitle),
     path: "/",
   });
 }
@@ -64,14 +64,14 @@ const HomePage = async () => {
   );
   const ssrAuthenticated = false;
   const ssrIncludeNdaInActive = false;
-  const heroBranding = await getServerHeroBranding();
+  const brandingLockup = await getServerBrandingLockup();
 
   return (
     <>
-      <Hero initialRoleTitle={heroBranding.activeRoleTitle} />
+      <Hero initialRoleTitle={brandingLockup.activeRoleTitle} />
       <Greeting
-        introHtml={heroBranding.greetingIntroHtml}
-        bodyHtml={heroBranding.greetingBodyHtml}
+        introHtml={brandingLockup.greetingIntroHtml}
+        bodyHtml={brandingLockup.greetingBodyHtml}
       />
       <HomePageClient
         ssrProjects={ssrProjects}

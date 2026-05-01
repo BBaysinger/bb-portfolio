@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { defaultRoleTitle } from "@/app/siteMetadata";
-import type { ServerHeroBranding } from "@/data/HeroBranding";
+import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import {
   DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
   isHeroRoleTitleClassName,
@@ -13,14 +13,14 @@ import BrandLockupView from "./BrandLockupView";
 
 const LOGO_SRC = "/images/hero/bb-logo.svg";
 const LOGO_ALT = "BB Logo";
-const DEFAULT_BRANDING: ServerHeroBranding = {
+const DEFAULT_BRANDING: ServerBrandingLockup = {
   activeRoleTitle: defaultRoleTitle,
   greetingIntroHtml: "",
   greetingBodyHtml: "",
 };
 
-type HeroBrandingResponse =
-  | ServerHeroBranding
+type BrandingLockupResponse =
+  | ServerBrandingLockup
   | {
       success?: boolean;
       data?: {
@@ -29,20 +29,20 @@ type HeroBrandingResponse =
       };
     };
 
-type HeroBrandingFields = {
+type BrandingLockupFields = {
   activeRoleTitle?: unknown;
   activeRoleTitleClassName?: unknown;
 };
 
 const normalizeBrandingPayload = (
-  payload: HeroBrandingResponse,
-): ServerHeroBranding => {
-  let candidate: HeroBrandingFields | undefined;
+  payload: BrandingLockupResponse,
+): ServerBrandingLockup => {
+  let candidate: BrandingLockupFields | undefined;
 
   if (payload && typeof payload === "object" && "data" in payload) {
     candidate = payload.data;
   } else {
-    candidate = payload as ServerHeroBranding;
+    candidate = payload as ServerBrandingLockup;
   }
 
   const activeRoleTitle =
@@ -70,14 +70,14 @@ const normalizeBrandingPayload = (
 
 const BrandLockup = () => {
   const [branding, setBranding] =
-    useState<ServerHeroBranding>(DEFAULT_BRANDING);
+    useState<ServerBrandingLockup>(DEFAULT_BRANDING);
 
   useEffect(() => {
     const controller = new AbortController();
 
     const loadBranding = async () => {
       try {
-        const response = await fetch("/api/hero-branding", {
+        const response = await fetch("/api/branding-lockup", {
           method: "GET",
           headers: { Accept: "application/json" },
           cache: "no-store",
@@ -87,7 +87,7 @@ const BrandLockup = () => {
 
         setBranding(
           normalizeBrandingPayload(
-            (await response.json()) as HeroBrandingResponse,
+            (await response.json()) as BrandingLockupResponse,
           ),
         );
       } catch (error) {

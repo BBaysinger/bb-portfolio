@@ -32,13 +32,13 @@ const greetingIntroHtmlDefault = `<p>Hi, I'm Bradley — a <strong>UI</strong> a
 
 const greetingBodyHtmlDefault = `<p>I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.</p><p>I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.</p>`
 
-export const HeroBranding: GlobalConfig = {
+export const BrandingLockup: GlobalConfig = {
   slug: 'heroBranding',
   label: 'Site Branding',
   hooks: {
     afterChange: [
       async () => {
-        await triggerFrontendProjectRevalidate('heroBranding.afterChange', {
+        await triggerFrontendProjectRevalidate('brandingLockup.afterChange', {
           warmPaths: ['/'],
         })
       },

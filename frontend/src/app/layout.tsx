@@ -16,7 +16,7 @@ import { ReactNode, Suspense } from "react";
 
 import SkipLink from "@/components/common/SkipLink";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
-import { getServerHeroBranding } from "@/data/HeroBranding";
+import { getServerBrandingLockup } from "@/data/BrandingLockup";
 import { roboto } from "@/fonts";
 
 import { AppShell } from "./AppShell";
@@ -35,8 +35,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const heroBranding = await getServerHeroBranding();
-  const resolvedSiteTitle = buildHomePageTitle(heroBranding.activeRoleTitle);
+  const brandingLockup = await getServerBrandingLockup();
+  const resolvedSiteTitle = buildHomePageTitle(brandingLockup.activeRoleTitle);
 
   return {
     metadataBase,
