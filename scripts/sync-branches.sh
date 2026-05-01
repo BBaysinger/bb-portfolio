@@ -205,6 +205,14 @@ merge_local() {
   fi
 }
 
+push_ref_to_branch() {
+  local SOURCE_REF=$1
+  local DEST_BRANCH=$2
+
+  log "Pushing $DEST_BRANCH from $SOURCE_REF"
+  git push origin "$SOURCE_REF:$DEST_BRANCH"
+}
+
 require_gh() {
   if ! command -v gh >/dev/null 2>&1; then
     err "GitHub CLI (gh) is required for release:promote orchestration."
@@ -291,21 +299,16 @@ if [[ "$SKIP_VERSION_BUMP" == true ]]; then
   log "Pushing dev once"
   git push origin dev
 
-  log "Pushing main once"
-  git checkout main
-  git push origin main
+  push_ref_to_branch dev main
+  checkout_ff_pull main
 elif [[ "$DEPLOY_ALL" == true ]]; then
   create_version_bump_commit
-
-  log "Fast-forwarding main to current dev state"
-  merge_local dev main
 
   log "Pushing dev once"
   git push origin dev
 
-  log "Pushing main once"
-  git checkout main
-  git push origin main
+  push_ref_to_branch dev main
+  checkout_ff_pull main
 else
   DEV_SYNC_SHA=$(git rev-parse dev)
   log "Pushing dev before version bump"
@@ -314,13 +317,10 @@ else
 
   create_version_bump_commit
 
-  log "Fast-forwarding main to current dev state"
-  merge_local dev main
-
-  MAIN_BUMP_SHA=$(git rev-parse main)
-  log "Pushing main with version bump"
-  git checkout main
-  git push origin main
+  MAIN_BUMP_SHA=$(git rev-parse dev)
+  log "Pushing main with version bump from current dev state"
+  push_ref_to_branch dev main
+  checkout_ff_pull main
   wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
 
   log "Fast-forwarding dev to the released main commit"
