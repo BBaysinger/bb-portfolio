@@ -96,6 +96,9 @@ Each file name must match an existing Payload project slug.
 
 Example: `project-descriptions/golden-1-credit-union.html`
 
+Imports fail fast when a project is missing its expected slug-named HTML file.
+Extra HTML files that do not match any current project slug are ignored with a warning.
+
 ```html
 <p>
   I built responsive marketing pages and interactive components for Golden 1

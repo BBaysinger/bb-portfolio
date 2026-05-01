@@ -286,7 +286,7 @@ async function main() {
     payload = await getPayload({ config })
 
     const candidates = descriptionFiles.map((filePath) => {
-      const slug = path.basename(filePath, '.html')
+      const slug = path.basename(filePath, '.html').trim()
       const html = fs.readFileSync(filePath, 'utf8').trim()
 
       if (!html) {
@@ -298,6 +298,27 @@ async function main() {
       return { filePath, blocks, slug }
     })
 
+    const candidateBySlug = new Map(candidates.map((candidate) => [candidate.slug, candidate]))
+
+    const projects = [] as ProjectDoc[]
+    let page = 1
+    let hasNextPage = true
+
+    while (hasNextPage) {
+      const result = (await payload.find({
+        collection: 'projects',
+        depth: 0,
+        limit: 100,
+        page,
+        overrideAccess: true,
+        disableErrors: true,
+      })) as ProjectFindResult & { hasNextPage?: boolean; nextPage?: number | null }
+
+      projects.push(...result.docs)
+      hasNextPage = result.hasNextPage === true
+      page = result.nextPage ?? page + 1
+    }
+
     const matches = [] as Array<{
       filePath: string
       blocks: string[]
@@ -305,26 +326,28 @@ async function main() {
       projectId: string | number
     }>
 
-    for (const candidate of candidates) {
-      const found = (await payload.find({
-        collection: 'projects',
-        where: { slug: { equals: candidate.slug } },
-        depth: 0,
-        limit: 1,
-        overrideAccess: true,
-        disableErrors: true,
-      })) as ProjectFindResult
+    for (const project of projects) {
+      const slug = project.slug?.trim()
+      if (!slug) continue
 
-      if (found.docs.length === 0) {
+      const candidate = candidateBySlug.get(slug)
+      if (!candidate) {
         throw new Error(
-          `No project found for slug '${candidate.slug}'. Add the project first or rename ${candidate.filePath}.`,
+          `Missing project description file for slug '${slug}'. Expected ${path.join(descriptionsDir, `${slug}.html`)}.`,
         )
       }
 
       matches.push({
         ...candidate,
-        projectId: found.docs[0].id,
+        projectId: project.id,
       })
+    }
+
+    for (const candidate of candidates) {
+      if (matches.some((match) => match.slug === candidate.slug)) continue
+      console.warn(
+        `Skipping extra project description file with no matching project slug: ${candidate.filePath}`,
+      )
     }
 
     for (const match of matches) {
