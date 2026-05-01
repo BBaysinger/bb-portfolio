@@ -184,7 +184,7 @@
     // 🧼 Run ESLint on the full codebase
     // Great for catching JS/TS issues or team rule violations
     "lint": "eslint .",
-    //
+    // 🧪 Run the frontend test suite from the monorepo root.
     "test": "npm --prefix frontend test",
     // ✅ Fast pre-commit validation (format + lint + type check + package sync)
     // Run before every commit for quick validation (~5-10 seconds)
@@ -216,7 +216,7 @@
     "snapshot:projects:secret:write": "npm --prefix frontend run snapshot:projects:secret:write",
     // Refresh both the raw snapshot and the cached secret snapshot file in one run.
     "snapshot:projects:secret:refresh": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:write",
-    //
+    // Generate the branded social image asset used by the frontend.
     "social-image:generate": "npm --prefix frontend run social-image:generate",
     // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
