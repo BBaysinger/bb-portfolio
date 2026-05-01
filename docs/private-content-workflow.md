@@ -116,29 +116,16 @@ Rules:
 
 ## Commands
 
-From `backend/`:
-
-- `npm run import:cv-content:local`
-- `npm run import:cv-content:dev`
-- `npm run import:project-descriptions:local`
-- `npm run import:project-descriptions:dev`
-- `npm run export:cv-content -- --env prod`
-- `npm run export:project-descriptions -- --env prod`
-
 From repo root:
 
 - `npm run content:import:local:content-dir`
 - `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
-- `npm run content:pull:prod:project-descriptions`
-- `npm run content:pull:prod:project-descriptions:dry`
-- `npm run content:pull:prod:cv-experiences`
-- `npm run content:pull:prod:cv-experiences:dry`
 - `npm run content:pull:prod:all`
 - `npm run content:pull:prod:all:dry`
 - `npm run content:pull:prod:content-dir`
 - `npm run content:pull:prod:content-dir:dry`
 
-These root commands now route through `scripts/content-workflow.sh`, which centralizes content-root resolution and validation.
+These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, greeting/hero sync, and aggregate authored-content validation.
 
 Alternate directory examples:
 
@@ -168,8 +155,8 @@ Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
 - The root pull commands are meant for copying authored production content back into sibling `../cms-content-variants/<target>` so local/dev imports can use the same content.
-- `content:pull:prod:cv-experiences` also syncs production CV logos into the configured content root before exporting YAML so that target stays importable.
-- Use `USE_GITHUB_SECRETS=true` or equivalent prod env access when invoking the backend export scripts directly.
+- Aggregate content import/export includes hero branding, project descriptions, and CV content in one pass. Image assets still sync separately through the media pull/seed commands.
+- Use the root content workflow for aggregate imports/exports. The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`).
 - A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-content-variants/<target>`, while keeping Payload itself as a single effective site state.
 
 ## Possible future direction

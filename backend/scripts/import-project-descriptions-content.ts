@@ -52,6 +52,21 @@ const wait = async (ms: number) =>
     setTimeout(resolve, ms)
   })
 
+const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
+  const destroy = payload.db?.destroy
+  if (typeof destroy !== 'function') return
+
+  await Promise.race([
+    destroy.call(payload.db),
+    new Promise<void>((resolve) => {
+      setTimeout(() => {
+        console.warn(`Timed out while closing Payload DB after ${label}; exiting anyway.`)
+        resolve()
+      }, 2000)
+    }),
+  ])
+}
+
 const isTransientWriteConflictError = (error: unknown) => {
   if (!error || typeof error !== 'object') return false
 
@@ -324,7 +339,7 @@ async function main() {
     process.exitCode = 1
   } finally {
     if (payload) {
-      await payload.db?.destroy?.()
+      await destroyPayloadWithTimeout(payload, 'project descriptions import')
     }
   }
 }

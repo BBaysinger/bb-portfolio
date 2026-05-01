@@ -82,6 +82,21 @@ const asNonEmptyString = (value: unknown, fieldName: string, filePath: string) =
   return value.trim()
 }
 
+const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
+  const destroy = payload.db?.destroy
+  if (typeof destroy !== 'function') return
+
+  await Promise.race([
+    destroy.call(payload.db),
+    new Promise<void>((resolve) => {
+      setTimeout(() => {
+        console.warn(`Timed out while closing Payload DB after ${label}; exiting anyway.`)
+        resolve()
+      }, 2000)
+    }),
+  ])
+}
+
 const asSlugList = (value: unknown, fieldName: string, filePath: string) => {
   if (!Array.isArray(value)) {
     throw new Error(`Expected ${fieldName} to be an array in ${filePath}`)
@@ -278,7 +293,7 @@ async function main() {
     process.exitCode = 1
   } finally {
     if (payload) {
-      await payload.db?.destroy?.()
+      await destroyPayloadWithTimeout(payload, 'cvExperience import')
     }
   }
 }
