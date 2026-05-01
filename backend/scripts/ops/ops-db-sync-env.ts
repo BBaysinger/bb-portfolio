@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 import { EJSON } from 'bson'
 import { MongoClient } from 'mongodb'
 
+import { triggerFrontendProjectRevalidate } from '../../src/utils/triggerFrontendProjectRevalidate'
 import { loadBackendScriptEnvironment } from '../lib/payload-script-env'
 
 type EnvProfile = 'local' | 'dev' | 'prod'
@@ -140,12 +141,21 @@ const restoreProcessEnv = (snapshot: NodeJS.ProcessEnv) => {
   }
 }
 
+const PROFILE_ENV_KEYS = [
+  'MONGODB_URI',
+  'FRONTEND_URL',
+  'PUBLIC_SERVER_URL',
+  'FRONTEND_PROJECTS_REVALIDATE_SECRET',
+  'FRONTEND_PROJECTS_REVALIDATE_URL',
+  'SKIP_FRONTEND_REVALIDATE',
+]
+
 const readProcessEnv = (key: string) => {
   const env = process.env as Record<string, string | undefined>
   return env[key]
 }
 
-const loadMongoUriForProfile = (profile: EnvProfile) => {
+const runWithProfileEnvironment = async <T>(profile: EnvProfile, action: () => Promise<T> | T) => {
   const envSnapshot = { ...process.env }
   const env = process.env as Record<string, string | undefined>
 
@@ -158,9 +168,20 @@ const loadMongoUriForProfile = (profile: EnvProfile) => {
       env.USE_GITHUB_SECRETS = 'true'
     }
 
-    delete env.MONGODB_URI
+    for (const key of PROFILE_ENV_KEYS) {
+      delete env[key]
+    }
+
     loadBackendScriptEnvironment(scriptsRoot)
 
+    return await action()
+  } finally {
+    restoreProcessEnv(envSnapshot)
+  }
+}
+
+const loadMongoUriForProfile = (profile: EnvProfile) => {
+  return runWithProfileEnvironment(profile, () => {
     const rawUri = readProcessEnv('MONGODB_URI')
     const uri = typeof rawUri === 'string' ? rawUri.trim() : ''
     if (!uri) {
@@ -168,9 +189,7 @@ const loadMongoUriForProfile = (profile: EnvProfile) => {
     }
 
     return uri
-  } finally {
-    restoreProcessEnv(envSnapshot)
-  }
+  })
 }
 
 const isoDate = (value: unknown) => {
@@ -292,8 +311,8 @@ async function main() {
   await mkdir(sourceSnapshotDir, { recursive: true })
   await mkdir(targetSnapshotDir, { recursive: true })
 
-  const sourceUri = loadMongoUriForProfile(options.sourceProfile)
-  const targetUri = loadMongoUriForProfile(options.targetProfile)
+  const sourceUri = await loadMongoUriForProfile(options.sourceProfile)
+  const targetUri = await loadMongoUriForProfile(options.targetProfile)
 
   const sourceClient = new MongoClient(sourceUri, {
     readPreference: options.sourceProfile === 'local' ? undefined : 'secondaryPreferred',
@@ -384,6 +403,16 @@ async function main() {
       `Database collections copied from ${options.sourceProfile} to ${options.targetProfile} successfully.`,
     )
     console.info(`Target backup remains in ${targetSnapshotDir}`)
+
+    await runWithProfileEnvironment(options.targetProfile, async () => {
+      await triggerFrontendProjectRevalidate(
+        `env-sync:${options.sourceProfile}-to-${options.targetProfile}`,
+        {
+          warmPaths: ['/', '/cv'],
+        },
+      )
+    })
+    console.info(`Frontend project revalidation requested for ${options.targetProfile}.`)
   } finally {
     await sourceClient.close()
     await targetClient.close()
