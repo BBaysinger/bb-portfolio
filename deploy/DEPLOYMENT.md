@@ -1,6 +1,6 @@
 # Portfolio Deployment Guide (Single-Instance / Current)
 
-> For rationale behind major technical choices (hosting strategy, HTTPS, auth hardening, single canonical domain, SSR gating, etc.) see the Architecture Decisions Log: [`docs/architecture-decisions.md`](../docs/architecture-decisions.md). Always consult it before introducing platform changes so new work aligns with or intentionally supersedes documented decisions.
+> For current guardrails and conventions, use [`docs/engineering-standards.md`](../docs/engineering-standards.md). This deployment guide is intended to stay operational and current rather than serve as a long-term decision log.
 
 ## Scope
 
