@@ -140,22 +140,29 @@ const restoreProcessEnv = (snapshot: NodeJS.ProcessEnv) => {
   }
 }
 
+const readProcessEnv = (key: string) => {
+  const env = process.env as Record<string, string | undefined>
+  return env[key]
+}
+
 const loadMongoUriForProfile = (profile: EnvProfile) => {
   const envSnapshot = { ...process.env }
+  const env = process.env as Record<string, string | undefined>
 
   try {
-    process.env.ENV_PROFILE = profile
+    env.ENV_PROFILE = profile
 
     if (profile === 'local') {
-      delete process.env.USE_GITHUB_SECRETS
+      delete env.USE_GITHUB_SECRETS
     } else {
-      process.env.USE_GITHUB_SECRETS = 'true'
+      env.USE_GITHUB_SECRETS = 'true'
     }
 
-    delete process.env.MONGODB_URI
+    delete env.MONGODB_URI
     loadBackendScriptEnvironment(scriptsRoot)
 
-    const uri = process.env.MONGODB_URI?.trim()
+    const rawUri = readProcessEnv('MONGODB_URI')
+    const uri = typeof rawUri === 'string' ? rawUri.trim() : ''
     if (!uri) {
       throw new Error(`Missing MONGODB_URI for profile '${profile}'.`)
     }
