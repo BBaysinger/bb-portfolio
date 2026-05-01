@@ -174,7 +174,7 @@ export const importHeroBrandingContent = async () => {
     const heroBranding = readYamlFile<HeroBrandingFile>(heroBrandingPath)
     const roleVariants = normalizeImportedRoleVariants(heroBranding.roleVariants, heroBrandingPath)
 
-    const { default: config } = await import('../../src/payload.config.ts')
+    const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
 
     const globalUpdater = payload as unknown as HeroBrandingGlobalUpdater
@@ -202,7 +202,7 @@ export const exportHeroBrandingContent = async ({ dryRun = false }: { dryRun?: b
     const contentDir = resolvePortfolioContentDirPath(scriptsDir)
     const heroBrandingPath = path.resolve(contentDir, 'hero-branding.yaml')
 
-    const { default: config } = await import('../../src/payload.config.ts')
+    const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
 
     const heroBranding = await (payload as PayloadWithHeroBrandingGlobal).findGlobal({

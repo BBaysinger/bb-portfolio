@@ -28,16 +28,6 @@ type GreetingGlobalUpdater = {
   }) => Promise<unknown>
 }
 
-type GreetingRecord = Record<string, unknown>
-
-type PayloadWithGreetingGlobal = Payload & {
-  findGlobal(args: {
-    slug: 'heroBranding'
-    depth?: number
-    overrideAccess?: boolean
-  }): Promise<GreetingRecord>
-}
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const scriptsDir = path.resolve(__dirname, '..')
@@ -97,7 +87,7 @@ export const importGreetingContent = async () => {
       greetingPath,
     )
 
-    const { default: config } = await import('../../src/payload.config.ts')
+    const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
 
     const globalUpdater = payload as unknown as GreetingGlobalUpdater
@@ -126,14 +116,14 @@ export const exportGreetingContent = async ({ dryRun = false }: { dryRun?: boole
     const contentDir = resolvePortfolioContentDirPath(scriptsDir)
     const greetingPath = path.resolve(contentDir, 'greeting.yaml')
 
-    const { default: config } = await import('../../src/payload.config.ts')
+    const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
 
-    const greeting = await (payload as PayloadWithGreetingGlobal).findGlobal({
+    const greeting = (await payload.findGlobal({
       slug: 'heroBranding',
       depth: 0,
       overrideAccess: true,
-    })
+    })) as unknown as GreetingFile
 
     const greetingSerialized = dumpYaml(
       {
