@@ -1041,14 +1041,14 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
 - **Decision:** Keep public portfolio pages on SSG/ISR, but after a CMS change revalidate and then proactively warm the affected public routes instead of waiting for organic traffic to trigger regeneration.
 - **Context:**
   - Public routes such as `/`, `/cv`, `/project/[projectId]`, and `/nda-included/[projectId]` are intentionally static/ISR so normal visitors receive cached HTML.
-  - On-demand revalidation already invalidated those routes after project, CV, hero-branding, screenshot, thumbnail, and brand updates.
+  - On-demand revalidation already invalidated those routes after project, CV, branding-lockup, screenshot, thumbnail, and brand updates.
   - Pure invalidation still leaves regeneration to the next request for each route.
   - This portfolio is low traffic by design. On many days there may be only one meaningful recruiter/employer visit, so the first human request after a CMS save should not be the one that pays the regeneration cost when avoidable.
 - **Implementation:**
   - Backend revalidation now supports an optional `warmPaths` list after a successful authenticated revalidation ping.
   - Payload hooks derive targeted warm paths for the changed content rather than warming the entire site.
   - Project changes warm the homepage plus the affected public and NDA-included project routes.
-  - Hero-branding warms `/`; CV content/logo changes warm `/cv/`; project media/brand changes warm only the related project routes plus home when the homepage can visibly change.
+  - Branding-lockup warms `/`; CV content/logo changes warm `/cv/`; project media/brand changes warm only the related project routes plus home when the homepage can visibly change.
 - **Reasoning:**
   - Preserves the operational benefits of ISR and avoids per-request SSR.
   - Avoids unnecessary full-site rebuilds.

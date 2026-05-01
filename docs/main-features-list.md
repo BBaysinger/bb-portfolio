@@ -69,7 +69,7 @@ Working list of notable features and technical systems
 - Rich project metadata model (brand, tags, role, year, awards, URLs)
 - Confidential/NDA project filtering
 - NDA-aware content sanitization and server-driven field gating for anonymous users
-- CMS-managed hero branding/title variants with active preset selection
+- CMS-managed branding lockup/title variants with active preset selection
 - CMS-managed CV experience sections with drag/drop ordering, logo uploads, enabled bullet points, and separate independent R&D / contracting content
 - Image collections for screenshots, thumbnails, and brand logos
 - Role-based access control for admin-only mutations

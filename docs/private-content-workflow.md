@@ -155,7 +155,7 @@ Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
 - The root pull commands are meant for copying authored production content back into sibling `../cms-content-variants/<target>` so local/dev imports can use the same content.
-- Aggregate content import/export includes hero branding, project descriptions, and CV content in one pass. Image assets still sync separately through the media pull/seed commands.
+- Aggregate content import/export includes branding lockup content, project descriptions, and CV content in one pass. Image assets still sync separately through the media pull/seed commands.
 - Use the root content workflow for aggregate imports/exports. The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`).
 - A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-content-variants/<target>`, while keeping Payload itself as a single effective site state.
 

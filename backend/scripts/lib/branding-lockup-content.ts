@@ -20,11 +20,11 @@ type RoleVariantInput = {
   roleTitleClassName?: unknown
 }
 
-type HeroBrandingFile = {
+type BrandingLockupFile = {
   roleVariants?: unknown
 }
 
-type HeroBrandingGlobalUpdater = {
+type BrandingLockupGlobalUpdater = {
   updateGlobal: (args: {
     slug: string
     data: {
@@ -38,14 +38,14 @@ type HeroBrandingGlobalUpdater = {
   }) => Promise<unknown>
 }
 
-type HeroBrandingRecord = Record<string, unknown>
+type BrandingLockupRecord = Record<string, unknown>
 
-type PayloadWithHeroBrandingGlobal = Payload & {
+type PayloadWithBrandingLockupGlobal = Payload & {
   findGlobal(args: {
     slug: 'heroBranding'
     depth?: number
     overrideAccess?: boolean
-  }): Promise<HeroBrandingRecord>
+  }): Promise<BrandingLockupRecord>
 }
 
 type RoleVariant = {
@@ -54,6 +54,9 @@ type RoleVariant = {
   isActive: boolean
   roleTitleClassName: string
 }
+
+const BRANDING_LOCKUP_FILE_NAME = 'branding-lockup.yaml'
+const LEGACY_BRANDING_LOCKUP_FILE_NAME = 'hero-branding.yaml'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -98,6 +101,18 @@ const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
     }),
   ])
 }
+
+const resolveImportBrandingLockupPath = (contentDir: string) => {
+  const primaryPath = path.resolve(contentDir, BRANDING_LOCKUP_FILE_NAME)
+  if (fs.existsSync(primaryPath)) {
+    return primaryPath
+  }
+
+  return path.resolve(contentDir, LEGACY_BRANDING_LOCKUP_FILE_NAME)
+}
+
+const resolveExportBrandingLockupPath = (contentDir: string) =>
+  path.resolve(contentDir, BRANDING_LOCKUP_FILE_NAME)
 
 const normalizeImportedRoleVariants = (value: unknown, filePath: string) => {
   if (!Array.isArray(value) || value.length === 0) {
@@ -154,30 +169,33 @@ const normalizeExportedRoleVariants = (value: unknown): RoleVariant[] => {
     .filter((entry): entry is RoleVariant => Boolean(entry))
 }
 
-export const importHeroBrandingContent = async () => {
+export const importBrandingLockupContent = async () => {
   const { envProfile } = loadBackendScriptEnvironment(scriptsDir)
-  requireExplicitProdWriteConfirmation('hero branding import', envProfile)
+  requireExplicitProdWriteConfirmation('branding lockup import', envProfile)
 
   let payload: Payload | null = null
 
   try {
     const contentDir = resolvePortfolioContentDir(scriptsDir)
-    const heroBrandingPath = path.resolve(contentDir, 'hero-branding.yaml')
+    const brandingLockupPath = resolveImportBrandingLockupPath(contentDir)
 
-    if (!fs.existsSync(heroBrandingPath)) {
+    if (!fs.existsSync(brandingLockupPath)) {
       console.info(
-        `No hero branding file found at ${heroBrandingPath}. Skipping hero branding import.`,
+        `No branding lockup file found at ${brandingLockupPath}. Skipping branding lockup import.`,
       )
       return
     }
 
-    const heroBranding = readYamlFile<HeroBrandingFile>(heroBrandingPath)
-    const roleVariants = normalizeImportedRoleVariants(heroBranding.roleVariants, heroBrandingPath)
+    const brandingLockup = readYamlFile<BrandingLockupFile>(brandingLockupPath)
+    const roleVariants = normalizeImportedRoleVariants(
+      brandingLockup.roleVariants,
+      brandingLockupPath,
+    )
 
     const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
 
-    const globalUpdater = payload as unknown as HeroBrandingGlobalUpdater
+    const globalUpdater = payload as unknown as BrandingLockupGlobalUpdater
     await globalUpdater.updateGlobal({
       slug: 'heroBranding',
       data: {
@@ -185,35 +203,35 @@ export const importHeroBrandingContent = async () => {
       },
     })
 
-    console.info(`Imported hero branding content from ${heroBrandingPath}.`)
+    console.info(`Imported branding lockup content from ${brandingLockupPath}.`)
   } finally {
     if (payload) {
-      await destroyPayloadWithTimeout(payload, 'hero branding import')
+      await destroyPayloadWithTimeout(payload, 'branding lockup import')
     }
   }
 }
 
-export const exportHeroBrandingContent = async ({ dryRun = false }: { dryRun?: boolean } = {}) => {
+export const exportBrandingLockupContent = async ({ dryRun = false }: { dryRun?: boolean } = {}) => {
   loadBackendScriptEnvironment(scriptsDir)
 
   let payload: Payload | null = null
 
   try {
     const contentDir = resolvePortfolioContentDirPath(scriptsDir)
-    const heroBrandingPath = path.resolve(contentDir, 'hero-branding.yaml')
+    const brandingLockupPath = resolveExportBrandingLockupPath(contentDir)
 
     const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
 
-    const heroBranding = await (payload as PayloadWithHeroBrandingGlobal).findGlobal({
+    const brandingLockup = await (payload as PayloadWithBrandingLockupGlobal).findGlobal({
       slug: 'heroBranding',
       depth: 0,
       overrideAccess: true,
     })
 
-    const heroBrandingSerialized = dumpYaml(
+    const brandingLockupSerialized = dumpYaml(
       {
-        roleVariants: normalizeExportedRoleVariants(heroBranding.roleVariants),
+        roleVariants: normalizeExportedRoleVariants(brandingLockup.roleVariants),
       },
       {
         lineWidth: -1,
@@ -224,21 +242,21 @@ export const exportHeroBrandingContent = async ({ dryRun = false }: { dryRun?: b
     )
 
     console.info(
-      `${dryRun ? '[DRY RUN] ' : ''}Preparing to export hero branding content to ${heroBrandingPath}.`,
+      `${dryRun ? '[DRY RUN] ' : ''}Preparing to export branding lockup content to ${brandingLockupPath}.`,
     )
 
     if (dryRun) {
-      console.info(`Would write ${heroBrandingPath}`)
+      console.info(`Would write ${brandingLockupPath}`)
       return
     }
 
     fs.mkdirSync(contentDir, { recursive: true })
-    fs.writeFileSync(heroBrandingPath, heroBrandingSerialized, 'utf8')
+    fs.writeFileSync(brandingLockupPath, brandingLockupSerialized, 'utf8')
 
-    console.info(`Exported hero branding content into ${heroBrandingPath}.`)
+    console.info(`Exported branding lockup content into ${brandingLockupPath}.`)
   } finally {
     if (payload) {
-      await destroyPayloadWithTimeout(payload, 'hero branding export')
+      await destroyPayloadWithTimeout(payload, 'branding lockup export')
     }
   }
 }
@@ -248,12 +266,12 @@ const runFromCli = async () => {
   const dryRun = process.argv.includes('--dry-run')
 
   if (action === 'import') {
-    await importHeroBrandingContent()
+    await importBrandingLockupContent()
     return
   }
 
   if (action === 'export') {
-    await exportHeroBrandingContent({ dryRun })
+    await exportBrandingLockupContent({ dryRun })
     return
   }
 
@@ -268,7 +286,7 @@ if (process.argv[1] === __filename) {
       process.exit(0)
     })
     .catch((error) => {
-      console.error('Failed to run hero branding content helper:', error)
+      console.error('Failed to run branding lockup content helper:', error)
       process.exit(1)
     })
 }

@@ -14,7 +14,7 @@ import {
 // TODO: Replace this manual static generator with a share-image pipeline that
 // updates automatically and supports per-page text/image variants.
 
-type HeroBranding = {
+type BrandingLockup = {
   roleTitle: string;
   roleTitleClassName?: HeroRoleTitleClassName;
 };
@@ -70,14 +70,14 @@ const parseArgs = () => {
   };
 };
 
-const fetchHeroBranding = async (
+const fetchBrandingLockup = async (
   backendUrl: string | undefined,
-): Promise<HeroBranding | undefined> => {
+): Promise<BrandingLockup | undefined> => {
   if (!backendUrl) return undefined;
 
   try {
     const response = await fetch(
-      `${backendUrl.replace(/\/$/, "")}/api/hero-branding/`,
+      `${backendUrl.replace(/\/$/, "")}/api/branding-lockup/`,
       {
         headers: { Accept: "application/json" },
       },
@@ -339,17 +339,17 @@ const main = async () => {
     args.outputPath || DEFAULT_OUTPUT_RELATIVE_PATH,
   );
 
-  const [backgroundBuffer, logoBuffer, remoteHeroBranding] = await Promise.all([
+  const [backgroundBuffer, logoBuffer, remoteBrandingLockup] = await Promise.all([
     readFile(path.join(frontendDir, "public/images/social/bg.png")),
     readFile(path.join(frontendDir, "public/images/hero/bb-logo.svg")),
-    fetchHeroBranding(args.backendUrl),
+    fetchBrandingLockup(args.backendUrl),
   ]);
 
   const roleTitle =
-    args.roleTitle || remoteHeroBranding?.roleTitle || FALLBACK_ROLE_TITLE;
+    args.roleTitle || remoteBrandingLockup?.roleTitle || FALLBACK_ROLE_TITLE;
   const roleTitleClassName = isHeroRoleTitleClassName(args.roleTitleClassName)
     ? args.roleTitleClassName
-    : remoteHeroBranding?.roleTitleClassName ||
+    : remoteBrandingLockup?.roleTitleClassName ||
       DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
 
   const markup = buildMarkup({

@@ -24,7 +24,7 @@ import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
 import { ContactInfo } from './globals/ContactInfo'
 import { CvExperience } from './globals/CvExperience'
-import { BrandingLockup } from './globals/HeroBranding'
+import { BrandingLockup } from './globals/BrandingLockup'
 
 // ===============================================================
 // ENVIRONMENT FILES (.env.dev, .env.prod)
