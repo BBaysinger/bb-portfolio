@@ -63,12 +63,53 @@ if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
   exit 1
 fi
 
+# Local-only guard: blocks overlapping release:promote runs in this repo clone.
+# This is intentionally scoped to the single-developer workflow for this repo;
+# it is not a cross-machine or cross-clone release lock.
+LOCK_DIR="$(git rev-parse --git-path release-promote.lock)"
+LOCK_ACQUIRED=false
+
+acquire_release_lock() {
+  if mkdir "$LOCK_DIR" 2>/dev/null; then
+    printf '%s\n' "$$" >"$LOCK_DIR/pid"
+    LOCK_ACQUIRED=true
+    return 0
+  fi
+
+  local existing_pid=""
+  if [[ -f "$LOCK_DIR/pid" ]]; then
+    existing_pid="$(cat "$LOCK_DIR/pid" 2>/dev/null || true)"
+  fi
+
+  if [[ -n "$existing_pid" ]] && kill -0 "$existing_pid" 2>/dev/null; then
+    err "release:promote is already running in this repo clone (pid $existing_pid). Wait for it to finish before starting another release."
+    exit 1
+  fi
+
+  err "Found a stale release lock. Removing it and retrying."
+  rm -rf "$LOCK_DIR"
+
+  if mkdir "$LOCK_DIR" 2>/dev/null; then
+    printf '%s\n' "$$" >"$LOCK_DIR/pid"
+    LOCK_ACQUIRED=true
+    return 0
+  fi
+
+  err "Unable to acquire release lock at $LOCK_DIR. Resolve manually and rerun."
+  exit 1
+}
+
 START_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 log "Starting on branch: $START_BRANCH"
+
+acquire_release_lock
 
 # Always attempt to return to dev on exit
 cleanup() {
   set +e
+  if [[ "$LOCK_ACQUIRED" == true ]]; then
+    rm -rf "$LOCK_DIR"
+  fi
   if git rev-parse --verify dev >/dev/null 2>&1; then
     git checkout dev >/dev/null 2>&1 || true
   fi
