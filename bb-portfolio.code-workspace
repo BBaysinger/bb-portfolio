@@ -4,5 +4,6 @@
     "search.exclude": {
       "**/old-repo/**": true,
     },
+    "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   },
 }

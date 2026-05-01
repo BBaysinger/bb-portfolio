@@ -141,6 +141,8 @@ temp_dump_*
 # Ignore ad-hoc or exported JSON dumps used for local testing only
 data/dump/**
 !data/dump/.gitkeep
+backend/dump/env-sync/**
+backend/dump/env-sync-validation-*/**
 
 # ─────────────────────────────────────────────
 # 🔒 Internal security reports (untracked)

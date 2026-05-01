@@ -58,6 +58,7 @@
     },
     "editor.formatOnSaveMode": "file",
     "typescript.tsdk": "./backend/node_modules/typescript/lib",
+    "typescript.tsserver.experimental.enableProjectDiagnostics": false,
     "cSpell.words": [
         "addgroup",
         "adduser",

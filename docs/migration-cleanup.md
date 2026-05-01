@@ -15,8 +15,13 @@ Track temporary artifacts, one-off scripts, and environment states that can be r
   - `backend/scripts/ops/ops-db-rename-brands-to-project-brands.ts`
   - `backend/scripts/ops/rename-project-brands-dev.sh`
   - `backend/scripts/ops/rename-project-brands-prod.sh`
-  - `backend/scripts/ops/ops-db-sync-prod-to-dev.ts`
-  - `backend/scripts/ops/sync-prod-to-dev.sh`
+  - `backend/scripts/ops/ops-db-sync-env.ts`
+  - `backend/scripts/ops/sync-env.sh`
+
+## Current sync scope
+
+- [ ] Treat `ops-db-sync-env.ts` as a full Mongo database mirror for live source-to-target syncs.
+- [ ] Keep local dump artifacts intentionally narrower than the live mirror; the dump directories are still only for the existing saved collection subset.
 
 ## Environment cleanup to do later
 

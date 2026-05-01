@@ -246,6 +246,8 @@
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
     // 🪄 Import target content into dev. Requires ALLOW_DEV_WRITE=true.
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
+    // 🪄 One-shot portfolio data sync across environments. Pass through args such as --source local --target dev --dry-run.
+    "data:sync": "npm --prefix backend run sync:env --",
     // 🪄 Pull prod media + authored content into the configured content root.
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     // 🧪 Dry-run variant of content:pull:prod:content-dir.

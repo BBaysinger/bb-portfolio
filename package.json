@@ -85,6 +85,7 @@
     "content:pull:prod:all:dry": "npm run content:pull:prod:content-dir:dry",
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
+    "data:sync": "npm --prefix backend run sync:env --",
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     "content:pull:prod:content-dir:dry": "bash ./scripts/content-workflow.sh pull-prod-dry",
     "media:export": "bash scripts/export-media.sh",

@@ -24,6 +24,7 @@
     "seed:cv-experience": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/seed-cv-experience.ts",
     "seed:cv-experience:local": "npm run seed:cv-experience -- --env local",
     "seed:cv-experience:dev": "npm run seed:cv-experience -- --env dev",
+    "sync:env": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/ops/ops-db-sync-env.ts",
     "smoke:admin-login": "node scripts/smoke-admin-login.mjs",
     "lint": "cd .. && eslint backend",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
