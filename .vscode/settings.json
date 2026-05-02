@@ -245,6 +245,7 @@
         "scriptable",
         "segs",
         "sendfile",
+        "shfmt",
         "smoothstep",
         "Stoli",
         "strptime",
