@@ -88,6 +88,14 @@ const getNavigationType = () => {
   }
 };
 
+export const shouldReplayHomeHeroIntroOnPageShow = (
+  event: Pick<PageTransitionEvent, "persisted">,
+) => {
+  if (!event.persisted) return false;
+
+  return getNavigationType() === "back_forward";
+};
+
 export const requestHomeHeroIntroReplay = ({
   dispatchEvent = true,
   source = "explicit",

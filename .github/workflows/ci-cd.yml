@@ -97,7 +97,7 @@ jobs:
 
       # Install pnpm explicitly to ensure availability on runner
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v5
         with:
           version: 9
           run_install: false

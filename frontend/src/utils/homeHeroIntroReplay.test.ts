@@ -5,6 +5,7 @@ import {
   clearPendingPageExitHomeHeroIntroReplay,
   consumeHomeHeroIntroReplayRequest,
   requestHomeHeroIntroReplay,
+  shouldReplayHomeHeroIntroOnPageShow,
   shouldPlayHomeHeroIntroOnEntry,
 } from "./homeHeroIntroReplay";
 
@@ -79,6 +80,27 @@ describe("homeHeroIntroReplay", () => {
       (dispatchSpy.mock.calls[0]?.[0] as CustomEvent | undefined)?.type,
     ).toBe(HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT);
     expect(consumeHomeHeroIntroReplayRequest()).toBe(true);
+  });
+
+  it("does not replay on persisted pageshow unless it is a history restore", () => {
+    vi.spyOn(window.performance, "getEntriesByType").mockReturnValue([
+      { type: "navigate" } as PerformanceNavigationTiming,
+    ]);
+
+    expect(shouldReplayHomeHeroIntroOnPageShow({ persisted: true })).toBe(
+      false,
+    );
+    expect(shouldReplayHomeHeroIntroOnPageShow({ persisted: false })).toBe(
+      false,
+    );
+  });
+
+  it("replays on persisted pageshow for history restores", () => {
+    vi.spyOn(window.performance, "getEntriesByType").mockReturnValue([
+      { type: "back_forward" } as PerformanceNavigationTiming,
+    ]);
+
+    expect(shouldReplayHomeHeroIntroOnPageShow({ persisted: true })).toBe(true);
   });
 
   it("plays the intro only once per session unless replay is requested", () => {

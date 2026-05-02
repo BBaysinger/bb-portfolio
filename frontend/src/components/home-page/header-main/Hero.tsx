@@ -40,6 +40,7 @@ import { detectOs, isEdge, isFirefox, isSafari } from "@/utils/browser";
 import {
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
   consumeHomeHeroIntroReplayRequest,
+  shouldReplayHomeHeroIntroOnPageShow,
   shouldPlayHomeHeroIntroOnEntry,
 } from "@/utils/homeHeroIntroReplay";
 
@@ -482,7 +483,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
     };
 
     const onPageShow = (event: PageTransitionEvent) => {
-      if (!event.persisted) return;
+      if (!shouldReplayHomeHeroIntroOnPageShow(event)) return;
 
       replayHeroIntroIfRequested();
     };

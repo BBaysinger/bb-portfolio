@@ -32,6 +32,7 @@ import { recordEvent, setRUMSessionAttributes } from "@/services/rum";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
+import { detectOs } from "@/utils/browser";
 import {
   clearPendingPageExitHomeHeroIntroReplay,
   requestHomeHeroIntroReplay,
@@ -299,6 +300,14 @@ export function AppShell({ children }: AppShellProps) {
   // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
   useEffect(() => {
     let ticking = false;
+    const shouldSkipVisibilityRefreshForDevice = () => {
+      try {
+        const os = detectOs();
+        return os === "ios" || os === "android";
+      } catch {
+        return false;
+      }
+    };
     const shouldSkipRefreshForCarousel = () => {
       try {
         if (typeof window === "undefined") return false;
@@ -355,7 +364,9 @@ export function AppShell({ children }: AppShellProps) {
           }
 
           if (!clientAuthed) {
-            const shouldRefresh = !shouldSkipRefreshForCarousel();
+            const shouldRefresh =
+              !shouldSkipRefreshForCarousel() &&
+              !shouldSkipVisibilityRefreshForDevice();
             if (lifecyclePayload) {
               setRUMSessionAttributes(
                 buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
