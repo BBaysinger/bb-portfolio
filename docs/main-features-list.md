@@ -36,7 +36,7 @@ Working list of notable features and technical systems
 
 ## Visual Design / Art Direction / Graphics
 
-- Custom project graphics for each portfolio entry, developed through heavy AI-assisted iteration, Photoshop compositing/editing, and art direction
+- Custom project graphics for each portfolio entry, developed through AI-assisted iteration, Photoshop compositing/editing, and art direction
 - Fluxel background animations authored in Photoshop and Adobe Animate, then exported as sprite sheets
 - Visual direction for portfolio-specific branding, thumbnail treatment, and presentation framing
 - Designed and refined motion-heavy UI treatments intended to feel polished, tactile, and visually distinctive rather than template-derived
