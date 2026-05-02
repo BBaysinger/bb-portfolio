@@ -18,9 +18,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
-import useStableViewportHeightVar, {
-  STABLE_VIEWPORT_HEIGHT_MODES,
-} from "@/hooks/viewport/useStableViewportHeightVar";
+import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 
 import styles from "./LoginPage.module.scss";
 
@@ -84,7 +82,7 @@ const LoginPage = () => {
 
   useStableViewportHeightVar(pageRef, {
     cssVarName: "--graphite-stable-vh",
-    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+    mode: "use-where-required",
   });
 
   if (!isLoading && isLoggedIn) {

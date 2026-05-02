@@ -32,9 +32,7 @@ import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
-import useStableViewportHeightVar, {
-  STABLE_VIEWPORT_HEIGHT_MODES,
-} from "@/hooks/viewport/useStableViewportHeightVar";
+import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
@@ -171,7 +169,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
   const stableHeightPx = useStableViewportHeightVar(heroRef, {
     cssVarName: "--hero-stable-vh",
-    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+    mode: "use-where-required",
     heightOnlyResizePolicy: "pointer-fine-or-shrink",
   });
 

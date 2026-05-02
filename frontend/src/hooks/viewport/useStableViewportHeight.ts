@@ -36,14 +36,10 @@ export type HeightOnlyResizePolicy =
   | "pointer-fine-or-shrink"
   | ((context: HeightOnlyResizeContext) => boolean);
 
-export const STABLE_VIEWPORT_HEIGHT_MODES = {
-  USE_JS_FOR_ALL: "use-js-for-all",
-  USE_SVH_FOR_ALL: "use-svh-for-all",
-  USE_WHERE_REQUIRED: "use-where-required",
-} as const;
-
 export type StableViewportHeightMode =
-  (typeof STABLE_VIEWPORT_HEIGHT_MODES)[keyof typeof STABLE_VIEWPORT_HEIGHT_MODES];
+  | "use-js-for-all"
+  | "use-svh-for-all"
+  | "use-where-required";
 
 export interface UseStableViewportHeightOptions {
   mode?: StableViewportHeightMode;
@@ -72,7 +68,7 @@ const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 export const stableViewportHeightConfig: {
   defaultMode: StableViewportHeightMode;
 } = {
-  defaultMode: STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL,
+  defaultMode: "use-svh-for-all",
 };
 
 function isUsableViewportHeight(
@@ -87,11 +83,11 @@ function shouldEnableManagedStableViewportHeight(
   if (typeof window === "undefined") return false;
 
   switch (mode) {
-    case STABLE_VIEWPORT_HEIGHT_MODES.USE_JS_FOR_ALL:
+    case "use-js-for-all":
       return true;
-    case STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL:
+    case "use-svh-for-all":
       return false;
-    case STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED:
+    case "use-where-required":
     default:
       return isManagedStableViewportHeightRequiredForCurrentBrowser();
   }

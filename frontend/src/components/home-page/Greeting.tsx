@@ -2,9 +2,12 @@
 
 // import Link from "next/link";
 
+import { useRef } from "react";
+
 import { RawImg } from "@/components/common/RawImg";
 import MagneticThingy from "@/components/home-page/MagneticThingy";
 import useInViewAnimation from "@/hooks/useInViewAnimation";
+import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 
 import styles from "./Greeting.module.scss";
 
@@ -40,9 +43,20 @@ type GreetingProps = {
  */
 const Greeting: React.FC<GreetingProps> = ({ introHtml, bodyHtml }) => {
   const addToRefs = useInViewAnimation("in-view");
+  const greetingRef = useRef<HTMLDivElement>(null);
+
+  useStableViewportHeightVar(greetingRef, {
+    cssVarName: "--greeting-stable-vh",
+    mode: "use-where-required",
+  });
 
   return (
-    <div id="hello" className={styles.greeting} data-nav="hello">
+    <div
+      ref={greetingRef}
+      id="hello"
+      className={styles.greeting}
+      data-nav="hello"
+    >
       <div className={styles.greetingWrapper}>
         <div ref={addToRefs} className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>

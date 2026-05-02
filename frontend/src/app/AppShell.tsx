@@ -27,9 +27,7 @@ import { NavVariants } from "@/components/layout/NavVariant.constants";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import { useLerpVars } from "@/hooks/useLerpVars";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
-import useStableViewportHeightVar, {
-  STABLE_VIEWPORT_HEIGHT_MODES,
-} from "@/hooks/viewport/useStableViewportHeightVar";
+import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 import { recordEvent, setRUMSessionAttributes } from "@/services/rum";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
@@ -283,14 +281,10 @@ export function AppShell({ children }: AppShellProps) {
   );
 
   const childContentRef = useRef<HTMLDivElement>(null);
-  const shouldUseStableViewportForChildContent =
-    /^\/(contact|login|cv)(?:\/|$)/.test(pathname || "");
 
   useStableViewportHeightVar(childContentRef, {
     cssVarName: "--app-shell-stable-vh",
-    mode: shouldUseStableViewportForChildContent
-      ? STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED
-      : STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL,
+    mode: "use-where-required",
   });
 
   useTrackHeroInView();

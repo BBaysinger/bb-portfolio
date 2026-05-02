@@ -11,7 +11,12 @@
   color: #fff;
   z-index: 10;
   overflow: hidden;
-  min-height: 100vh;
+  min-height: var(--greeting-stable-vh, 100vh);
+
+  @supports (min-height: 100svh) {
+    min-height: var(--greeting-stable-vh, 100svh);
+  }
+
   line-height: 1.5em;
   padding-top: 30px;
   padding-bottom: 30px;

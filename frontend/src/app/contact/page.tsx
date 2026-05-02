@@ -3,9 +3,7 @@
 import clsx from "clsx";
 import React, { useRef, useState } from "react";
 
-import useStableViewportHeightVar, {
-  STABLE_VIEWPORT_HEIGHT_MODES,
-} from "@/hooks/viewport/useStableViewportHeightVar";
+import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 
 import styles from "./ContactPage.module.scss";
 
@@ -111,7 +109,7 @@ const ContactPage = () => {
 
   useStableViewportHeightVar(pageRef, {
     cssVarName: "--graphite-stable-vh",
-    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+    mode: "use-where-required",
   });
 
   return (
