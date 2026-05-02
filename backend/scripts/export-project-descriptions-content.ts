@@ -4,9 +4,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 
+import { serializeParagraphArrayYaml } from './lib/paragraph-yaml'
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { resolvePortfolioContentDirPath } from './lib/portfolio-content'
 
@@ -71,15 +71,7 @@ const toDescriptionParagraphs = (value: unknown) => {
 }
 
 const serializeProjectDescription = (descParagraphs: string[]) =>
-  dumpYaml(
-    { descParagraphs },
-    {
-      lineWidth: -1,
-      noRefs: true,
-      quotingType: '"',
-      forceQuotes: false,
-    },
-  )
+  serializeParagraphArrayYaml('descParagraphs', descParagraphs)
 
 const listYamlFiles = (directoryPath: string) => {
   if (!fs.existsSync(directoryPath)) return [] as string[]
@@ -101,7 +93,7 @@ async function main() {
     const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
-    const matchedProjects = [] as Array<{ slug: string; html: string }>
+    const matchedProjects = [] as Array<{ slug: string; yaml: string }>
     let page = 1
     let hasNextPage = true
 
@@ -119,7 +111,7 @@ async function main() {
         const slug = asTrimmedString(doc.slug)
         const descParagraphs = toDescriptionParagraphs(doc.descParagraphs)
         if (!slug || descParagraphs.length === 0) continue
-        matchedProjects.push({ slug, html: serializeProjectDescription(descParagraphs) })
+        matchedProjects.push({ slug, yaml: serializeProjectDescription(descParagraphs) })
       }
 
       hasNextPage = result.hasNextPage === true
@@ -152,7 +144,7 @@ async function main() {
 
     for (const project of matchedProjects) {
       const destinationPath = path.join(descriptionsDir, `${project.slug}.yaml`)
-      fs.writeFileSync(destinationPath, `${project.html}\n`, 'utf8')
+      fs.writeFileSync(destinationPath, project.yaml, 'utf8')
     }
 
     console.info(

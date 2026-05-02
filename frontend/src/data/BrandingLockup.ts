@@ -4,6 +4,7 @@ import {
   isHeroRoleTitleClassName,
   type HeroRoleTitleClassName,
 } from "@/data/heroRoleTitleClasses";
+import { renderAuthoredParagraphHtml } from "@/utils/authoredText";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 export type ServerBrandingLockup = {
@@ -23,9 +24,16 @@ type BrandingLockupApiResponse = {
   };
 };
 
-const defaultGreetingIntroHtml = `<p>Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.</p>`;
+const defaultGreetingIntroHtml = renderAuthoredParagraphHtml(
+  "Hi, I'm Bradley — a **UI** and **front-end developer** in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.",
+);
 
-const defaultGreetingBodyHtml = `<p>I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.</p><p>I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.</p>`;
+const defaultGreetingBodyHtml = [
+  "I build **front-end systems** for **reliable, polished product UI** — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the **creative/technical foundation** behind my current direction.",
+  "I'm currently available for **freelance, contract, and production support** where polished front-end execution is needed.",
+]
+  .map((paragraph) => renderAuthoredParagraphHtml(paragraph))
+  .join("");
 
 const getFallbackBrandingLockup = (): ServerBrandingLockup => ({
   activeRoleTitle: defaultRoleTitle,

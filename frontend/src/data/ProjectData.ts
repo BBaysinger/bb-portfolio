@@ -1,3 +1,4 @@
+import { renderAuthoredParagraphHtml } from "@/utils/authoredText";
 import {
   getBackendServiceBase,
   normalizeBackendProfile,
@@ -817,7 +818,7 @@ async function fetchPortfolioProjects(opts?: {
       ? doc.descParagraphs
           .map((paragraph: { text?: string }) => paragraph?.text)
           .filter((text: string | undefined): text is string => !!text)
-          .map((paragraph: string) => `<p>${paragraph}</p>`)
+          .map((paragraph: string) => renderAuthoredParagraphHtml(paragraph))
       : [];
     const urlsArray = Array.isArray(doc.urls) ? doc.urls : [];
     const urls: Record<string, string | string[]> = {};

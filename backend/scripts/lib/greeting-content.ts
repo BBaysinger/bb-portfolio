@@ -2,9 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 
+import { serializeParagraphArrayYaml } from './paragraph-yaml'
 import { loadBackendScriptEnvironment } from './payload-script-env'
 import {
   readYamlFile,
@@ -75,8 +75,6 @@ const asParagraphRows = (value: unknown) => {
 }
 
 const toParagraphRows = (paragraphs: string[]) => paragraphs.map((text) => ({ text }))
-
-const toYamlPayload = (paragraphs: string[]) => paragraphs
 
 const resolveGreetingPayload = (greeting: GreetingFile, filePath: string) => {
   const introParagraphs = asParagraphStrings(greeting.introParagraphs, 'introParagraphs', filePath)
@@ -162,18 +160,13 @@ export const exportGreetingContent = async ({ dryRun = false }: { dryRun?: boole
     const introParagraphs = asParagraphRows(greeting.introParagraphs)
     const bodyParagraphs = asParagraphRows(greeting.bodyParagraphs)
 
-    const greetingSerialized = dumpYaml(
-      {
-        introParagraphs: toYamlPayload(introParagraphs),
-        bodyParagraphs: toYamlPayload(bodyParagraphs),
-      },
-      {
-        lineWidth: -1,
-        noRefs: true,
-        quotingType: '"',
-        forceQuotes: false,
-      },
-    )
+    const greetingSerialized = [
+      serializeParagraphArrayYaml('introParagraphs', introParagraphs),
+      serializeParagraphArrayYaml('bodyParagraphs', bodyParagraphs),
+    ]
+      .map((section) => section.trimEnd())
+      .join('\n')
+      .concat('\n')
 
     console.info(
       `${dryRun ? '[DRY RUN] ' : ''}Preparing to export greeting content to ${greetingPath}.`,

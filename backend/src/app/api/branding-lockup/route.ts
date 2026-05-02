@@ -7,13 +7,15 @@ import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
+import { renderAuthoredParagraphsAsHtml } from '../../../utils/authoredText'
+
 const DEFAULT_TITLE = 'Front-End / UI Developer'
 const DEFAULT_INTRO_PARAGRAPHS = [
-  "Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.",
+  "Hi, I'm Bradley — a **UI** and **front-end developer** in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.",
 ]
 const DEFAULT_BODY_PARAGRAPHS = [
-  'I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.',
-  "I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.",
+  'I build **front-end systems** for **reliable, polished product UI** — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the **creative/technical foundation** behind my current direction.',
+  "I'm currently available for **freelance, contract, and production support** where polished front-end execution is needed.",
 ]
 const LOCKUP_ROLE_TITLE_CLASS_NAMES = new Set(['FEDev', 'UIDev', 'FEUIDev'])
 const DEFAULT_ROLE_TITLE_CLASS_NAME = 'FEUIDev'
@@ -64,9 +66,6 @@ const normalizeParagraphs = (value: unknown, fallback: string[]) => {
   return paragraphs.length > 0 ? paragraphs : fallback
 }
 
-const renderParagraphsAsHtml = (paragraphs: string[]) =>
-  paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')
-
 export async function GET() {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -89,8 +88,8 @@ export async function GET() {
       brandingLockup?.bodyParagraphs,
       DEFAULT_BODY_PARAGRAPHS,
     )
-    const greetingIntroHtml = renderParagraphsAsHtml(introParagraphs)
-    const greetingBodyHtml = renderParagraphsAsHtml(bodyParagraphs)
+    const greetingIntroHtml = renderAuthoredParagraphsAsHtml(introParagraphs)
+    const greetingBodyHtml = renderAuthoredParagraphsAsHtml(bodyParagraphs)
     const activeRoleTitleClassName =
       toRoleTitleClassName(active?.roleTitleClassName) || DEFAULT_ROLE_TITLE_CLASS_NAME
     const activePresetLabel =

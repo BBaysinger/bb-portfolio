@@ -330,7 +330,7 @@ export const Projects: CollectionConfig = {
           admin: {
             rows: 4,
             description:
-              'One paragraph per row. Use inline HTML like <strong>...</strong> only when needed.',
+              'One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com) for inline formatting.',
           },
         },
       ],

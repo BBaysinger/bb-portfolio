@@ -101,15 +101,18 @@ Extra YAML files that do not match any current project slug are ignored with a w
 
 ```yaml
 descParagraphs:
-  - I built responsive marketing pages and interactive components for Golden 1 Credit Union.
-  - The work focused on frontend implementation quality, CMS integration, and practical delivery under agency constraints.
+  - >-
+    I built responsive marketing pages and interactive components for Golden 1 Credit Union.
+  - >-
+    The work focused on frontend implementation quality, CMS integration, and practical delivery under agency constraints.
 ```
 
 Rules:
 
 - One `.yaml` file per project slug.
 - `descParagraphs` is a list of paragraph strings.
-- Inline HTML like `<strong>...</strong>` is allowed inside a paragraph when needed.
+- Use markdown-like inline syntax inside a paragraph: `**bold**`, `*emphasis*`, and `[label](https://example.com)`.
+- To control the rendered link target, append `{target=_self}` or `{target=_blank}` after the link, for example `[label](/projects){target=_self}`.
 - The importer fails if a file does not match an existing project slug.
 
 ## Commands
