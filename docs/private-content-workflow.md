@@ -137,6 +137,8 @@ From repo root:
 
 These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, full-dataset export/import sequencing, and production overwrite confirmation.
 
+`content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
+
 Alternate directory examples:
 
 - `npm run media:seed -- --seedings-dir ../cms-media-seedings`
@@ -153,7 +155,8 @@ Path-driven alias:
 - `ALLOW_PROD_WRITE=true npm run content:migrate -- --source dev --target prod --confirm-prod-write`
 - `npm run content:pull:prod:content-dir`
 - `npm run content:pull:prod:content-dir:dry`
-- These commands use the content root from `.env.local` by default.
+- The pull/import commands use the content root from `.env.local` by default.
+- `content:migrate` does not use the configured content root; it stages internally and applies directly to the target environment.
 - Any target of `dev` requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
 - Any target of `prod` requires `ALLOW_PROD_WRITE=true`; aggregate migrations also require an extra production confirmation step.
 
@@ -161,7 +164,7 @@ Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
 - The root pull commands copy the full current dataset for an environment back into the configured staging root.
-- Aggregate migration now means: export authored content plus the supported media collections into the staging root, then apply that full dataset to the target environment.
+- Aggregate migration now means: export authored content plus the supported media collections into an internal temporary staging directory, then apply that full dataset to the target environment.
 - The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`), but the intended operator workflow is the aggregate wrapper.
 - A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-content-variants/<target>`, while keeping Payload itself as a single effective site state.
 

@@ -4,8 +4,17 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 COMMAND="${1:-}"
+MIGRATION_TEMP_DIR=""
 
-if [[ ! "$COMMAND" =~ ^$|^-h$|^--help$|^help$ ]] && [[ "${CONTENT_WORKFLOW_DIR_READY:-}" != "true" ]]; then
+cleanup() {
+  if [[ -n "$MIGRATION_TEMP_DIR" && -d "$MIGRATION_TEMP_DIR" ]]; then
+    rm -rf "$MIGRATION_TEMP_DIR"
+  fi
+}
+
+trap cleanup EXIT
+
+if [[ ! "$COMMAND" =~ ^$|^-h$|^--help$|^help$|^migrate$ ]] && [[ "${CONTENT_WORKFLOW_DIR_READY:-}" != "true" ]]; then
   exec env CONTENT_WORKFLOW_DIR_READY=true bash "$REPO_ROOT/scripts/with-portfolio-content-dir.sh" bash "$0" "$@"
 fi
 
@@ -230,7 +239,7 @@ usage() {
 Usage: scripts/content-workflow.sh <command>
 
 Commands:
-  migrate         Export the full dataset from --source local|dev|prod into the content root, then apply it to --target local|dev|prod
+  migrate         Export the full dataset from --source local|dev|prod into an internal staging dir, then apply it to --target local|dev|prod
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
   import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true)
@@ -279,7 +288,10 @@ run_pull_prod_dry() {
 
 run_migrate() {
   parse_migrate_args "$@"
-  CONTENT_DIR="$(resolve_content_dir)"
+  MIGRATION_TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/bb-portfolio-migrate.XXXXXX")"
+  CONTENT_DIR="$MIGRATION_TEMP_DIR"
+  export PORTFOLIO_CONTENT_DIR="$CONTENT_DIR"
+  log "Using temporary migration staging dir: $CONTENT_DIR"
   export_full_dataset "$SOURCE_ENV" false
   apply_full_dataset_to_target "$TARGET_ENV" "$EXPLICIT_PROD_CONFIRM"
 }

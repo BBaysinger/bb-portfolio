@@ -237,7 +237,7 @@
     // ⚠️ Raw npm-check-updates pass with no guardrails
     // Use only when you intentionally want unrestricted major version bumps
     "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
-    // 🪄 Canonical aggregate dataset migration entrypoint. Example: npm run content:migrate -- --source dev --target prod --confirm-prod-write
+    // 🪄 Canonical aggregate dataset migration entrypoint. Uses an internal temporary staging dir rather than the configured content root.
     "content:migrate": "bash ./scripts/content-workflow.sh migrate",
     // 🪄 Export the full local dataset into the configured content root
     "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
