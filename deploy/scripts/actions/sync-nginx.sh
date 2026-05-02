@@ -31,13 +31,20 @@ echo "== Uploading Nginx vhost config =="
 scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
   deploy/nginx/bb-portfolio.conf ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/bb-portfolio.conf
 
+echo "== Uploading deploy maintenance page =="
+scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
+  deploy/nginx/__deploying.html ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/__deploying.html
+
 echo "== Installing to /etc/nginx/conf.d and reloading =="
 ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
   ec2-user@"$EC2_HOST" "SSL_DOMAIN='$SSL_DOMAIN_LOCAL' bash -s" <<'SSH'
 set -e
 sudo mkdir -p /etc/nginx/conf.d
+sudo mkdir -p /var/www/html
 sudo mv -f /home/ec2-user/bb-portfolio/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
+sudo mv -f /home/ec2-user/bb-portfolio/__deploying.html /var/www/html/__deploying.html
 sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
+sudo chown root:root /var/www/html/__deploying.html
 
 if command -v certbot >/dev/null 2>&1 && systemctl list-unit-files | grep -q '^certbot-renew.timer'; then
   sudo systemctl enable --now certbot-renew.timer || echo "Failed to enable certbot-renew.timer"
@@ -89,7 +96,8 @@ server {
     default_type text/html;
     add_header Cache-Control "no-store, max-age=0" always;
     add_header Retry-After "15" always;
-    return 503 '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy in progress</title><style>body{margin:0;font-family:Georgia,"Times New Roman",serif;background:#f5efe6;color:#1f1a17}main{min-height:100vh;display:grid;place-items:center;padding:2rem}.card{max-width:34rem;padding:2rem 2.25rem;border:1px solid rgba(31,26,23,.14);background:rgba(255,252,247,.96);box-shadow:0 20px 50px rgba(31,26,23,.08)}h1{margin:0 0 .75rem;font-size:clamp(2rem,4vw,3rem);line-height:1}.eyebrow{display:block;margin-bottom:1rem;font:700 .8rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#8a5a36}p{margin:0;font-size:1.05rem;line-height:1.65}</style></head><body><main><section class="card"><span class="eyebrow">Temporary</span><h1>Deploy in progress</h1><p>The site is switching to a fresh release. Please retry in a few seconds.</p></section></main></body></html>';
+    root /var/www/html;
+    try_files /__deploying.html =503;
   }
 
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
@@ -161,7 +169,8 @@ server {
     default_type text/html;
     add_header Cache-Control "no-store, max-age=0" always;
     add_header Retry-After "15" always;
-    return 503 '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy in progress</title><style>body{margin:0;font-family:Georgia,"Times New Roman",serif;background:#f5efe6;color:#1f1a17}main{min-height:100vh;display:grid;place-items:center;padding:2rem}.card{max-width:34rem;padding:2rem 2.25rem;border:1px solid rgba(31,26,23,.14);background:rgba(255,252,247,.96);box-shadow:0 20px 50px rgba(31,26,23,.08)}h1{margin:0 0 .75rem;font-size:clamp(2rem,4vw,3rem);line-height:1}.eyebrow{display:block;margin-bottom:1rem;font:700 .8rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#8a5a36}p{margin:0;font-size:1.05rem;line-height:1.65}</style></head><body><main><section class="card"><span class="eyebrow">Temporary</span><h1>Deploy in progress</h1><p>The dev site is switching to a fresh release. Please retry in a few seconds.</p></section></main></body></html>';
+    root /var/www/html;
+    try_files /__deploying.html =503;
   }
 
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
