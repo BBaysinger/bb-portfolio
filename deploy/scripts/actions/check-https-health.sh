@@ -69,6 +69,12 @@ check_https_domain() {
   local domain="$1"
   local cert_domain="$2"
   local cert_path="/etc/letsencrypt/live/$cert_domain/fullchain.pem"
+  local https_probe_log
+  local http_probe_log
+  local status_code
+  local redirect_code
+
+  echo "Checking certificate and origin probes for $domain (cert: $cert_domain)"
 
   if ! sudo test -s "$cert_path"; then
     echo "Certificate file missing: $cert_path" >&2
@@ -81,13 +87,29 @@ check_https_domain() {
     exit 1
   fi
 
-  status_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:443:127.0.0.1" "https://$domain/")"
+  https_probe_log="$(mktemp)"
+  if ! status_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:443:127.0.0.1" "https://$domain/" 2>"$https_probe_log")"; then
+    echo "HTTPS origin probe failed for $domain" >&2
+    cat "$https_probe_log" >&2
+    rm -f "$https_probe_log"
+    exit 1
+  fi
+  rm -f "$https_probe_log"
+
   if [[ ! "$status_code" =~ ^(200|301|302|307|308)$ ]]; then
     echo "Unexpected HTTPS status for $domain: $status_code" >&2
     exit 1
   fi
 
-  redirect_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:80:127.0.0.1" "http://$domain/")"
+  http_probe_log="$(mktemp)"
+  if ! redirect_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:80:127.0.0.1" "http://$domain/" 2>"$http_probe_log")"; then
+    echo "HTTP redirect probe failed for $domain" >&2
+    cat "$http_probe_log" >&2
+    rm -f "$http_probe_log"
+    exit 1
+  fi
+  rm -f "$http_probe_log"
+
   if [[ ! "$redirect_code" =~ ^(301|302|307|308)$ ]]; then
     echo "Unexpected HTTP status for $domain (expected redirect to HTTPS): $redirect_code" >&2
     exit 1
