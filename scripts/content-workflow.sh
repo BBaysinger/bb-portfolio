@@ -109,7 +109,7 @@ pull_media_from_remote_env() {
   fi
 
   for collection in "${MEDIA_COLLECTIONS[@]}"; do
-    npm run media:pull -- --env "$source" --collection "$collection" "${dry_flag[@]}"
+    npm run media:pull -- --env "$source" --collection "$collection" "${dry_flag[@]:-}"
   done
 }
 
@@ -124,13 +124,13 @@ export_authored_content() {
 
   set_profile_env "$source"
 
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" export "${dry_flag[@]}"
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" export "${dry_flag[@]}"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" export "${dry_flag[@]:-}"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" export "${dry_flag[@]:-}"
 
   (
     cd "$REPO_ROOT/backend"
-    npm run export:project-descriptions -- --env "$source" "${dry_flag[@]}"
-    npm run export:cv-content -- --env "$source" "${dry_flag[@]}"
+    npm run export:project-descriptions -- --env "$source" "${dry_flag[@]:-}"
+    npm run export:cv-content -- --env "$source" "${dry_flag[@]:-}"
   )
 }
 
@@ -178,13 +178,13 @@ import_authored_content() {
 
   set_profile_env "$target"
 
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" import "${confirm_flag[@]}"
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" import "${confirm_flag[@]}"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" import "${confirm_flag[@]:-}"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" import "${confirm_flag[@]:-}"
 
   (
     cd "$REPO_ROOT/backend"
-    npm run import:project-descriptions -- --env "$target" "${confirm_flag[@]}"
-    npm run import:cv-content -- --env "$target" "${confirm_flag[@]}"
+    npm run import:project-descriptions -- --env "$target" "${confirm_flag[@]:-}"
+    npm run import:cv-content -- --env "$target" "${confirm_flag[@]:-}"
   )
 }
 
