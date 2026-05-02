@@ -78,9 +78,6 @@ const toParagraphRows = (paragraphs: string[]) => paragraphs.map((text) => ({ te
 
 const toYamlPayload = (paragraphs: string[]) => paragraphs
 
-const renderParagraphsAsHtml = (paragraphs: string[]) =>
-  paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')
-
 const resolveGreetingPayload = (greeting: GreetingFile, filePath: string) => {
   const introParagraphs = asParagraphStrings(greeting.introParagraphs, 'introParagraphs', filePath)
   const bodyParagraphs = asParagraphStrings(greeting.bodyParagraphs, 'bodyParagraphs', filePath)
