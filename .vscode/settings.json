@@ -27,6 +27,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     // Global toggle: disable auto format on save (was recently enabled per-language)
     "editor.formatOnSave": false,
+    "editor.wordWrap": "off",
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": false,
@@ -56,9 +57,12 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": false
     },
+    "[yaml]": {
+        "editor.wordWrap": "on"
+    },
     "editor.formatOnSaveMode": "file",
-    "typescript.tsdk": "./backend/node_modules/typescript/lib",
-    "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+    "js/ts.tsdk.path": "./backend/node_modules/typescript/lib",
+    "js/ts.tsserver.experimental.enableProjectDiagnostics": false,
     "cSpell.words": [
         "addgroup",
         "adduser",
