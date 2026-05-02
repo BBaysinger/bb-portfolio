@@ -117,7 +117,8 @@ Working list of notable features and technical systems
 
 - JSON dumps for seed data and repeatable imports
 - Automated database backup exports with dated folders
-- Private content-root workflow for CV experiences and project descriptions (YAML/HTML import/export with explicit order control)
+- Private content-root workflow for selected Payload-managed content using version-friendly YAML exports/imports
+- Paragraph-based authored content for project descriptions and greeting/branding content using markdown-like inline syntax instead of raw HTML blobs
 - NDA media backfill scripts (Payload + Mongo variants)
 
 ## Platform / Deployment / Monorepo Tooling
