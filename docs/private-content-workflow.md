@@ -11,7 +11,7 @@ Default content source:
 Recommended local setup:
 
 ```env
-PORTFOLIO_CONTENT_DIR=../cms-content-variants/interactive-developer-abbvie
+PORTFOLIO_CONTENT_DIR=../cms-content-variants/example-cms-content-variant
 ```
 
 Expected structure:
@@ -150,7 +150,7 @@ If you switch variants often, change `PORTFOLIO_CONTENT_DIR` in `.env.local`.
 Path-driven alias:
 
 - `.env.local`:
-  `PORTFOLIO_CONTENT_DIR=../cms-content-variants/interactive-developer-abbvie`
+  `PORTFOLIO_CONTENT_DIR=../cms-content-variants/example-cms-content-variant`
 - `npm run content:migrate -- --source local --target dev`
 - `ALLOW_PROD_WRITE=true npm run content:migrate -- --source dev --target prod --confirm-prod-write`
 - `npm run content:pull:prod:content-dir`
