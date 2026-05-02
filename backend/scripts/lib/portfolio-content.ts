@@ -21,7 +21,7 @@ export const resolvePortfolioContentDir = (scriptDir: string) => {
 
   if (!fs.existsSync(contentDir)) {
     throw new Error(
-      `Portfolio content directory not found: ${contentDir}. Set PORTFOLIO_CONTENT_DIR if your private content repo lives elsewhere.`,
+      `Portfolio content directory not found: ${contentDir}. Set PORTFOLIO_CONTENT_DIR in .env.local/.env if your private content repo lives elsewhere.`,
     )
   }
 

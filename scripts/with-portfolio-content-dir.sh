@@ -3,7 +3,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CONTENT_DIR_RAW="${PORTFOLIO_CONTENT_DIR:-}"
+CONTENT_DIR_RAW=""
 
 load_content_dir_from_env_file() {
   local env_file="$1"
@@ -51,8 +51,8 @@ if [[ -z "$CONTENT_DIR_RAW" ]]; then
 fi
 
 if [[ -z "$CONTENT_DIR_RAW" ]]; then
-  echo "Set PORTFOLIO_CONTENT_DIR in your shell, repo .env.local/.env, or backend .env.local/.env." >&2
-  echo "Example: PORTFOLIO_CONTENT_DIR=../cms-content-variants/<target>" >&2
+  echo "Set PORTFOLIO_CONTENT_DIR in repo .env.local/.env or backend .env.local/.env." >&2
+  echo "Example (.env.local): PORTFOLIO_CONTENT_DIR=../cms-content-variants/<target>" >&2
   exit 1
 fi
 

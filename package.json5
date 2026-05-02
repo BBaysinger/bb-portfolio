@@ -237,6 +237,12 @@
     // ⚠️ Raw npm-check-updates pass with no guardrails
     // Use only when you intentionally want unrestricted major version bumps
     "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
+    // 🪄 Canonical aggregate dataset migration entrypoint. Example: npm run content:migrate -- --source dev --target prod --confirm-prod-write
+    "content:migrate": "bash ./scripts/content-workflow.sh migrate",
+    // 🪄 Export the full local dataset into the configured content root
+    "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
+    // 🪄 Export the full dev dataset into the configured content root
+    "content:pull:dev:content-dir": "bash ./scripts/content-workflow.sh pull-dev",
     // 🪄 Pull both authored production project descriptions and CV experience seedings in one run
     "content:pull:prod:all": "npm run content:pull:prod:content-dir",
     // 🧪 Dry run: preview all authored production content pulls
@@ -246,6 +252,8 @@
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
     // 🪄 Import target content into dev. Requires ALLOW_DEV_WRITE=true.
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
+    // 🪄 Import target content into prod. Requires ALLOW_PROD_WRITE=true and extra confirmation.
+    "content:import:prod:content-dir": "bash ./scripts/content-workflow.sh import-prod",
     // 🪄 One-shot portfolio data sync across environments. Pass through args such as --source local --target dev --dry-run.
     "data:sync": "npm --prefix backend run sync:env --",
     // 🪄 Pull prod media + authored content into the configured content root.

@@ -1,12 +1,11 @@
 # Private Content Workflow
 
-This repo now supports importing authored CV content and project description content from a private sibling repo.
+This repo now supports aggregate migration of the current private content dataset through a single staging root.
 
 Default content source:
 
 - `../cms-content-variants/_general-purpose` relative to this repo root.
 - Preferred override: set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local`.
-- You can still override in the shell for a one-off run with `PORTFOLIO_CONTENT_DIR=/absolute/path/to/your/private/content`.
 - `PORTFOLIO_CONTENT_DIR` is for authored content roots; `npm run media:seed` uses sibling `../cms-media-seedings` by default.
 
 Recommended local setup:
@@ -28,6 +27,10 @@ cms-content-variants/<target>/
     seven2.svg
     golden1.svg
     exas.svg
+  project-screenshots/
+    some-project-shot.webp
+  project-thumbnails/
+    some-project-thumb.webp
   cv-experiences/
     order.yaml
     experience/
@@ -36,8 +39,8 @@ cms-content-variants/<target>/
     independent-rd/
       current.yaml
   project-descriptions/
-    my-project-slug.html
-    another-project-slug.html
+    my-project-slug.yaml
+    another-project-slug.yaml
 ```
 
 ## CV order file
@@ -119,45 +122,47 @@ Rules:
 
 From repo root:
 
+- `npm run content:migrate -- --source local --target dev`
+- `npm run content:migrate -- --source dev --target prod --confirm-prod-write`
+- `npm run content:migrate -- --source prod --target local`
 - `npm run content:import:local:content-dir`
 - `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
+- `ALLOW_PROD_WRITE=true npm run content:import:prod:content-dir -- --confirm-prod-write`
+- `npm run content:pull:local:content-dir`
+- `npm run content:pull:dev:content-dir`
 - `npm run content:pull:prod:all`
 - `npm run content:pull:prod:all:dry`
 - `npm run content:pull:prod:content-dir`
 - `npm run content:pull:prod:content-dir:dry`
 
-These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, greeting/hero sync, and aggregate authored-content validation.
+These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, full-dataset export/import sequencing, and production overwrite confirmation.
 
 Alternate directory examples:
 
-- `PORTFOLIO_CONTENT_DIR=../cms-media-seedings npm run media:seed`
 - `npm run media:seed -- --seedings-dir ../cms-media-seedings`
 - `npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-media-seedings`
 - `npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-media-seedings`
 
-If you switch variants often, either:
-
-- change `PORTFOLIO_CONTENT_DIR` in `.env.local`, or
-- set it inline for a single command.
+If you switch variants often, change `PORTFOLIO_CONTENT_DIR` in `.env.local`.
 
 Path-driven alias:
 
 - `.env.local`:
   `PORTFOLIO_CONTENT_DIR=../cms-content-variants/interactive-developer-abbvie`
-- `npm run content:import:local:content-dir`
-- `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
+- `npm run content:migrate -- --source local --target dev`
+- `ALLOW_PROD_WRITE=true npm run content:migrate -- --source dev --target prod --confirm-prod-write`
 - `npm run content:pull:prod:content-dir`
 - `npm run content:pull:prod:content-dir:dry`
 - These commands use the content root from `.env.local` by default.
-- For a one-off run, you can still prefix a command with `PORTFOLIO_CONTENT_DIR=...`.
-- The dev import alias also requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
+- Any target of `dev` requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
+- Any target of `prod` requires `ALLOW_PROD_WRITE=true`; aggregate migrations also require an extra production confirmation step.
 
 Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
-- The root pull commands are meant for copying authored production content back into sibling `../cms-content-variants/<target>` so local/dev imports can use the same content.
-- Aggregate content import/export includes branding lockup content, project descriptions, and CV content in one pass. Image assets still sync separately through the media pull/seed commands.
-- Use the root content workflow for aggregate imports/exports. The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`).
+- The root pull commands copy the full current dataset for an environment back into the configured staging root.
+- Aggregate migration now means: export authored content plus the supported media collections into the staging root, then apply that full dataset to the target environment.
+- The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`), but the intended operator workflow is the aggregate wrapper.
 - A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-content-variants/<target>`, while keeping Payload itself as a single effective site state.
 
 ## Possible future direction

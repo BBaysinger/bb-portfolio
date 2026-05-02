@@ -3,47 +3,312 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+COMMAND="${1:-}"
+
+if [[ ! "$COMMAND" =~ ^$|^-h$|^--help$|^help$ ]] && [[ "${CONTENT_WORKFLOW_DIR_READY:-}" != "true" ]]; then
+  exec env CONTENT_WORKFLOW_DIR_READY=true bash "$REPO_ROOT/scripts/with-portfolio-content-dir.sh" bash "$0" "$@"
+fi
+
+MEDIA_COLLECTIONS=(
+  project-brand-logos
+  cv-experience-logos
+  project-screenshots
+  project-thumbnails
+)
+
+log() {
+  echo "[content-workflow] $*"
+}
+
+die() {
+  echo "[content-workflow] $*" >&2
+  exit 1
+}
+
+resolve_content_dir() {
+  [[ -n "${PORTFOLIO_CONTENT_DIR:-}" ]] || die "PORTFOLIO_CONTENT_DIR is required for this command."
+
+  if [[ "$PORTFOLIO_CONTENT_DIR" = /* ]]; then
+    printf '%s\n' "$PORTFOLIO_CONTENT_DIR"
+  else
+    printf '%s\n' "$REPO_ROOT/$PORTFOLIO_CONTENT_DIR"
+  fi
+}
+
+set_profile_env() {
+  local profile="$1"
+
+  export ENV_PROFILE="$profile"
+  if [[ "$profile" == "local" ]]; then
+    unset USE_GITHUB_SECRETS || true
+  else
+    export USE_GITHUB_SECRETS=true
+  fi
+}
+
+ensure_write_guard_for_target() {
+  local target="$1"
+  local explicit_confirm="${2:-false}"
+
+  if [[ "$target" == "dev" && "${ALLOW_DEV_WRITE:-}" != "true" ]]; then
+    die "Refusing to write to dev: set ALLOW_DEV_WRITE=true to continue."
+  fi
+
+  if [[ "$target" != "prod" ]]; then
+    return
+  fi
+
+  [[ "${ALLOW_PROD_WRITE:-}" == "true" ]] ||
+    die "Refusing to write to prod: set ALLOW_PROD_WRITE=true to continue."
+
+  if [[ "$explicit_confirm" == "true" ]]; then
+    return
+  fi
+
+  if [[ ! -t 0 || ! -t 1 ]]; then
+    die "Production overwrite requires --confirm-prod-write when not running interactively."
+  fi
+
+  local confirm=""
+  read -r -p "Type 'migrate-data-to-prod' to confirm production overwrite: " confirm
+  [[ "$confirm" == "migrate-data-to-prod" ]] || die "Confirmation failed. Aborting production overwrite."
+}
+
+copy_local_media_to_content_dir() {
+  local source_root="$REPO_ROOT/backend/media"
+
+  for collection in "${MEDIA_COLLECTIONS[@]}"; do
+    local source_dir="$source_root/$collection"
+    local target_dir="$CONTENT_DIR/$collection"
+
+    rm -rf "$target_dir"
+    mkdir -p "$target_dir"
+
+    if [[ -d "$source_dir" ]]; then
+      cp -R "$source_dir/." "$target_dir/"
+    fi
+  done
+}
+
+pull_media_from_remote_env() {
+  local source="$1"
+  local dry_run="${2:-false}"
+  local dry_flag=()
+
+  if [[ "$dry_run" == "true" ]]; then
+    dry_flag+=(--dry-run)
+  fi
+
+  for collection in "${MEDIA_COLLECTIONS[@]}"; do
+    npm run media:pull -- --env "$source" --collection "$collection" "${dry_flag[@]}"
+  done
+}
+
+export_authored_content() {
+  local source="$1"
+  local dry_run="${2:-false}"
+  local dry_flag=()
+
+  if [[ "$dry_run" == "true" ]]; then
+    dry_flag+=(--dry-run)
+  fi
+
+  set_profile_env "$source"
+
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" export "${dry_flag[@]}"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" export "${dry_flag[@]}"
+
+  (
+    cd "$REPO_ROOT/backend"
+    npm run export:project-descriptions -- --env "$source" "${dry_flag[@]}"
+    npm run export:cv-content -- --env "$source" "${dry_flag[@]}"
+  )
+}
+
+export_full_dataset() {
+  local source="$1"
+  local dry_run="${2:-false}"
+
+  log "Exporting full dataset from $source into $CONTENT_DIR"
+  export_authored_content "$source" "$dry_run"
+
+  if [[ "$source" == "local" ]]; then
+    if [[ "$dry_run" == "true" ]]; then
+      log "[DRY RUN] Would copy local backend/media collections into $CONTENT_DIR"
+    else
+      copy_local_media_to_content_dir
+    fi
+    return
+  fi
+
+  pull_media_from_remote_env "$source" "$dry_run"
+}
+
+seed_media_from_content_dir() {
+  npm run media:seed
+}
+
+upload_media_to_remote_env() {
+  local target="$1"
+  local media_args=(--env "$target")
+
+  if [[ "$target" == "prod" ]]; then
+    media_args+=(--yes)
+  fi
+
+  npm run media:upload -- --env "$target" "${media_args[@]:2}"
+}
+
+import_authored_content() {
+  local target="$1"
+  local confirm_flag=()
+
+  if [[ "$target" == "prod" ]]; then
+    confirm_flag+=(--confirm-prod-write)
+  fi
+
+  set_profile_env "$target"
+
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" import "${confirm_flag[@]}"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" import "${confirm_flag[@]}"
+
+  (
+    cd "$REPO_ROOT/backend"
+    npm run import:project-descriptions -- --env "$target" "${confirm_flag[@]}"
+    npm run import:cv-content -- --env "$target" "${confirm_flag[@]}"
+  )
+}
+
+apply_full_dataset_to_target() {
+  local target="$1"
+  local explicit_confirm="${2:-false}"
+
+  ensure_write_guard_for_target "$target" "$explicit_confirm"
+  log "Applying full dataset from $CONTENT_DIR into $target"
+
+  seed_media_from_content_dir
+
+  if [[ "$target" != "local" ]]; then
+    upload_media_to_remote_env "$target"
+  fi
+
+  import_authored_content "$target"
+}
+
+parse_migrate_args() {
+  SOURCE_ENV=""
+  TARGET_ENV=""
+  EXPLICIT_PROD_CONFIRM=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --source)
+        SOURCE_ENV="${2:-}"
+        shift 2
+        ;;
+      --target)
+        TARGET_ENV="${2:-}"
+        shift 2
+        ;;
+      --confirm-prod-write)
+        EXPLICIT_PROD_CONFIRM=true
+        shift
+        ;;
+      *)
+        die "Unknown migrate option: $1"
+        ;;
+    esac
+  done
+
+  [[ "$SOURCE_ENV" =~ ^(local|dev|prod)$ ]] || die "--source must be one of: local, dev, prod"
+  [[ "$TARGET_ENV" =~ ^(local|dev|prod)$ ]] || die "--target must be one of: local, dev, prod"
+  [[ "$SOURCE_ENV" != "$TARGET_ENV" ]] || die "Source and target must differ."
+}
 
 usage() {
   cat >&2 <<'EOF'
 Usage: scripts/content-workflow.sh <command>
 
 Commands:
+  migrate         Export the full dataset from --source local|dev|prod into the content root, then apply it to --target local|dev|prod
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
+  import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true)
+  pull-local      Export local media + authored content into configured content root
+  pull-dev        Pull dev media + export greeting + branding lockup + authored content into configured content root
   pull-prod       Pull prod media + export greeting + branding lockup + authored content into configured content root
   pull-prod-dry   Dry-run variant of pull-prod
 EOF
 }
 
-run_with_content_dir() {
-  bash "$REPO_ROOT/scripts/with-portfolio-content-dir.sh" "$@"
-}
-
 run_import_local() {
-  run_with_content_dir sh -c 'npm run media:seed && ENV_PROFILE=local npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/greeting-content.ts" import && ENV_PROFILE=local npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/branding-lockup-content.ts" import && cd "$0/backend" && npm run import:project-descriptions -- --env local && npm run import:cv-content -- --env local' "$REPO_ROOT"
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_full_dataset_to_target local false
 }
 
 run_import_dev() {
-  run_with_content_dir sh -c 'test "${ALLOW_DEV_WRITE:-}" = "true" || { echo "Set ALLOW_DEV_WRITE=true to import into dev." >&2; exit 1; }; ENV_PROFILE=dev USE_GITHUB_SECRETS=true npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/greeting-content.ts" import && ENV_PROFILE=dev USE_GITHUB_SECRETS=true npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/branding-lockup-content.ts" import && cd "$0/backend" && USE_GITHUB_SECRETS=true npm run import:project-descriptions -- --env dev && USE_GITHUB_SECRETS=true npm run import:cv-content -- --env dev' "$REPO_ROOT"
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_full_dataset_to_target dev false
+}
+
+run_import_prod() {
+  local explicit_confirm="${1:-false}"
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_full_dataset_to_target prod "$explicit_confirm"
+}
+
+run_pull_local() {
+  CONTENT_DIR="$(resolve_content_dir)"
+  export_full_dataset local false
+}
+
+run_pull_dev() {
+  CONTENT_DIR="$(resolve_content_dir)"
+  export_full_dataset dev false
 }
 
 run_pull_prod() {
-  run_with_content_dir sh -c 'npm run media:pull:prod:cv-experience-logos -- --seedings-dir "$PORTFOLIO_CONTENT_DIR" && npm run media:pull:prod:project-brand-logos -- --seedings-dir "$PORTFOLIO_CONTENT_DIR" && ENV_PROFILE=prod USE_GITHUB_SECRETS=true npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/greeting-content.ts" export && ENV_PROFILE=prod USE_GITHUB_SECRETS=true npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/branding-lockup-content.ts" export && cd "$0/backend" && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod' "$REPO_ROOT"
+  CONTENT_DIR="$(resolve_content_dir)"
+  export_full_dataset prod false
 }
 
 run_pull_prod_dry() {
-  run_with_content_dir sh -c 'npm run media:pull:prod:cv-experience-logos:dry -- --seedings-dir "$PORTFOLIO_CONTENT_DIR" && npm run media:pull:prod:project-brand-logos:dry -- --seedings-dir "$PORTFOLIO_CONTENT_DIR" && ENV_PROFILE=prod USE_GITHUB_SECRETS=true npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/greeting-content.ts" export --dry-run && ENV_PROFILE=prod USE_GITHUB_SECRETS=true npm exec --prefix "$0/backend" -- tsx "$0/backend/scripts/lib/branding-lockup-content.ts" export --dry-run && cd "$0/backend" && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod --dry-run && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod --dry-run' "$REPO_ROOT"
+  CONTENT_DIR="$(resolve_content_dir)"
+  export_full_dataset prod true
 }
 
-COMMAND="${1:-}"
+run_migrate() {
+  parse_migrate_args "$@"
+  CONTENT_DIR="$(resolve_content_dir)"
+  export_full_dataset "$SOURCE_ENV" false
+  apply_full_dataset_to_target "$TARGET_ENV" "$EXPLICIT_PROD_CONFIRM"
+}
 
 case "$COMMAND" in
+  migrate)
+    shift
+    run_migrate "$@"
+    ;;
   import-local)
     run_import_local
     ;;
   import-dev)
     run_import_dev
+    ;;
+  import-prod)
+    shift
+    explicit_confirm=false
+    if [[ "${1:-}" == "--confirm-prod-write" ]]; then
+      explicit_confirm=true
+      shift
+    fi
+    run_import_prod "$explicit_confirm"
+    ;;
+  pull-local)
+    run_pull_local
+    ;;
+  pull-dev)
+    run_pull_dev
     ;;
   pull-prod)
     run_pull_prod
@@ -51,7 +316,11 @@ case "$COMMAND" in
   pull-prod-dry)
     run_pull_prod_dry
     ;;
-  "" | -h | --help | help)
+  -h | --help | help)
+    usage
+    exit 0
+    ;;
+  "")
     usage
     exit 1
     ;;

@@ -163,10 +163,18 @@ Examples:
 }
 
 function resolveSeedingsRoot(seedingsDir?: string): string {
+  const contentDir = process.env.PORTFOLIO_CONTENT_DIR?.trim();
+
   if (seedingsDir?.trim()) {
     return path.isAbsolute(seedingsDir)
       ? seedingsDir
       : path.resolve(repoRoot, seedingsDir);
+  }
+
+  if (contentDir) {
+    return path.isAbsolute(contentDir)
+      ? contentDir
+      : path.resolve(repoRoot, contentDir);
   }
 
   return path.resolve(repoRoot, "../cms-media-seedings");

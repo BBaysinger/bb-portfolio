@@ -17,7 +17,6 @@
  * Usage:
  *   npm run media:seed
  *   npm run media:seed -- --seedings-dir ../cms-media-seedings
- *   PORTFOLIO_CONTENT_DIR=../cms-media-seedings npm run media:seed
  */
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
@@ -113,7 +112,7 @@ async function main() {
   }
   if (!seedBase) {
     console.error(
-      "No seed folder found. Create ../cms-media-seedings next to the repo or pass --seedings-dir / PORTFOLIO_CONTENT_DIR.",
+      "No seed folder found. Create ../cms-media-seedings next to the repo, pass --seedings-dir, or set PORTFOLIO_CONTENT_DIR in .env.local/.env.",
     );
     process.exit(2);
   }

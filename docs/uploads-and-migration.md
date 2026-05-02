@@ -54,11 +54,10 @@ npm run media:seed
 You can also target a different content root for one run:
 
 ```
-PORTFOLIO_CONTENT_DIR=../cms-media-seedings npm run media:seed
 npm run media:seed -- --seedings-dir ../cms-media-seedings
 ```
 
-If you use the same content root regularly, prefer setting `PORTFOLIO_CONTENT_DIR` once in repo `.env.local` instead of prefixing every command.
+If you use the same content root regularly, set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local` instead of overriding it on each command.
 
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
@@ -133,7 +132,7 @@ npm run content:pull:prod:content-dir
 npm run content:import:local:content-dir
 ```
 
-Use the inline `PORTFOLIO_CONTENT_DIR=../cms-content-variants/<target>` prefix only when you want to temporarily override your usual `.env.local` content root.
+Use `PORTFOLIO_CONTENT_DIR` from repo `.env.local`/`.env` (or backend `.env.local`/`.env`) as the canonical authored-content root.
 
 ## What you likely want
 
