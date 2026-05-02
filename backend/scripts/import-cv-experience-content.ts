@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url'
 
 import { getPayload, type Payload } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../src/utils/triggerFrontendProjectRevalidate'
+
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { readYamlFile, requireDirectory, resolvePortfolioContentDir } from './lib/portfolio-content'
 import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
@@ -266,28 +268,45 @@ async function main() {
     const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
-    const experienceItems = []
-    for (const entry of experienceEntries) {
-      experienceItems.push(await mapCvEntryToBlock(payload, logosDir, entry))
+    const previousSkipFrontendRevalidate = process.env.SKIP_FRONTEND_REVALIDATE
+    process.env.SKIP_FRONTEND_REVALIDATE = 'true'
+
+    try {
+      const experienceItems = []
+      for (const entry of experienceEntries) {
+        experienceItems.push(await mapCvEntryToBlock(payload, logosDir, entry))
+      }
+
+      const recentIndependentStudy = []
+      for (const entry of independentEntries) {
+        recentIndependentStudy.push(await mapCvEntryToBlock(payload, logosDir, entry))
+      }
+
+      const globalUpdater = payload as unknown as SeedGlobalUpdater
+      await globalUpdater.updateGlobal({
+        slug: 'cvExperience',
+        data: {
+          experienceItems,
+          recentIndependentStudy,
+        },
+      })
+
+      console.info(
+        `Imported cvExperience content from ${contentDir} with ${experienceItems.length} experience items and ${recentIndependentStudy.length} independent R&D items.`,
+      )
+    } finally {
+      if (previousSkipFrontendRevalidate === undefined) {
+        delete process.env.SKIP_FRONTEND_REVALIDATE
+      } else {
+        process.env.SKIP_FRONTEND_REVALIDATE = previousSkipFrontendRevalidate
+      }
     }
 
-    const recentIndependentStudy = []
-    for (const entry of independentEntries) {
-      recentIndependentStudy.push(await mapCvEntryToBlock(payload, logosDir, entry))
-    }
-
-    const globalUpdater = payload as unknown as SeedGlobalUpdater
-    await globalUpdater.updateGlobal({
-      slug: 'cvExperience',
-      data: {
-        experienceItems,
-        recentIndependentStudy,
-      },
+    console.info('Triggering consolidated frontend revalidation for cvExperience import.')
+    await triggerFrontendProjectRevalidate('cvExperience.bulkImport', {
+      warmPaths: ['/cv/'],
     })
-
-    console.info(
-      `Imported cvExperience content from ${contentDir} with ${experienceItems.length} experience items and ${recentIndependentStudy.length} independent R&D items.`,
-    )
+    console.info('Completed consolidated frontend revalidation for cvExperience import.')
   } catch (error) {
     console.error('Failed to import cvExperience content:', error)
     process.exitCode = 1
@@ -299,3 +318,10 @@ async function main() {
 }
 
 void main()
+  .then(() => {
+    process.exit(process.exitCode ?? 0)
+  })
+  .catch((error) => {
+    console.error('Failed to import cvExperience content:', error)
+    process.exit(1)
+  })

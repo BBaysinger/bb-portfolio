@@ -161,3 +161,10 @@ async function main() {
 }
 
 void main()
+  .then(() => {
+    process.exit(process.exitCode ?? 0)
+  })
+  .catch((error) => {
+    console.error('Failed to export project descriptions:', error)
+    process.exit(1)
+  })

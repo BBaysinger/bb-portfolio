@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url'
 
 import { getPayload, type Payload } from 'payload'
 
+import { buildProjectsWarmPaths } from '../src/utils/frontendRouteWarmup'
+import { triggerFrontendProjectRevalidate } from '../src/utils/triggerFrontendProjectRevalidate'
+
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import {
   listFilesByExtension,
@@ -16,6 +19,7 @@ import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
 type ProjectDoc = {
   id: string | number
   slug?: string | null
+  shortCode?: string | null
 }
 
 type ProjectFindResult = {
@@ -190,6 +194,7 @@ async function main() {
       paragraphs: string[]
       slug: string
       projectId: string | number
+      shortCode?: string | null
     }>
 
     for (const project of projects) {
@@ -206,6 +211,7 @@ async function main() {
       matches.push({
         ...candidate,
         projectId: project.id,
+        shortCode: project.shortCode,
       })
     }
 
@@ -216,9 +222,30 @@ async function main() {
       )
     }
 
-    for (const match of matches) {
-      await updateProjectDescriptionsWithRetry(payload, match.projectId, match.paragraphs)
+    const previousSkipFrontendRevalidate = process.env.SKIP_FRONTEND_REVALIDATE
+    process.env.SKIP_FRONTEND_REVALIDATE = 'true'
+
+    try {
+      for (const match of matches) {
+        console.info(`Importing project description for slug '${match.slug}'...`)
+        await updateProjectDescriptionsWithRetry(payload, match.projectId, match.paragraphs)
+        console.info(`Imported project description for slug '${match.slug}'.`)
+      }
+    } finally {
+      if (previousSkipFrontendRevalidate === undefined) {
+        delete process.env.SKIP_FRONTEND_REVALIDATE
+      } else {
+        process.env.SKIP_FRONTEND_REVALIDATE = previousSkipFrontendRevalidate
+      }
     }
+
+    console.info(
+      `Triggering consolidated frontend revalidation for ${matches.length} project descriptions.`,
+    )
+    await triggerFrontendProjectRevalidate('projectDescriptions.bulkImport', {
+      warmPaths: buildProjectsWarmPaths(matches, { includeHome: true }),
+    })
+    console.info('Completed consolidated frontend revalidation for project descriptions.')
 
     console.info(
       `Imported ${matches.length} project description files from ${descriptionsDir} into Payload project description paragraphs.`,
@@ -234,3 +261,10 @@ async function main() {
 }
 
 void main()
+  .then(() => {
+    process.exit(process.exitCode ?? 0)
+  })
+  .catch((error) => {
+    console.error('Failed to import project descriptions:', error)
+    process.exit(1)
+  })
