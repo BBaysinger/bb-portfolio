@@ -94,27 +94,22 @@ Rules:
 
 Each file name must match an existing Payload project slug.
 
-Example: `project-descriptions/golden-1-credit-union.html`
+Example: `project-descriptions/golden-1-credit-union.yaml`
 
-Imports fail fast when a project is missing its expected slug-named HTML file.
-Extra HTML files that do not match any current project slug are ignored with a warning.
+Imports fail fast when a project is missing its expected slug-named YAML file.
+Extra YAML files that do not match any current project slug are ignored with a warning.
 
-```html
-<p>
-  I built responsive marketing pages and interactive components for Golden 1
-  Credit Union.
-</p>
-<p>
-  The work focused on frontend implementation quality, CMS integration, and
-  practical delivery under agency constraints.
-</p>
+```yaml
+descParagraphs:
+  - I built responsive marketing pages and interactive components for Golden 1 Credit Union.
+  - The work focused on frontend implementation quality, CMS integration, and practical delivery under agency constraints.
 ```
 
 Rules:
 
-- One `.html` file per project slug.
-- Each top-level HTML node in the file is imported as one item in the project's `desc` array.
-- Example: two sibling `<p>` tags become two `desc` entries.
+- One `.yaml` file per project slug.
+- `descParagraphs` is a list of paragraph strings.
+- Inline HTML like `<strong>...</strong>` is allowed inside a paragraph when needed.
 - The importer fails if a file does not match an existing project slug.
 
 ## Commands

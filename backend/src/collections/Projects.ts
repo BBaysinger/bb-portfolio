@@ -316,20 +316,21 @@ export const Projects: CollectionConfig = {
       },
     },
     {
-      name: 'desc',
-      label: 'Description HTML Blocks',
+      name: 'descParagraphs',
+      label: 'Description Paragraphs',
       type: 'array',
       access: {
         read: canReadNdaField,
       },
       fields: [
         {
-          name: 'block',
+          name: 'text',
           type: 'textarea',
-          label: 'HTML Block',
+          label: 'Paragraph',
           admin: {
-            rows: 6,
-            description: 'Paste raw HTML like <p>...</p>.',
+            rows: 4,
+            description:
+              'One paragraph per row. Use inline HTML like <strong>...</strong> only when needed.',
           },
         },
       ],

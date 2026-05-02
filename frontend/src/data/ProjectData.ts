@@ -515,6 +515,7 @@ async function fetchPortfolioProjects(opts?: {
     awards?: Array<{ award?: string }> | string;
     type?: string;
     desc?: Array<{ block?: string }>;
+    descParagraphs?: Array<{ text?: string }>;
     date?: string;
     urls?: Array<{ label?: string; url?: string }>;
     // Relationships (populated via depth=1)
@@ -548,6 +549,7 @@ async function fetchPortfolioProjects(opts?: {
       !doc.title || doc.title.trim().toLowerCase() === "confidential project";
     const hasRichFields = Boolean(
       (doc.desc && doc.desc.length > 0) ||
+      (doc.descParagraphs && doc.descParagraphs.length > 0) ||
       (doc.urls && doc.urls.length > 0) ||
       doc.thumbnail ||
       doc.screenshots,
@@ -811,8 +813,11 @@ async function fetchPortfolioProjects(opts?: {
       : typeof doc.awards === "string"
         ? doc.awards
         : "";
-    const desc = Array.isArray(doc.desc)
-      ? doc.desc.map((d) => d?.block).filter((x): x is string => !!x)
+    const desc = Array.isArray(doc.descParagraphs)
+      ? doc.descParagraphs
+          .map((paragraph: { text?: string }) => paragraph?.text)
+          .filter((text: string | undefined): text is string => !!text)
+          .map((paragraph: string) => `<p>${paragraph}</p>`)
       : [];
     const urlsArray = Array.isArray(doc.urls) ? doc.urls : [];
     const urls: Record<string, string | string[]> = {};

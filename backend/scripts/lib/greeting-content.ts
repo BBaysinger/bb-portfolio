@@ -14,16 +14,16 @@ import {
 import { requireExplicitProdWriteConfirmation } from './write-guard'
 
 type GreetingFile = {
-  greetingIntroHtml?: unknown
-  greetingBodyHtml?: unknown
+  introParagraphs?: unknown
+  bodyParagraphs?: unknown
 }
 
 type GreetingGlobalUpdater = {
   updateGlobal: (args: {
     slug: string
     data: {
-      greetingIntroHtml: string
-      greetingBodyHtml: string
+      introParagraphs: { text: string }[]
+      bodyParagraphs: { text: string }[]
     }
   }) => Promise<unknown>
 }
@@ -32,17 +32,63 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const scriptsDir = path.resolve(__dirname, '..')
 
-const asNonEmptyString = (value: unknown, fieldName: string, filePath: string) => {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(`Expected ${fieldName} to be a non-empty string in ${filePath}`)
+const asParagraphStrings = (value: unknown, fieldName: string, filePath: string) => {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`Expected ${fieldName} to be a non-empty array in ${filePath}`)
   }
 
-  return value.trim()
+  const paragraphs = value.map((item, index) => {
+    if (typeof item !== 'string' || item.trim().length === 0) {
+      throw new Error(`Expected ${fieldName}[${index}] to be a non-empty string in ${filePath}`)
+    }
+
+    return item.trim()
+  })
+
+  if (paragraphs.length === 0) {
+    throw new Error(`Expected ${fieldName} to contain at least one paragraph in ${filePath}`)
+  }
+
+  return paragraphs
 }
 
-const asTrimmedString = (value: unknown) => {
-  if (typeof value !== 'string') return ''
-  return value.trim()
+const asParagraphRows = (value: unknown) => {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map((item) => {
+      if (typeof item === 'string') {
+        return item.trim()
+      }
+
+      if (
+        item &&
+        typeof item === 'object' &&
+        typeof (item as { text?: unknown }).text === 'string'
+      ) {
+        return (item as { text: string }).text.trim()
+      }
+
+      return ''
+    })
+    .filter((item) => item.length > 0)
+}
+
+const toParagraphRows = (paragraphs: string[]) => paragraphs.map((text) => ({ text }))
+
+const toYamlPayload = (paragraphs: string[]) => paragraphs
+
+const renderParagraphsAsHtml = (paragraphs: string[]) =>
+  paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')
+
+const resolveGreetingPayload = (greeting: GreetingFile, filePath: string) => {
+  const introParagraphs = asParagraphStrings(greeting.introParagraphs, 'introParagraphs', filePath)
+  const bodyParagraphs = asParagraphStrings(greeting.bodyParagraphs, 'bodyParagraphs', filePath)
+
+  return {
+    introParagraphs,
+    bodyParagraphs,
+  }
 }
 
 const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
@@ -76,16 +122,7 @@ export const importGreetingContent = async () => {
     }
 
     const greeting = readYamlFile<GreetingFile>(greetingPath)
-    const greetingIntroHtml = asNonEmptyString(
-      greeting.greetingIntroHtml,
-      'greetingIntroHtml',
-      greetingPath,
-    )
-    const greetingBodyHtml = asNonEmptyString(
-      greeting.greetingBodyHtml,
-      'greetingBodyHtml',
-      greetingPath,
-    )
+    const { introParagraphs, bodyParagraphs } = resolveGreetingPayload(greeting, greetingPath)
 
     const { default: config } = await import('../../src/payload.config')
     payload = await getPayload({ config })
@@ -94,8 +131,8 @@ export const importGreetingContent = async () => {
     await globalUpdater.updateGlobal({
       slug: 'heroBranding',
       data: {
-        greetingIntroHtml,
-        greetingBodyHtml,
+        introParagraphs: toParagraphRows(introParagraphs),
+        bodyParagraphs: toParagraphRows(bodyParagraphs),
       },
     })
 
@@ -125,10 +162,13 @@ export const exportGreetingContent = async ({ dryRun = false }: { dryRun?: boole
       overrideAccess: true,
     })) as unknown as GreetingFile
 
+    const introParagraphs = asParagraphRows(greeting.introParagraphs)
+    const bodyParagraphs = asParagraphRows(greeting.bodyParagraphs)
+
     const greetingSerialized = dumpYaml(
       {
-        greetingIntroHtml: asTrimmedString(greeting.greetingIntroHtml),
-        greetingBodyHtml: asTrimmedString(greeting.greetingBodyHtml),
+        introParagraphs: toYamlPayload(introParagraphs),
+        bodyParagraphs: toYamlPayload(bodyParagraphs),
       },
       {
         lineWidth: -1,

@@ -31,7 +31,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     // Export CV experience global content into the external seedings folder.
     "export:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-cv-experience-content.ts",
-    // Export project description HTML blocks into the external seedings folder.
+    // Export project description paragraphs into the external seedings folder.
     "export:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-project-descriptions-content.ts",
     // Import CV experience content from the external seedings folder into Payload
     "import:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-cv-experience-content.ts",
@@ -39,7 +39,7 @@
     "import:cv-content:local": "npm run import:cv-content -- --env local",
     // Import CV experience content into the dev backend environment
     "import:cv-content:dev": "npm run import:cv-content -- --env dev",
-    // Import project description HTML blocks from the external seedings folder into Payload
+    // Import project description paragraphs from the external seedings folder into Payload
     "import:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-project-descriptions-content.ts",
     // Import project descriptions into the local backend environment
     "import:project-descriptions:local": "npm run import:project-descriptions -- --env local",

@@ -28,9 +28,28 @@ const roleTitleClassNameField = (defaultValue: string) => ({
   },
 })
 
-const greetingIntroHtmlDefault = `<p>Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.</p>`
+const paragraphField = (label: string, rows: number) => ({
+  name: 'text',
+  label,
+  type: 'textarea' as const,
+  required: true,
+  admin: {
+    rows,
+    description:
+      'One paragraph per row. The app controls paragraph wrappers; inline markup like <strong>, <em>, and <a> is allowed.',
+  },
+})
 
-const greetingBodyHtmlDefault = `<p>I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.</p><p>I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.</p>`
+const introParagraphsDefault = [
+  "Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.",
+]
+
+const bodyParagraphsDefault = [
+  'I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.',
+  "I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.",
+]
+
+const toParagraphRows = (paragraphs: string[]) => paragraphs.map((text) => ({ text }))
 
 export const BrandingLockup: GlobalConfig = {
   slug: 'heroBranding',
@@ -50,26 +69,30 @@ export const BrandingLockup: GlobalConfig = {
   },
   fields: [
     {
-      name: 'greetingIntroHtml',
-      label: 'Greeting Intro HTML',
-      type: 'textarea',
+      name: 'introParagraphs',
+      label: 'Intro Paragraphs',
+      type: 'array',
       required: true,
-      defaultValue: greetingIntroHtmlDefault,
+      minRows: 1,
+      defaultValue: toParagraphRows(introParagraphsDefault),
       admin: {
-        rows: 6,
-        description: 'Paste raw HTML like <p>...</p>. This field supports multiple paragraphs.',
+        description:
+          'List of intro paragraphs. The app wraps each row in its own paragraph element.',
       },
+      fields: [paragraphField('Intro Paragraph', 4)],
     },
     {
-      name: 'greetingBodyHtml',
-      label: 'Greeting Body HTML',
-      type: 'textarea',
+      name: 'bodyParagraphs',
+      label: 'Body Paragraphs',
+      type: 'array',
       required: true,
-      defaultValue: greetingBodyHtmlDefault,
+      minRows: 1,
+      defaultValue: toParagraphRows(bodyParagraphsDefault),
       admin: {
-        rows: 10,
-        description: 'Paste raw HTML like <p>...</p>. This field supports multiple paragraphs.',
+        description:
+          'List of body paragraphs. The app wraps each row in its own paragraph element.',
       },
+      fields: [paragraphField('Body Paragraph', 5)],
     },
     {
       name: 'roleVariants',

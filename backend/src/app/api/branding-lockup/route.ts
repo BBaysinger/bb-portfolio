@@ -8,8 +8,13 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 const DEFAULT_TITLE = 'Front-End / UI Developer'
-const DEFAULT_GREETING_INTRO_HTML = `<p>Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.</p>`
-const DEFAULT_GREETING_BODY_HTML = `<p>I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.</p><p>I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.</p>`
+const DEFAULT_INTRO_PARAGRAPHS = [
+  "Hi, I'm Bradley — a <strong>UI</strong> and <strong>front-end developer</strong> in Spokane, WA. I specialize in building polished, custom interfaces with a strong emphasis on interaction, behavior, and detail.",
+]
+const DEFAULT_BODY_PARAGRAPHS = [
+  'I build <strong>front-end systems</strong> for <strong>reliable, polished product UI</strong> — with a focus on structure, styling, behavior, and interaction. This portfolio combines recent projects with selected earlier work to show range, continuity, and the <strong>creative/technical foundation</strong> behind my current direction.',
+  "I'm currently available for <strong>freelance, contract, and production support</strong> where polished front-end execution is needed.",
+]
 const LOCKUP_ROLE_TITLE_CLASS_NAMES = new Set(['FEDev', 'UIDev', 'FEUIDev'])
 const DEFAULT_ROLE_TITLE_CLASS_NAME = 'FEUIDev'
 const BRANDING_LOCKUP_GLOBAL_SLUG = 'heroBranding'
@@ -26,6 +31,10 @@ type RoleVariant = {
   isActive?: unknown
 }
 
+type ParagraphRow = {
+  text?: unknown
+}
+
 const getRoleVariants = (value: unknown): RoleVariant[] => {
   if (!Array.isArray(value)) return []
   return value as RoleVariant[]
@@ -36,6 +45,27 @@ const getActiveVariant = (variants: RoleVariant[]): RoleVariant | null => {
   const active = variants.find((item) => item?.isActive === true)
   return active || variants[0] || null
 }
+
+const normalizeParagraphs = (value: unknown, fallback: string[]) => {
+  if (!Array.isArray(value)) return fallback
+
+  const paragraphs = value
+    .map((item) => {
+      if (typeof item === 'string') return item.trim()
+      if (item && typeof item === 'object' && typeof (item as ParagraphRow).text === 'string') {
+        const text = (item as ParagraphRow).text
+        return typeof text === 'string' ? text.trim() : ''
+      }
+
+      return ''
+    })
+    .filter((paragraph) => paragraph.length > 0)
+
+  return paragraphs.length > 0 ? paragraphs : fallback
+}
+
+const renderParagraphsAsHtml = (paragraphs: string[]) =>
+  paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')
 
 export async function GET() {
   try {
@@ -51,15 +81,16 @@ export async function GET() {
     const active = getActiveVariant(variants)
     const activeTitle =
       typeof active?.title === 'string' && active.title.trim() ? active.title.trim() : DEFAULT_TITLE
-    const greetingIntroHtml =
-      typeof brandingLockup?.greetingIntroHtml === 'string' &&
-      brandingLockup.greetingIntroHtml.trim()
-        ? brandingLockup.greetingIntroHtml.trim()
-        : DEFAULT_GREETING_INTRO_HTML
-    const greetingBodyHtml =
-      typeof brandingLockup?.greetingBodyHtml === 'string' && brandingLockup.greetingBodyHtml.trim()
-        ? brandingLockup.greetingBodyHtml.trim()
-        : DEFAULT_GREETING_BODY_HTML
+    const introParagraphs = normalizeParagraphs(
+      brandingLockup?.introParagraphs,
+      DEFAULT_INTRO_PARAGRAPHS,
+    )
+    const bodyParagraphs = normalizeParagraphs(
+      brandingLockup?.bodyParagraphs,
+      DEFAULT_BODY_PARAGRAPHS,
+    )
+    const greetingIntroHtml = renderParagraphsAsHtml(introParagraphs)
+    const greetingBodyHtml = renderParagraphsAsHtml(bodyParagraphs)
     const activeRoleTitleClassName =
       toRoleTitleClassName(active?.roleTitleClassName) || DEFAULT_ROLE_TITLE_CLASS_NAME
     const activePresetLabel =

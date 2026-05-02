@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
@@ -14,12 +15,12 @@ type Options = {
 }
 
 type ProjectDescriptionBlock = {
-  block?: unknown
+  text?: unknown
 }
 
 type ProjectDoc = {
   slug?: unknown
-  desc?: unknown
+  descParagraphs?: unknown
 }
 
 type ProjectFindResult = {
@@ -57,26 +58,35 @@ const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
   ])
 }
 
-const toDescriptionHtml = (value: unknown) => {
-  if (!Array.isArray(value)) return ''
+const toDescriptionParagraphs = (value: unknown) => {
+  if (!Array.isArray(value)) return [] as string[]
 
   return value
     .map((entry) => {
       if (!entry || typeof entry !== 'object') return ''
       const block = entry as ProjectDescriptionBlock
-      return asTrimmedString(block.block)
+      return asTrimmedString(block.text)
     })
     .filter(Boolean)
-    .join('\n\n')
-    .trim()
 }
 
-const listHtmlFiles = (directoryPath: string) => {
+const serializeProjectDescription = (descParagraphs: string[]) =>
+  dumpYaml(
+    { descParagraphs },
+    {
+      lineWidth: -1,
+      noRefs: true,
+      quotingType: '"',
+      forceQuotes: false,
+    },
+  )
+
+const listYamlFiles = (directoryPath: string) => {
   if (!fs.existsSync(directoryPath)) return [] as string[]
 
   return fs
     .readdirSync(directoryPath, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.html'))
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.yaml'))
     .map((entry) => path.resolve(directoryPath, entry.name))
 }
 
@@ -107,9 +117,9 @@ async function main() {
 
       for (const doc of result.docs) {
         const slug = asTrimmedString(doc.slug)
-        const html = toDescriptionHtml(doc.desc)
-        if (!slug || !html) continue
-        matchedProjects.push({ slug, html })
+        const descParagraphs = toDescriptionParagraphs(doc.descParagraphs)
+        if (!slug || descParagraphs.length === 0) continue
+        matchedProjects.push({ slug, html: serializeProjectDescription(descParagraphs) })
       }
 
       hasNextPage = result.hasNextPage === true
@@ -121,16 +131,16 @@ async function main() {
       return
     }
 
-    const staleFiles = listHtmlFiles(descriptionsDir)
+    const staleFiles = listYamlFiles(descriptionsDir)
 
     console.info(
       `${options.dryRun ? '[DRY RUN] ' : ''}Preparing to export ${matchedProjects.length} project descriptions to ${descriptionsDir}.`,
     )
 
     if (options.dryRun) {
-      console.info(`Would prune ${staleFiles.length} existing .html files before export.`)
+      console.info(`Would prune ${staleFiles.length} existing YAML files before export.`)
       for (const project of matchedProjects) {
-        console.info(`Would write ${path.join(descriptionsDir, `${project.slug}.html`)}`)
+        console.info(`Would write ${path.join(descriptionsDir, `${project.slug}.yaml`)}`)
       }
       return
     }
@@ -141,12 +151,12 @@ async function main() {
     }
 
     for (const project of matchedProjects) {
-      const destinationPath = path.join(descriptionsDir, `${project.slug}.html`)
+      const destinationPath = path.join(descriptionsDir, `${project.slug}.yaml`)
       fs.writeFileSync(destinationPath, `${project.html}\n`, 'utf8')
     }
 
     console.info(
-      `Exported ${matchedProjects.length} project descriptions into ${descriptionsDir}. Pruned ${staleFiles.length} stale files.`,
+      `Exported ${matchedProjects.length} project descriptions into ${descriptionsDir}. Pruned ${staleFiles.length} stale YAML files.`,
     )
   } catch (error) {
     console.error('Failed to export project descriptions:', error)
