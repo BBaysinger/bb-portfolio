@@ -145,7 +145,7 @@
     "search:repo": "rg --line-number --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     "release:promote": "bash ./scripts/sync-branches.sh",
-    "release:promote:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump"
+    "release:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.4",

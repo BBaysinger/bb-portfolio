@@ -382,8 +382,8 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     // 🚀 Promote the validated dev branch through the release flow and return to dev.
     "release:promote": "bash ./scripts/sync-branches.sh",
-    // 🚀 Same release-promotion flow, but only synchronize branches without the canonical version bump commit.
-    "release:promote:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump",
+    // 🚀 Synchronize dev and main without the canonical version bump commit, triggering both workflows as needed.
+    "release:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {

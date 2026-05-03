@@ -12,7 +12,7 @@
 #
 # Usage:
 #   npm run release:promote
-#   npm run release:promote -- --no-version-bump
+#   npm run release:sync-only
 #   npm run release:promote -- --deploy-all
 
 set -euo pipefail
@@ -22,7 +22,7 @@ err() { echo -e "\033[1;31m[sync-branches]\033[0m $*" 1>&2; }
 
 print_usage() {
   cat <<'EOF'
-Usage: npm run release:promote [-- --no-version-bump] [--deploy-all]
+Usage: npm run release:promote | npm run release:sync-only | npm run release:promote -- --deploy-all
 
 Options:
   --no-version-bump  Sync branches without incrementing package versions.
@@ -229,20 +229,27 @@ wait_for_push_workflow() {
   local BRANCH=$1
   local SHA=$2
   local LABEL=$3
+  local EVENT=${4:-push}
+  local STARTED_AT=${5:-}
+  local CREATED_FILTER=""
   local RUN_ID=""
   local ATTEMPTS=0
 
   require_gh
 
-  log "Waiting for CI/CD workflow to start for $LABEL ($SHA)"
+  if [[ -n "$STARTED_AT" ]]; then
+    CREATED_FILTER=" and .createdAt >= \"$STARTED_AT\""
+  fi
+
+  log "Waiting for CI/CD workflow to start for $LABEL ($SHA via $EVENT)"
   until [[ -n "$RUN_ID" ]]; do
     RUN_ID=$(gh run list \
       --workflow "$CI_WORKFLOW_FILE" \
       --branch "$BRANCH" \
-      --event push \
+      --event "$EVENT" \
       --limit 20 \
-      --json databaseId,headSha \
-      --jq ".[] | select(.headSha == \"$SHA\") | .databaseId" | head -n 1)
+      --json databaseId,headSha,createdAt \
+      --jq ".[] | select(.headSha == \"$SHA\"$CREATED_FILTER) | .databaseId" | head -n 1)
 
     if [[ -n "$RUN_ID" ]]; then
       break
@@ -262,6 +269,56 @@ wait_for_push_workflow() {
     err "CI/CD workflow failed for $LABEL."
     gh run view "$RUN_ID" --log || true
     exit 1
+  fi
+}
+
+current_timestamp_utc() {
+  date -u +"%Y-%m-%dT%H:%M:%SZ"
+}
+
+remote_branch_sha() {
+  local BRANCH=$1
+
+  git ls-remote --heads origin "$BRANCH" | awk 'NR==1 { print $1 }'
+}
+
+trigger_manual_workflow() {
+  local BRANCH=$1
+  local LABEL=$2
+
+  require_gh
+  log "Triggering CI/CD workflow manually for $LABEL on $BRANCH"
+  gh workflow run "$CI_WORKFLOW_FILE" --ref "$BRANCH" >/dev/null
+}
+
+push_or_dispatch_workflow() {
+  local SOURCE_REF=$1
+  local DEST_BRANCH=$2
+  local TARGET_SHA=$3
+  local LABEL=$4
+  local SHOULD_WAIT=${5:-false}
+  local REMOTE_SHA=""
+  local EVENT="push"
+  local STARTED_AT=""
+
+  REMOTE_SHA=$(remote_branch_sha "$DEST_BRANCH")
+  STARTED_AT=$(current_timestamp_utc)
+
+  if [[ "$REMOTE_SHA" == "$TARGET_SHA" ]]; then
+    log "$DEST_BRANCH already points at $TARGET_SHA; using workflow_dispatch for $LABEL"
+    trigger_manual_workflow "$DEST_BRANCH" "$LABEL"
+    EVENT="workflow_dispatch"
+  else
+    if [[ "$SOURCE_REF" == "$DEST_BRANCH" ]]; then
+      log "Pushing $DEST_BRANCH"
+      git push origin "$DEST_BRANCH"
+    else
+      push_ref_to_branch "$SOURCE_REF" "$DEST_BRANCH"
+    fi
+  fi
+
+  if [[ "$SHOULD_WAIT" == true ]]; then
+    wait_for_push_workflow "$DEST_BRANCH" "$TARGET_SHA" "$LABEL" "$EVENT" "$STARTED_AT"
   fi
 }
 
@@ -301,32 +358,28 @@ if [[ "$SKIP_VERSION_BUMP" == true ]]; then
 fi
 
 if [[ "$SKIP_VERSION_BUMP" == true ]]; then
-  log "Pushing dev once"
-  git push origin dev
+  DEV_SYNC_SHA=$(git rev-parse dev)
+  push_or_dispatch_workflow dev dev "$DEV_SYNC_SHA" "dev sync-only deploy"
 
-  push_ref_to_branch dev main
+  push_or_dispatch_workflow dev main "$DEV_SYNC_SHA" "main sync-only deploy"
   checkout_ff_pull main
 elif [[ "$DEPLOY_ALL" == true ]]; then
   create_version_bump_commit
 
-  log "Pushing dev once"
-  git push origin dev
+  DEPLOY_ALL_SHA=$(git rev-parse dev)
+  push_or_dispatch_workflow dev dev "$DEPLOY_ALL_SHA" "dev deploy-all deploy"
 
-  push_ref_to_branch dev main
+  push_or_dispatch_workflow dev main "$DEPLOY_ALL_SHA" "main deploy-all deploy"
   checkout_ff_pull main
 else
   DEV_SYNC_SHA=$(git rev-parse dev)
-  log "Pushing dev before version bump"
-  git push origin dev
-  wait_for_push_workflow dev "$DEV_SYNC_SHA" "dev pre-version deploy"
+  push_or_dispatch_workflow dev dev "$DEV_SYNC_SHA" "dev pre-version deploy" true
 
   create_version_bump_commit
 
   MAIN_BUMP_SHA=$(git rev-parse dev)
-  log "Pushing main with version bump from current dev state"
-  push_ref_to_branch dev main
+  push_or_dispatch_workflow dev main "$MAIN_BUMP_SHA" "main version deploy" true
   checkout_ff_pull main
-  wait_for_push_workflow main "$MAIN_BUMP_SHA" "main version deploy"
 
   log "Fast-forwarding dev to the released main commit"
   git checkout dev
