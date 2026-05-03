@@ -4,8 +4,8 @@
 # - First, keep existing branch alignment behavior between dev and main
 # - Default flow: push current dev, wait for a successful dev deploy, then bump
 #   versions locally, deploy main with that version, and finally fast-forward
-#   dev to the same version-bump commit while the workflow skips redundant
-#   dev jobs when the pushed dev head matches main
+#   dev to the same version-bump commit plus an explicit post-release sync
+#   marker commit so the workflow skips only that final redundant dev run
 # - Override flow: preserve the prior behavior and deploy the version-bump push
 #   on both dev and main
 # - Always ends on dev (even on failure it will attempt to switch back)
@@ -282,6 +282,11 @@ create_version_bump_commit() {
   git commit -m "$VERSION_BUMP_MESSAGE"
 }
 
+create_post_release_dev_sync_commit() {
+  log "Creating a post-release dev sync marker commit so CI can skip the redundant final dev run."
+  git commit --allow-empty -m "Sync dev to released main [skip dev deploy]"
+}
+
 # Sequence
 checkout_ff_pull "$FIRST"
 merge_local "$MERGE1_FROM" "$MERGE1_TO"
@@ -326,8 +331,9 @@ else
   log "Fast-forwarding dev to the released main commit"
   git checkout dev
   git merge --ff-only main
+  create_post_release_dev_sync_commit
 
-  log "Pushing dev to the released main commit; workflow will skip redundant dev jobs"
+  log "Pushing dev to the released main commit; workflow will skip the explicit post-release sync run"
   git push origin dev
 fi
 

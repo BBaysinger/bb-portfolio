@@ -39,9 +39,9 @@ on:
   workflow_dispatch: # Manual trigger for any branch
 
 jobs:
-  # GitHub still creates a workflow run for the final dev fast-forward push after
-  # release. This classifier turns that run into a no-op when dev is intentionally
-  # advanced to the just-released main SHA.
+  # GitHub still creates a workflow run for the final post-release dev sync push.
+  # This classifier turns that explicitly marked run into a no-op without
+  # suppressing normal dev pushes that happen to match main.
   classify-run:
     runs-on: ubuntu-latest
     outputs:
@@ -61,11 +61,9 @@ jobs:
           skip_dev_post_release_sync=false
 
           if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/dev" ]]; then
-            git fetch origin main --depth=1
-            main_sha="$(git rev-parse origin/main)"
-            # In this release flow, a dev push whose head exactly matches main is the
-            # post-release branch sync, not a normal dev change that should redeploy.
-            if [[ "$main_sha" == "$GITHUB_SHA" ]]; then
+            head_message="$(git log -1 --pretty=%B)"
+            # Only the final staged-release dev sync is explicitly marked to skip.
+            if [[ "$head_message" == *"[skip dev deploy]"* ]]; then
               skip_dev_post_release_sync=true
             fi
           fi
