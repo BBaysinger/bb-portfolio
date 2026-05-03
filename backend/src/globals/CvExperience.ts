@@ -113,7 +113,7 @@ export const CvExperience: GlobalConfig = {
     },
     {
       name: 'recentIndependentStudy',
-      label: 'Independent R&D and Contracting',
+      label: 'Independent R&D and Freelance',
       type: 'blocks',
       required: false,
       blocks: [ExperienceItemBlock],
