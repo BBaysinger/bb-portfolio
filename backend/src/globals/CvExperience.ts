@@ -119,7 +119,7 @@ export const CvExperience: GlobalConfig = {
       blocks: [ExperienceItemBlock],
       admin: {
         description:
-          'Each row is one CV experience component for the Independent R&D and Contracting section. Drag and drop to control render order on the frontend.',
+          'Each row is one CV experience component for the Independent R&D/Freelance section. Drag and drop to control render order on the frontend.',
       },
     },
   ],
