@@ -1,6 +1,6 @@
 # Portfolio Frontend (Next.js)
 
-This is the frontend service for the BB-Portfolio website, built with Next.js, React, and TypeScript.
+This is the frontend service for the BB-Portfolio content-driven portfolio system, built with Next.js, React, and TypeScript.
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for shared conventions (naming, env exposure via `NEXT_PUBLIC_*`, and CI/CD expectations).
 
@@ -89,7 +89,7 @@ This service README should stay focused on frontend-local concerns:
 Useful root sections:
 
 - [Frontend UX & Interaction](../README.md#frontend-ux-interaction)
-- [Backend / Platform Systems](../README.md#backend-platform-systems)
+- [Backend / Content Systems](../README.md#backend-platform-systems)
 - [Deployment conveniences catalog](../README.md#-deployment-conveniences-catalog)
 
 ### Hermetic SSG Snapshot (Optional)

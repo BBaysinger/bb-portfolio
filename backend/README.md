@@ -1,6 +1,6 @@
 # Portfolio Backend (Payload CMS)
 
-This is the backend service for the BB-Portfolio website, built with Payload CMS and Next.js.
+This is the backend service for the BB-Portfolio content-driven portfolio system, built with Payload CMS and Next.js.
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for conventions on env vars, Docker images, and operational guardrails used across this repo.
 
@@ -49,7 +49,7 @@ This service README should stay focused on backend-local concerns:
 
 Useful root sections:
 
-- [Backend / Platform Systems](../README.md#backend-platform-systems)
+- [Backend / Content Systems](../README.md#backend-platform-systems)
 - [Deployment conveniences catalog](../README.md#-deployment-conveniences-catalog)
 - [Secrets & Environment Management](../README.md#-secrets--environment-management)
 
