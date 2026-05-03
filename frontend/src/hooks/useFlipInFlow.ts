@@ -44,6 +44,8 @@ export function useFlipInFlow(
       const dh = rect.height - lastRect.height;
       if (Math.abs(dh) < 0.5) return;
 
+      const duration = dh < 0 ? 0.7 : 0.35;
+
       isAnimating = true;
 
       gsap.set(t, { y: -dh, willChange: "transform" });
@@ -51,7 +53,7 @@ export function useFlipInFlow(
       requestAnimationFrame(() => {
         gsap.to(t, {
           y: 0,
-          duration: 0.35,
+          duration,
           ease: "power2.out",
           overwrite: "auto",
           onComplete: () => {
