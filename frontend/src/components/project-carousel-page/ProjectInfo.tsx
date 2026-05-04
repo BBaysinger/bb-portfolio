@@ -60,7 +60,8 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           className={styles["project-title"]}
           style={{ "--index": globalIndex++ } as React.CSSProperties}
         >
-          <strong>Project Title</strong>: <span className={styles["project-title-text"]}>{displayTitle}</span>
+          <strong>Project Title</strong>:{" "}
+          <span className={styles["project-title-text"]}>{displayTitle}</span>
         </div>
         {safeDesc.map((htmlContent) => (
           <div
