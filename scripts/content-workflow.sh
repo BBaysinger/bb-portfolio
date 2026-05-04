@@ -212,6 +212,16 @@ import_authored_content() {
   )
 }
 
+revalidate_project_routes_for_target() {
+  local target="$1"
+  local source="${2:-unknown}"
+
+  set_profile_env "$target"
+
+  log "Triggering frontend project revalidation for $target after migrate from $source"
+  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/revalidate-project-routes.ts" "--reason=contentWorkflow.migrate:${source}-to-${target}"
+}
+
 apply_full_dataset_to_target() {
   local target="$1"
   local explicit_confirm="${2:-false}"
@@ -264,10 +274,10 @@ Usage: scripts/content-workflow.sh <command>
 
 Commands:
   migrate         Export the full dataset from --source local|dev|prod into an internal staging dir, then apply it to --target local|dev|prod
-                  Requires ALLOW_DEV_WRITE=true for dev targets and ALLOW_PROD_WRITE=true plus prod confirmation for prod targets
+                  Requires ALLOW_DEV_WRITE=true for dev targets. Prod targets require ALLOW_PROD_WRITE=true and still enforce separate prod confirmation.
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
-  import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true)
+  import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
   pull-local      Export local media + authored content into configured content root
   pull-dev        Pull dev media + export greeting + branding lockup + authored content into configured content root
   pull-prod       Pull prod media + export greeting + branding lockup + authored content into configured content root
@@ -319,6 +329,7 @@ run_migrate() {
   log "Using temporary migration staging dir: $CONTENT_DIR"
   export_full_dataset "$SOURCE_ENV" false
   apply_full_dataset_to_target "$TARGET_ENV" "$EXPLICIT_PROD_CONFIRM"
+  revalidate_project_routes_for_target "$TARGET_ENV" "$SOURCE_ENV"
 }
 
 case "$COMMAND" in

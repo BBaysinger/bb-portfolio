@@ -137,6 +137,8 @@ From repo root:
 
 These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, full-dataset export/import sequencing, and production overwrite confirmation.
 
+The `ALLOW_DEV_WRITE=true` and `ALLOW_PROD_WRITE=true` prefixes satisfy the required write guards for remote targets. They do not disable other safety checks. Production writes still require the separate production confirmation step.
+
 `content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
 
 Alternate directory examples:
@@ -158,7 +160,7 @@ Path-driven alias:
 - The pull/import commands use the content root from `.env.local` by default.
 - `content:migrate` does not use the configured content root; it stages internally and applies directly to the target environment.
 - Any target of `dev` requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
-- Any target of `prod` requires `ALLOW_PROD_WRITE=true`; aggregate migrations also require an extra production confirmation step.
+- Any target of `prod` requires `ALLOW_PROD_WRITE=true`; that env var satisfies the write guard, but aggregate migrations and prod imports still require a separate production confirmation step.
 
 Notes:
 
