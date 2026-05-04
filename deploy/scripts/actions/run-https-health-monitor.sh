@@ -57,7 +57,8 @@ fi
 if "$SCRIPT_DIR/check-https-health-local.sh" >"$TMP_LOG" 2>&1; then
   cat "$TMP_LOG"
   if [[ "$previous_status" == "failure" ]]; then
-    recovery_body=$(cat <<EOF
+    recovery_body=$(
+      cat <<EOF
 The host-level HTTPS certificate health check has recovered.
 
 Host: $HOST_LABEL
@@ -66,7 +67,7 @@ Domain: $SSL_DOMAIN
 Current output:
 $(cat "$TMP_LOG")
 EOF
-)
+    )
     send_state_email recovery "$recovery_body" || true
   fi
   echo "success" >"$STATUS_FILE"
@@ -79,7 +80,8 @@ cp "$TMP_LOG" "$LAST_FAILURE_FILE"
 echo "failure" >"$STATUS_FILE"
 
 if [[ "$previous_status" != "failure" ]]; then
-  failure_body=$(cat <<EOF
+  failure_body=$(
+    cat <<EOF
 The host-level HTTPS certificate health check failed.
 
 Host: $HOST_LABEL
@@ -88,7 +90,7 @@ Domain: $SSL_DOMAIN
 Failure output:
 $(cat "$TMP_LOG")
 EOF
-)
+  )
   send_state_email failure "$failure_body" || true
 fi
 
