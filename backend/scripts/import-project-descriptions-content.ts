@@ -205,6 +205,7 @@ async function main() {
       filePath: string
       paragraphs: string[]
       slug: string
+      title?: string
       projectId: string | number
       shortCode?: string | null
     }>
