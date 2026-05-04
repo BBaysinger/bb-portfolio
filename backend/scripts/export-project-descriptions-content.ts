@@ -20,6 +20,7 @@ type ProjectDescriptionBlock = {
 
 type ProjectDoc = {
   slug?: unknown
+  title?: unknown
   descParagraphs?: unknown
 }
 
@@ -70,8 +71,17 @@ const toDescriptionParagraphs = (value: unknown) => {
     .filter(Boolean)
 }
 
-const serializeProjectDescription = (descParagraphs: string[]) =>
-  serializeParagraphArrayYaml('descParagraphs', descParagraphs)
+const serializeProjectDescription = (args: { title?: string; descParagraphs: string[] }) => {
+  const parts = [] as string[]
+
+  if (args.title) {
+    parts.push(`title: ${JSON.stringify(args.title)}`)
+  }
+
+  parts.push(serializeParagraphArrayYaml('descParagraphs', args.descParagraphs).trimEnd())
+
+  return `${parts.join('\n')}\n`
+}
 
 const listYamlFiles = (directoryPath: string) => {
   if (!fs.existsSync(directoryPath)) return [] as string[]
@@ -109,9 +119,13 @@ async function main() {
 
       for (const doc of result.docs) {
         const slug = asTrimmedString(doc.slug)
+        const title = asTrimmedString(doc.title)
         const descParagraphs = toDescriptionParagraphs(doc.descParagraphs)
         if (!slug || descParagraphs.length === 0) continue
-        matchedProjects.push({ slug, yaml: serializeProjectDescription(descParagraphs) })
+        matchedProjects.push({
+          slug,
+          yaml: serializeProjectDescription({ title, descParagraphs }),
+        })
       }
 
       hasNextPage = result.hasNextPage === true

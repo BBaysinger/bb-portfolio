@@ -31,6 +31,7 @@ type ProjectUpdater = {
     collection: 'projects'
     id: string | number
     data: {
+      title?: string
       descParagraphs: { text: string }[]
     }
     overrideAccess: true
@@ -38,6 +39,7 @@ type ProjectUpdater = {
 }
 
 type ProjectDescriptionFile = {
+  title?: unknown
   descParagraphs?: unknown
 }
 
@@ -86,6 +88,13 @@ const asParagraphStrings = (value: unknown, filePath: string) => {
   })
 }
 
+const asOptionalTrimmedString = (value: unknown) => {
+  if (typeof value !== 'string') return undefined
+
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
 const isTransientWriteConflictError = (error: unknown) => {
   if (!error || typeof error !== 'object') return false
 
@@ -104,6 +113,7 @@ const isTransientWriteConflictError = (error: unknown) => {
 const updateProjectDescriptionsWithRetry = async (
   payload: Payload,
   projectId: string | number,
+  title: string | undefined,
   paragraphs: string[],
 ) => {
   const projectUpdater = payload as unknown as ProjectUpdater
@@ -116,6 +126,7 @@ const updateProjectDescriptionsWithRetry = async (
         collection: 'projects',
         id: projectId,
         data: {
+          ...(title ? { title } : {}),
           descParagraphs: paragraphs.map((text) => ({ text })),
         },
         overrideAccess: true,
@@ -163,9 +174,10 @@ async function main() {
     const candidates = descriptionFiles.map((filePath) => {
       const slug = path.basename(filePath, '.yaml').trim()
       const description = readYamlFile<ProjectDescriptionFile>(filePath)
+      const title = asOptionalTrimmedString(description.title)
       const paragraphs = asParagraphStrings(description.descParagraphs, filePath)
 
-      return { filePath, paragraphs, slug }
+      return { filePath, paragraphs, slug, title }
     })
 
     const candidateBySlug = new Map(candidates.map((candidate) => [candidate.slug, candidate]))
@@ -228,7 +240,12 @@ async function main() {
     try {
       for (const match of matches) {
         console.info(`Importing project description for slug '${match.slug}'...`)
-        await updateProjectDescriptionsWithRetry(payload, match.projectId, match.paragraphs)
+        await updateProjectDescriptionsWithRetry(
+          payload,
+          match.projectId,
+          match.title,
+          match.paragraphs,
+        )
         console.info(`Imported project description for slug '${match.slug}'.`)
       }
     } finally {
