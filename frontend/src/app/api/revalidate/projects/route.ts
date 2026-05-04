@@ -1,8 +1,10 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const PROJECTS_CACHE_TAG = "projects";
 
 const isLocalProfile = (): boolean => {
   const profile = (process.env.ENV_PROFILE || "").trim().toLowerCase();
@@ -22,6 +24,7 @@ const getTokenFromRequest = (req: NextRequest): string => {
 };
 
 const revalidateProjectRoutes = () => {
+  revalidateTag(PROJECTS_CACHE_TAG, "max");
   revalidatePath("/", "layout");
   revalidatePath("/", "page");
   revalidatePath("/cv", "page");

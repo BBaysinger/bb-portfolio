@@ -6,6 +6,7 @@ import {
 } from "@/utils/backend-base";
 
 const COOKIE_HEADER_NAME = "cookie";
+const PROJECTS_CACHE_TAG = "projects";
 
 const getCookieHeaderValue = (headers?: HeadersInit): string => {
   if (!headers) return "";
@@ -327,7 +328,9 @@ async function fetchPortfolioProjects(opts?: {
       ? `${serviceDnsFallback.replace(/\/$/, "")}${serverPath}`
       : undefined;
 
-  const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
+  const fetchOptions: RequestInit & {
+    next?: { revalidate?: number; tags?: string[] };
+  } = {};
   // Caching policy:
   // - Auth-aware server requests (have request headers/cookies) MUST be no-store to avoid
   //   leaking authenticated NDA content via Next.js data cache.
@@ -337,12 +340,12 @@ async function fetchPortfolioProjects(opts?: {
     if (disableCache || requestHeaders) {
       fetchOptions.cache = "no-store";
     } else {
-      fetchOptions.next = { revalidate: 86400 };
+      fetchOptions.next = { revalidate: 86400, tags: [PROJECTS_CACHE_TAG] };
     }
   } else if (disableCache) {
     fetchOptions.cache = "no-store";
   } else {
-    fetchOptions.next = { revalidate: 86400 };
+    fetchOptions.next = { revalidate: 86400, tags: [PROJECTS_CACHE_TAG] };
   }
   if (requestHeaders) {
     // Clone headers and also add Authorization: JWT <token> if a payload-token cookie is present.
