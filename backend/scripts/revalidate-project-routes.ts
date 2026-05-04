@@ -1,9 +1,15 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
+
 import { getPayload, type Payload } from 'payload'
 
 import { buildProjectsWarmPaths } from '../src/utils/frontendRouteWarmup'
 import { triggerFrontendProjectRevalidate } from '../src/utils/triggerFrontendProjectRevalidate'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 type ActiveProjectRouteTarget = {
   slug?: unknown
@@ -26,7 +32,7 @@ const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
 }
 
 const main = async () => {
-  loadBackendScriptEnvironment(process.cwd())
+  loadBackendScriptEnvironment(__dirname)
 
   const reasonArg = process.argv.find((arg) => arg.startsWith('--reason='))
   const reason = reasonArg?.slice('--reason='.length) || 'contentWorkflow.migrate'
