@@ -28,9 +28,9 @@ const findUniqueShortCode = async (req: Pick<PayloadRequest, 'payload'>) => {
 export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
-    useAsTitle: 'title',
-    // Put title in the first column (click target) and move sort order to the second column
-    defaultColumns: ['title', 'sortIndex', 'slug', 'active', 'brandId'],
+    useAsTitle: 'adminTitle',
+    // Put the admin list label in the first column (click target) and move sort order to the second column.
+    defaultColumns: ['adminTitle', 'sortIndex', 'slug', 'active', 'brandId'],
   },
   access: {
     // ACCESS MODEL (INTENTIONAL):
@@ -73,13 +73,18 @@ export const Projects: CollectionConfig = {
       // - This is UX-only: it should never be used to decide whether confidential fields are readable.
       async ({ doc, req }) => {
         try {
+          const record = doc as Record<string, unknown>
+          const shortTitle = typeof record.shortTitle === 'string' ? record.shortTitle.trim() : ''
+          const title = typeof record.title === 'string' ? record.title.trim() : ''
+          record.adminTitle = shortTitle || title
+
           // Only needed for unauthenticated responses; authenticated users can see full data.
           if (req.user) return doc
 
-          const record = doc as unknown as { nda?: boolean | null; brandId?: unknown }
-          if (record.nda === true) return doc
+          const publicRecord = record as { nda?: boolean | null; brandId?: unknown }
+          if (publicRecord.nda === true) return doc
 
-          const brandRel = record.brandId
+          const brandRel = publicRecord.brandId
           const brandId = (() => {
             if (typeof brandRel === 'string' && brandRel.length > 0) return brandRel
             if (!brandRel || typeof brandRel !== 'object') return undefined
@@ -102,7 +107,7 @@ export const Projects: CollectionConfig = {
           })
 
           if (brand?.nda === true) {
-            ;(record as Record<string, unknown>).nda = true
+            record.nda = true
           }
         } catch {
           // Fail open here: this hook is only for UX consistency (placeholders).
@@ -134,6 +139,13 @@ export const Projects: CollectionConfig = {
             trim: true,
           })
         }
+
+        if (operation === 'create' || operation === 'update') {
+          const shortTitle = typeof data?.shortTitle === 'string' ? data.shortTitle.trim() : ''
+          const title = typeof data?.title === 'string' ? data.title.trim() : ''
+          data.adminTitle = shortTitle || title || undefined
+        }
+
         return data
       },
     ],
@@ -157,6 +169,16 @@ export const Projects: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      name: 'adminTitle',
+      label: 'Admin List Title',
+      type: 'text',
+      required: false,
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+    },
     {
       name: 'title',
       type: 'text',
