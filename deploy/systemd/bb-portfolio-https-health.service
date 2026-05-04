@@ -1,0 +1,8 @@
+[Unit]
+Description=BB Portfolio HTTPS certificate health check
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/bb-portfolio/https-health/run-https-health-monitor.sh

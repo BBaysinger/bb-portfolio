@@ -109,7 +109,11 @@ pull_media_from_remote_env() {
   fi
 
   for collection in "${MEDIA_COLLECTIONS[@]}"; do
-    npm run media:pull -- --env "$source" --collection "$collection" "${dry_flag[@]:-}"
+    if ((${#dry_flag[@]})); then
+      npm run media:pull -- --env "$source" --collection "$collection" "${dry_flag[@]}"
+    else
+      npm run media:pull -- --env "$source" --collection "$collection"
+    fi
   done
 }
 
@@ -124,13 +128,23 @@ export_authored_content() {
 
   set_profile_env "$source"
 
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" export "${dry_flag[@]:-}"
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" export "${dry_flag[@]:-}"
+  if ((${#dry_flag[@]})); then
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" export "${dry_flag[@]}"
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" export "${dry_flag[@]}"
+  else
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" export
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" export
+  fi
 
   (
     cd "$REPO_ROOT/backend"
-    npm run export:project-descriptions -- --env "$source" "${dry_flag[@]:-}"
-    npm run export:cv-content -- --env "$source" "${dry_flag[@]:-}"
+    if ((${#dry_flag[@]})); then
+      npm run export:project-descriptions -- --env "$source" "${dry_flag[@]}"
+      npm run export:cv-content -- --env "$source" "${dry_flag[@]}"
+    else
+      npm run export:project-descriptions -- --env "$source"
+      npm run export:cv-content -- --env "$source"
+    fi
   )
 }
 
@@ -178,13 +192,23 @@ import_authored_content() {
 
   set_profile_env "$target"
 
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" import "${confirm_flag[@]:-}"
-  npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" import "${confirm_flag[@]:-}"
+  if ((${#confirm_flag[@]})); then
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" import "${confirm_flag[@]}"
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" import "${confirm_flag[@]}"
+  else
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/greeting-content.ts" import
+    npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/lib/branding-lockup-content.ts" import
+  fi
 
   (
     cd "$REPO_ROOT/backend"
-    npm run import:project-descriptions -- --env "$target" "${confirm_flag[@]:-}"
-    npm run import:cv-content -- --env "$target" "${confirm_flag[@]:-}"
+    if ((${#confirm_flag[@]})); then
+      npm run import:project-descriptions -- --env "$target" "${confirm_flag[@]}"
+      npm run import:cv-content -- --env "$target" "${confirm_flag[@]}"
+    else
+      npm run import:project-descriptions -- --env "$target"
+      npm run import:cv-content -- --env "$target"
+    fi
   )
 }
 

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run BB Portfolio HTTPS certificate health check twice daily
+
+[Timer]
+OnCalendar=*-*-* 09,21:17:00
+Persistent=true
+Unit=bb-portfolio-https-health.service
+
+[Install]
+WantedBy=timers.target

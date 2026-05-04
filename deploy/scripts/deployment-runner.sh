@@ -254,6 +254,10 @@ else
   warn "No ACME_REGISTRATION_EMAIL / ACME_EMAIL found in secrets (HTTPS auto-issue may be skipped)"
 fi
 
+HTTPS_HEALTH_AWS_REGION="${AWS_REGION:-$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_REGION||'').trim());}catch(e){process.stdout.write('');}")}"
+HTTPS_HEALTH_SES_FROM_EMAIL="${SES_FROM_EMAIL:-$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.SES_FROM_EMAIL||'').trim());}catch(e){process.stdout.write('');}")}"
+HTTPS_HEALTH_SES_TO_EMAIL="${SES_TO_EMAIL:-$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.SES_TO_EMAIL||'').trim());}catch(e){process.stdout.write('');}")}"
+
 # ---------------------------
 # Discovery helpers
 # ---------------------------
@@ -852,6 +856,75 @@ ensure_cloudwatch_agent() {
   '
 }
 
+install_https_health_monitor() {
+  local host="$1"
+  local ssl_domain="${2:-}"
+  local key="$SSH_KEY_PATH_RESOLVED"
+  [[ -n "$host" && -n "$ssl_domain" ]] || return 0
+  if [[ ! -f "$key" ]]; then
+    warn "HTTPS health monitor install skipped: SSH key not found at $key"
+    return 0
+  fi
+
+  local action_dir="$REPO_ROOT/deploy/scripts/actions"
+  local systemd_dir="$REPO_ROOT/deploy/systemd"
+  local check_script="$action_dir/check-https-health-local.sh"
+  local runner_script="$action_dir/run-https-health-monitor.sh"
+  local email_script="$action_dir/send-alert-email.sh"
+  local service_unit="$systemd_dir/bb-portfolio-https-health.service"
+  local timer_unit="$systemd_dir/bb-portfolio-https-health.timer"
+
+  for required_file in "$check_script" "$runner_script" "$email_script" "$service_unit" "$timer_unit"; do
+    if [[ ! -f "$required_file" ]]; then
+      warn "HTTPS health monitor install skipped: missing local file $required_file"
+      return 0
+    fi
+  done
+
+  log "Installing host-level HTTPS health monitor on $host"
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    "$check_script" \
+    "$runner_script" \
+    "$email_script" \
+    "$service_unit" \
+    "$timer_unit" \
+    ec2-user@"$host":/home/ec2-user/
+
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    ec2-user@"$host" \
+    "SSL_DOMAIN='$ssl_domain' AWS_REGION='${HTTPS_HEALTH_AWS_REGION:-}' SES_FROM_EMAIL='${HTTPS_HEALTH_SES_FROM_EMAIL:-}' SES_TO_EMAIL='${HTTPS_HEALTH_SES_TO_EMAIL:-}' bash -s" <<'SSH'
+set -euo pipefail
+
+sudo mkdir -p /opt/bb-portfolio/https-health /etc/bb-portfolio /var/lib/bb-portfolio/https-health
+sudo mv /home/ec2-user/check-https-health-local.sh /opt/bb-portfolio/https-health/check-https-health-local.sh
+sudo mv /home/ec2-user/run-https-health-monitor.sh /opt/bb-portfolio/https-health/run-https-health-monitor.sh
+sudo mv /home/ec2-user/send-alert-email.sh /opt/bb-portfolio/https-health/send-alert-email.sh
+sudo chmod 755 /opt/bb-portfolio/https-health/check-https-health-local.sh /opt/bb-portfolio/https-health/run-https-health-monitor.sh /opt/bb-portfolio/https-health/send-alert-email.sh
+sudo chown root:root /opt/bb-portfolio/https-health/check-https-health-local.sh /opt/bb-portfolio/https-health/run-https-health-monitor.sh /opt/bb-portfolio/https-health/send-alert-email.sh
+
+sudo mv /home/ec2-user/bb-portfolio-https-health.service /etc/systemd/system/bb-portfolio-https-health.service
+sudo mv /home/ec2-user/bb-portfolio-https-health.timer /etc/systemd/system/bb-portfolio-https-health.timer
+sudo chown root:root /etc/systemd/system/bb-portfolio-https-health.service /etc/systemd/system/bb-portfolio-https-health.timer
+sudo chmod 644 /etc/systemd/system/bb-portfolio-https-health.service /etc/systemd/system/bb-portfolio-https-health.timer
+
+sudo tee /etc/bb-portfolio/https-health.env >/dev/null <<EOF
+SSL_DOMAIN=${SSL_DOMAIN}
+HTTPS_ALERT_DAYS=21
+CERTBOT_DRY_RUN_ATTEMPTS=3
+HOST_LABEL=$(hostname -f 2>/dev/null || hostname)
+AWS_REGION=${AWS_REGION}
+SES_FROM_EMAIL=${SES_FROM_EMAIL}
+SES_TO_EMAIL=${SES_TO_EMAIL}
+EOF
+sudo chmod 600 /etc/bb-portfolio/https-health.env
+sudo chown root:root /etc/bb-portfolio/https-health.env
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now bb-portfolio-https-health.timer
+sudo systemctl start bb-portfolio-https-health.service || true
+SSH
+}
+
 # Extract AWS account ID for ECR image pulls used in compose.
 # Prefer STS (works with profiles, env creds, etc.). Fall back to secrets if provided.
 AWS_ACCOUNT_ID_LOCAL="$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)"
@@ -872,6 +945,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
     ensure_https_certs "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"
     ensure_cert_permissions "$EC2_HOST_RESOLVE"
     ensure_ssl_blocks "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}"
+    install_https_health_monitor "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}"
     ensure_cloudwatch_agent "$EC2_HOST_RESOLVE"
   else
     warn "Single-controller guard: no host resolved (skip-infra mode), skipping"
@@ -887,6 +961,7 @@ if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   ensure_https_certs "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"
   ensure_cert_permissions "${POST_ENFORCE_HOST}"
   ensure_ssl_blocks "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}"
+  install_https_health_monitor "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}"
   ensure_cloudwatch_agent "${POST_ENFORCE_HOST}"
 fi
 

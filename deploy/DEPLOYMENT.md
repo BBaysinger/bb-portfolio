@@ -323,7 +323,7 @@ If renewal succeeds, no action needed. Certificates are typically valid for 90 d
 
 ### 6.1 Alerts
 
-The repo now includes a scheduled GitHub Actions workflow at [.github/workflows/https-certificate-health.yml](.github/workflows/https-certificate-health.yml).
+The deployment runner now installs a host-level systemd timer, `bb-portfolio-https-health.timer`, on the EC2 instance.
 
 It runs twice daily and checks:
 
@@ -332,7 +332,17 @@ It runs twice daily and checks:
 - origin HTTPS responds locally for the apex and `www` domains
 - `certbot renew --dry-run` succeeds
 
-If any check fails, the workflow fails, opens or updates a GitHub issue titled `HTTPS certificate health alert`, and sends an email via AWS SES using `SES_FROM_EMAIL` -> `SES_TO_EMAIL`. When the checks recover, the workflow comments on that issue, closes it, and sends a recovery email.
+If any check fails, the host writes the failure to the systemd journal and sends a one-time alert email via AWS SES using `SES_FROM_EMAIL` -> `SES_TO_EMAIL`. When the checks recover, it sends a one-time recovery email. Repeated failures stay visible in `journalctl` without spamming email.
+
+Useful host commands:
+
+```bash
+systemctl list-timers | grep bb-portfolio-https-health
+sudo systemctl status bb-portfolio-https-health.timer
+sudo systemctl status bb-portfolio-https-health.service
+sudo journalctl -u bb-portfolio-https-health.service -n 200 --no-pager
+sudo systemctl start bb-portfolio-https-health.service
+```
 
 ### 7. Fallback / Troubleshooting
 

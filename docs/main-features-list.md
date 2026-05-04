@@ -137,7 +137,7 @@ Working list of notable features and technical systems
 - Single-command redeploy scripts for dev/prod or both
 - Reusable redeploy workflow with post-restart container readiness polling and HTTP health gates for dev/prod before deployment is treated as successful
 - Hardened backend runtime with distroless container and Next.js standalone entrypoint
-- Deploy-enforced HTTPS renewal timer hardening plus scheduled certificate health checks with GitHub issue alerts and SES recovery/failure email notifications
+- Deploy-enforced HTTPS renewal hardening plus host-level certificate health monitoring with systemd timers, journal visibility, and SES recovery/failure email notifications
 
 ### Developer Experience / Testing
 
