@@ -65,7 +65,7 @@ When working with AI coding assistants:
 
 1. **Scope** – e.g., “Touch only `frontend/src/components/foo/**`.”
 2. **Goal** – “Eliminate React hook lint warnings; behavior must stay identical.”
-3. **Forbidden actions** – “Never run `terraform apply`, `ssh prod`, or rotate secrets. Do not offer to push; only push if I explicitly instruct it.”
+3. **Forbidden actions** – “Never run `terraform apply` or rotate secrets. Do not offer to push; only push if I explicitly instruct it.”
 4. **Required checks** – “Run `npm test` and summarize output; stop on failure.” (If you want the assistant to execute local checks, list the exact commands here. Otherwise assume `npm run precommit` should run before every commit, and the assistant may run it whenever useful.)
 5. **Ambiguity rule** – “If requirements conflict or files are missing, stop and ask instead of guessing.”
 6. **Logging** – “Summarize long-running commands; don’t dump pages of logs unless requested.”
