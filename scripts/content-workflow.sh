@@ -264,6 +264,7 @@ Usage: scripts/content-workflow.sh <command>
 
 Commands:
   migrate         Export the full dataset from --source local|dev|prod into an internal staging dir, then apply it to --target local|dev|prod
+                  Requires ALLOW_DEV_WRITE=true for dev targets and ALLOW_PROD_WRITE=true plus prod confirmation for prod targets
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
   import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true)

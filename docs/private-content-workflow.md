@@ -122,7 +122,7 @@ Rules:
 
 From repo root:
 
-- `npm run content:migrate -- --source local --target dev`
+- `ALLOW_DEV_WRITE=true npm run content:migrate -- --source local --target dev`
 - `npm run content:migrate -- --source dev --target prod --confirm-prod-write`
 - `npm run content:migrate -- --source prod --target local`
 - `npm run content:import:local:content-dir`
@@ -151,7 +151,7 @@ Path-driven alias:
 
 - `.env.local`:
   `PORTFOLIO_CONTENT_DIR=../cms-content-variants/example-cms-content-variant`
-- `npm run content:migrate -- --source local --target dev`
+- `ALLOW_DEV_WRITE=true npm run content:migrate -- --source local --target dev`
 - `ALLOW_PROD_WRITE=true npm run content:migrate -- --source dev --target prod --confirm-prod-write`
 - `npm run content:pull:prod:content-dir`
 - `npm run content:pull:prod:content-dir:dry`
