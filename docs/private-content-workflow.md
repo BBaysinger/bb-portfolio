@@ -1,6 +1,9 @@
 # Private Content Workflow
 
-This repo now supports aggregate migration of the current private content dataset through a single staging root.
+This repo supports two distinct private-content workflows:
+
+- Authored pull/import workflows rooted at `PORTFOLIO_CONTENT_DIR`
+- `content:migrate`, which migrates the full CMS database directly between environments and stages the supported media collections separately
 
 Default content source:
 
@@ -135,7 +138,7 @@ From repo root:
 - `npm run content:pull:prod:content-dir`
 - `npm run content:pull:prod:content-dir:dry`
 
-These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, full-dataset export/import sequencing, and production overwrite confirmation.
+These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, media staging/import sequencing, full-database migration for `content:migrate`, and production overwrite confirmation.
 
 The `ALLOW_DEV_WRITE=true` and `ALLOW_PROD_WRITE=true` prefixes satisfy the required write guards for remote targets. They do not disable other safety checks. Production writes still require the separate production confirmation step.
 
@@ -165,8 +168,8 @@ Path-driven alias:
 Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
-- The root pull commands copy the full current dataset for an environment back into the configured staging root.
-- Aggregate migration now means: export authored content plus the supported media collections into an internal temporary staging directory, then apply that full dataset to the target environment.
+- The root pull commands copy the current authored-content subset plus the supported media collections for an environment back into the configured staging root.
+- Aggregate migration now means: stage the supported media collections into an internal temporary directory, migrate the full CMS database directly from source to target, then revalidate frontend project routes.
 - The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`), but the intended operator workflow is the aggregate wrapper.
 - A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-content-variants/<target>`, while keeping Payload itself as a single effective site state.
 

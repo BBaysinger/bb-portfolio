@@ -167,6 +167,19 @@ export_full_dataset() {
   pull_media_from_remote_env "$source" "$dry_run"
 }
 
+stage_media_dataset() {
+  local source="$1"
+
+  log "Staging media dataset from $source into $CONTENT_DIR"
+
+  if [[ "$source" == "local" ]]; then
+    copy_local_media_to_content_dir
+    return
+  fi
+
+  pull_media_from_remote_env "$source" false
+}
+
 seed_media_from_content_dir() {
   npm run media:seed
 }
@@ -238,6 +251,30 @@ apply_full_dataset_to_target() {
   import_authored_content "$target"
 }
 
+sync_database_between_envs() {
+  local source="$1"
+  local target="$2"
+
+  set_profile_env "$target"
+
+  log "Migrating full CMS database from $source to $target"
+  bash "$REPO_ROOT/scripts/migrate-database.sh" "$source" "$target" --yes
+}
+
+apply_media_dataset_to_target() {
+  local target="$1"
+  local explicit_confirm="${2:-false}"
+
+  ensure_write_guard_for_target "$target" "$explicit_confirm"
+  log "Applying staged media dataset from $CONTENT_DIR into $target"
+
+  seed_media_from_content_dir
+
+  if [[ "$target" != "local" ]]; then
+    upload_media_to_remote_env "$target"
+  fi
+}
+
 parse_migrate_args() {
   SOURCE_ENV=""
   TARGET_ENV=""
@@ -273,7 +310,7 @@ usage() {
 Usage: scripts/content-workflow.sh <command>
 
 Commands:
-  migrate         Export the full dataset from --source local|dev|prod into an internal staging dir, then apply it to --target local|dev|prod
+  migrate         Sync the full CMS database from --source local|dev|prod into --target local|dev|prod, plus stage and apply supported media collections
                   Requires ALLOW_DEV_WRITE=true for dev targets. Prod targets require ALLOW_PROD_WRITE=true and still enforce separate prod confirmation.
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
@@ -327,8 +364,9 @@ run_migrate() {
   CONTENT_DIR="$MIGRATION_TEMP_DIR"
   export PORTFOLIO_CONTENT_DIR="$CONTENT_DIR"
   log "Using temporary migration staging dir: $CONTENT_DIR"
-  export_full_dataset "$SOURCE_ENV" false
-  apply_full_dataset_to_target "$TARGET_ENV" "$EXPLICIT_PROD_CONFIRM"
+  stage_media_dataset "$SOURCE_ENV"
+  apply_media_dataset_to_target "$TARGET_ENV" "$EXPLICIT_PROD_CONFIRM"
+  sync_database_between_envs "$SOURCE_ENV" "$TARGET_ENV"
   revalidate_project_routes_for_target "$TARGET_ENV" "$SOURCE_ENV"
 }
 
