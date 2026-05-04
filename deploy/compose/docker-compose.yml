@@ -102,7 +102,7 @@ services:
       test:
         [
           "CMD",
-          "node",
+          "/nodejs/bin/node",
           "-e",
           "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
@@ -136,7 +136,7 @@ services:
       test:
         [
           "CMD",
-          "node",
+          "/nodejs/bin/node",
           "-e",
           "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.info('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
         ]
