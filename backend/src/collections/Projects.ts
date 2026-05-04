@@ -175,6 +175,9 @@ export const Projects: CollectionConfig = {
       type: 'text',
       required: false,
       admin: {
+        components: {
+          Cell: '/components/payload/ProjectAdminTitleCell#ProjectAdminTitleCell',
+        },
         hidden: true,
         readOnly: true,
       },
