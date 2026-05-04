@@ -53,6 +53,10 @@
   margin-bottom: 20px !important;
 }
 
+.project-title-text {
+  color: $lighterThemeColor;
+}
+
 :global(.bbSlideLeft) {
   .project-info.active > * {
     animation: slideLeftFadeIn 0.6s ease-out calc(var(--index) * 0.2s) forwards;
