@@ -11,6 +11,8 @@ const shouldFailFastProjectSsg = (): boolean => {
   return process.env.PROJECT_SSG_FAIL_FAST !== "0";
 };
 
+const shouldFailFastProjectRuntime = (): boolean => false;
+
 /**
  * NDA-included project route.
  *
@@ -58,7 +60,7 @@ export default async function NdaIncludedProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const failFast = shouldFailFastProjectSsg();
+  const failFast = shouldFailFastProjectRuntime();
 
   let ssrParsed:
     | import("@/data/ProjectData").ParsedPortfolioProjectData

@@ -23,6 +23,8 @@ const shouldFailFastProjectSsg = (): boolean => {
   return process.env.PROJECT_SSG_FAIL_FAST !== "0";
 };
 
+const shouldFailFastProjectRuntime = (): boolean => false;
+
 // Allow SSG/ISR for the project detail route.
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
 export const revalidate = 86400;
@@ -77,7 +79,7 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const failFast = shouldFailFastProjectSsg();
+  const failFast = shouldFailFastProjectRuntime();
 
   let ssrParsed:
     | import("@/data/ProjectData").ParsedPortfolioProjectData

@@ -235,6 +235,18 @@ revalidate_project_routes_for_target() {
   npm exec --prefix "$REPO_ROOT/backend" -- tsx "$REPO_ROOT/backend/scripts/revalidate-project-routes.ts" "--reason=contentWorkflow.migrate:${source}-to-${target}"
 }
 
+refresh_media_cache_versions_for_target() {
+  local target="$1"
+
+  set_profile_env "$target"
+
+  log "Refreshing media cache version tokens for $target"
+  (
+    cd "$REPO_ROOT/backend"
+    npm exec -- tsx ./scripts/touch-media-cache-versions.ts --env "$target" --skip-confirmation
+  )
+}
+
 apply_full_dataset_to_target() {
   local target="$1"
   local explicit_confirm="${2:-false}"
@@ -367,6 +379,7 @@ run_migrate() {
   stage_media_dataset "$SOURCE_ENV"
   apply_media_dataset_to_target "$TARGET_ENV" "$EXPLICIT_PROD_CONFIRM"
   sync_database_between_envs "$SOURCE_ENV" "$TARGET_ENV"
+  refresh_media_cache_versions_for_target "$TARGET_ENV"
   revalidate_project_routes_for_target "$TARGET_ENV" "$SOURCE_ENV"
 }
 
