@@ -420,7 +420,7 @@
     // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
     // Runtime for dynamic JS/TS imports
-    "jiti": "^2.6.1",
+    "jiti": "^2.7.0",
     // JSON5 parser for annotated config files
     "json5": "^2.2.3",
     // CLI that syncs documented package.json5 companions from canonical package.json files
