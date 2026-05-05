@@ -2,7 +2,7 @@
   // Package name for the Payload backend
   "name": "bb-portfolio-backend",
   // Version of this backend package
-  "version": "1.0.46",
+  "version": "1.0.47",
   // Short description of backend package purpose
   "description": "A blank template to get started with Payload 3.0",
   // License type (MIT is very permissive)
