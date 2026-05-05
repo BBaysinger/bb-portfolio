@@ -250,9 +250,9 @@
     // 🪄 Import a target content root into local: seed media then import project descriptions and CV content.
     // Content-root resolution and validation are centralized in scripts/content-workflow.sh.
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
-    //
+    // 🪄 Import only local project descriptions and project media from the configured content root.
     "content:import:local:projects:content-dir": "bash ./scripts/content-workflow.sh import-projects-local",
-    //
+    // 🪄 Import only local CV experiences and CV logo media from the configured content root.
     "content:import:local:cv:content-dir": "bash ./scripts/content-workflow.sh import-cv-local",
     // 🪄 Import target content into dev. Requires ALLOW_DEV_WRITE=true.
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
@@ -396,9 +396,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.59.1",
+    "@typescript-eslint/eslint-plugin": "8.59.2",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.59.1",
+    "@typescript-eslint/parser": "8.59.2",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.27",
     // Run multiple commands concurrently in scripts
