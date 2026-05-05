@@ -250,6 +250,10 @@
     // 🪄 Import a target content root into local: seed media then import project descriptions and CV content.
     // Content-root resolution and validation are centralized in scripts/content-workflow.sh.
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
+    //
+    "content:import:local:projects:content-dir": "bash ./scripts/content-workflow.sh import-projects-local",
+    //
+    "content:import:local:cv:content-dir": "bash ./scripts/content-workflow.sh import-cv-local",
     // 🪄 Import target content into dev. Requires ALLOW_DEV_WRITE=true.
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
     // 🪄 Import target content into prod. Requires ALLOW_PROD_WRITE=true and extra confirmation.

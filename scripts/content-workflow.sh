@@ -25,6 +25,16 @@ MEDIA_COLLECTIONS=(
   project-thumbnails
 )
 
+PROJECT_MEDIA_COLLECTIONS=(
+  project-brand-logos
+  project-screenshots
+  project-thumbnails
+)
+
+CV_MEDIA_COLLECTIONS=(
+  cv-experience-logos
+)
+
 log() {
   echo "[content-workflow] $*"
 }
@@ -181,18 +191,50 @@ stage_media_dataset() {
 }
 
 seed_media_from_content_dir() {
-  npm run media:seed
+  local -a selected_collections=()
+
+  if (($# > 0)); then
+    selected_collections=("$@")
+  fi
+
+  if ((${#selected_collections[@]} == 0)); then
+    npm run media:seed
+    return
+  fi
+
+  local seed_args=()
+  local collection
+  if ((${#selected_collections[@]} > 0)); then
+    for collection in "${selected_collections[@]}"; do
+      seed_args+=(--collection "$collection")
+    done
+  fi
+
+  npm run media:seed -- "${seed_args[@]}"
 }
 
 upload_media_to_remote_env() {
   local target="$1"
+  shift
+  local -a selected_collections=()
+
+  if (($# > 0)); then
+    selected_collections=("$@")
+  fi
   local media_args=(--env "$target")
 
   if [[ "$target" == "prod" ]]; then
     media_args+=(--yes)
   fi
 
-  npm run media:upload -- --env "$target" "${media_args[@]:2}"
+  local collection
+  if ((${#selected_collections[@]} > 0)); then
+    for collection in "${selected_collections[@]}"; do
+      media_args+=(--collection "$collection")
+    done
+  fi
+
+  npm run media:upload -- "${media_args[@]}"
 }
 
 import_authored_content() {
@@ -276,15 +318,101 @@ sync_database_between_envs() {
 apply_media_dataset_to_target() {
   local target="$1"
   local explicit_confirm="${2:-false}"
+  shift 2
+  local -a selected_collections=()
+
+  if (($# > 0)); then
+    selected_collections=("$@")
+  fi
 
   ensure_write_guard_for_target "$target" "$explicit_confirm"
   log "Applying staged media dataset from $CONTENT_DIR into $target"
 
-  seed_media_from_content_dir
+  if ((${#selected_collections[@]} > 0)); then
+    seed_media_from_content_dir "${selected_collections[@]}"
+  else
+    seed_media_from_content_dir
+  fi
 
   if [[ "$target" != "local" ]]; then
-    upload_media_to_remote_env "$target"
+    if ((${#selected_collections[@]} > 0)); then
+      upload_media_to_remote_env "$target" "${selected_collections[@]}"
+    else
+      upload_media_to_remote_env "$target"
+    fi
   fi
+}
+
+import_projects_content() {
+  local target="$1"
+  local confirm_flag=()
+
+  if [[ "$target" == "prod" ]]; then
+    confirm_flag+=(--confirm-prod-write)
+  fi
+
+  set_profile_env "$target"
+
+  (
+    cd "$REPO_ROOT/backend"
+    if ((${#confirm_flag[@]})); then
+      npm run import:project-descriptions -- --env "$target" "${confirm_flag[@]}"
+    else
+      npm run import:project-descriptions -- --env "$target"
+    fi
+  )
+}
+
+import_cv_content() {
+  local target="$1"
+  local confirm_flag=()
+
+  if [[ "$target" == "prod" ]]; then
+    confirm_flag+=(--confirm-prod-write)
+  fi
+
+  set_profile_env "$target"
+
+  (
+    cd "$REPO_ROOT/backend"
+    if ((${#confirm_flag[@]})); then
+      npm run import:cv-content -- --env "$target" "${confirm_flag[@]}"
+    else
+      npm run import:cv-content -- --env "$target"
+    fi
+  )
+}
+
+apply_projects_dataset_to_target() {
+  local target="$1"
+  local explicit_confirm="${2:-false}"
+
+  ensure_write_guard_for_target "$target" "$explicit_confirm"
+  log "Applying project descriptions + project media from $CONTENT_DIR into $target"
+
+  seed_media_from_content_dir "${PROJECT_MEDIA_COLLECTIONS[@]}"
+
+  if [[ "$target" != "local" ]]; then
+    upload_media_to_remote_env "$target" "${PROJECT_MEDIA_COLLECTIONS[@]}"
+  fi
+
+  import_projects_content "$target"
+}
+
+apply_cv_dataset_to_target() {
+  local target="$1"
+  local explicit_confirm="${2:-false}"
+
+  ensure_write_guard_for_target "$target" "$explicit_confirm"
+  log "Applying CV experiences + CV logos from $CONTENT_DIR into $target"
+
+  seed_media_from_content_dir "${CV_MEDIA_COLLECTIONS[@]}"
+
+  if [[ "$target" != "local" ]]; then
+    upload_media_to_remote_env "$target" "${CV_MEDIA_COLLECTIONS[@]}"
+  fi
+
+  import_cv_content "$target"
 }
 
 parse_migrate_args() {
@@ -327,6 +455,12 @@ Commands:
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
   import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
+  import-projects-local  Seed project media and import only project descriptions into local
+  import-projects-dev    Upload project media and import only project descriptions into dev (requires ALLOW_DEV_WRITE=true)
+  import-projects-prod   Upload project media and import only project descriptions into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
+  import-cv-local        Seed CV logos and import only CV experiences into local
+  import-cv-dev          Upload CV logos and import only CV experiences into dev (requires ALLOW_DEV_WRITE=true)
+  import-cv-prod         Upload CV logos and import only CV experiences into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
   pull-local      Export local media + authored content into configured content root
   pull-dev        Pull dev media + export greeting + branding lockup + authored content into configured content root
   pull-prod       Pull prod media + export greeting + branding lockup + authored content into configured content root
@@ -348,6 +482,38 @@ run_import_prod() {
   local explicit_confirm="${1:-false}"
   CONTENT_DIR="$(resolve_content_dir)"
   apply_full_dataset_to_target prod "$explicit_confirm"
+}
+
+run_import_projects_local() {
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_projects_dataset_to_target local false
+}
+
+run_import_projects_dev() {
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_projects_dataset_to_target dev false
+}
+
+run_import_projects_prod() {
+  local explicit_confirm="${1:-false}"
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_projects_dataset_to_target prod "$explicit_confirm"
+}
+
+run_import_cv_local() {
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_cv_dataset_to_target local false
+}
+
+run_import_cv_dev() {
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_cv_dataset_to_target dev false
+}
+
+run_import_cv_prod() {
+  local explicit_confirm="${1:-false}"
+  CONTENT_DIR="$(resolve_content_dir)"
+  apply_cv_dataset_to_target prod "$explicit_confirm"
 }
 
 run_pull_local() {
@@ -402,6 +568,36 @@ case "$COMMAND" in
       shift
     fi
     run_import_prod "$explicit_confirm"
+    ;;
+  import-projects-local)
+    run_import_projects_local
+    ;;
+  import-projects-dev)
+    run_import_projects_dev
+    ;;
+  import-projects-prod)
+    shift
+    explicit_confirm=false
+    if [[ "${1:-}" == "--confirm-prod-write" ]]; then
+      explicit_confirm=true
+      shift
+    fi
+    run_import_projects_prod "$explicit_confirm"
+    ;;
+  import-cv-local)
+    run_import_cv_local
+    ;;
+  import-cv-dev)
+    run_import_cv_dev
+    ;;
+  import-cv-prod)
+    shift
+    explicit_confirm=false
+    if [[ "${1:-}" == "--confirm-prod-write" ]]; then
+      explicit_confirm=true
+      shift
+    fi
+    run_import_cv_prod "$explicit_confirm"
     ;;
   pull-local)
     run_pull_local

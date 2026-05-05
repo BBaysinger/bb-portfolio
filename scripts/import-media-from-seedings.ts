@@ -24,9 +24,19 @@ import path from "node:path";
 
 const IMAGE_EXTS = new Set([".webp", ".png", ".jpg", ".jpeg", ".svg"]);
 
+const SUPPORTED_COLLECTIONS = [
+  "project-brand-logos",
+  "cv-experience-logos",
+  "project-screenshots",
+  "project-thumbnails",
+] as const;
+
+type SupportedCollection = (typeof SUPPORTED_COLLECTIONS)[number];
+
 function parseArgs() {
   const args = process.argv.slice(2);
   let seedingsDir: string | undefined;
+  const collections = new Set<SupportedCollection>();
 
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
@@ -39,10 +49,42 @@ function parseArgs() {
 
     if (arg.startsWith("--seedings-dir=")) {
       seedingsDir = arg.slice("--seedings-dir=".length);
+      continue;
+    }
+
+    if (arg === "--collection") {
+      const collection = args[index + 1] as SupportedCollection | undefined;
+      if (!collection || !SUPPORTED_COLLECTIONS.includes(collection)) {
+        console.error(
+          `Invalid collection: ${collection ?? ""}. Use one of: ${SUPPORTED_COLLECTIONS.join(", ")}`,
+        );
+        process.exit(1);
+      }
+      collections.add(collection);
+      index++;
+      continue;
+    }
+
+    if (arg.startsWith("--collection=")) {
+      const collection = arg.slice(
+        "--collection=".length,
+      ) as SupportedCollection;
+      if (!SUPPORTED_COLLECTIONS.includes(collection)) {
+        console.error(
+          `Invalid collection: ${collection}. Use one of: ${SUPPORTED_COLLECTIONS.join(", ")}`,
+        );
+        process.exit(1);
+      }
+      collections.add(collection);
+      continue;
     }
   }
 
-  return { seedingsDir };
+  return {
+    seedingsDir,
+    collections:
+      collections.size > 0 ? [...collections] : [...SUPPORTED_COLLECTIONS],
+  };
 }
 
 function resolveSeedingsRoot(root: string, overrideDir?: string) {
@@ -99,7 +141,7 @@ async function copyDirFiltered(src: string, dest: string): Promise<number> {
 type Mapping = { label: string; dest: string; sources: string[] };
 
 async function main() {
-  const { seedingsDir } = parseArgs();
+  const { seedingsDir, collections } = parseArgs();
   const root = process.cwd();
   const seedBaseCandidates = [resolveSeedingsRoot(root, seedingsDir)];
 
@@ -156,8 +198,13 @@ async function main() {
     },
   ];
 
+  const selectedCollections = new Set(collections);
+  const selectedMappers = mappers.filter((map) =>
+    selectedCollections.has(map.label as SupportedCollection),
+  );
+
   let grandTotal = 0;
-  for (const map of mappers) {
+  for (const map of selectedMappers) {
     let copied = 0;
     for (const src of map.sources) {
       copied += await copyDirFiltered(src, map.dest);

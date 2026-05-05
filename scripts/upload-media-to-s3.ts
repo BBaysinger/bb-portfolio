@@ -55,10 +55,13 @@ const MEDIA_COLLECTIONS = [
   "project-thumbnails",
 ] as const;
 
+type MediaCollection = (typeof MEDIA_COLLECTIONS)[number];
+
 type Environment = "dev" | "prod";
 
 interface Options {
   environments: Environment[];
+  collections: MediaCollection[];
   dryRun: boolean;
   yes: boolean;
   profile?: string;
@@ -70,6 +73,7 @@ function parseArgs(): Options {
   const args = process.argv.slice(2);
   const options: Options = {
     environments: [],
+    collections: [],
     dryRun: false,
     yes: false,
     profile: undefined,
@@ -96,6 +100,19 @@ function parseArgs(): Options {
       case "--dry-run":
         options.dryRun = true;
         break;
+      case "--collection": {
+        const collection = args[++i] as MediaCollection | undefined;
+        if (!collection || !MEDIA_COLLECTIONS.includes(collection)) {
+          console.error(
+            `Invalid collection: ${collection ?? ""}. Use one of: ${MEDIA_COLLECTIONS.join(", ")}`,
+          );
+          process.exit(1);
+        }
+        if (!options.collections.includes(collection)) {
+          options.collections.push(collection);
+        }
+        break;
+      }
       case "--yes":
       case "-y":
         options.yes = true;
@@ -113,6 +130,7 @@ Usage: npm run media:upload -- [options]
 
 Options:
   --env <env>     Environment to upload to: dev, prod, or both
+  --collection    Limit upload to a specific collection (repeatable)
   --dry-run       Show what would be uploaded without actually uploading
   --yes, -y       Skip confirmation prompts (required for prod in non-interactive runs)
   --profile       AWS CLI profile to use (from ~/.aws/credentials)
@@ -122,6 +140,7 @@ Options:
 
 Examples:
   npm run media:upload -- --env dev
+  npm run media:upload -- --env dev --collection project-brand-logos
   npm run media:upload -- --env prod --dry-run
   npm run media:upload -- --env prod --yes
   npm run media:upload -- --env both
@@ -137,6 +156,10 @@ Examples:
     console.error("Please specify an environment with --env <dev|prod|both>");
     console.info("Use --help for more information");
     process.exit(1);
+  }
+
+  if (options.collections.length === 0) {
+    options.collections = [...MEDIA_COLLECTIONS];
   }
 
   return options;
@@ -281,7 +304,7 @@ async function main() {
   // Show summary of what will be uploaded
   console.info("\nMedia files summary:");
   let totalFiles = 0;
-  for (const collection of MEDIA_COLLECTIONS) {
+  for (const collection of options.collections) {
     const count = countFiles(collection);
     console.info(`  ${collection}: ${count} files`);
     totalFiles += count;
@@ -312,7 +335,7 @@ async function main() {
   for (const env of options.environments) {
     console.info(`\n📦 Uploading to ${env.toUpperCase()} environment...`);
 
-    for (const collection of MEDIA_COLLECTIONS) {
+    for (const collection of options.collections) {
       syncCollection(
         collection,
         env,
