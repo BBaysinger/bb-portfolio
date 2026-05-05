@@ -26,6 +26,16 @@ These are low-risk follow-ups to improve CI coverage and stability once the site
     - Unit tests always run
     - Integration tests gated by `RUN_INT_TESTS` and executed in dedicated CI job
 
+- Content migration UX
+  - Tighten the local/dev/prod content migration workflow so destructive data replacement does not leave the projects list blank while frontend regeneration catches up.
+  - Investigate why the final revalidation step is not consistently completing after database migration and media cache refresh.
+  - Add a temporary frontend status for the home projects grid during regeneration, e.g. `Generating projects...`, instead of rendering a blank area when the SSR snapshot is empty and the client is still resolving projects.
+  - Likely implementation surface:
+    - `scripts/content-workflow.sh`
+    - `frontend/src/components/home-page/HomePageClient.tsx`
+    - `frontend/src/components/home-page/ProjectsList.tsx`
+  - Rationale: reduce the visible post-migration outage window and make the temporary state understandable to users.
+
 - Dependency automation (optional)
   - Evaluate adding a conservative Dependabot config for automated dependency monitoring.
   - Scope a first pass to the three npm roots plus GitHub Actions; consider Docker and Terraform only if the PR volume stays manageable.
