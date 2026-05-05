@@ -44,6 +44,20 @@ die() {
   exit 1
 }
 
+hash_file() {
+  shasum -a 256 "$1" | awk '{print $1}'
+}
+
+resolve_dir_from_repo_root() {
+  local value="$1"
+
+  if [[ "$value" = /* ]]; then
+    printf '%s\n' "$value"
+  else
+    printf '%s\n' "$REPO_ROOT/$value"
+  fi
+}
+
 resolve_content_dir() {
   [[ -n "${PORTFOLIO_CONTENT_DIR:-}" ]] || die "PORTFOLIO_CONTENT_DIR is required for this command."
 
@@ -94,12 +108,48 @@ ensure_write_guard_for_target() {
 }
 
 copy_local_media_to_content_dir() {
+  local enforce_seedings_guard="${1:-false}"
   local source_root="$REPO_ROOT/backend/media"
 
-  # Prefer the sibling seedings directory when it exists; backend/media is a
-  # hydrated local cache and can drift from the canonical seeded assets.
-  if [[ -d "$REPO_ROOT/../cms-media-seedings" ]]; then
-    source_root="$REPO_ROOT/../cms-media-seedings"
+  if [[ "$enforce_seedings_guard" == "true" ]]; then
+    local seed_root="$REPO_ROOT/../cms-media-seedings"
+    if [[ -d "$seed_root" ]]; then
+      local -a mismatches=()
+      local collection local_dir seed_dir local_file rel_path seed_file local_hash seed_hash
+
+      for collection in "${MEDIA_COLLECTIONS[@]}"; do
+        local_dir="$source_root/$collection"
+        seed_dir="$seed_root/$collection"
+
+        [[ -d "$local_dir" && -d "$seed_dir" ]] || continue
+
+        while IFS= read -r -d '' local_file; do
+          rel_path="${local_file#"$local_dir"/}"
+          seed_file="$seed_dir/$rel_path"
+
+          [[ -f "$seed_file" ]] || continue
+
+          local_hash="$(hash_file "$local_file")"
+          seed_hash="$(hash_file "$seed_file")"
+
+          if [[ "$local_hash" != "$seed_hash" ]]; then
+            mismatches+=("$collection/$rel_path")
+          fi
+        done < <(
+          find "$local_dir" -type f \
+            ! -name '.DS_Store' \
+            ! -name '.gitignore' \
+            ! -name '.gitkeep' \
+            -print0
+        )
+      done
+
+      if ((${#mismatches[@]} > 0)); then
+        printf '[content-workflow] Refusing local migrate because backend/media diverges from ../cms-media-seedings for:%s\n' "" >&2
+        printf '  - %s\n' "${mismatches[@]}" >&2
+        die "Local media is authoritative for migrate. Reconcile backend/media and cms-media-seedings before retrying."
+      fi
+    fi
   fi
 
   log "Copying local media from $source_root into $CONTENT_DIR"
@@ -191,7 +241,7 @@ stage_media_dataset() {
   log "Staging media dataset from $source into $CONTENT_DIR"
 
   if [[ "$source" == "local" ]]; then
-    copy_local_media_to_content_dir
+    copy_local_media_to_content_dir true
     return
   fi
 
@@ -529,17 +579,41 @@ run_pull_local() {
   export_full_dataset local false
 }
 
+ensure_nonlocal_pull_uses_explicit_dir() {
+  local source="$1"
+  local configured_source="${PORTFOLIO_CONTENT_DIR_SOURCE:-unknown}"
+
+  [[ "$source" != "local" ]] || return 0
+
+  if [[ "$configured_source" != "explicit-env" ]]; then
+    die "pull-$source requires an explicit PORTFOLIO_CONTENT_DIR override and will not write to the canonical local snapshot directory by default."
+  fi
+
+  if [[ -n "${CANONICAL_PORTFOLIO_CONTENT_DIR:-}" ]]; then
+    local requested_dir canonical_dir
+    requested_dir="$(resolve_dir_from_repo_root "$PORTFOLIO_CONTENT_DIR")"
+    canonical_dir="$(resolve_dir_from_repo_root "$CANONICAL_PORTFOLIO_CONTENT_DIR")"
+
+    if [[ "$requested_dir" == "$canonical_dir" ]]; then
+      die "pull-$source cannot overwrite the canonical local snapshot directory: $requested_dir"
+    fi
+  fi
+}
+
 run_pull_dev() {
+  ensure_nonlocal_pull_uses_explicit_dir dev
   CONTENT_DIR="$(resolve_content_dir)"
   export_full_dataset dev false
 }
 
 run_pull_prod() {
+  ensure_nonlocal_pull_uses_explicit_dir prod
   CONTENT_DIR="$(resolve_content_dir)"
   export_full_dataset prod false
 }
 
 run_pull_prod_dry() {
+  ensure_nonlocal_pull_uses_explicit_dir prod
   CONTENT_DIR="$(resolve_content_dir)"
   export_full_dataset prod true
 }

@@ -4,6 +4,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CONTENT_DIR_RAW=""
+CANONICAL_CONTENT_DIR_RAW=""
+CONTENT_DIR_SOURCE=""
 
 load_content_dir_from_env_file() {
   local env_file="$1"
@@ -34,20 +36,46 @@ load_content_dir_from_env_file() {
   return 1
 }
 
-if [[ -z "$CONTENT_DIR_RAW" ]]; then
+load_canonical_content_dir_from_files() {
   load_content_dir_from_env_file "$REPO_ROOT/.env.local" || true
-fi
+  if [[ -n "$CONTENT_DIR_RAW" ]]; then
+    CANONICAL_CONTENT_DIR_RAW="$CONTENT_DIR_RAW"
+    CONTENT_DIR_RAW=""
+    return 0
+  fi
 
-if [[ -z "$CONTENT_DIR_RAW" ]]; then
   load_content_dir_from_env_file "$REPO_ROOT/.env" || true
-fi
+  if [[ -n "$CONTENT_DIR_RAW" ]]; then
+    CANONICAL_CONTENT_DIR_RAW="$CONTENT_DIR_RAW"
+    CONTENT_DIR_RAW=""
+    return 0
+  fi
 
-if [[ -z "$CONTENT_DIR_RAW" ]]; then
   load_content_dir_from_env_file "$REPO_ROOT/backend/.env.local" || true
-fi
+  if [[ -n "$CONTENT_DIR_RAW" ]]; then
+    CANONICAL_CONTENT_DIR_RAW="$CONTENT_DIR_RAW"
+    CONTENT_DIR_RAW=""
+    return 0
+  fi
 
-if [[ -z "$CONTENT_DIR_RAW" ]]; then
   load_content_dir_from_env_file "$REPO_ROOT/backend/.env" || true
+  if [[ -n "$CONTENT_DIR_RAW" ]]; then
+    CANONICAL_CONTENT_DIR_RAW="$CONTENT_DIR_RAW"
+    CONTENT_DIR_RAW=""
+    return 0
+  fi
+
+  return 1
+}
+
+load_canonical_content_dir_from_files || true
+
+if [[ -n "${PORTFOLIO_CONTENT_DIR:-}" ]]; then
+  CONTENT_DIR_RAW="$PORTFOLIO_CONTENT_DIR"
+  CONTENT_DIR_SOURCE="explicit-env"
+elif [[ -n "$CANONICAL_CONTENT_DIR_RAW" ]]; then
+  CONTENT_DIR_RAW="$CANONICAL_CONTENT_DIR_RAW"
+  CONTENT_DIR_SOURCE="env-file"
 fi
 
 if [[ -z "$CONTENT_DIR_RAW" ]]; then
@@ -68,6 +96,11 @@ if [[ ! -d "$RESOLVED_CONTENT_DIR" ]]; then
 fi
 
 export PORTFOLIO_CONTENT_DIR="$CONTENT_DIR_RAW"
+export PORTFOLIO_CONTENT_DIR_SOURCE="$CONTENT_DIR_SOURCE"
+
+if [[ -n "$CANONICAL_CONTENT_DIR_RAW" ]]; then
+  export CANONICAL_PORTFOLIO_CONTENT_DIR="$CANONICAL_CONTENT_DIR_RAW"
+fi
 
 if [[ $# -eq 0 ]]; then
   echo "No command provided. Usage: scripts/with-portfolio-content-dir.sh <command...>" >&2

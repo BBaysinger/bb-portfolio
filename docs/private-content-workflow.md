@@ -5,6 +5,12 @@ This repo supports two distinct private-content workflows:
 - Authored pull/import workflows rooted at `PORTFOLIO_CONTENT_DIR`
 - `content:migrate`, which migrates the full CMS database directly between environments and stages the supported media collections separately
 
+Authority model:
+
+- Local CMS state is authoritative for `content:migrate` when the source is `local`.
+- `../cms-media-seedings` is a hydration source for local media workflows, not the source of truth for local migrate.
+- Canonical local YAML snapshots live at the configured `PORTFOLIO_CONTENT_DIR`; non-local pull/export runs must target an explicit alternate directory and cannot overwrite that canonical local snapshot.
+
 Default content source:
 
 - `../cms-content-variants/_general-purpose` relative to this repo root.
@@ -132,17 +138,19 @@ From repo root:
 - `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
 - `ALLOW_PROD_WRITE=true npm run content:import:prod:content-dir -- --confirm-prod-write`
 - `npm run content:pull:local:content-dir`
-- `npm run content:pull:dev:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-snapshots/_dev-compare npm run content:pull:dev:content-dir`
 - `npm run content:pull:prod:all`
 - `npm run content:pull:prod:all:dry`
-- `npm run content:pull:prod:content-dir`
-- `npm run content:pull:prod:content-dir:dry`
+- `PORTFOLIO_CONTENT_DIR=../cms-snapshots/_prod-compare npm run content:pull:prod:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-snapshots/_prod-compare npm run content:pull:prod:content-dir:dry`
 
 These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, media staging/import sequencing, full-database migration for `content:migrate`, and production overwrite confirmation.
 
 The `ALLOW_DEV_WRITE=true` and `ALLOW_PROD_WRITE=true` prefixes satisfy the required write guards for remote targets. They do not disable other safety checks. Production writes still require the separate production confirmation step.
 
 `content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
+
+When `content:migrate` stages local media, it copies from `backend/media` and treats that local media state as authoritative. If a sibling `../cms-media-seedings` directory exists and overlapping files have different hashes, the migrate run stops before writing so local media and hydration seedings can be reconciled intentionally.
 
 Alternate directory examples:
 
@@ -158,10 +166,11 @@ Path-driven alias:
   `PORTFOLIO_CONTENT_DIR=../cms-content-variants/example-cms-content-variant`
 - `ALLOW_DEV_WRITE=true npm run content:migrate -- --source local --target dev`
 - `ALLOW_PROD_WRITE=true npm run content:migrate -- --source dev --target prod --confirm-prod-write`
-- `npm run content:pull:prod:content-dir`
-- `npm run content:pull:prod:content-dir:dry`
+- `PORTFOLIO_CONTENT_DIR=../cms-snapshots/_prod-compare npm run content:pull:prod:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-snapshots/_prod-compare npm run content:pull:prod:content-dir:dry`
 - The pull/import commands use the content root from `.env.local` by default.
 - `content:migrate` does not use the configured content root; it stages internally and applies directly to the target environment.
+- `pull-local` may write to the canonical configured content root. `pull-dev` and `pull-prod` require an explicit `PORTFOLIO_CONTENT_DIR` override and refuse to overwrite the canonical configured root.
 - Any target of `dev` requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
 - Any target of `prod` requires `ALLOW_PROD_WRITE=true`; that env var satisfies the write guard, but aggregate migrations and prod imports still require a separate production confirmation step.
 
@@ -169,6 +178,7 @@ Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
 - The root pull commands copy the current authored-content subset plus the supported media collections for an environment back into the configured staging root.
+- The root pull commands use the canonical configured staging root only for `pull-local`. Remote pulls are comparison/reconciliation exports and must use an explicit alternate destination.
 - Aggregate migration now means: stage the supported media collections into an internal temporary directory, migrate the full CMS database directly from source to target, then revalidate frontend project routes.
 - The backend direct commands remain dataset-specific (`import:project-descriptions`, `import:cv-content`, `export:project-descriptions`, `export:cv-content`), but the intended operator workflow is the aggregate wrapper.
 - A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-content-variants/<target>`, while keeping Payload itself as a single effective site state.
