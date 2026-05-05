@@ -3,8 +3,6 @@ import type { DefaultServerCellComponentProps } from 'payload'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-const PROJECT_TITLE_GREEN = '#87ad26'
-
 type ProjectRow = {
   id?: string | number
   shortTitle?: string | null
@@ -31,10 +29,10 @@ export const ProjectAdminTitleCell = ({
   const serverURL = payload.config.serverURL
   const sharedProps = {
     className,
-    style: {
-      color: PROJECT_TITLE_GREEN,
-      fontWeight: 600,
-    },
+    // style: {
+    //   color: PROJECT_TITLE_GREEN,
+    //   fontWeight: 600,
+    // },
   }
 
   if (typeof onClick === 'function') {
