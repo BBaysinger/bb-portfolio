@@ -179,8 +179,11 @@
   },
   // Only build native dependencies that need precompilation to make CI faster
   "onlyBuiltDependencies": [
+    // Native image processing dependency used by Payload uploads and media transforms
     "sharp",
+    // Fast bundler binary used by Next.js and other build tooling
     "esbuild",
+    // Native module resolver binary pulled in by the modern toolchain
     "unrs-resolver",
   ],
 }
