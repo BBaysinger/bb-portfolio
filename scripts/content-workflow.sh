@@ -96,6 +96,14 @@ ensure_write_guard_for_target() {
 copy_local_media_to_content_dir() {
   local source_root="$REPO_ROOT/backend/media"
 
+  # Prefer the sibling seedings directory when it exists; backend/media is a
+  # hydrated local cache and can drift from the canonical seeded assets.
+  if [[ -d "$REPO_ROOT/../cms-media-seedings" ]]; then
+    source_root="$REPO_ROOT/../cms-media-seedings"
+  fi
+
+  log "Copying local media from $source_root into $CONTENT_DIR"
+
   for collection in "${MEDIA_COLLECTIONS[@]}"; do
     local source_dir="$source_root/$collection"
     local target_dir="$CONTENT_DIR/$collection"
