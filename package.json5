@@ -424,7 +424,7 @@
     // JSON5 parser for annotated config files
     "json5": "^2.2.3",
     // CLI that syncs documented package.json5 companions from canonical package.json files
-    "json5-manifest-sync": "^0.1.3",
+    "json5-manifest-sync": "^0.1.4",
     // Code formatter for consistent style
     "prettier": "^3.8.3",
     // TypeScript execution environment for scripts
