@@ -4,8 +4,8 @@
 # - First, keep existing branch alignment behavior between dev and main
 # - Default flow: push current dev, wait for a successful dev deploy, then bump
 #   versions locally, deploy main with that version, and finally fast-forward
-#   dev to the same version-bump commit plus an explicit post-release sync
-#   marker commit so the workflow skips only that final redundant dev run
+#   dev to the same released commit only when origin/dev has not advanced in
+#   the meantime
 # - Override flow: preserve the prior behavior and deploy the version-bump push
 #   on both dev and main
 # - Always ends on dev (even on failure it will attempt to switch back)
@@ -339,9 +339,23 @@ create_version_bump_commit() {
   git commit -m "$VERSION_BUMP_MESSAGE"
 }
 
-create_post_release_dev_sync_commit() {
-  log "Creating a post-release dev sync marker commit so CI can skip the redundant final dev run."
-  git commit --allow-empty -m "Sync dev to released main [skip dev deploy]"
+assert_remote_branch_sha() {
+  local BRANCH=$1
+  local EXPECTED_SHA=$2
+  local CONTEXT=$3
+  local ACTUAL_SHA=""
+
+  ACTUAL_SHA=$(remote_branch_sha "$BRANCH")
+
+  if [[ -z "$ACTUAL_SHA" ]]; then
+    err "Unable to resolve origin/$BRANCH while $CONTEXT. Aborting."
+    exit 1
+  fi
+
+  if [[ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]]; then
+    err "origin/$BRANCH moved during $CONTEXT. Expected $EXPECTED_SHA but found $ACTUAL_SHA. Aborting to avoid rewriting newer work."
+    exit 1
+  fi
 }
 
 # Sequence
@@ -381,12 +395,14 @@ else
   push_or_dispatch_workflow dev main "$MAIN_BUMP_SHA" "main version deploy" true
   checkout_ff_pull main
 
+  log "Verifying origin/dev still matches the pre-release dev commit before final sync"
+  assert_remote_branch_sha dev "$DEV_SYNC_SHA" "the post-release dev sync"
+
   log "Fast-forwarding dev to the released main commit"
   git checkout dev
   git merge --ff-only main
-  create_post_release_dev_sync_commit
 
-  log "Pushing dev to the released main commit; workflow will skip the explicit post-release sync run"
+  log "Pushing dev to the released main commit; CI will skip the redundant final dev run when dev matches main"
   git push origin dev
 fi
 
