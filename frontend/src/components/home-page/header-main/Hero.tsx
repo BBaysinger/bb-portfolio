@@ -54,6 +54,7 @@ import HeroLockup from "./HeroLockup";
 import HeroQueryConfig from "./HeroQueryConfig";
 import {
   buildHeroViewportRumPayload,
+  getHeroViewportSamplePlan,
   getViewportDebugSnapshot,
   parseComputedPixelValue,
 } from "./heroViewportDiagnostics";
@@ -558,6 +559,9 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
       const heroElement = heroRef.current;
       const lockupElement = titleRef.current;
+      const messageElement = heroElement?.querySelector<HTMLElement>(
+        `.${styles.message}`,
+      );
       const navElement = document.querySelector<HTMLElement>("nav.topBar");
       const computedStyle = heroElement
         ? window.getComputedStyle(heroElement)
@@ -569,6 +573,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
         sampleLabel,
         sampleIndex,
         heroRect: heroElement?.getBoundingClientRect(),
+        messageRect: messageElement?.getBoundingClientRect(),
         lockupRect: lockupElement?.getBoundingClientRect(),
         navRect: navElement?.getBoundingClientRect(),
         computedStyle: computedStyle
@@ -576,6 +581,10 @@ function Hero({ initialRoleTitle }: HeroProps) {
               height: parseComputedPixelValue(computedStyle.height),
               minHeight: parseComputedPixelValue(computedStyle.minHeight),
               maxHeight: parseComputedPixelValue(computedStyle.maxHeight),
+              paddingTop: parseComputedPixelValue(computedStyle.paddingTop),
+              paddingBottom: parseComputedPixelValue(
+                computedStyle.paddingBottom,
+              ),
             }
           : null,
         scrollY: window.scrollY,
@@ -599,13 +608,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
       }
     };
 
-    const samplePlan = viewportBrowserLabel.endsWith("safari")
-      ? [
-          { delayMs: 150, sampleLabel: "mount-150ms", sampleIndex: 0 },
-          { delayMs: 1000, sampleLabel: "mount-1000ms", sampleIndex: 1 },
-          { delayMs: 2500, sampleLabel: "mount-2500ms", sampleIndex: 2 },
-        ]
-      : [{ delayMs: 150, sampleLabel: "mount-150ms", sampleIndex: 0 }];
+    const samplePlan = getHeroViewportSamplePlan(viewportBrowserLabel);
 
     samplePlan.forEach(({ delayMs, sampleLabel, sampleIndex }) => {
       const timeoutId = window.setTimeout(() => {
