@@ -65,9 +65,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.1044.0",
+    "@aws-sdk/client-s3": "^3.1045.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.1044.0",
+    "@aws-sdk/s3-request-presigner": "^3.1045.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -81,7 +81,7 @@
     // HTTP client for making API requests
     "jsonwebtoken": "^9.0.3",
     // Next.js framework (App Router + build pipeline)
-    "next": "^16.2.5",
+    "next": "^16.2.6",
     // PixiJS renderer for interactive canvas experiences
     "pixi.js": "^8.18.1",
     // End-to-end browser automation used for UI and deployment smoke tests.
@@ -120,7 +120,7 @@
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration with React and accessibility rules
-    "eslint-config-next": "16.2.5",
+    "eslint-config-next": "16.2.6",
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility

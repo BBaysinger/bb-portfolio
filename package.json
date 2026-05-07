@@ -150,7 +150,7 @@
     "release:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.5",
+    "@next/eslint-plugin-next": "^16.2.6",
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "8.59.2",
     "@typescript-eslint/parser": "8.59.2",
