@@ -1,8 +1,8 @@
 # Open Source Status
 
-This document is a lightweight tracking note for code and tooling that has already been split out of this repo, plus pieces that are plausible candidates for later extraction or publication.
+This document tracks code and tooling that has already been split out of this repo, along with components that remain plausible candidates for later extraction or publication.
 
-It is intentionally brief for now and can be expanded later into a fuller pass.
+It is intentionally brief and can be expanded later if needed.
 
 ## Already Separated
 
@@ -10,7 +10,7 @@ It is intentionally brief for now and can be expanded later into a fuller pass.
 
 - The root README now links the separate repo for the sprite/image processing work:
   - `github.com/BBaysinger/fluxel-animations`
-- This is the clearest current example of something that has already gone out of the main repo.
+- This is the clearest current example of work that has already moved out of the main repo.
 
 ## Candidates For Future Extraction
 
