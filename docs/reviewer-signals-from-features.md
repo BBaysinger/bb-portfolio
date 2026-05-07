@@ -4,12 +4,12 @@ Reviewer-facing interpretation extracted from the flat main features list so it 
 
 ## Why This Matters
 
-- Demonstrates comfort across UI, application architecture, CMS integration, infrastructure, and deployment rather than isolated frontend styling alone
-- Shows deliberate handling of real-world concerns like NDA gating, auth-aware rendering, cache behavior, security headers, revalidation, and environment safety
-- Reflects a bias toward maintainability and repeatable workflows through typed models, seed/import-export pipelines, backup strategy, and deployment automation
-- Shows operational discipline through HTTPS expiry monitoring/alerting, post-deploy health verification, and release sequencing that gates promotion on successful environment deploys
-- Indicates strong product-minded frontend capability through custom interaction design, motion systems, responsive strategy, and performance-aware rendering decisions
-- Presents evidence of end-to-end ownership, from visual design and UX experimentation through backend integration and production delivery
+- The codebase spans UI systems, application architecture, CMS integration, infrastructure, and deployment rather than frontend styling alone.
+- Repository artifacts show handling for NDA gating, auth-aware rendering, cache behavior, security headers, revalidation, and environment safety.
+- Typed models, seed/import-export pipelines, backup strategy, and deployment automation point to maintainability and repeatable workflows.
+- HTTPS expiry monitoring/alerting, post-deploy health verification, and release sequencing tie operational work to actual deployment outcomes.
+- The frontend work includes custom interaction design, motion systems, responsive strategy, and performance-aware rendering decisions.
+- The repo as a whole reflects end-to-end ownership across visual design, UX experimentation, backend integration, and production delivery.
 
 ## Notes
 
