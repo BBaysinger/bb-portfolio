@@ -1,10 +1,10 @@
 # Project Carousel Integration Notes
 
-This README now tracks integration concerns for the host app layer around the carousel core.
+This document tracks host-app integration concerns around the carousel core.
 
 For core internals and package-extraction notes, see `carousel-core/README.md`.
 
-## Scope Of This README
+## Scope
 
 - Route shape and canonical URL strategy for project pages.
 - URL/history synchronization between app routing and carousel state.
@@ -23,7 +23,7 @@ For core internals and package-extraction notes, see `carousel-core/README.md`.
 - NDA-included route output is placeholders-only in static HTML; confidential fields are never rendered server-side.
 - Project route stack must not perform client auth-upgrade fetch/probe loops (`/api/users/me`, focus/visibility probes, or `no-store` refreshes) during normal route hydration.
 - Static parameter generation must fail fast when project data cannot be loaded or resolves to zero IDs. This applies to both production and `dev.bbaysinger.io` builds.
-- If this contract changes, update this README and `carousel-core/README.md` together.
+- If this contract changes, update this document and `carousel-core/README.md` together.
 
 ## Integration Architecture
 
@@ -51,7 +51,7 @@ Adopt an explicit model: committed selection vs preview motion.
 - **Committed project ID** changes only when a user action is committed: carousel stabilization, button click, Back, or Forward.
 - **Preview motion** can update internal active index for rendering, but should not commit URL state.
 
-### URL As Canonical Committed State
+### URL as Canonical Committed State
 
 - There is exactly one committed selection: `committedProjectId`.
 - That selection is represented in one place: the URL.
@@ -65,7 +65,7 @@ Why this helps:
 - makes Back/Forward naturally correct
 - makes buttons and deep links the same operation
 
-## Browser History And User Activation
+## Browser History and User Activation
 
 Why Back/Forward sometimes skipped steps and why it improved:
 
