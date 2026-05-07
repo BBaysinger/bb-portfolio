@@ -1,8 +1,8 @@
 # Carousel Core Notes
 
-This README documents the reusable carousel core under `project-carousel-page/carousel-core/`.
+This document describes the reusable carousel core under `project-carousel-page/carousel-core/`.
 
-## Scope Of This README
+## Scope
 
 - Core rendering/scroll behavior and synchronization internals.
 - Core contracts intended for package extraction.
@@ -57,7 +57,7 @@ Core responsibilities:
 - deterministic scroll behavior and loop continuity
 - rendering concerns for layered carousel visuals
 
-## Definition Of Done (Core)
+## Definition of Done (Core)
 
 - Core remains mount-stable while host app route state changes.
 - Infinite wrap continuity has no visible seam in either direction.
