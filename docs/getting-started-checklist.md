@@ -1,11 +1,11 @@
-# Beginner Getting Started Checklist (Absolute Basics)
+# Getting Started Checklist
 
 This is a lightweight checklist for first-time setup.
-It’s intentionally not detailed — it’s here to help you confirm you have the right accounts + tools before you try to run anything.
+It is intentionally brief and meant to confirm that you have the right accounts and tools before you try to run anything.
 
 ## 0) Decide what you’re trying to do
 
-- [ ] **Just run locally** (recommended first)
+- [ ] **Run locally** (recommended first)
 - [ ] **Contribute code** (lint/build/test)
 - [ ] **Push images** (Docker Hub)
 - [ ] **Provision / deploy to AWS** (Terraform + ECR/EC2)
