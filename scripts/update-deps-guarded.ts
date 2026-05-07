@@ -397,7 +397,7 @@ function installWithRetry(target: PackageTarget): void {
 
 function syncPackages(): void {
   console.info("\n[root] syncing package.json5 manifests");
-  runCommand("npm", ["run", "sync:packages"], repoRoot);
+  runCommand("npm", ["run", "sync:json5"], repoRoot);
 }
 
 async function main(): Promise<void> {

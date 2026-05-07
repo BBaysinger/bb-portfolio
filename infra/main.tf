@@ -752,6 +752,10 @@ resource "aws_rum_app_monitor" "main" {
     # excluded_pages = ["${var.prod_frontend_url}/admin/*"]
   }
 
+  custom_events {
+    status = "ENABLED"
+  }
+
   cw_log_enabled = true
 }
 

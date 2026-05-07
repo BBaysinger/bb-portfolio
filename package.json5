@@ -189,7 +189,7 @@
     // ✅ Fast pre-commit validation (format + lint + type check + package sync)
     // Run before every commit for quick validation (~5-10 seconds)
     // Attempts to auto-fix fixable ESLint issues, then syncs package.json5 annotations back from package.json
-    "precommit": "prettier --write . && eslint . --fix && tsc --noEmit && npm run sync:packages && npm run format:shell",
+    "precommit": "prettier --write . && eslint . --fix && tsc --noEmit && npm run sync:json5 && npm run format:shell",
     // 🛡️ Comprehensive pre-push validation (precommit + tests)
     // Run before pushing to ensure everything works (1-5 minutes)
     // Includes all precommit checks plus full test suite
@@ -206,7 +206,7 @@
     // 🔢 Increment the canonical root patch version and copy it to backend/frontend package manifests.
     "version:bump:sync": "tsx scripts/bump-sync-version.ts",
     // Backward-compatible alias for the JSON5 sync entrypoint used by existing docs and hooks.
-    "sync:packages": "json5-manifest-sync --blank-comments=fill",
+    "sync:json5": "json5-manifest-sync --blank-comments=fill",
     // Export the current frontend project-data snapshot used for regression comparisons.
     "snapshot:projects": "npm --prefix frontend run snapshot:projects",
     // Prepare the redacted project snapshot payload for secret storage or sharing.

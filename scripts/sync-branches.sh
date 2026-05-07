@@ -328,7 +328,7 @@ create_version_bump_commit() {
   log "Incrementing root package version and propagating to backend/frontend"
   npm run version:bump:sync
   log "Syncing package.json5 mirrors"
-  npm run sync:packages
+  npm run sync:json5
 
   NEW_VERSION=$(node -p "require('./package.json').version")
   log "Committing version bump $NEW_VERSION on dev"

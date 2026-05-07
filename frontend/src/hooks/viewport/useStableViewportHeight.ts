@@ -189,7 +189,10 @@ function shouldIgnoreTopCoarsePointerGrowth(
 
 function getInitialStableHeightPx(topScrollGuardPx: number) {
   if (shouldIgnoreTopViewportOffsetSample(topScrollGuardPx)) {
-    return null;
+    const smallerTopCandidate = getSmallViewportHeightPx();
+    return isUsableViewportHeight(smallerTopCandidate)
+      ? smallerTopCandidate
+      : null;
   }
 
   const { hasCoarsePointer } = getInteractionCapabilities();
@@ -209,6 +212,28 @@ function getInitialStableHeightPx(topScrollGuardPx: number) {
   }
 
   return isUsableViewportHeight(initialHeight) ? initialHeight : null;
+}
+
+function getFallbackStableHeightPx(
+  nextHeight: number,
+  previousHeight: number | null,
+  topScrollGuardPx: number,
+) {
+  if (
+    shouldIgnoreTopViewportOffsetSample(topScrollGuardPx) ||
+    shouldIgnoreTopCoarsePointerGrowth(
+      nextHeight,
+      previousHeight,
+      topScrollGuardPx,
+    )
+  ) {
+    const smallerTopCandidate = getSmallViewportHeightPx();
+    if (isUsableViewportHeight(smallerTopCandidate)) {
+      return smallerTopCandidate;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -310,9 +335,13 @@ export function useStableViewportHeight(
     (height: number, force = false) => {
       const previousHeight = lastHeightRef.current;
       const bypassTransientGuards = force || shouldForceHeightCommit();
+      const fallbackHeight = bypassTransientGuards
+        ? null
+        : getFallbackStableHeightPx(height, previousHeight, topScrollGuardPx);
 
       if (
-        !isUsableViewportHeight(height) ||
+        (!isUsableViewportHeight(height) &&
+          !isUsableViewportHeight(fallbackHeight)) ||
         (!bypassTransientGuards &&
           (shouldIgnoreTopViewportOffsetSample(topScrollGuardPx) ||
             shouldIgnoreScrolledCoarsePointerSample(
@@ -325,30 +354,38 @@ export function useStableViewportHeight(
               previousHeight,
               topScrollGuardPx,
             ) ||
-            shouldGuardTopOverscrollShrink(height)))
+            shouldGuardTopOverscrollShrink(height)) &&
+          !isUsableViewportHeight(fallbackHeight))
       ) {
         return;
       }
 
-      lastHeightRef.current = height;
-      if (isUsableViewportHeight(previousHeight) && height > previousHeight) {
+      const nextHeight = isUsableViewportHeight(fallbackHeight)
+        ? fallbackHeight
+        : height;
+
+      lastHeightRef.current = nextHeight;
+      if (
+        isUsableViewportHeight(previousHeight) &&
+        nextHeight > previousHeight
+      ) {
         lastHeightIncreaseRef.current = {
-          height,
+          height: nextHeight,
           timestamp: Date.now(),
         };
       } else if (
         lastHeightIncreaseRef.current !== null &&
-        height <= lastHeightIncreaseRef.current.height
+        nextHeight <= lastHeightIncreaseRef.current.height
       ) {
         lastHeightIncreaseRef.current = null;
       }
       if (
         initialHeightRef.current !== null &&
-        height <= initialHeightRef.current
+        nextHeight <= initialHeightRef.current
       ) {
         initialHeightRef.current = null;
       }
-      setStableHeightPx((prev) => (prev === height ? prev : height));
+      setStableHeightPx((prev) => (prev === nextHeight ? prev : nextHeight));
     },
     [shouldForceHeightCommit, shouldGuardTopOverscrollShrink, topScrollGuardPx],
   );
