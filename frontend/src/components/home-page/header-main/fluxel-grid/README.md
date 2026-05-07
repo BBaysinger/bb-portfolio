@@ -2,7 +2,7 @@
 
 _Last updated: 2025-12-08_
 
-## Why This Exists
+## Purpose
 
 - Keep a living summary of the Fluxel grid experiments so we can pause/resume without losing context.
 - Track the rationale for keeping both the SVG/Canvas implementations and a future PixiJS + shader path for benchmarking.
@@ -19,7 +19,7 @@ _Last updated: 2025-12-08_
   - Still relies on the same `setGridData` loop, so CPU work stays O(rows × cols).
 - **Pixi/WebGL (prototype, currently disabled)**
   - `FluxelPixiGrid.tsx` and `FluxelPixiShadowMesh.ts` hold the unfinished attempt.
-  - Goal: move fluxel shading and shadowing into fragment shaders, keep CPU limited to uniform updates.
+  - Target direction: move fluxel shading and shadowing into fragment shaders and keep CPU work limited to uniform updates.
 
 ## Key Bottlenecks Today
 
@@ -38,7 +38,7 @@ _Last updated: 2025-12-08_
 ### Pixi vs Straight WebGL
 
 - PixiJS is essentially a convenience layer on top of WebGL. Once the shader work is finished both routes issue the same instanced draw calls, so the meaningful performance win comes from “GPU shaders vs DOM/Canvas,” not “Pixi vs raw WebGL.”
-- Raw WebGL might shave a tiny bit of overhead (smaller bundle, direct buffer control), but Pixi accelerates iteration (textures, batching, cleanup) without giving up GPU throughput. Unless we need a fully bespoke render stack, Pixi is the pragmatic choice.
+- Raw WebGL might shave a small amount of overhead (smaller bundle, direct buffer control), but Pixi accelerates iteration (textures, batching, cleanup) without giving up GPU throughput. Unless a fully bespoke render stack becomes necessary, Pixi is the preferred path.
 
 ## Must-Keep Requirements
 
@@ -62,10 +62,10 @@ _Last updated: 2025-12-08_
 4. Add a feature flag or query param for Pixi (`?gridType=pixi`) and wire cleanup/disposal so it hot-swaps safely.
 5. Compare SVG vs Canvas vs Pixi using the same pointer choreography, record CPU/GPU timelines, and decide which becomes default.
 
-## Status / Reminder To Future Me
+## Current Status
 
-- Pausing here until there is dedicated time to finish the Pixi/WebGL pipeline.
-- When coming back: revisit these notes, re-run baseline perf captures, then continue with the next steps list above.
+- Work is paused until there is dedicated time to finish the Pixi/WebGL pipeline.
+- When work resumes, revisit these notes, re-run baseline perf captures, then continue with the next steps list above.
 - Keep the SVG implementation intact. It documents the early hook-learning experiments and remains useful for regression tests.
 
 ## Useful Files
@@ -77,4 +77,4 @@ _Last updated: 2025-12-08_
 - `GridController.tsx`
 - `useFluxelShadows.ts`
 
-Feel free to append log entries or measurement summaries here as experiments continue.
+Append log entries or measurement summaries here as experiments continue.
