@@ -1,6 +1,6 @@
 # Portfolio Frontend (Next.js)
 
-This is the frontend service for the BB-Portfolio content-driven portfolio system, built with Next.js, React, and TypeScript.
+This directory contains the frontend service for the BB-Portfolio portfolio system, built with Next.js, React, and TypeScript.
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for shared conventions (naming, env exposure via `NEXT_PUBLIC_*`, and CI/CD expectations).
 
@@ -9,7 +9,7 @@ This is the frontend service for the BB-Portfolio content-driven portfolio syste
 - Owns the public-facing Next.js App Router UI, including homepage interaction systems, project browsing, NDA-aware client flows, and route-driven presentation logic.
 - Hosts the custom rendering and interaction layers used by the site, including the parallax carousel, fluxel grid, sprite/sequencer systems, kinetic orb, and viewport/layout stabilization hooks.
 - Provides frontend-focused build/runtime helpers such as project snapshot consumption, production-like local perf runs, and browser-facing environment/config wiring.
-- Defers canonical feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
+- Defers the full feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
 
 ## Development
 
@@ -77,9 +77,9 @@ PORT=3010 npm run frontend:prod-like:down
 
 ## Service Notes
 
-Keep the canonical feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
+Keep the full feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
 
-This service README should stay focused on frontend-local concerns:
+This README stays focused on frontend-local concerns:
 
 - how to run the frontend in normal dev and production-like local modes
 - how the hermetic snapshot flow works for frontend builds
@@ -172,4 +172,4 @@ The frontend adapts to different environments through environment-aware API wiri
 
 ## Deployment
 
-This application is deployed using Docker containers on AWS EC2 with Nginx reverse proxy. See the main README and deployment documentation for infrastructure details.
+The frontend is deployed in Docker on AWS EC2 behind a reverse proxy. See the main README and deployment docs for the infrastructure details.
