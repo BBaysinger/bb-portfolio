@@ -42,13 +42,13 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 
 If code or configuration is unconventional, convoluted, or otherwise difficult to justify, and that choice is not already explained in a nearby comment or the PR description, it must be surfaced to the developer immediately rather than passed over silently.
 
-**Collaborative note:** tools reviewing or generating code should alert the developer every time they encounter non-standard, non-conventional, convoluted, or non-best-practice patterns that are not already clearly justified in comments or PR context, and should recommend alignment — without referencing their nature as automated assistants.
+Tools reviewing or generating code should flag non-standard or hard-to-justify patterns that are not already clearly explained in comments or PR context, and should recommend alignment without drawing attention to the tool itself.
 
 ---
 
 ## AI assistant workflow standards
 
-When working with AI coding assistants:
+For AI coding assistants:
 
 - **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), and may offer to do so when work reaches a natural stopping point. AI should assume the developer will handle push, merge, and PR steps. `npm run precommit` should be run before every commit so formatting side effects are visible to the human reviewer each time, and the assistant may run that command any time it is deemed useful. AI must not offer to run `git push`; it may do so only when the developer explicitly asks.
 - **Command expectation**: when commit-ready work is complete, the assistant may ask whether the developer wants a commit. Only execute `git add`/`git commit` when explicitly instructed to run them.
@@ -70,7 +70,7 @@ When working with AI coding assistants:
 5. **Ambiguity rule** – “If requirements conflict or files are missing, stop and ask instead of guessing.”
 6. **Logging** – “Summarize long-running commands; don’t dump pages of logs unless requested.”
 
-Requests that omit any of the above should be considered incomplete; assistants must pause and ask for clarification.
+Requests that omit any of the above are incomplete. Assistants should pause and ask for clarification.
 
 ---
 
