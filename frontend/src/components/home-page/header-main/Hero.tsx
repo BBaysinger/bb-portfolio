@@ -36,7 +36,13 @@ import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeight
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
-import { detectOs, isEdge, isFirefox, isSafari } from "@/utils/browser";
+import {
+  detectOs,
+  isEdge,
+  isFirefox,
+  isOpera,
+  isSafari,
+} from "@/utils/browser";
 import {
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
   consumeHomeHeroIntroReplayRequest,
@@ -196,6 +202,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
     const os = detectOs();
     if (isFirefox()) return `${os}-firefox`;
     if (isEdge()) return `${os}-edge`;
+    if (isOpera()) return `${os}-opera`;
     if (isSafari()) return `${os}-safari`;
     return os;
   }, [mounted]);

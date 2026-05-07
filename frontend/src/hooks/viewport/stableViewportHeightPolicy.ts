@@ -1,4 +1,4 @@
-import { detectOs, isEdge, isFirefox } from "@/utils/browser";
+import { detectOs, isEdge, isFirefox, isOpera } from "@/utils/browser";
 
 const STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS: ReadonlyArray<{
   id: string;
@@ -19,6 +19,10 @@ const STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS: ReadonlyArray<{
   {
     id: "edge-android",
     matches: () => detectOs() === "android" && isEdge(),
+  },
+  {
+    id: "opera",
+    matches: () => isOpera(),
   },
 ];
 

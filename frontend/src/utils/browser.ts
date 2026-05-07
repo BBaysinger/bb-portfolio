@@ -42,13 +42,18 @@ export function isEdge(): boolean {
   return /Edg(?:A|iOS)?\/|Edge\//i.test(ua);
 }
 
+export function isOpera(): boolean {
+  const ua = getUserAgent();
+  return /OPR\/|OPiOS/i.test(ua);
+}
+
 export function isSafari(): boolean {
   const ua = getUserAgent();
   if (!ua) return false;
 
   return (
     /Safari/i.test(ua) &&
-    !/(Chrome|CriOS|FxiOS|OPiOS|Edg(?:A|iOS)?\/|Edge\/|Brave)/i.test(ua)
+    !/(Chrome|CriOS|FxiOS|OPR\/|OPiOS|Edg(?:A|iOS)?\/|Edge\/|Brave)/i.test(ua)
   );
 }
 

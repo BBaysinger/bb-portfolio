@@ -27,9 +27,9 @@ Provide stable, mobile-friendly viewport measurements for layout code that canno
 
 ## Current Status
 
-This hook remains in the codebase primarily because mobile Firefox and mobile Edge were previously inconsistent with `svh` in real testing.
+This hook remains in the codebase primarily because Firefox, Edge, and Opera had browser-specific cases where CSS `svh` was not stable enough in real testing.
 
-For now, the JS-managed path is only intended for Firefox and Edge when consumers opt into `use-where-required`. Other mobile browsers can still distort page height during downward pull-to-refresh gestures, and this hook does not fully solve that case yet. That gap is acceptable for now because the default mode stays on CSS `svh`, and current testing has not shown the same downward-gesture viewport mutation issue in Firefox or Edge.
+For now, the JS-managed path is only intended for Firefox, Edge, and Opera when consumers opt into `use-where-required`. Other mobile browsers can still distort page height during downward pull-to-refresh gestures, and this hook does not fully solve that case yet. That gap is acceptable for now because the default mode stays on CSS `svh`, and current testing has not shown the same downward-gesture viewport mutation issue in the browsers currently routed to the managed path.
 
 ## Current Strategy
 
