@@ -14,11 +14,11 @@ Last updated: 2026-04-17 (local), diagnostics upload timestamp in UTC may appear
 - `docker:up` completed successfully in a later session.
 - Application was reachable in-browser.
 - Interpretation: local Docker behavior is currently recovered but may still be intermittent based on prior stalls.
-- Recommendation: continue normal flow, avoid unnecessary aggressive prune operations, and keep this document/diagnostics ID for fast re-escalation if hangs recur.
+- Recommendation: continue normal development flow, avoid unnecessary aggressive prune operations, and keep this document and diagnostics ID available if hangs recur.
 
 ## Executive Summary
 
-We fixed the original frontend code-level build error, but local Docker Desktop builds still intermittently hang on macOS during the frontend image build path.
+The original frontend code-level build error was fixed. Local Docker Desktop builds still intermittently hang on macOS during the frontend image build path.
 
 - Original code error: resolved.
 - Backend Docker image build: consistently succeeds.
@@ -43,7 +43,7 @@ What changed:
 - Snapshot file loader now uses a runtime import approach that:
   - first tries `fs/promises`
   - then falls back to `fs.promises`
-- Goal was to avoid bundler/module-resolution mismatches during SSG build-time code paths.
+- This avoids bundler and module-resolution mismatches during SSG build-time code paths.
 
 Commit:
 
@@ -139,9 +139,9 @@ Use this when resuming work later.
 4. Continue local app validation with non-Docker frontend build while Docker Desktop remains unstable.
 5. Treat CI Docker image builds as source of truth for containerized frontend validation until host runtime stability is restored.
 
-## Copy-Paste Brief for ChatGPT (Browser)
+## Reusable Support Brief
 
-Use this exact brief to ask for a second opinion or action plan:
+Use this brief when requesting a second opinion or a support action plan:
 
 ---
 
