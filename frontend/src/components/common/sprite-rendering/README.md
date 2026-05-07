@@ -1,6 +1,6 @@
 # Sprite Renderer Packaging Notes
 
-## Goal
+## Purpose
 
 Capture the current thinking around extracting the sprite renderer into reusable npm packages.
 
@@ -19,7 +19,7 @@ Contents today:
 - `CssRenderer.ts`
 - `RenderingAllTypes.ts`
 
-This is already close to package-shaped, but it is not fully publishable as-is.
+This is already close to a package boundary, but it is not fully publishable as-is.
 
 ## React-Specific vs General-Purpose
 
@@ -32,7 +32,7 @@ Mostly framework-agnostic pieces:
 - `CssRenderer.ts`
 - `RenderingAllTypes.ts`
 
-These are basically browser rendering primitives plus a shared renderer contract.
+These are browser rendering primitives plus a shared renderer contract.
 
 React-specific pieces:
 
@@ -47,7 +47,7 @@ React-specific pieces:
 - query-param override support
 - mount/unmount behavior
 
-That means the reusable idea is broader than the current React wrapper.
+The reusable boundary is therefore broader than the current React wrapper.
 
 ## Recommended Package Shape
 
@@ -112,13 +112,13 @@ Possible package names:
 - `query-string-utils`
 - `browser-query-utils`
 
-Current preference:
+Preferred option:
 
 - `search-param-utils`
 
-Reason:
+Rationale:
 
-- small and literal
+- concise and literal
 - broadly reusable across projects
 - not tied to React or sprite rendering
 
@@ -142,16 +142,16 @@ or
 - react: `react-sprite-sheet-player`
 - query utils: `search-param-utils`
 
-Current preference:
+Preferred option:
 
 - core package: `sprite-player-core`
 - React wrapper: `react-sprite-player`
 - query-string package: `search-param-utils`
 
-Reason:
+Rationale:
 
 - clear division of responsibility
-- straightforward npm naming
+- clear npm naming
 - broad enough for non-React consumers later
 
 ## Why This Split Makes Sense
@@ -165,7 +165,7 @@ With a core/runtime package plus framework adapters, the same underlying rendere
 - Svelte
 - custom browser UI shells
 
-That is a better long-term shape than baking the whole concept into a React-only public API.
+That is a better long-term shape than baking the entire concept into a React-only public API.
 
 ## Current Couplings To Remove Before Publishing
 
@@ -191,11 +191,11 @@ When revisiting this, prefer extracting the runtime first and treating the React
 
 That should keep the package architecture aligned with the real abstraction boundary rather than the current app integration boundary.
 
-## Still Worth Trying
+## Remaining Experiments
 
-These are the remaining renderer/performance experiments that still look worthwhile.
+These are the remaining renderer and performance experiments worth revisiting.
 
-### Renderer tests still worth running
+### Renderer Tests
 
 - Canvas path for the fullscreen sequencer with and without DPR caps:
   - `?sequencerRenderStrategy=canvas`
@@ -205,24 +205,24 @@ These are the remaining renderer/performance experiments that still look worthwh
   - `?spriteRenderStrategy=canvas&spriteMaxDpr=1`
 - Additional WebGL comparison runs if needed, mainly to keep the test harness honest rather than because WebGL currently looks like the best default.
 
-### Sequencer work still worth trying
+### Sequencer Work
 
 - Measure whether the new preload/decode warm-up materially improved first-play and between-sequence smoothness.
 - Consider keeping one persistent `SpriteSheetPlayer` instance for the sequencer instead of remounting with `animKey` for every new sequence.
 - If sequence-start hiccups remain, consider preloading only the most likely next few animations instead of the broader warm-up pass.
 
-### CSS renderer work still worth trying
+### CSS Renderer Work
 
 - Verify whether the recent precomputed-position and duplicate-write skipping changes are measurable in browser profiling.
 - If more CSS work is needed, keep it conservative; the CSS renderer is already close to the minimal hot path.
 
-### WebGL work still worth trying
+### WebGL Work
 
 - Add `lastFrameIndex` / hidden-state short-circuiting to skip redundant clear+draw passes.
 - Precompute frame offsets so the renderer avoids repeated modulo/division work in its draw path.
 - Reduce redundant GL state changes only if profiling shows it matters.
 
-### Slinger / handoff work still worth trying
+### Slinger / Handoff Work
 
 - Verify whether random-frame autoplay starting on a random visible frame fully removed the lightning handoff pause.
 - If not, consider an explicit preload/decode warm-up for the lightning sheet, although this may be unnecessary because both players already stay mounted.
