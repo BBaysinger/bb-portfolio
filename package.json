@@ -69,8 +69,7 @@
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
     "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
     "version:bump:sync": "tsx scripts/bump-sync-version.ts",
-    "sync:json5": "json5-manifest-sync",
-    "sync:packages": "npm run sync:json5",
+    "sync:packages": "json5-manifest-sync --blank-comments=fill",
     "snapshot:projects": "npm --prefix frontend run snapshot:projects",
     "snapshot:projects:secret": "npm --prefix frontend run snapshot:projects:secret",
     "snapshot:projects:secret:write": "npm --prefix frontend run snapshot:projects:secret:write",
@@ -151,7 +150,7 @@
     "release:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.4",
+    "@next/eslint-plugin-next": "^16.2.5",
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "8.59.2",
     "@typescript-eslint/parser": "8.59.2",
@@ -166,7 +165,7 @@
     "ignore": "^7.0.5",
     "jiti": "^2.7.0",
     "json5": "^2.2.3",
-    "json5-manifest-sync": "^0.1.4",
+    "json5-manifest-sync": "^0.2.0",
     "prettier": "^3.8.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

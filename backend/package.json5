@@ -73,7 +73,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1043.0",
+    "@aws-sdk/client-ses": "^3.1044.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.8",
     // MongoDB adapter for Payload CMS
@@ -99,7 +99,7 @@
     // Express.js web server framework (v5 for latest features)
     "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
-    "graphql": "^16.13.2",
+    "graphql": "^16.14.0",
     // YAML parser used by content tooling and import/export helpers
     "js-yaml": "^4.1.1",
     // JSON5 parser for annotated configuration files
@@ -107,13 +107,13 @@
     // Direct MongoDB client used by database sync scripts
     "mongodb": "~7.2.0",
     // Next.js framework for frontend/backend integration
-    "next": "16.2.4",
+    "next": "16.2.5",
     // Payload CMS core package
     "payload": "3.84.1",
     // React version to match Next.js 15
-    "react": "19.2.5",
+    "react": "19.2.6",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
-    "react-dom": "19.2.5",
+    "react-dom": "19.2.6",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
@@ -142,7 +142,7 @@
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.5",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "29.1.1",
     // Standalone version of Playwright test runner
