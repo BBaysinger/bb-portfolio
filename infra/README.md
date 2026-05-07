@@ -2,6 +2,8 @@
 
 This directory contains the Terraform configuration and management scripts for the BB Portfolio AWS infrastructure.
 
+Use this README for the local infra workflow in this directory. For the broader deployment workflow and repo-wide operational conventions, use the root [README](../README.md) and [docs/deployment-runner.md](../docs/deployment-runner.md).
+
 ## Infrastructure Overview
 
 The infrastructure includes:
@@ -57,7 +59,7 @@ terraform output bb_portfolio_ssh_command
 terraform output bb_portfolio_website_url
 ```
 
-### 3. Manage Containers
+### 4. Manage Containers
 
 Use the provided management script to control the Docker containers:
 
@@ -155,7 +157,7 @@ infra/
 
 - Container health checks
 - Centralized logging via Docker
-- SystemD service management
+- systemd service management
 - Nginx access logs
 
 ## Troubleshooting
@@ -205,7 +207,7 @@ ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<ip> 'sudo systemctl restart ng
 
 ## Cost Optimization
 
-- t3.medium instance provides good performance/cost balance
+- t3.medium instance balances cost and baseline capacity for the current setup
 - ECR lifecycle policies limit stored images to 10 most recent
 - S3 buckets use standard storage (can upgrade to IA/Glacier if needed)
 - Elastic IP prevents charges for IP changes
