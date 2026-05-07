@@ -1,6 +1,6 @@
 # Portfolio Backend (Payload CMS)
 
-This is the backend service for the BB-Portfolio content-driven portfolio system, built with Payload CMS and Next.js.
+This directory contains the backend service for the BB-Portfolio portfolio system, built with Payload CMS and Next.js.
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for conventions on env vars, Docker images, and operational guardrails used across this repo.
 
@@ -9,7 +9,7 @@ This is the backend service for the BB-Portfolio content-driven portfolio system
 - Owns the Payload CMS application, collection schemas, generated types, auth flows, and server-side content gating for public versus NDA-aware delivery.
 - Provides backend APIs and delivery paths for projects, contact flows, health checks, media/static asset access, and app-facing content reads.
 - Encapsulates environment-profiled runtime behavior, including local filesystem media, S3-backed storage, and operational scripts tied to migration and recovery workflows.
-- Defers canonical feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
+- Defers the full feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
 
 ## Local Development
 
@@ -38,9 +38,9 @@ For backend-only development:
 
 ## Service Notes
 
-Keep the canonical feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
+Keep the full feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
 
-This service README should stay focused on backend-local concerns:
+This README stays focused on backend-local concerns:
 
 - how to run the Payload service by itself or under Docker Compose
 - which environment profiles exist and how they change storage/runtime behavior
@@ -66,15 +66,15 @@ Set `ENV_PROFILE` in your `.env` file to switch between configurations.
 Note for local Docker Compose:
 
 - The compose service `bb-portfolio-backend-local` sets `ENV_PROFILE=local` via environment.
-- Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that the canonical variables (`MONGODB_URI`, `PAYLOAD_SECRET`, `FRONTEND_URL`, etc.) are used correctly for whichever profile is active.
-- If you see 500 errors like "Missing required DEV\*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` (or `.env.local`) contains the canonical variables listed above.
+- Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that the shared variables (`MONGODB_URI`, `PAYLOAD_SECRET`, `FRONTEND_URL`, etc.) are used correctly for whichever profile is active.
+- If you see 500 errors like "Missing required DEV\*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` (or `.env.local`) contains the shared variables listed above.
 
 ## Frequently Used URLs
 
 - `/admin` - Payload CMS admin interface
 - `/api/health` - Health check endpoint
 
-For the broader API/security surface, content model, and delivery behavior, use the root [README](../README.md) as the canonical reference.
+For the broader API/security surface, content model, and delivery behavior, use the root [README](../README.md) as the main reference.
 
 ## Maintenance Scripts
 
