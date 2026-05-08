@@ -300,7 +300,7 @@
         transform: translateY(100px);
       }
       &:global(.in-view) {
-        animation: lookLinkAmbientBounce 11s linear 1.2s infinite;
+        animation: lookLinkAmbientBounce 7s linear 4s infinite;
 
         :global(.isHeroInView100Pct) & {
           animation-play-state: paused;
@@ -343,19 +343,19 @@
       68.0001% {
         animation-timing-function: cubic-bezier(0.2, 0.9, 0.32, 1.22);
       }
-      72% {
+      83% {
         transform: translateY(-22px);
         animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0);
       }
-      76% {
+      87% {
         transform: translateY(0);
         animation-timing-function: cubic-bezier(0.3, 0.95, 0.42, 1.18);
       }
-      78.2% {
+      90% {
         transform: translateY(-13px);
         animation-timing-function: cubic-bezier(0.18, 0, 0.32, 0);
       }
-      80.8% {
+      92% {
         transform: translateY(0);
       }
     }
