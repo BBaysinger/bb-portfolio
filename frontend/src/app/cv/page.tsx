@@ -25,61 +25,67 @@ type CvExperienceResponse = {
   };
 };
 
+const requireNonEmptyString = (value: unknown, fieldName: string): string => {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`CV response missing ${fieldName}.`);
+  }
+
+  return value.trim();
+};
+
+const requireExperienceItems = (
+  value: unknown,
+  fieldName: string,
+): CvExperienceItemData[] => {
+  if (!Array.isArray(value)) {
+    throw new Error(`CV response missing ${fieldName}.`);
+  }
+
+  return value as CvExperienceItemData[];
+};
+
 const getCvExperienceData = async (): Promise<{
   experienceSectionHeading: string;
   experienceItems: CvExperienceItemData[];
   recentIndependentStudySectionHeading: string;
   recentIndependentStudyItems: CvExperienceItemData[];
 }> => {
-  try {
-    const backendBase = resolveBackendBase();
-    const response = await fetch(`${backendBase}/api/cv-experience/`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      next: { revalidate },
-    });
+  const backendBase = resolveBackendBase();
+  const response = await fetch(`${backendBase}/api/cv-experience/`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    next: { revalidate },
+  });
 
-    if (!response.ok) {
-      return {
-        experienceSectionHeading: "Experience",
-        experienceItems: [],
-        recentIndependentStudySectionHeading: "Independent R&D",
-        recentIndependentStudyItems: [],
-      };
-    }
-
-    const payload = (await response.json()) as CvExperienceResponse;
-    if (!payload.success) {
-      return {
-        experienceSectionHeading: "Experience",
-        experienceItems: [],
-        recentIndependentStudySectionHeading: "Independent R&D",
-        recentIndependentStudyItems: [],
-      };
-    }
-
-    return {
-      experienceSectionHeading:
-        payload.data?.experienceSectionHeading || "Experience",
-      experienceItems: Array.isArray(payload.data?.experienceItems)
-        ? payload.data.experienceItems
-        : [],
-      recentIndependentStudySectionHeading:
-        payload.data?.recentIndependentStudySectionHeading || "Independent R&D",
-      recentIndependentStudyItems: Array.isArray(
-        payload.data?.recentIndependentStudyItems,
-      )
-        ? payload.data.recentIndependentStudyItems
-        : [],
-    };
-  } catch {
-    return {
-      experienceSectionHeading: "Experience",
-      experienceItems: [],
-      recentIndependentStudySectionHeading: "Independent R&D",
-      recentIndependentStudyItems: [],
-    };
+  if (!response.ok) {
+    throw new Error(
+      `CV experience fetch failed with status ${response.status} from ${backendBase}/api/cv-experience/.`,
+    );
   }
+
+  const payload = (await response.json()) as CvExperienceResponse;
+  if (!payload.success || !payload.data) {
+    throw new Error("CV experience response did not include data.");
+  }
+
+  return {
+    experienceSectionHeading: requireNonEmptyString(
+      payload.data.experienceSectionHeading,
+      "experienceSectionHeading",
+    ),
+    experienceItems: requireExperienceItems(
+      payload.data.experienceItems,
+      "experienceItems",
+    ),
+    recentIndependentStudySectionHeading: requireNonEmptyString(
+      payload.data.recentIndependentStudySectionHeading,
+      "recentIndependentStudySectionHeading",
+    ),
+    recentIndependentStudyItems: requireExperienceItems(
+      payload.data.recentIndependentStudyItems,
+      "recentIndependentStudyItems",
+    ),
+  };
 };
 
 export default async function CvPage() {

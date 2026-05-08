@@ -7,8 +7,6 @@ import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
-import { renderAuthoredParagraphsAsHtml } from '../../../utils/authoredText'
-
 const DEFAULT_TITLE = 'Front-End / UI Developer'
 const LOCKUP_ROLE_TITLE_CLASS_NAMES = new Set(['FEDev', 'UIDev', 'FEUIDev'])
 const DEFAULT_ROLE_TITLE_CLASS_NAME = 'FEUIDev'

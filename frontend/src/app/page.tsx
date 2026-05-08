@@ -46,17 +46,10 @@ const HomePage = async () => {
   // That dataset depends on per-request cookies; rendering it on the server would
   // make the page dynamic/no-store (or risk leaking NDA content via caching).
   const projectData = new ProjectDataStore();
-  let initResult: { containsSanitizedPlaceholders?: boolean } = {};
-  try {
-    initResult = await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-  } catch {
-    // During static prerender/build, the backend may be unavailable (e.g., CI).
-    // Fall back to an empty SSR payload and let the client fetch after mount.
-    initResult = { containsSanitizedPlaceholders: false };
-  }
+  const initResult = await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: false,
+  });
 
   const ssrProjects = projectData.listedProjects;
   const ssrProjectRecord = projectData.projectsRecord;
