@@ -34,6 +34,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
 
+type AuthCheckResult =
+  | { ok: true }
+  | { ok: false; status: 401 | 502; message: string };
+
 /**
  * Validates that the request is authenticated by forwarding cookies to the backend session endpoint.
  *
@@ -41,7 +45,7 @@ export const revalidate = 0;
  * - Treats any fetch/parsing failure as unauthenticated.
  * - Avoids caching (`no-store`) because auth is per-request.
  */
-async function isAuthenticated(req: NextRequest): Promise<boolean> {
+async function checkAuthentication(req: NextRequest): Promise<AuthCheckResult> {
   try {
     const cookieHeader = req.headers.get("cookie") || "";
     const tokenCookie = req.cookies.get("payload-token")?.value || "";
@@ -61,13 +65,15 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
 
     const parseUser = async (res: Response): Promise<unknown> => {
       const ct = res.headers.get("content-type") || "";
-      if (!ct.includes("application/json")) return null;
+      if (!ct.includes("application/json")) {
+        throw new Error("Auth response was not JSON.");
+      }
       try {
         const payload: unknown = await res.json();
         if (isRecord(payload) && "user" in payload) return payload.user;
         return payload;
       } catch {
-        return null;
+        throw new Error("Auth response JSON could not be parsed.");
       }
     };
 
@@ -87,11 +93,34 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
       res = await tryFetch(`${backend}/api/users/me/`);
     }
 
-    if (!res.ok) return false;
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        return { ok: false, status: 401, message: "Unauthorized" };
+      }
+
+      return {
+        ok: false,
+        status: 502,
+        message: `Auth check failed with status ${res.status}.`,
+      };
+    }
+
     const user = await parseUser(res);
-    return hasIdentity(user);
+    if (!hasIdentity(user)) {
+      return {
+        ok: false,
+        status: 502,
+        message: "Auth check response did not include a valid user.",
+      };
+    }
+
+    return { ok: true };
   } catch {
-    return false;
+    return {
+      ok: false,
+      status: 502,
+      message: "Auth check failed before the NDA asset could be authorized.",
+    };
   }
 }
 
@@ -222,7 +251,7 @@ async function streamObject(
   bucket: string,
   key: string,
   meta: Awaited<ReturnType<typeof headObject>>,
-): Promise<Response | null> {
+): Promise<Response> {
   const s3 = getS3Client();
   const range = req.headers.get("range") || undefined;
   try {
@@ -234,7 +263,9 @@ async function streamObject(
       }),
     );
     const bodyStream = toWebStream(res.Body);
-    if (!bodyStream) return new Response("Not found", { status: 404 });
+    if (!bodyStream) {
+      return new Response("Failed to stream NDA asset body", { status: 502 });
+    }
 
     const headers = new Headers();
     const etag = meta.ETag || res.ETag;
@@ -265,8 +296,10 @@ async function streamObject(
     return new Response(bodyStream, { status, headers });
   } catch (err: unknown) {
     const status = getHttpStatus(err);
-    if (status === 404) return null;
-    return null;
+    if (status === 404) return new Response("Not found", { status: 404 });
+    return new Response("Failed to read NDA asset from storage", {
+      status: 502,
+    });
   }
 }
 
@@ -292,9 +325,9 @@ export async function GET(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
 ) {
-  const authed = await isAuthenticated(req);
-  if (!authed) {
-    return new Response("Unauthorized", { status: 401 });
+  const auth = await checkAuthentication(req);
+  if (!auth.ok) {
+    return new Response(auth.message, { status: auth.status });
   }
 
   const bucket = process.env.NDA_PROJECTS_BUCKET || "";
@@ -312,7 +345,9 @@ export async function GET(
   } catch (err: unknown) {
     const status = getHttpStatus(err);
     if (status === 404) return new Response("Not found", { status: 404 });
-    return new Response("Not found", { status: 404 });
+    return new Response("Failed to read NDA asset metadata from storage", {
+      status: 502,
+    });
   }
 
   const etag = meta.ETag;
@@ -326,8 +361,7 @@ export async function GET(
     return new Response(null, { status: 304, headers });
   }
 
-  const resp = await streamObject(req, bucket, key, meta);
-  return resp || new Response("Not found", { status: 404 });
+  return streamObject(req, bucket, key, meta);
 }
 
 /**
@@ -339,8 +373,8 @@ export async function HEAD(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
 ) {
-  const authed = await isAuthenticated(req);
-  if (!authed) return new Response("Unauthorized", { status: 401 });
+  const auth = await checkAuthentication(req);
+  if (!auth.ok) return new Response(auth.message, { status: auth.status });
 
   const bucket = process.env.NDA_PROJECTS_BUCKET || "";
   if (!bucket)
@@ -359,7 +393,14 @@ export async function HEAD(
     headers.set("Cache-Control", "private, max-age=0, must-revalidate");
     headers.set("X-Content-Type-Options", "nosniff");
     return new Response(null, { status: 200, headers });
-  } catch {
-    return new Response("Not found", { status: 404 });
+  } catch (err: unknown) {
+    const status = getHttpStatus(err);
+    if (status === 404) {
+      return new Response("Not found", { status: 404 });
+    }
+
+    return new Response("Failed to read NDA asset metadata from storage", {
+      status: 502,
+    });
   }
 }
