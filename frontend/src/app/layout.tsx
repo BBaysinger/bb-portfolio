@@ -81,6 +81,8 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
+  const brandingLockup = await getServerBrandingLockup();
+
   return (
     <html lang="en">
       <head>
@@ -109,7 +111,7 @@ export default async function RootLayout({
         <EnvironmentClassInitializer />
         <SkipLink />
         <AppProviders>
-          <AppShell>{children}</AppShell>
+          <AppShell brandingLockup={brandingLockup}>{children}</AppShell>
         </AppProviders>
       </body>
     </html>

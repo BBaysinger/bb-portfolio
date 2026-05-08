@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import BrandLockup from "@/components/branding/BrandLockup";
+import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import Hamburger from "@/components/layout/Hamburger";
 import useLayoutMonitor from "@/hooks/useLayoutMonitor";
 import { RootState } from "@/store/store";
@@ -15,6 +16,7 @@ import styles from "./NavVariant.module.scss";
 
 interface NavProps {
   variant: NavVariantClass;
+  brandingLockup: ServerBrandingLockup;
 }
 
 /**
@@ -53,7 +55,7 @@ interface NavProps {
  */
 const NAV_HAMBURGER_BREAKPOINT_VAR = "--nav-hamburger-breakpoint";
 
-const NavVariant: React.FC<NavProps> = ({ variant }) => {
+const NavVariant: React.FC<NavProps> = ({ variant, brandingLockup }) => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -243,7 +245,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
       )}
 
       <Link href="/#top" className={styles.title}>
-        <BrandLockup />
+        <BrandLockup branding={brandingLockup} />
       </Link>
       <NavLinks
         onClick={closeMobileNavHandler}

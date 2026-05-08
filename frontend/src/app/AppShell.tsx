@@ -24,6 +24,7 @@ import { useSelector } from "react-redux";
 import Footer from "@/components/layout/Footer";
 import NavVariant from "@/components/layout/NavVariant";
 import { NavVariants } from "@/components/layout/NavVariant.constants";
+import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import { useLerpVars } from "@/hooks/useLerpVars";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
@@ -47,6 +48,7 @@ import styles from "./AppShell.module.scss";
 
 type AppShellProps = {
   children: React.ReactNode;
+  brandingLockup: ServerBrandingLockup;
 };
 
 function getLifecycleProbePayload(pathname: string | null) {
@@ -102,7 +104,7 @@ function buildLifecycleSessionAttributes(
  *
  * @param children - Route content rendered within the shell.
  */
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, brandingLockup }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
@@ -647,11 +649,17 @@ export function AppShell({ children }: AppShellProps) {
         reduceMotion && "reduce-motion",
       )}
     >
-      <NavVariant variant={NavVariants.SLIDE_OUT} />
+      <NavVariant
+        variant={NavVariants.SLIDE_OUT}
+        brandingLockup={brandingLockup}
+      />
       {/* Anchor target for in-page navigation / scroll-to-top behaviors. */}
       <div id="top" style={{ position: "absolute", top: 0 }} />
       <div className={styles.underlay} />
-      <NavVariant variant={NavVariants.TOP_BAR} />
+      <NavVariant
+        variant={NavVariants.TOP_BAR}
+        brandingLockup={brandingLockup}
+      />
       {/*
         SkipLink target. `tabIndex={-1}` allows programmatic focus after clicking
         the skip link, without inserting it into the normal tab order.
