@@ -107,6 +107,7 @@ export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [resumeCheckError, setResumeCheckError] = useState<string | null>(null);
   const lifecycleProbeSentRef = useRef(false);
 
   useEffect(() => {
@@ -331,6 +332,7 @@ export function AppShell({ children }: AppShellProps) {
           cache: "no-store",
         });
         if (res.ok) {
+          setResumeCheckError(null);
           // Session exists server-side.
           // Only refresh SSR if the client is not yet authenticated/initialized.
           // Otherwise we end up refreshing on every focus event.
@@ -407,6 +409,7 @@ export function AppShell({ children }: AppShellProps) {
             });
           }
         } else if (res.status === 401) {
+          setResumeCheckError(null);
           if (lifecyclePayload) {
             setRUMSessionAttributes(
               buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
@@ -439,6 +442,9 @@ export function AppShell({ children }: AppShellProps) {
             }
           } catch {}
         } else if (res.status >= 500) {
+          setResumeCheckError(
+            "Unable to verify session status after returning to the tab.",
+          );
           if (lifecyclePayload) {
             setRUMSessionAttributes(
               buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
@@ -457,6 +463,9 @@ export function AppShell({ children }: AppShellProps) {
           // Optionally re-check later; do nothing now
         }
       } catch {
+        setResumeCheckError(
+          "Unable to verify session status after returning to the tab.",
+        );
         if (lifecyclePayload) {
           setRUMSessionAttributes(
             buildLifecycleSessionAttributes("bb_resume", lifecyclePayload, {
@@ -477,6 +486,7 @@ export function AppShell({ children }: AppShellProps) {
       const lifecyclePayload = getLifecycleProbePayload(pathname);
 
       if (document.visibilityState !== "visible") {
+        setResumeCheckError(null);
         if (lifecyclePayload) {
           setRUMSessionAttributes(
             buildLifecycleSessionAttributes(
@@ -656,6 +666,11 @@ export function AppShell({ children }: AppShellProps) {
           <Suspense fallback={null}>
             <ScrollToHash />
           </Suspense>
+          {resumeCheckError && (
+            <div className={styles.resumeCheckError} role="alert">
+              {resumeCheckError}
+            </div>
+          )}
           {/* Screen reader-only aria-live region for privacy/logout announcements */}
           <div
             id="privacyAnnouncement"
