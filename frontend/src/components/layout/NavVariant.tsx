@@ -4,8 +4,8 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import BrandLockup from "@/components/branding/BrandLockup";
-import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import Hamburger from "@/components/layout/Hamburger";
+import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import useLayoutMonitor from "@/hooks/useLayoutMonitor";
 import { RootState } from "@/store/store";
 import { closeMobileNav } from "@/store/uiSlice";
