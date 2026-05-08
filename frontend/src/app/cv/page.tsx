@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 
 import { buildPageMetadata } from "@/app/siteMetadata";
 import type { CvExperienceItemData } from "@/components/cv/ExperienceItem";
+import {
+  requireArray,
+  requireResponseData,
+  requireTrimmedString,
+} from "@/data/responseValidation";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 import CvPageClient from "./CvPageClient";
@@ -25,25 +30,6 @@ type CvExperienceResponse = {
   };
 };
 
-const requireNonEmptyString = (value: unknown, fieldName: string): string => {
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error(`CV response missing ${fieldName}.`);
-  }
-
-  return value.trim();
-};
-
-const requireExperienceItems = (
-  value: unknown,
-  fieldName: string,
-): CvExperienceItemData[] => {
-  if (!Array.isArray(value)) {
-    throw new Error(`CV response missing ${fieldName}.`);
-  }
-
-  return value as CvExperienceItemData[];
-};
-
 const getCvExperienceData = async (): Promise<{
   experienceSectionHeading: string;
   experienceItems: CvExperienceItemData[];
@@ -63,26 +49,26 @@ const getCvExperienceData = async (): Promise<{
     );
   }
 
-  const payload = (await response.json()) as CvExperienceResponse;
-  if (!payload.success || !payload.data) {
-    throw new Error("CV experience response did not include data.");
-  }
+  const data = requireResponseData<CvExperienceResponse["data"]>(
+    (await response.json()) as CvExperienceResponse,
+    "CV experience",
+  );
 
   return {
-    experienceSectionHeading: requireNonEmptyString(
-      payload.data.experienceSectionHeading,
+    experienceSectionHeading: requireTrimmedString(
+      data?.experienceSectionHeading,
       "experienceSectionHeading",
     ),
-    experienceItems: requireExperienceItems(
-      payload.data.experienceItems,
+    experienceItems: requireArray<CvExperienceItemData>(
+      data?.experienceItems,
       "experienceItems",
     ),
-    recentIndependentStudySectionHeading: requireNonEmptyString(
-      payload.data.recentIndependentStudySectionHeading,
+    recentIndependentStudySectionHeading: requireTrimmedString(
+      data?.recentIndependentStudySectionHeading,
       "recentIndependentStudySectionHeading",
     ),
-    recentIndependentStudyItems: requireExperienceItems(
-      payload.data.recentIndependentStudyItems,
+    recentIndependentStudyItems: requireArray<CvExperienceItemData>(
+      data?.recentIndependentStudyItems,
       "recentIndependentStudyItems",
     ),
   };

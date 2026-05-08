@@ -1,5 +1,10 @@
 import { resolveBackendBase } from "@/utils/backend-base";
 
+import {
+  requireResponseData,
+  requireTrimmedString,
+} from "./responseValidation";
+
 export type ServerGreeting = {
   introHtml: string;
   bodyHtml: string;
@@ -14,32 +19,14 @@ type GreetingApiResponse = {
 };
 
 const parseGreetingResponse = (payload: unknown): ServerGreeting => {
-  if (!payload || typeof payload !== "object") {
-    throw new Error("Greeting response was not an object.");
-  }
-
-  const response = payload as GreetingApiResponse;
-  if (!response.success || !response.data) {
-    throw new Error("Greeting response did not include data.");
-  }
-
-  const introHtml =
-    typeof response.data.introHtml === "string" &&
-    response.data.introHtml.trim()
-      ? response.data.introHtml.trim()
-      : (() => {
-          throw new Error("Greeting response missing introHtml.");
-        })();
-  const bodyHtml =
-    typeof response.data.bodyHtml === "string" && response.data.bodyHtml.trim()
-      ? response.data.bodyHtml.trim()
-      : (() => {
-          throw new Error("Greeting response missing bodyHtml.");
-        })();
+  const data = requireResponseData<GreetingApiResponse["data"]>(
+    payload,
+    "Greeting",
+  );
 
   return {
-    introHtml,
-    bodyHtml,
+    introHtml: requireTrimmedString(data?.introHtml, "introHtml"),
+    bodyHtml: requireTrimmedString(data?.bodyHtml, "bodyHtml"),
   };
 };
 

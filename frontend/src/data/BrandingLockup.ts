@@ -6,6 +6,11 @@ import {
 } from "@/data/heroRoleTitleClasses";
 import { resolveBackendBase } from "@/utils/backend-base";
 
+import {
+  requireResponseData,
+  requireTrimmedString,
+} from "./responseValidation";
+
 export type ServerBrandingLockup = {
   activeRoleTitle: string;
   activeRoleTitleClassName?: HeroRoleTitleClassName;
@@ -22,27 +27,20 @@ type BrandingLockupApiResponse = {
 const parseBrandingLockupResponse = (
   payload: unknown,
 ): ServerBrandingLockup => {
-  if (!payload || typeof payload !== "object") {
-    throw new Error("Branding lockup response was not an object.");
-  }
-
-  const response = payload as BrandingLockupApiResponse;
-  if (!response.success || !response.data) {
-    throw new Error("Branding lockup response did not include data.");
-  }
-
-  const activeRoleTitle =
-    typeof response.data.activeRoleTitle === "string" &&
-    response.data.activeRoleTitle.trim()
-      ? response.data.activeRoleTitle.trim()
-      : defaultRoleTitle;
+  const data = requireResponseData<BrandingLockupApiResponse["data"]>(
+    payload,
+    "Branding lockup",
+  );
 
   return {
-    activeRoleTitle,
+    activeRoleTitle:
+      typeof data?.activeRoleTitle === "string" && data.activeRoleTitle.trim()
+        ? data.activeRoleTitle.trim()
+        : defaultRoleTitle,
     activeRoleTitleClassName: isHeroRoleTitleClassName(
-      response.data.activeRoleTitleClassName,
+      data?.activeRoleTitleClassName,
     )
-      ? response.data.activeRoleTitleClassName
+      ? data.activeRoleTitleClassName
       : DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
   };
 };
