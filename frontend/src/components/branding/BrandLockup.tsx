@@ -15,8 +15,6 @@ const LOGO_SRC = "/images/hero/bb-logo.svg";
 const LOGO_ALT = "BB Logo";
 const DEFAULT_BRANDING: ServerBrandingLockup = {
   activeRoleTitle: defaultRoleTitle,
-  greetingIntroHtml: "",
-  greetingBodyHtml: "",
 };
 
 type BrandingLockupResponse =
@@ -63,8 +61,6 @@ const normalizeBrandingPayload = (
   return {
     activeRoleTitle,
     activeRoleTitleClassName,
-    greetingIntroHtml: "",
-    greetingBodyHtml: "",
   };
 };
 

@@ -25,6 +25,7 @@ import { Users } from './collections/Users'
 import { BrandingLockup } from './globals/BrandingLockup'
 import { ContactInfo } from './globals/ContactInfo'
 import { CvExperience } from './globals/CvExperience'
+import { Greeting } from './globals/Greeting'
 
 // ===============================================================
 // ENVIRONMENT FILES (.env.dev, .env.prod)
@@ -174,7 +175,7 @@ export default buildConfig({
     ProjectScreenshots,
     ProjectThumbnails,
   ],
-  globals: [ContactInfo, BrandingLockup, CvExperience],
+  globals: [ContactInfo, BrandingLockup, Greeting, CvExperience],
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
   secret: (() => {

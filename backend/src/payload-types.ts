@@ -102,11 +102,13 @@ export interface Config {
   globals: {
     contactInfo: ContactInfo;
     heroBranding: HeroBranding;
+    greeting: Greeting;
     cvExperience: CvExperience;
   };
   globalsSelect: {
     contactInfo: ContactInfoSelect<false> | ContactInfoSelect<true>;
     heroBranding: HeroBrandingSelect<false> | HeroBrandingSelect<true>;
+    greeting: GreetingSelect<false> | GreetingSelect<true>;
     cvExperience: CvExperienceSelect<false> | CvExperienceSelect<true>;
   };
   locale: null;
@@ -884,26 +886,6 @@ export interface ContactInfo {
 export interface HeroBranding {
   id: string;
   /**
-   * List of intro paragraphs. The app wraps each row in its own paragraph element.
-   */
-  introParagraphs: {
-    /**
-     * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com); the app controls paragraph wrappers.
-     */
-    text: string;
-    id?: string | null;
-  }[];
-  /**
-   * List of body paragraphs. The app wraps each row in its own paragraph element.
-   */
-  bodyParagraphs: {
-    /**
-     * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com); the app controls paragraph wrappers.
-     */
-    text: string;
-    id?: string | null;
-  }[];
-  /**
    * Add as many roles as you want. Mark one row active to use it on the site.
    */
   roleVariants: {
@@ -923,6 +905,35 @@ export interface HeroBranding {
      * Select the semantic lockup style to apply. Spacing rules live in code.
      */
     roleTitleClassName: 'FEDev' | 'UIDev' | 'FEUIDev';
+    id?: string | null;
+  }[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "greeting".
+ */
+export interface Greeting {
+  id: string;
+  /**
+   * List of intro paragraphs. The app wraps each row in its own paragraph element.
+   */
+  introParagraphs: {
+    /**
+     * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com); the app controls paragraph wrappers.
+     */
+    text: string;
+    id?: string | null;
+  }[];
+  /**
+   * List of body paragraphs. The app wraps each row in its own paragraph element.
+   */
+  bodyParagraphs: {
+    /**
+     * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com); the app controls paragraph wrappers.
+     */
+    text: string;
     id?: string | null;
   }[];
   updatedAt?: string | null;
@@ -1014,6 +1025,24 @@ export interface ContactInfoSelect<T extends boolean = true> {
  * via the `definition` "heroBranding_select".
  */
 export interface HeroBrandingSelect<T extends boolean = true> {
+  roleVariants?:
+    | T
+    | {
+        presetLabel?: T;
+        title?: T;
+        isActive?: T;
+        roleTitleClassName?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "greeting_select".
+ */
+export interface GreetingSelect<T extends boolean = true> {
   introParagraphs?:
     | T
     | {
@@ -1024,15 +1053,6 @@ export interface HeroBrandingSelect<T extends boolean = true> {
     | T
     | {
         text?: T;
-        id?: T;
-      };
-  roleVariants?:
-    | T
-    | {
-        presetLabel?: T;
-        title?: T;
-        isActive?: T;
-        roleTitleClassName?: T;
         id?: T;
       };
   updatedAt?: T;

@@ -6,17 +6,7 @@
 import { getServerBrandingLockup } from "@/data/BrandingLockup";
 
 export async function GET() {
-  try {
-    return Response.json(await getServerBrandingLockup());
-  } catch (error) {
-    console.error("Frontend branding-lockup proxy error:", error);
-    return Response.json(
-      {
-        activeRoleTitle: "Front-End / UI Developer",
-      },
-      { status: 500 },
-    );
-  }
+  return Response.json(await getServerBrandingLockup());
 }
 
 export async function POST() {

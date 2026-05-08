@@ -20,6 +20,7 @@ import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
 import { getServerBrandingLockup } from "@/data/BrandingLockup";
+import { getServerGreeting } from "@/data/Greeting";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -65,14 +66,12 @@ const HomePage = async () => {
   const ssrAuthenticated = false;
   const ssrIncludeNdaInActive = false;
   const brandingLockup = await getServerBrandingLockup();
+  const greeting = await getServerGreeting();
 
   return (
     <>
       <Hero initialRoleTitle={brandingLockup.activeRoleTitle} />
-      <Greeting
-        introHtml={brandingLockup.greetingIntroHtml}
-        bodyHtml={brandingLockup.greetingBodyHtml}
-      />
+      <Greeting introHtml={greeting.introHtml} bodyHtml={greeting.bodyHtml} />
       <HomePageClient
         ssrProjects={ssrProjects}
         ssrProjectRecord={ssrProjectRecord}

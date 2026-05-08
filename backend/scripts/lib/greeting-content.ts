@@ -124,7 +124,7 @@ export const importGreetingContent = async () => {
 
     const globalUpdater = payload as unknown as GreetingGlobalUpdater
     await globalUpdater.updateGlobal({
-      slug: 'heroBranding',
+      slug: 'greeting',
       data: {
         introParagraphs: toParagraphRows(introParagraphs),
         bodyParagraphs: toParagraphRows(bodyParagraphs),
@@ -152,7 +152,7 @@ export const exportGreetingContent = async ({ dryRun = false }: { dryRun?: boole
     payload = await getPayload({ config })
 
     const greeting = (await payload.findGlobal({
-      slug: 'heroBranding',
+      slug: 'greeting',
       depth: 0,
       overrideAccess: true,
     })) as unknown as GreetingFile
