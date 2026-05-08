@@ -204,8 +204,7 @@ export async function GET() {
           asTrimmedString(cvExperience?.experienceSectionHeading) || 'Experience',
         experienceItems: items,
         recentIndependentStudySectionHeading:
-          asTrimmedString(cvExperience?.recentIndependentStudySectionHeading) ||
-          'Independent R&D',
+          asTrimmedString(cvExperience?.recentIndependentStudySectionHeading) || 'Independent R&D',
         recentIndependentStudyItems,
       },
     })
