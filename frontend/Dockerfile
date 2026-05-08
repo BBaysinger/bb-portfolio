@@ -51,6 +51,7 @@ RUN --mount=type=secret,id=required_environment_variables_frontend,required=fals
 		--mount=type=secret,id=public_projects_bucket,required=false \
 		--mount=type=secret,id=nda_projects_bucket,required=false \
 		--mount=type=secret,id=project_data_snapshot,required=false \
+		--mount=type=secret,id=static_content_snapshot,required=false \
 		--mount=type=secret,id=next_public_ga_measurement_id,required=false \
 		--mount=type=secret,id=next_public_rum_app_monitor_id,required=false \
 		--mount=type=secret,id=next_public_rum_identity_pool_id,required=false \
@@ -97,6 +98,13 @@ assign_secret NDA_PROJECTS_BUCKET nda_projects_bucket
 if [ -s /run/secrets/project_data_snapshot ]; then
 	cp /run/secrets/project_data_snapshot /tmp/project-data-snapshot.json
 	export PROJECT_DATA_SNAPSHOT_PATH=/tmp/project-data-snapshot.json
+fi
+
+# Optional hermetic static-content input (JSON snapshot). If present, build-time
+# branding, greeting, and CV reads use this file instead of live backend fetches.
+if [ -s /run/secrets/static_content_snapshot ]; then
+	cp /run/secrets/static_content_snapshot /tmp/static-content-snapshot.json
+	export STATIC_CONTENT_SNAPSHOT_PATH=/tmp/static-content-snapshot.json
 fi
 
 # GA4 build-time config (Next.js client bundles only see NEXT_PUBLIC_* at build time)

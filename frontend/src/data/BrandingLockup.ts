@@ -8,6 +8,7 @@ import {
   requireResponseData,
   requireTrimmedString,
 } from "./responseValidation";
+import { loadStaticContentSnapshot } from "./StaticContentSnapshot";
 
 export type ServerBrandingLockup = {
   activeRoleTitle: string;
@@ -45,6 +46,14 @@ const parseBrandingLockupResponse = (
 
 export const getServerBrandingLockup =
   async (): Promise<ServerBrandingLockup> => {
+    const snapshot = await loadStaticContentSnapshot();
+    if (snapshot?.brandingLockup) {
+      return parseBrandingLockupResponse({
+        success: true,
+        data: snapshot.brandingLockup,
+      });
+    }
+
     const backendUrl = resolveBackendBase();
     const response = await fetch(`${backendUrl}/api/branding-lockup/`, {
       method: "GET",

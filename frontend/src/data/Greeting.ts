@@ -4,6 +4,7 @@ import {
   requireResponseData,
   requireTrimmedString,
 } from "./responseValidation";
+import { loadStaticContentSnapshot } from "./StaticContentSnapshot";
 
 export type ServerGreeting = {
   introHtml: string;
@@ -31,6 +32,11 @@ const parseGreetingResponse = (payload: unknown): ServerGreeting => {
 };
 
 export const getServerGreeting = async (): Promise<ServerGreeting> => {
+  const snapshot = await loadStaticContentSnapshot();
+  if (snapshot?.greeting) {
+    return parseGreetingResponse({ success: true, data: snapshot.greeting });
+  }
+
   const backendUrl = resolveBackendBase();
   const response = await fetch(`${backendUrl}/api/greeting/`, {
     method: "GET",

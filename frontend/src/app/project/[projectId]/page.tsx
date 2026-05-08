@@ -102,10 +102,18 @@ export async function generateStaticParams() {
   const failFast = shouldFailFastProjectSsg();
   const projectData = new ProjectDataStore();
 
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+  } catch (error) {
+    if (failFast) {
+      throw error;
+    }
+
+    return [];
+  }
 
   const uniqueIds = Array.from(new Set(projectData.activeKeys)).filter(
     (id): id is string => Boolean(id),

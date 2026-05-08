@@ -215,6 +215,14 @@
     "snapshot:projects:secret:write": "npm --prefix frontend run snapshot:projects:secret:write",
     // Refresh both the raw snapshot and the cached secret snapshot file in one run.
     "snapshot:projects:secret:refresh": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:write",
+    //
+    "snapshot:static-content": "npm --prefix frontend run snapshot:static-content",
+    //
+    "snapshot:static-content:secret": "npm --prefix frontend run snapshot:static-content:secret",
+    //
+    "snapshot:static-content:secret:write": "npm --prefix frontend run snapshot:static-content:secret:write",
+    //
+    "snapshot:static-content:secret:refresh": "npm --prefix frontend run snapshot:static-content:secret:write",
     // Generate the branded social image asset used by the frontend.
     "social-image:generate": "npm --prefix frontend run social-image:generate",
     // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.

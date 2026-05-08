@@ -56,6 +56,7 @@ const HomePage = async () => {
   const containsSanitizedPlaceholders = Boolean(
     initResult.containsSanitizedPlaceholders,
   );
+
   const ssrAuthenticated = false;
   const ssrIncludeNdaInActive = false;
   const brandingLockup = await getServerBrandingLockup();

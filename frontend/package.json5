@@ -53,6 +53,12 @@
     "snapshot:projects:secret": "tsx ./scripts/prepare-project-data-snapshot-secret.ts",
     // Write the redacted project-data snapshot to a cache file for later reuse.
     "snapshot:projects:secret:write": "tsx ./scripts/prepare-project-data-snapshot-secret.ts > ./.cache/project-data-snapshot.secret.json",
+    //
+    "snapshot:static-content": "tsx ./scripts/export-static-content-snapshot.ts",
+    //
+    "snapshot:static-content:secret": "tsx ./scripts/prepare-static-content-snapshot-secret.ts",
+    //
+    "snapshot:static-content:secret:write": "npm run snapshot:static-content && tsx ./scripts/prepare-static-content-snapshot-secret.ts > ./.cache/static-content-snapshot.secret.json",
     // Generate the social image asset from the current branding lockup data.
     "social-image:generate": "tsx ./scripts/generate-social-image.ts",
     // Run Next.js ESLint configuration

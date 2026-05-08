@@ -81,10 +81,18 @@ export async function generateStaticParams() {
   const failFast = shouldFailFastProjectSsg();
   const projectData = new ProjectDataStore();
 
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: true,
-  });
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: true,
+    });
+  } catch (error) {
+    if (failFast) {
+      throw error;
+    }
+
+    return [];
+  }
 
   const staticRouteKeys = new Set<string>();
   for (const project of projectData.activeProjects) {

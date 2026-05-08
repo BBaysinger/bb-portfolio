@@ -253,6 +253,7 @@ jobs:
           ECR_REPOSITORY: bb-portfolio-frontend-prod
           IMAGE_TAG: ${{ github.sha }}
           PROJECT_DATA_SNAPSHOT_JSON: ${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}
+          STATIC_CONTENT_SNAPSHOT_JSON: ${{ secrets.STATIC_CONTENT_SNAPSHOT_JSON }}
         run: |
           echo "${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" > /tmp/required_environment_variables_frontend
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
@@ -265,7 +266,9 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           printf '%s' "$PROJECT_DATA_SNAPSHOT_JSON" > /tmp/project_data_snapshot
+          printf '%s' "$STATIC_CONTENT_SNAPSHOT_JSON" > /tmp/static_content_snapshot
           bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
+          bash deploy/scripts/actions/validate-static-content-snapshot.sh /tmp/static_content_snapshot
           if [ -s /tmp/project_data_snapshot ]; then
             PROJECT_SSG_FAIL_FAST_VALUE=1
           else
@@ -283,6 +286,7 @@ jobs:
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
             --secret id=project_data_snapshot,src=/tmp/project_data_snapshot \
+            --secret id=static_content_snapshot,src=/tmp/static_content_snapshot \
             --secret id=next_public_ga_measurement_id,src=/tmp/next_public_ga_measurement_id \
             --secret id=next_public_rum_app_monitor_id,src=/tmp/next_public_rum_app_monitor_id \
             --secret id=next_public_rum_identity_pool_id,src=/tmp/next_public_rum_identity_pool_id \
@@ -290,7 +294,7 @@ jobs:
             --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
             --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
-          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/project_data_snapshot /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
+          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/project_data_snapshot /tmp/static_content_snapshot /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -381,6 +385,7 @@ jobs:
           SANITIZED_FE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}
           SANITIZED_BE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_backend }}
           PROJECT_DATA_SNAPSHOT_JSON: ${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}
+          STATIC_CONTENT_SNAPSHOT_JSON: ${{ secrets.STATIC_CONTENT_SNAPSHOT_JSON }}
         run: |
           echo "${{ secrets.MONGODB_URI }}" > /tmp/mongodb_uri
           echo "${{ secrets.PAYLOAD_SECRET }}" > /tmp/payload_secret
@@ -428,7 +433,9 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           printf '%s' "$PROJECT_DATA_SNAPSHOT_JSON" > /tmp/project_data_snapshot
+          printf '%s' "$STATIC_CONTENT_SNAPSHOT_JSON" > /tmp/static_content_snapshot
           bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
+          bash deploy/scripts/actions/validate-static-content-snapshot.sh /tmp/static_content_snapshot
           if [ -s /tmp/project_data_snapshot ]; then
             PROJECT_SSG_FAIL_FAST_VALUE=1
           else
@@ -442,6 +449,7 @@ jobs:
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
             --secret id=project_data_snapshot,src=/tmp/project_data_snapshot \
+            --secret id=static_content_snapshot,src=/tmp/static_content_snapshot \
             --secret id=next_public_ga_measurement_id,src=/tmp/next_public_ga_measurement_id \
             --secret id=next_public_rum_app_monitor_id,src=/tmp/next_public_rum_app_monitor_id \
             --secret id=next_public_rum_identity_pool_id,src=/tmp/next_public_rum_identity_pool_id \
@@ -449,7 +457,7 @@ jobs:
             --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
             --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t bhbaysinger/bb-portfolio-frontend:dev ./frontend
-          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/project_data_snapshot /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
+          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/project_data_snapshot /tmp/static_content_snapshot /tmp/next_public_ga_measurement_id /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push bhbaysinger/bb-portfolio-backend:dev
           docker push bhbaysinger/bb-portfolio-frontend:dev
 
