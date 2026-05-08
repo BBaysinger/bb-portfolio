@@ -101,6 +101,11 @@ console.info("[next.config.ts] React StrictMode:", {
 });
 
 const nextConfig: NextConfig = {
+  // Work around a local Next.js dev-indicator runtime bug that can throw
+  // `Failed to execute 'measure' on 'Performance'` in the browser.
+  // Keep normal build/runtime errors enabled; this only hides the on-screen
+  // dev indicator/devtools entrypoint that triggers the faulty measurement path.
+  ...(isDev ? { devIndicators: false } : {}),
   // Disable metadata streaming so the initial HTML source contains literal
   // Open Graph and Twitter meta tags instead of the streamed metadata payload.
   htmlLimitedBots: /.*/,
