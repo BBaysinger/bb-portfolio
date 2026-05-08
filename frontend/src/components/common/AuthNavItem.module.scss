@@ -2,7 +2,7 @@
 @use "@/styles/variables" as *;
 
 .logoutButton {
-  button {
+  .logoutControl {
     padding-left: 0;
     width: 20px;
     height: 20px;
@@ -14,6 +14,7 @@
     mask-repeat: no-repeat;
     mask-position: center center;
     font-size: 0 !important;
+    overflow: hidden;
 
     @include breakpointUp($b576px) {
       margin-inline: 0;

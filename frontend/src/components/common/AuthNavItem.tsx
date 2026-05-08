@@ -58,7 +58,11 @@ export default function AuthNavItem({
       )}
     >
       {authed ? (
-        <button type="button" onClick={logout} className={clsx(linkClassName)}>
+        <button
+          type="button"
+          onClick={logout}
+          className={clsx(linkClassName, styles.logoutControl)}
+        >
           Logout
         </button>
       ) : (
