@@ -110,35 +110,6 @@ export const loginUser = createAsyncThunk(
   },
 );
 
-export const logoutUser = createAsyncThunk(
-  "auth/logout",
-  async (_, { rejectWithValue: _rejectWithValue }) => {
-    try {
-      if (debug) console.info("🚀 Making logout request to /api/users/logout");
-      const response = await fetch("/api/users/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (debug) console.info("📡 Logout response status:", response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.warn("Logout request failed:", response.status, errorText);
-        console.warn("But continuing with local logout anyway...");
-      } else {
-        if (debug) console.info("✅ Backend logout successful");
-      }
-
-      return null;
-    } catch (error) {
-      console.warn("Logout network error:", error);
-      // Still clear local auth state even if API call fails
-      return null;
-    }
-  },
-);
-
 /**
  * Redux slice for authentication state management
  */
@@ -212,26 +183,6 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
         state.isLoading = false;
         state.error = action.payload as string;
-      })
-
-      // Logout user
-      .addCase(logoutUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(logoutUser.fulfilled, (state) => {
-        if (debug)
-          console.info("🚪 logoutUser.fulfilled - Clearing auth state");
-        state.user = null;
-        state.isLoggedIn = false;
-        state.isLoading = false;
-        state.error = null;
-      })
-      .addCase(logoutUser.rejected, (state) => {
-        // Even if logout fails, clear local state
-        state.user = null;
-        state.isLoggedIn = false;
-        state.isLoading = false;
-        state.error = null;
       });
   },
 });
