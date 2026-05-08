@@ -18,6 +18,8 @@ export interface ViewportSettleOptions {
   timeoutMs?: number;
   /** How long to listen to visualViewport events after mount (default: 1000ms). */
   settleMs?: number;
+  /** Whether visualViewport scroll events should trigger settle callbacks. */
+  listenToVisualViewportScroll?: boolean;
 }
 
 const DEFAULT_OPTIONS: Required<ViewportSettleOptions> = {
@@ -25,6 +27,7 @@ const DEFAULT_OPTIONS: Required<ViewportSettleOptions> = {
   rafPasses: 2,
   timeoutMs: 150,
   settleMs: 1000,
+  listenToVisualViewportScroll: true,
 };
 
 /**
@@ -39,7 +42,10 @@ export function startViewportSettle(
 ): () => void {
   if (typeof window === "undefined") return () => {};
 
-  const { rafPasses, timeoutMs, settleMs } = { ...DEFAULT_OPTIONS, ...options };
+  const { rafPasses, timeoutMs, settleMs, listenToVisualViewportScroll } = {
+    ...DEFAULT_OPTIONS,
+    ...options,
+  };
 
   const rafIds: number[] = [];
   const timeoutIds: number[] = [];
@@ -85,9 +91,11 @@ export function startViewportSettle(
   visualViewport?.addEventListener("resize", onVisualViewportResize, {
     passive: true,
   });
-  visualViewport?.addEventListener("scroll", onVisualViewportScroll, {
-    passive: true,
-  });
+  if (listenToVisualViewportScroll) {
+    visualViewport?.addEventListener("scroll", onVisualViewportScroll, {
+      passive: true,
+    });
+  }
 
   if (settleMs > 0) {
     timeoutIds.push(
@@ -105,7 +113,9 @@ export function startViewportSettle(
 
     window.removeEventListener("pageshow", onPageShow);
     visualViewport?.removeEventListener("resize", onVisualViewportResize);
-    visualViewport?.removeEventListener("scroll", onVisualViewportScroll);
+    if (listenToVisualViewportScroll) {
+      visualViewport?.removeEventListener("scroll", onVisualViewportScroll);
+    }
   };
 }
 
@@ -117,6 +127,9 @@ export function useViewportSettle(
   const rafPasses = options.rafPasses ?? DEFAULT_OPTIONS.rafPasses;
   const timeoutMs = options.timeoutMs ?? DEFAULT_OPTIONS.timeoutMs;
   const settleMs = options.settleMs ?? DEFAULT_OPTIONS.settleMs;
+  const listenToVisualViewportScroll =
+    options.listenToVisualViewportScroll ??
+    DEFAULT_OPTIONS.listenToVisualViewportScroll;
 
   useEffect(() => {
     if (!enabled) return;
@@ -125,6 +138,14 @@ export function useViewportSettle(
       rafPasses,
       timeoutMs,
       settleMs,
+      listenToVisualViewportScroll,
     });
-  }, [enabled, onSettle, rafPasses, timeoutMs, settleMs]);
+  }, [
+    enabled,
+    onSettle,
+    rafPasses,
+    timeoutMs,
+    settleMs,
+    listenToVisualViewportScroll,
+  ]);
 }

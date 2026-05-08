@@ -33,3 +33,9 @@ export function isManagedStableViewportHeightRequiredForCurrentBrowser() {
     browserRule.matches(),
   );
 }
+
+export function shouldUseVisualViewportScrollSignalsForCurrentBrowser() {
+  if (typeof window === "undefined") return true;
+
+  return !isOpera();
+}

@@ -6,7 +6,10 @@ import { getViewportHeightPx } from "@/utils/viewport";
 
 import { useGlobalWindowMonitor } from "../useLayoutMonitor";
 
-import { isManagedStableViewportHeightRequiredForCurrentBrowser } from "./stableViewportHeightPolicy";
+import {
+  isManagedStableViewportHeightRequiredForCurrentBrowser,
+  shouldUseVisualViewportScrollSignalsForCurrentBrowser,
+} from "./stableViewportHeightPolicy";
 import { useViewportSettle } from "./useViewportSettle";
 
 const WINDOW_MONITOR_DEBOUNCE = {
@@ -254,6 +257,8 @@ export function useStableViewportHeight(
   } = options;
   const resolvedMode = mode ?? stableViewportHeightConfig.defaultMode;
   const isEnabled = shouldEnableManagedStableViewportHeight(resolvedMode);
+  const shouldUseVisualViewportScrollSignals =
+    shouldUseVisualViewportScrollSignalsForCurrentBrowser();
 
   const [stableHeightPx, setStableHeightPx] = useState<number | null>(() =>
     isEnabled ? getInitialStableHeightPx(topScrollGuardPx) : null,
@@ -588,18 +593,23 @@ export function useStableViewportHeight(
     viewport.addEventListener("resize", onVisualViewportChange, {
       passive: true,
     });
-    viewport.addEventListener("scroll", onVisualViewportChange, {
-      passive: true,
-    });
+    if (shouldUseVisualViewportScrollSignals) {
+      viewport.addEventListener("scroll", onVisualViewportChange, {
+        passive: true,
+      });
+    }
 
     return () => {
       viewport.removeEventListener("resize", onVisualViewportChange);
-      viewport.removeEventListener("scroll", onVisualViewportChange);
+      if (shouldUseVisualViewportScrollSignals) {
+        viewport.removeEventListener("scroll", onVisualViewportChange);
+      }
     };
   }, [
     isEnabled,
     getWidthDelta,
     scheduleTrailingMeasure,
+    shouldUseVisualViewportScrollSignals,
     shouldTrustHeightOnlyResize,
     widthChangeThresholdPx,
   ]);
@@ -629,7 +639,10 @@ export function useStableViewportHeight(
     measureStableHeightPx();
   }, [measureStableHeightPx]);
 
-  useViewportSettle(onViewportSettle, { enabled: isEnabled });
+  useViewportSettle(onViewportSettle, {
+    enabled: isEnabled,
+    listenToVisualViewportScroll: shouldUseVisualViewportScrollSignals,
+  });
 
   return isEnabled ? stableHeightPx : null;
 }
