@@ -209,6 +209,8 @@ jobs:
         env:
           ENV_PROFILE: dev
           PROJECT_SSG_FAIL_FAST: "0"
+          PROJECT_DATA_SNAPSHOT_JSON: ${{ secrets.PROJECT_DATA_SNAPSHOT_JSON }}
+          STATIC_CONTENT_SNAPSHOT_JSON: ${{ secrets.STATIC_CONTENT_SNAPSHOT_JSON }}
           # Env-guard definition list (sanitized for frontend build)
           REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
@@ -218,10 +220,21 @@ jobs:
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
         run: |
           set -euo pipefail
+          printf '%s' "$PROJECT_DATA_SNAPSHOT_JSON" > /tmp/project_data_snapshot
+          printf '%s' "$STATIC_CONTENT_SNAPSHOT_JSON" > /tmp/static_content_snapshot
+          bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
+          bash deploy/scripts/actions/validate-static-content-snapshot.sh /tmp/static_content_snapshot
+          if [ -s /tmp/project_data_snapshot ]; then
+            export PROJECT_DATA_SNAPSHOT_PATH=/tmp/project_data_snapshot
+          fi
+          if [ -s /tmp/static_content_snapshot ]; then
+            export STATIC_CONTENT_SNAPSHOT_PATH=/tmp/static_content_snapshot
+          fi
           BUILD_LOG="$(mktemp)"
           pnpm run build | tee "$BUILD_LOG"
-          grep -F "○ /project/[projectId]" "$BUILD_LOG"
-          grep -F "○ /nda-included/[projectId]" "$BUILD_LOG"
+          grep -F "● /project/[projectId]" "$BUILD_LOG"
+          grep -F "● /nda-included/[projectId]" "$BUILD_LOG"
+          rm -f /tmp/project_data_snapshot /tmp/static_content_snapshot
 
   # Build and push production images to ECR (main branch)
   build-push-prod-images:
