@@ -55,7 +55,7 @@ Signals we currently treat cautiously:
 - touch-device samples captured while the page is meaningfully scrolled, because they often reflect the toolbar-minimized viewport rather than the top-of-page layout state
 - top-of-page touch-device growth samples, because Mobile Safari can briefly report the collapsed-toolbar viewport during route return before the chrome expands again
 
-For Opera specifically, the managed path does not currently treat `visualViewport` scroll events as trustworthy settle signals. Opera was still shifting hero-sized layouts while scrolling even after being routed to the JS-managed height path, so that browser now listens to `visualViewport` resize but ignores `visualViewport` scroll as a height-recompute trigger.
+For Opera specifically, the managed path does not currently treat `visualViewport` scroll events as trustworthy settle signals, and it also refuses height-only resize commits. Opera was still shifting hero-sized layouts while scrolling even after being routed to the JS-managed height path, so that browser now responds only to stronger signals like width changes, orientation changes, fullscreen transitions, and explicit settle passes.
 
 For the overscroll case, the hook intentionally ignores shrink-only measurements when all of the following are true:
 

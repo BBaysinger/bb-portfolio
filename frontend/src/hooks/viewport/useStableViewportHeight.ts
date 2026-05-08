@@ -8,6 +8,7 @@ import { useGlobalWindowMonitor } from "../useLayoutMonitor";
 
 import {
   isManagedStableViewportHeightRequiredForCurrentBrowser,
+  shouldTrustHeightOnlyResizeForCurrentBrowser,
   shouldUseVisualViewportScrollSignalsForCurrentBrowser,
 } from "./stableViewportHeightPolicy";
 import {
@@ -113,6 +114,8 @@ export function useStableViewportHeight(
   } = options;
   const resolvedMode = mode ?? stableViewportHeightConfig.defaultMode;
   const isEnabled = shouldEnableManagedStableViewportHeight(resolvedMode);
+  const shouldTrustHeightOnlyResizeSignals =
+    shouldTrustHeightOnlyResizeForCurrentBrowser();
   const shouldUseVisualViewportScrollSignals =
     shouldUseVisualViewportScrollSignalsForCurrentBrowser();
 
@@ -200,6 +203,10 @@ export function useStableViewportHeight(
     (
       context: Omit<HeightOnlyResizeContext, "hasCoarsePointer" | "canHover">,
     ) => {
+      if (!shouldTrustHeightOnlyResizeSignals) {
+        return false;
+      }
+
       const { hasCoarsePointer, canHover } = getInteractionCapabilities();
       const fullContext: HeightOnlyResizeContext = {
         ...context,
@@ -227,7 +234,7 @@ export function useStableViewportHeight(
           return false;
       }
     },
-    [heightOnlyResizePolicy],
+    [heightOnlyResizePolicy, shouldTrustHeightOnlyResizeSignals],
   );
 
   const scheduleTrailingMeasure = useCallback(

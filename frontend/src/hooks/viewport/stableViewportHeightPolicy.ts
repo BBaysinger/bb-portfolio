@@ -39,3 +39,9 @@ export function shouldUseVisualViewportScrollSignalsForCurrentBrowser() {
 
   return !isOpera();
 }
+
+export function shouldTrustHeightOnlyResizeForCurrentBrowser() {
+  if (typeof window === "undefined") return true;
+
+  return !isOpera();
+}
