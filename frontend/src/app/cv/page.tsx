@@ -41,10 +41,10 @@ const getCvExperienceData = async (): Promise<{
 
     if (!response.ok) {
       return {
-        experienceSectionHeading: 'Experience',
+        experienceSectionHeading: "Experience",
         experienceItems: [],
         recentIndependentStudySectionHeading:
-          'Independent R&D and Freelance Front-End Work',
+          "Independent R&D and Freelance Front-End Work",
         recentIndependentStudyItems: [],
       };
     }
@@ -52,23 +52,23 @@ const getCvExperienceData = async (): Promise<{
     const payload = (await response.json()) as CvExperienceResponse;
     if (!payload.success) {
       return {
-        experienceSectionHeading: 'Experience',
+        experienceSectionHeading: "Experience",
         experienceItems: [],
         recentIndependentStudySectionHeading:
-          'Independent R&D and Freelance Front-End Work',
+          "Independent R&D and Freelance Front-End Work",
         recentIndependentStudyItems: [],
       };
     }
 
     return {
       experienceSectionHeading:
-        payload.data?.experienceSectionHeading || 'Experience',
+        payload.data?.experienceSectionHeading || "Experience",
       experienceItems: Array.isArray(payload.data?.experienceItems)
         ? payload.data.experienceItems
         : [],
       recentIndependentStudySectionHeading:
         payload.data?.recentIndependentStudySectionHeading ||
-        'Independent R&D and Freelance Front-End Work',
+        "Independent R&D and Freelance Front-End Work",
       recentIndependentStudyItems: Array.isArray(
         payload.data?.recentIndependentStudyItems,
       )
@@ -77,10 +77,10 @@ const getCvExperienceData = async (): Promise<{
     };
   } catch {
     return {
-      experienceSectionHeading: 'Experience',
+      experienceSectionHeading: "Experience",
       experienceItems: [],
       recentIndependentStudySectionHeading:
-        'Independent R&D and Freelance Front-End Work',
+        "Independent R&D and Freelance Front-End Work",
       recentIndependentStudyItems: [],
     };
   }
@@ -98,7 +98,9 @@ export default async function CvPage() {
     <CvPageClient
       experienceSectionHeading={experienceSectionHeading}
       initialExperienceItems={experienceItems}
-      recentIndependentStudySectionHeading={recentIndependentStudySectionHeading}
+      recentIndependentStudySectionHeading={
+        recentIndependentStudySectionHeading
+      }
       initialRecentIndependentStudyItems={recentIndependentStudyItems}
     />
   );

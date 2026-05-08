@@ -159,9 +159,9 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [heroRuntimeKey, setHeroRuntimeKey] = useState(0);
   // TODO(viewport-debug-cleanup): Remove this temporary hero viewport-debug state once the iOS Safari height issue is resolved.
   const [showViewportDebug, setShowViewportDebug] = useState(false);
-  const [viewportDebugTrigger, setViewportDebugTrigger] = useState<string | null>(
-    null,
-  );
+  const [viewportDebugTrigger, setViewportDebugTrigger] = useState<
+    string | null
+  >(null);
   const [viewportDebugLayoutDetails, setViewportDebugLayoutDetails] = useState<{
     cssVarStableHeight: number | null;
     computedHeroHeight: number | null;
@@ -554,7 +554,9 @@ function Hero({ initialRoleTitle }: HeroProps) {
           ? parseComputedPixelValue(computedStyle.minHeight)
           : null,
         heroRectHeight: heroRect ? Math.round(heroRect.height) : null,
-        scrollY: Number.isFinite(window.scrollY) ? Math.round(window.scrollY) : null,
+        scrollY: Number.isFinite(window.scrollY)
+          ? Math.round(window.scrollY)
+          : null,
       });
     };
 
@@ -587,7 +589,10 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
     return () => {
       window.removeEventListener("resize", onWindowResize);
-      window.removeEventListener("orientationchange", onWindowOrientationChange);
+      window.removeEventListener(
+        "orientationchange",
+        onWindowOrientationChange,
+      );
       window.removeEventListener("scroll", onWindowScroll);
       visualViewport?.removeEventListener("resize", onVisualViewportResize);
       visualViewport?.removeEventListener("scroll", onVisualViewportScroll);

@@ -53,7 +53,9 @@ export function isSafari(): boolean {
 
   return (
     /Safari/i.test(ua) &&
-    !/(Chrome|CriOS|FxiOS|OPR\/|OPiOS|OPT\/|Edg(?:A|iOS)?\/|Edge\/|Brave)/i.test(ua)
+    !/(Chrome|CriOS|FxiOS|OPR\/|OPiOS|OPT\/|Edg(?:A|iOS)?\/|Edge\/|Brave)/i.test(
+      ua,
+    )
   );
 }
 
