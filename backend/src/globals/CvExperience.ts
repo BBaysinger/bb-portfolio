@@ -105,7 +105,7 @@ export const CvExperience: GlobalConfig = {
       label: 'Independent R&D / Freelance Section Heading',
       type: 'text',
       required: true,
-      defaultValue: 'Independent R&D and Freelance Front-End Work',
+      defaultValue: 'Independent R&D',
     },
     {
       name: 'recentIndependentStudy',

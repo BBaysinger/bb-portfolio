@@ -43,8 +43,7 @@ const getCvExperienceData = async (): Promise<{
       return {
         experienceSectionHeading: "Experience",
         experienceItems: [],
-        recentIndependentStudySectionHeading:
-          "Independent R&D and Freelance Front-End Work",
+        recentIndependentStudySectionHeading: "Independent R&D",
         recentIndependentStudyItems: [],
       };
     }
@@ -54,8 +53,7 @@ const getCvExperienceData = async (): Promise<{
       return {
         experienceSectionHeading: "Experience",
         experienceItems: [],
-        recentIndependentStudySectionHeading:
-          "Independent R&D and Freelance Front-End Work",
+        recentIndependentStudySectionHeading: "Independent R&D",
         recentIndependentStudyItems: [],
       };
     }
@@ -67,8 +65,7 @@ const getCvExperienceData = async (): Promise<{
         ? payload.data.experienceItems
         : [],
       recentIndependentStudySectionHeading:
-        payload.data?.recentIndependentStudySectionHeading ||
-        "Independent R&D and Freelance Front-End Work",
+        payload.data?.recentIndependentStudySectionHeading || "Independent R&D",
       recentIndependentStudyItems: Array.isArray(
         payload.data?.recentIndependentStudyItems,
       )
@@ -79,8 +76,7 @@ const getCvExperienceData = async (): Promise<{
     return {
       experienceSectionHeading: "Experience",
       experienceItems: [],
-      recentIndependentStudySectionHeading:
-        "Independent R&D and Freelance Front-End Work",
+      recentIndependentStudySectionHeading: "Independent R&D",
       recentIndependentStudyItems: [],
     };
   }
