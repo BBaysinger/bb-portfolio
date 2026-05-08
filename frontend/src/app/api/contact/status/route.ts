@@ -20,35 +20,24 @@ import { resolveBackendBase } from "@/utils/backend-base";
 /**
  * Proxies the backend contact status endpoint and normalizes output as JSON.
  *
- * @returns JSON from upstream, or `{ error: string }` on failure.
+ * @returns The upstream response body and status without rewriting failures.
  */
 export async function GET(_request: NextRequest) {
-  try {
-    const backendUrl = resolveBackendBase();
+  const backendUrl = resolveBackendBase();
 
-    const upstream = await fetch(`${backendUrl}/api/contact/status/`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-    });
+  const upstream = await fetch(`${backendUrl}/api/contact/status/`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
 
-    const ct = upstream.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      const json = await upstream.json();
-      return Response.json(json, { status: upstream.status });
-    }
-    const text = await upstream.text();
-    return Response.json(
-      { error: text || `Upstream returned ${upstream.status}` },
-      { status: upstream.status },
-    );
-  } catch (error) {
-    console.error("Frontend contact status proxy error:", error);
-    return Response.json(
-      { error: "Failed to retrieve contact status." },
-      { status: 500 },
-    );
-  }
+  return new Response(await upstream.text(), {
+    status: upstream.status,
+    headers: {
+      "content-type":
+        upstream.headers.get("content-type") || "application/json",
+    },
+  });
 }
 
 export async function POST() {

@@ -21,37 +21,28 @@ import { resolveBackendBase } from "@/utils/backend-base";
 /**
  * Proxies the backend contact-info endpoint and returns the JSON response.
  *
- * @returns JSON from upstream, or `{ success: false, error: string }` on failure.
+ * @returns The upstream response body and status without rewriting failures.
  */
 export async function GET(request: NextRequest) {
-  try {
-    const backendUrl = resolveBackendBase();
+  const backendUrl = resolveBackendBase();
 
-    // Forward the request to the backend
-    const response = await fetch(`${backendUrl}/api/contact-info/`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        // Forward any relevant headers from the original request
-        ...(request.headers.get("user-agent") && {
-          "User-Agent": request.headers.get("user-agent")!,
-        }),
-      },
-    });
+  const response = await fetch(`${backendUrl}/api/contact-info/`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      ...(request.headers.get("user-agent") && {
+        "User-Agent": request.headers.get("user-agent")!,
+      }),
+    },
+  });
 
-    // Return the backend response as-is
-    const data = await response.json();
-    return Response.json(data, { status: response.status });
-  } catch (error) {
-    console.error("Frontend contact-info proxy error:", error);
-    return Response.json(
-      {
-        success: false,
-        error: "Failed to fetch contact information",
-      },
-      { status: 500 },
-    );
-  }
+  return new Response(await response.text(), {
+    status: response.status,
+    headers: {
+      "content-type":
+        response.headers.get("content-type") || "application/json",
+    },
+  });
 }
 
 // Handle unsupported methods

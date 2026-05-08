@@ -21,45 +21,32 @@ import { resolveBackendBase } from "@/utils/backend-base";
  * Proxies the backend contact submission endpoint and normalizes output as JSON.
  *
  * @param request - Incoming request containing the contact submission payload.
- * @returns JSON from upstream, or `{ error: string }` on failure.
+ * @returns The upstream response body and status without rewriting failures.
  */
 export async function POST(request: NextRequest) {
-  try {
-    const backendUrl = resolveBackendBase();
+  const backendUrl = resolveBackendBase();
 
-    // Forward request body to backend
-    const body = await request.text();
-    const upstream = await fetch(`${backendUrl}/api/contact/`, {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          request.headers.get("content-type") || "application/json",
-        Accept: "application/json",
-        ...(request.headers.get("user-agent") && {
-          "User-Agent": request.headers.get("user-agent")!,
-        }),
-      },
-      body,
-    });
+  const body = await request.text();
+  const upstream = await fetch(`${backendUrl}/api/contact/`, {
+    method: "POST",
+    headers: {
+      "Content-Type":
+        request.headers.get("content-type") || "application/json",
+      Accept: "application/json",
+      ...(request.headers.get("user-agent") && {
+        "User-Agent": request.headers.get("user-agent")!,
+      }),
+    },
+    body,
+  });
 
-    const ct = upstream.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      const json = await upstream.json();
-      return Response.json(json, { status: upstream.status });
-    }
-    // Coerce non-JSON upstream responses (like HTML error pages) into JSON string payload
-    const text = await upstream.text();
-    return Response.json(
-      { error: text || `Upstream returned ${upstream.status}` },
-      { status: upstream.status },
-    );
-  } catch (error) {
-    console.error("Frontend contact proxy error:", error);
-    return Response.json(
-      { error: "Failed to send message. Please try again later." },
-      { status: 500 },
-    );
-  }
+  return new Response(await upstream.text(), {
+    status: upstream.status,
+    headers: {
+      "content-type":
+        upstream.headers.get("content-type") || "application/json",
+    },
+  });
 }
 
 // Handle unsupported methods
