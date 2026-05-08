@@ -40,8 +40,13 @@ export default function HomePageClient({
     if (ssrProjects.length > 0) return ssrProjects;
     return [];
   });
+  const [error, setError] = useState<Error | null>(null);
   const hydratedRef = useRef(false);
   const prevAuthRef = useRef<boolean>(compositeAuth);
+
+  if (error) {
+    throw error;
+  }
 
   useEffect(() => {
     const hasSnapshot =
@@ -81,7 +86,14 @@ export default function HomePageClient({
           disableCache: true,
           includeNdaInActive: true,
         });
-      } catch {
+      } catch (initError) {
+        if (!cancelled) {
+          setError(
+            initError instanceof Error
+              ? initError
+              : new Error("Failed to refresh project data after login."),
+          );
+        }
         return;
       }
       if (cancelled) return;
@@ -110,7 +122,14 @@ export default function HomePageClient({
           disableCache: true,
           includeNdaInActive: false,
         });
-      } catch {
+      } catch (initError) {
+        if (!cancelled) {
+          setError(
+            initError instanceof Error
+              ? initError
+              : new Error("Failed to refresh project data after logout."),
+          );
+        }
         return;
       }
       if (cancelled) return;

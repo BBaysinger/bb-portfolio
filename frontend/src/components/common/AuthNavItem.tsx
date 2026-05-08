@@ -14,7 +14,7 @@
 
 import clsx from "clsx";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useAppSelector } from "@/store/hooks";
@@ -44,10 +44,24 @@ export default function AuthNavItem({
   const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const authed = isLoggedIn || Boolean(user);
   const { logout } = useAuth();
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  const hasLogoutError = Boolean(logoutError);
 
   const isLoading = !hasInitialized;
 
   const loginAriaHidden = isLoading ? true : undefined;
+
+  const handleLogout = async () => {
+    setLogoutError(null);
+
+    try {
+      await logout();
+    } catch (error) {
+      setLogoutError(
+        error instanceof Error ? error.message : "Failed to log out.",
+      );
+    }
+  };
 
   return (
     <li
@@ -60,10 +74,17 @@ export default function AuthNavItem({
       {authed ? (
         <button
           type="button"
-          onClick={logout}
-          className={clsx(linkClassName, styles.logoutControl)}
+          onClick={() => {
+            void handleLogout();
+          }}
+          className={clsx(
+            linkClassName,
+            styles.logoutControl,
+            hasLogoutError && styles.logoutControlError,
+          )}
+          aria-label={logoutError ?? "Logout"}
         >
-          Logout
+          {hasLogoutError ? "Error" : "Logout"}
         </button>
       ) : (
         <Link

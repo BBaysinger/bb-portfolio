@@ -56,60 +56,39 @@ export const useAuth = () => {
   const logout = async () => {
     const isNdaRoute = /^\/nda-included(\/|$)/.test(pathname || "");
 
-    const fireAndForgetLogout = () => {
-      // When hard-navigating away (especially from NDA routes), do not block
-      // the redirect on a potentially-slow server round-trip.
-      try {
-        if (typeof navigator !== "undefined" && "sendBeacon" in navigator) {
-          // sendBeacon always uses POST and typically survives page unload.
-          const blob = new Blob([], { type: "application/json" });
-          navigator.sendBeacon("/api/users/logout", blob);
-          return;
-        }
-      } catch {
-        // Fall back to keepalive fetch
-      }
-
-      try {
-        void fetch("/api/users/logout", {
-          method: "POST",
-          credentials: "include",
-          keepalive: true,
-        });
-      } catch {
-        // Ignore
-      }
-    };
-
     const tryServerLogout = async () => {
+      // Prefer a short awaited logout to ensure the browser processes Set-Cookie
+      // before we refresh/navigate (prevents SSR from briefly rendering NDA data).
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1500);
+
       try {
-        // Prefer a short awaited logout to ensure the browser processes Set-Cookie
-        // before we refresh/navigate (prevents SSR from briefly rendering NDA data).
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 1500);
-        await fetch("/api/users/logout", {
+        const response = await fetch("/api/users/logout", {
           method: "POST",
           credentials: "include",
           signal: controller.signal,
         });
+
+        if (!response.ok) {
+          let detail = "";
+          try {
+            detail = await response.text();
+          } catch {
+            detail = "";
+          }
+
+          throw new Error(
+            detail
+              ? `Logout failed: ${detail}`
+              : `Logout failed with status ${response.status}.`,
+          );
+        }
+      } finally {
         clearTimeout(timeout);
-      } catch {
-        // Continue with client-side cleanup even if API fails or times out
       }
     };
 
-    if (isNdaRoute) {
-      // For NDA routes, prioritize leaving the page immediately.
-      // Cookie clearing can happen in the background.
-      fireAndForgetLogout();
-    } else {
-      try {
-        await tryServerLogout();
-      } catch (error) {
-        console.error("Logout API error:", error);
-        // Continue with client-side cleanup even if API fails
-      }
-    }
+    await tryServerLogout();
 
     // Force clear Redux auth state
     dispatch(resetAuthState());

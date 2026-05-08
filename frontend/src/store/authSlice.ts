@@ -55,7 +55,13 @@ export const checkAuthStatus = createAsyncThunk(
       });
 
       if (!response.ok) {
-        return rejectWithValue("Not authenticated");
+        if (response.status === 401 || response.status === 403) {
+          return rejectWithValue("Not authenticated");
+        }
+
+        return rejectWithValue(
+          `Failed to check auth status (${response.status}).`,
+        );
       }
 
       const data = await response.json();
@@ -66,7 +72,7 @@ export const checkAuthStatus = createAsyncThunk(
         typeof user !== "object" ||
         (!("id" in user) && !("email" in user))
       ) {
-        return rejectWithValue("Not authenticated");
+        return rejectWithValue("Auth status response was missing user data.");
       }
       return user;
     } catch {
@@ -177,13 +183,16 @@ const authSlice = createSlice({
           state.hasInitialized = true;
         },
       )
-      .addCase(checkAuthStatus.rejected, (state) => {
-        if (debug)
-          console.info("❌ checkAuthStatus.rejected - No valid session");
+      .addCase(checkAuthStatus.rejected, (state, action) => {
+        const authError =
+          typeof action.payload === "string"
+            ? action.payload
+            : "Failed to check auth status";
+        if (debug) console.info("❌ checkAuthStatus.rejected", { authError });
         state.user = null;
         state.isLoggedIn = false;
         state.isLoading = false;
-        state.error = null; // Don't show error for failed auth check
+        state.error = authError === "Not authenticated" ? null : authError;
         state.hasInitialized = true;
       })
 

@@ -5,6 +5,7 @@
   .logoutControl {
     padding-left: 0;
     width: 20px;
+    min-width: 20px;
     height: 20px;
     margin-inline: auto;
     background-color: currentColor !important;
@@ -19,6 +20,15 @@
     @include breakpointUp($b576px) {
       margin-inline: 0;
     }
+  }
+
+  .logoutControlError {
+    width: auto;
+    padding-left: initial;
+    background-color: #c43d2f !important;
+    mask-image: none;
+    font-size: inherit !important;
+    color: #c43d2f;
   }
 }
 
