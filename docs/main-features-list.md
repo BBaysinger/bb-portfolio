@@ -127,6 +127,9 @@ Working list of notable features and technical systems
 
 - Deployment tooling (scripts + optional deployment runner)
 - GitHub Secrets sync pipeline from JSON5 source files with required-env validation lists
+- Dual snapshot-backed frontend build inputs carried through GitHub environment secrets and BuildKit secret mounts (project data + static CMS content)
+- Static-content snapshot pipeline for hermetic build-time branding, greeting, and CV content
+- Snapshot envelope validation guards for project-data and static-content CI/build inputs
 - Terraform IaC for one-command provision/teardown of the full stack
 - Systemd-managed Docker services on EC2 with auto-restart
 - Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script
@@ -150,6 +153,7 @@ Working list of notable features and technical systems
 - Detailed engineering standards, including AI assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
 - Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
+- Build-safe SSG policy that relaxes project route enumeration separately from authoritative static-content requirements, avoiding silent fallback content during prerender
 - Guarded dependency update workflow (`update:deps`) with blocked majors, lockstep upgrade families, and manifest/lockfile refresh
 - Production-like local performance testing with standalone server builds
 
