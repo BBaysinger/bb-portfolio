@@ -10,6 +10,14 @@ import {
   isManagedStableViewportHeightRequiredForCurrentBrowser,
   shouldUseVisualViewportScrollSignalsForCurrentBrowser,
 } from "./stableViewportHeightPolicy";
+import {
+  getInitialStableHeightPx,
+  getInteractionCapabilities,
+  getIsFullscreen,
+  isUsableViewportHeight,
+  resolveStableHeightCandidate,
+  type HeightIncreaseSample,
+} from "./stableViewportHeightUtils";
 import { useViewportSettle } from "./useViewportSettle";
 
 const WINDOW_MONITOR_DEBOUNCE = {
@@ -53,13 +61,10 @@ export interface UseStableViewportHeightOptions {
 }
 
 const DEFAULT_TOP_SCROLL_GUARD_PX = 2;
-const DEFAULT_TOP_VIEWPORT_OFFSET_GUARD_PX = 2;
-const RECENT_HEIGHT_INCREASE_CORRECTION_WINDOW_MS = 2000;
-const RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX = 24;
 const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 
 // Current status:
-// - This hook exists because mobile Firefox and mobile Edge had inconsistent `svh`
+// - This hook exists because Firefox, Edge, and Opera had browser-specific `svh`
 //   behavior in prior testing.
 // - The JS path is still considered relevant only for those browsers when callers opt into
 //   `use-where-required`.
@@ -67,18 +72,12 @@ const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 //   gestures, and this hook does not fully solve that case yet.
 // - That limitation is acceptable for now because the default mode stays on CSS `svh`,
 //   and current testing has not shown the same downward-gesture viewport mutation issue in
-//   Firefox or Edge.
+//   the browsers currently routed to the managed path.
 export const stableViewportHeightConfig: {
   defaultMode: StableViewportHeightMode;
 } = {
   defaultMode: "use-svh-for-all",
 };
-
-function isUsableViewportHeight(
-  height: number | null | undefined,
-): height is number {
-  return typeof height === "number" && Number.isFinite(height) && height > 0;
-}
 
 function shouldEnableManagedStableViewportHeight(
   mode: StableViewportHeightMode,
@@ -94,149 +93,6 @@ function shouldEnableManagedStableViewportHeight(
     default:
       return isManagedStableViewportHeightRequiredForCurrentBrowser();
   }
-}
-
-function getSmallViewportHeightPx() {
-  if (typeof window === "undefined") return 0;
-
-  const candidates = [
-    window.visualViewport?.height,
-    window.innerHeight,
-    document.documentElement?.clientHeight,
-    document.body?.clientHeight,
-  ].filter(isUsableViewportHeight);
-
-  if (candidates.length === 0) return 0;
-
-  return Math.min(...candidates.map((candidate) => Math.round(candidate)));
-}
-
-function getInteractionCapabilities() {
-  let hasCoarsePointer = false;
-  let canHover = false;
-
-  try {
-    hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-    canHover = window.matchMedia("(hover: hover)").matches;
-  } catch {
-    hasCoarsePointer = false;
-    canHover = false;
-  }
-
-  return { hasCoarsePointer, canHover };
-}
-
-function getIsFullscreen() {
-  return typeof document !== "undefined" && Boolean(document.fullscreenElement);
-}
-
-function getVisualViewportOffsetTopPx() {
-  if (typeof window === "undefined") return 0;
-
-  const offsetTop = window.visualViewport?.offsetTop;
-  if (typeof offsetTop !== "number" || !Number.isFinite(offsetTop)) {
-    return 0;
-  }
-
-  return Math.max(0, Math.round(offsetTop));
-}
-
-function shouldIgnoreTopViewportOffsetSample(topScrollGuardPx: number) {
-  if (getIsFullscreen()) return false;
-
-  const { hasCoarsePointer } = getInteractionCapabilities();
-  if (!hasCoarsePointer) return false;
-  if (window.scrollY > topScrollGuardPx) return false;
-
-  return getVisualViewportOffsetTopPx() > DEFAULT_TOP_VIEWPORT_OFFSET_GUARD_PX;
-}
-
-function shouldIgnoreScrolledCoarsePointerSample(
-  nextHeight: number,
-  previousHeight: number | null,
-  topScrollGuardPx: number,
-) {
-  if (!isUsableViewportHeight(nextHeight)) return false;
-  if (getIsFullscreen()) return false;
-
-  const { hasCoarsePointer } = getInteractionCapabilities();
-  if (!hasCoarsePointer) return false;
-  if (window.scrollY <= topScrollGuardPx) return false;
-  if (previousHeight === null) return true;
-
-  return nextHeight >= previousHeight;
-}
-
-function shouldIgnoreTopCoarsePointerGrowth(
-  nextHeight: number,
-  previousHeight: number | null,
-  topScrollGuardPx: number,
-) {
-  if (!isUsableViewportHeight(nextHeight)) return false;
-  if (getIsFullscreen()) return false;
-
-  const { hasCoarsePointer } = getInteractionCapabilities();
-  if (!hasCoarsePointer) return false;
-  if (window.scrollY > topScrollGuardPx) return false;
-
-  if (previousHeight === null) {
-    const smallerTopCandidate = getSmallViewportHeightPx();
-    return (
-      isUsableViewportHeight(smallerTopCandidate) &&
-      nextHeight > smallerTopCandidate
-    );
-  }
-
-  return nextHeight > previousHeight;
-}
-
-function getInitialStableHeightPx(topScrollGuardPx: number) {
-  if (shouldIgnoreTopViewportOffsetSample(topScrollGuardPx)) {
-    const smallerTopCandidate = getSmallViewportHeightPx();
-    return isUsableViewportHeight(smallerTopCandidate)
-      ? smallerTopCandidate
-      : null;
-  }
-
-  const { hasCoarsePointer } = getInteractionCapabilities();
-  const initialHeight =
-    hasCoarsePointer && window.scrollY <= topScrollGuardPx
-      ? getSmallViewportHeightPx()
-      : getViewportHeightPx();
-
-  if (
-    shouldIgnoreScrolledCoarsePointerSample(
-      initialHeight,
-      null,
-      topScrollGuardPx,
-    )
-  ) {
-    return null;
-  }
-
-  return isUsableViewportHeight(initialHeight) ? initialHeight : null;
-}
-
-function getFallbackStableHeightPx(
-  nextHeight: number,
-  previousHeight: number | null,
-  topScrollGuardPx: number,
-) {
-  if (
-    shouldIgnoreTopViewportOffsetSample(topScrollGuardPx) ||
-    shouldIgnoreTopCoarsePointerGrowth(
-      nextHeight,
-      previousHeight,
-      topScrollGuardPx,
-    )
-  ) {
-    const smallerTopCandidate = getSmallViewportHeightPx();
-    if (isUsableViewportHeight(smallerTopCandidate)) {
-      return smallerTopCandidate;
-    }
-  }
-
-  return null;
 }
 
 /**
@@ -267,10 +123,7 @@ export function useStableViewportHeight(
   const mountedAtRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number | null>(null);
   const lastHeightRef = useRef<number | null>(stableHeightPx);
-  const lastHeightIncreaseRef = useRef<{
-    height: number;
-    timestamp: number;
-  } | null>(null);
+  const lastHeightIncreaseRef = useRef<HeightIncreaseSample | null>(null);
   const forcedHeightCommitUntilRef = useRef<number>(0);
   const resizeSettleTimeoutRef = useRef<number | null>(null);
   const resizeRafRef = useRef<number | null>(null);
@@ -280,48 +133,6 @@ export function useStableViewportHeight(
     if (lastWidth == null) return null;
     return Math.abs(width - lastWidth);
   }, []);
-
-  const shouldGuardTopOverscrollShrink = useCallback(
-    (height: number) => {
-      if (!guardTopOverscrollShrink || !isUsableViewportHeight(height))
-        return false;
-
-      const previousHeight = lastHeightRef.current;
-      if (!isUsableViewportHeight(previousHeight) || height >= previousHeight) {
-        return false;
-      }
-
-      if (
-        mountedAtRef.current !== null &&
-        initialHeightRef.current !== null &&
-        initialHeightRef.current === previousHeight &&
-        previousHeight - height <= RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX &&
-        Date.now() - mountedAtRef.current <=
-          RECENT_HEIGHT_INCREASE_CORRECTION_WINDOW_MS
-      ) {
-        return false;
-      }
-
-      const recentHeightIncrease = lastHeightIncreaseRef.current;
-      if (
-        recentHeightIncrease !== null &&
-        recentHeightIncrease.height === previousHeight &&
-        previousHeight - height <= RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX &&
-        Date.now() - recentHeightIncrease.timestamp <=
-          RECENT_HEIGHT_INCREASE_CORRECTION_WINDOW_MS
-      ) {
-        return false;
-      }
-
-      if (getIsFullscreen()) return false;
-
-      const { hasCoarsePointer } = getInteractionCapabilities();
-      if (!hasCoarsePointer) return false;
-
-      return window.scrollY <= topScrollGuardPx;
-    },
-    [guardTopOverscrollShrink, topScrollGuardPx],
-  );
 
   const armForcedHeightCommitWindow = useCallback((durationMs?: number) => {
     const windowMs = durationMs ?? TRUSTED_VIEWPORT_CHANGE_WINDOW_MS;
@@ -339,35 +150,18 @@ export function useStableViewportHeight(
   const applyStableHeightPx = useCallback(
     (height: number, force = false) => {
       const previousHeight = lastHeightRef.current;
-      const bypassTransientGuards = force || shouldForceHeightCommit();
-      const fallbackHeight = bypassTransientGuards
-        ? null
-        : getFallbackStableHeightPx(height, previousHeight, topScrollGuardPx);
+      const nextHeight = resolveStableHeightCandidate({
+        nextHeight: height,
+        previousHeight,
+        topScrollGuardPx,
+        guardTopOverscrollShrink,
+        mountedAt: mountedAtRef.current,
+        initialHeight: initialHeightRef.current,
+        recentHeightIncrease: lastHeightIncreaseRef.current,
+        bypassTransientGuards: force || shouldForceHeightCommit(),
+      });
 
-      if (
-        (!isUsableViewportHeight(height) &&
-          !isUsableViewportHeight(fallbackHeight)) ||
-        (!bypassTransientGuards &&
-          (shouldIgnoreTopViewportOffsetSample(topScrollGuardPx) ||
-            shouldIgnoreScrolledCoarsePointerSample(
-              height,
-              previousHeight,
-              topScrollGuardPx,
-            ) ||
-            shouldIgnoreTopCoarsePointerGrowth(
-              height,
-              previousHeight,
-              topScrollGuardPx,
-            ) ||
-            shouldGuardTopOverscrollShrink(height)) &&
-          !isUsableViewportHeight(fallbackHeight))
-      ) {
-        return;
-      }
-
-      const nextHeight = isUsableViewportHeight(fallbackHeight)
-        ? fallbackHeight
-        : height;
+      if (!isUsableViewportHeight(nextHeight)) return;
 
       lastHeightRef.current = nextHeight;
       if (
@@ -392,7 +186,7 @@ export function useStableViewportHeight(
       }
       setStableHeightPx((prev) => (prev === nextHeight ? prev : nextHeight));
     },
-    [shouldForceHeightCommit, shouldGuardTopOverscrollShrink, topScrollGuardPx],
+    [guardTopOverscrollShrink, shouldForceHeightCommit, topScrollGuardPx],
   );
 
   const measureStableHeightPx = useCallback(
