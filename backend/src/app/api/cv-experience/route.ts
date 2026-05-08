@@ -28,6 +28,13 @@ type ExperienceItem = {
   bulletPoints?: unknown
 }
 
+type CvExperienceGlobal = {
+  experienceSectionHeading?: unknown
+  recentIndependentStudySectionHeading?: unknown
+  experienceItems?: unknown
+  recentIndependentStudy?: unknown
+}
+
 const asTrimmedString = (value: unknown): string => {
   if (typeof value !== 'string') return ''
   return value.trim()
@@ -142,11 +149,11 @@ export async function GET() {
   try {
     const payload = await getPayload({ config: configPromise })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cvExperience = await (payload as any).findGlobal({
+    const cvExperience = (await (payload as any).findGlobal({
       slug: 'cvExperience',
       depth: 1,
       overrideAccess: true,
-    })
+    })) as CvExperienceGlobal
 
     const mapItem = (entry: unknown) => {
       if (!entry || typeof entry !== 'object') return null
@@ -193,7 +200,12 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
+        experienceSectionHeading:
+          asTrimmedString(cvExperience?.experienceSectionHeading) || 'Experience',
         experienceItems: items,
+        recentIndependentStudySectionHeading:
+          asTrimmedString(cvExperience?.recentIndependentStudySectionHeading) ||
+          'Independent R&D and Freelance Front-End Work',
         recentIndependentStudyItems,
       },
     })

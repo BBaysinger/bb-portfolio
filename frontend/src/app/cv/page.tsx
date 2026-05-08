@@ -18,13 +18,17 @@ export const metadata: Metadata = buildPageMetadata({
 type CvExperienceResponse = {
   success?: boolean;
   data?: {
+    experienceSectionHeading?: string;
     experienceItems?: CvExperienceItemData[];
+    recentIndependentStudySectionHeading?: string;
     recentIndependentStudyItems?: CvExperienceItemData[];
   };
 };
 
 const getCvExperienceData = async (): Promise<{
+  experienceSectionHeading: string;
   experienceItems: CvExperienceItemData[];
+  recentIndependentStudySectionHeading: string;
   recentIndependentStudyItems: CvExperienceItemData[];
 }> => {
   try {
@@ -36,18 +40,35 @@ const getCvExperienceData = async (): Promise<{
     });
 
     if (!response.ok) {
-      return { experienceItems: [], recentIndependentStudyItems: [] };
+      return {
+        experienceSectionHeading: 'Experience',
+        experienceItems: [],
+        recentIndependentStudySectionHeading:
+          'Independent R&D and Freelance Front-End Work',
+        recentIndependentStudyItems: [],
+      };
     }
 
     const payload = (await response.json()) as CvExperienceResponse;
     if (!payload.success) {
-      return { experienceItems: [], recentIndependentStudyItems: [] };
+      return {
+        experienceSectionHeading: 'Experience',
+        experienceItems: [],
+        recentIndependentStudySectionHeading:
+          'Independent R&D and Freelance Front-End Work',
+        recentIndependentStudyItems: [],
+      };
     }
 
     return {
+      experienceSectionHeading:
+        payload.data?.experienceSectionHeading || 'Experience',
       experienceItems: Array.isArray(payload.data?.experienceItems)
         ? payload.data.experienceItems
         : [],
+      recentIndependentStudySectionHeading:
+        payload.data?.recentIndependentStudySectionHeading ||
+        'Independent R&D and Freelance Front-End Work',
       recentIndependentStudyItems: Array.isArray(
         payload.data?.recentIndependentStudyItems,
       )
@@ -55,17 +76,29 @@ const getCvExperienceData = async (): Promise<{
         : [],
     };
   } catch {
-    return { experienceItems: [], recentIndependentStudyItems: [] };
+    return {
+      experienceSectionHeading: 'Experience',
+      experienceItems: [],
+      recentIndependentStudySectionHeading:
+        'Independent R&D and Freelance Front-End Work',
+      recentIndependentStudyItems: [],
+    };
   }
 };
 
 export default async function CvPage() {
-  const { experienceItems, recentIndependentStudyItems } =
-    await getCvExperienceData();
+  const {
+    experienceSectionHeading,
+    experienceItems,
+    recentIndependentStudySectionHeading,
+    recentIndependentStudyItems,
+  } = await getCvExperienceData();
 
   return (
     <CvPageClient
+      experienceSectionHeading={experienceSectionHeading}
       initialExperienceItems={experienceItems}
+      recentIndependentStudySectionHeading={recentIndependentStudySectionHeading}
       initialRecentIndependentStudyItems={recentIndependentStudyItems}
     />
   );

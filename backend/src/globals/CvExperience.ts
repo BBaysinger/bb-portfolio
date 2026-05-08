@@ -101,6 +101,13 @@ export const CvExperience: GlobalConfig = {
   },
   fields: [
     {
+      name: 'experienceSectionHeading',
+      label: 'Experience Section Heading',
+      type: 'text',
+      required: true,
+      defaultValue: 'Experience',
+    },
+    {
       name: 'experienceItems',
       label: 'Experience Items',
       type: 'blocks',
@@ -110,6 +117,13 @@ export const CvExperience: GlobalConfig = {
         description:
           'Each row is one CV experience component. Drag and drop to control render order on the frontend.',
       },
+    },
+    {
+      name: 'recentIndependentStudySectionHeading',
+      label: 'Independent R&D / Freelance Section Heading',
+      type: 'text',
+      required: true,
+      defaultValue: 'Independent R&D and Freelance Front-End Work',
     },
     {
       name: 'recentIndependentStudy',

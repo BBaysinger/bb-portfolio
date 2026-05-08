@@ -204,6 +204,7 @@ export interface AuthEvent {
  */
 export interface Project {
   id: string;
+  adminTitle?: string | null;
   title: string;
   slug: string;
   /**
@@ -250,12 +251,12 @@ export interface Project {
    * Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.
    */
   shortDesc?: string | null;
-  desc?:
+  descParagraphs?:
     | {
         /**
-         * Paste raw HTML like <p>...</p>.
+         * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com) for inline formatting.
          */
-        block?: string | null;
+        text?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -616,6 +617,7 @@ export interface AuthEventsSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  adminTitle?: T;
   title?: T;
   slug?: T;
   shortCode?: T;
@@ -647,10 +649,10 @@ export interface ProjectsSelect<T extends boolean = true> {
       };
   type?: T;
   shortDesc?: T;
-  desc?:
+  descParagraphs?:
     | T
     | {
-        block?: T;
+        text?: T;
         id?: T;
       };
   urls?:
@@ -882,6 +884,26 @@ export interface ContactInfo {
 export interface HeroBranding {
   id: string;
   /**
+   * List of intro paragraphs. The app wraps each row in its own paragraph element.
+   */
+  introParagraphs: {
+    /**
+     * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com); the app controls paragraph wrappers.
+     */
+    text: string;
+    id?: string | null;
+  }[];
+  /**
+   * List of body paragraphs. The app wraps each row in its own paragraph element.
+   */
+  bodyParagraphs: {
+    /**
+     * One paragraph per row. Use **bold**, *emphasis*, and [links](https://example.com); the app controls paragraph wrappers.
+     */
+    text: string;
+    id?: string | null;
+  }[];
+  /**
    * Add as many roles as you want. Mark one row active to use it on the site.
    */
   roleVariants: {
@@ -890,17 +912,17 @@ export interface HeroBranding {
      */
     presetLabel: string;
     /**
-     * Displayed in the hero title area.
+     * Displayed in site title areas (hero and nav).
      */
     title: string;
     /**
-     * Use this role on the live hero.
+     * Use this role on the live site.
      */
     isActive?: boolean | null;
     /**
-     * Letter spacing for this specific role title.
+     * Select the semantic lockup style to apply. Spacing rules live in code.
      */
-    letterSpacingEm: number;
+    roleTitleClassName: 'FEDev' | 'UIDev' | 'FEUIDev';
     id?: string | null;
   }[];
   updatedAt?: string | null;
@@ -912,6 +934,7 @@ export interface HeroBranding {
  */
 export interface CvExperience {
   id: string;
+  experienceSectionHeading: string;
   /**
    * Each row is one CV experience component. Drag and drop to control render order on the frontend.
    */
@@ -929,15 +952,48 @@ export interface CvExperience {
     /**
      * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
      */
-    bulletPoints: {
-      text: string;
-      enabled: boolean;
-      id?: string | null;
-    }[];
+    bulletPoints?:
+      | {
+          text: string;
+          enabled: boolean;
+          id?: string | null;
+        }[]
+      | null;
     id?: string | null;
     blockName?: string | null;
     blockType: 'experienceItem';
   }[];
+  recentIndependentStudySectionHeading: string;
+  /**
+   * Each row is one CV experience component for the Independent R&D/Freelance section. Drag and drop to control render order on the frontend.
+   */
+  recentIndependentStudy?:
+    | {
+        /**
+         * Upload/select the company logo to render for this experience item.
+         */
+        logo?: (string | null) | CvExperienceLogo;
+        company: string;
+        location: string;
+        title: string;
+        description: string;
+        technicalScope: string;
+        date: string;
+        /**
+         * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
+         */
+        bulletPoints?:
+          | {
+              text: string;
+              enabled: boolean;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'experienceItem';
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -958,13 +1014,25 @@ export interface ContactInfoSelect<T extends boolean = true> {
  * via the `definition` "heroBranding_select".
  */
 export interface HeroBrandingSelect<T extends boolean = true> {
+  introParagraphs?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  bodyParagraphs?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
   roleVariants?:
     | T
     | {
         presetLabel?: T;
         title?: T;
         isActive?: T;
-        letterSpacingEm?: T;
+        roleTitleClassName?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -976,7 +1044,33 @@ export interface HeroBrandingSelect<T extends boolean = true> {
  * via the `definition` "cvExperience_select".
  */
 export interface CvExperienceSelect<T extends boolean = true> {
+  experienceSectionHeading?: T;
   experienceItems?:
+    | T
+    | {
+        experienceItem?:
+          | T
+          | {
+              logo?: T;
+              company?: T;
+              location?: T;
+              title?: T;
+              description?: T;
+              technicalScope?: T;
+              date?: T;
+              bulletPoints?:
+                | T
+                | {
+                    text?: T;
+                    enabled?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  recentIndependentStudySectionHeading?: T;
+  recentIndependentStudy?:
     | T
     | {
         experienceItem?:
