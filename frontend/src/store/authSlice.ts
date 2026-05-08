@@ -160,9 +160,11 @@ const authSlice = createSlice({
             ? action.payload
             : "Failed to check auth status";
         if (debug) console.info("❌ checkAuthStatus.rejected", { authError });
-        state.user = null;
-        state.isLoggedIn = false;
         state.isLoading = false;
+        if (authError === "Not authenticated") {
+          state.user = null;
+          state.isLoggedIn = false;
+        }
         state.error = authError === "Not authenticated" ? null : authError;
         state.hasInitialized = true;
       })
