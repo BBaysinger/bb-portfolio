@@ -222,8 +222,8 @@ jobs:
           set -euo pipefail
           printf '%s' "$PROJECT_DATA_SNAPSHOT_JSON" > /tmp/project_data_snapshot
           printf '%s' "$STATIC_CONTENT_SNAPSHOT_JSON" > /tmp/static_content_snapshot
-          bash deploy/scripts/actions/validate-project-data-snapshot.sh /tmp/project_data_snapshot
-          bash deploy/scripts/actions/validate-static-content-snapshot.sh /tmp/static_content_snapshot
+          bash "$GITHUB_WORKSPACE/deploy/scripts/actions/validate-project-data-snapshot.sh" /tmp/project_data_snapshot
+          bash "$GITHUB_WORKSPACE/deploy/scripts/actions/validate-static-content-snapshot.sh" /tmp/static_content_snapshot
           if [ -s /tmp/project_data_snapshot ]; then
             export PROJECT_DATA_SNAPSHOT_PATH=/tmp/project_data_snapshot
           fi
