@@ -21,11 +21,11 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
 } from "react";
 
+import DebugOverlay from "@/components/common/DebugOverlay";
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
@@ -159,10 +159,16 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [heroRuntimeKey, setHeroRuntimeKey] = useState(0);
   // TODO(viewport-debug-cleanup): Remove this temporary hero viewport-debug state once the iOS Safari height issue is resolved.
   const [showViewportDebug, setShowViewportDebug] = useState(false);
-  const [, bumpViewportDebugVersion] = useReducer(
-    (value: number) => value + 1,
-    0,
+  const [viewportDebugTrigger, setViewportDebugTrigger] = useState<string | null>(
+    null,
   );
+  const [viewportDebugLayoutDetails, setViewportDebugLayoutDetails] = useState<{
+    cssVarStableHeight: number | null;
+    computedHeroHeight: number | null;
+    computedHeroMinHeight: number | null;
+    heroRectHeight: number | null;
+    scrollY: number | null;
+  } | null>(null);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -216,12 +222,25 @@ function Hero({ initialRoleTitle }: HeroProps) {
     return [
       `mode:${viewportHeightMode}`,
       `stable:${viewportDebugSnapshot.stableHeightPx ?? "-"}`,
+      `var:${viewportDebugLayoutDetails?.cssVarStableHeight ?? "-"}`,
       `vv:${viewportDebugSnapshot.visualViewportHeight ?? "-"}`,
+      `off:${viewportDebugSnapshot.visualViewportOffsetTop ?? "-"}`,
       `inner:${viewportDebugSnapshot.innerHeight ?? "-"}`,
       `client:${viewportDebugSnapshot.clientHeight ?? "-"}`,
+      `min:${viewportDebugLayoutDetails?.computedHeroMinHeight ?? "-"}`,
+      `h:${viewportDebugLayoutDetails?.computedHeroHeight ?? "-"}`,
+      `rect:${viewportDebugLayoutDetails?.heroRectHeight ?? "-"}`,
+      `y:${viewportDebugLayoutDetails?.scrollY ?? "-"}`,
+      `evt:${viewportDebugTrigger ?? "-"}`,
       viewportBrowserLabel,
     ].join(" ");
-  }, [viewportBrowserLabel, viewportDebugSnapshot, viewportHeightMode]);
+  }, [
+    viewportBrowserLabel,
+    viewportDebugLayoutDetails,
+    viewportDebugSnapshot,
+    viewportDebugTrigger,
+    viewportHeightMode,
+  ]);
 
   // useEffect(() => {
   //   if (viewportWidth === null) return;
@@ -514,42 +533,64 @@ function Hero({ initialRoleTitle }: HeroProps) {
   useEffect(() => {
     if (!showViewportDebug) return;
 
-    const updateViewportDebugSnapshot = () => {
-      bumpViewportDebugVersion();
+    const updateViewportDebugSnapshot = (trigger: string) => {
+      const heroElement = heroRef.current;
+      const computedStyle = heroElement
+        ? window.getComputedStyle(heroElement)
+        : null;
+      const heroRect = heroElement?.getBoundingClientRect();
+
+      setViewportDebugTrigger(trigger);
+      setViewportDebugLayoutDetails({
+        cssVarStableHeight: computedStyle
+          ? parseComputedPixelValue(
+              computedStyle.getPropertyValue("--hero-stable-vh"),
+            )
+          : null,
+        computedHeroHeight: computedStyle
+          ? parseComputedPixelValue(computedStyle.height)
+          : null,
+        computedHeroMinHeight: computedStyle
+          ? parseComputedPixelValue(computedStyle.minHeight)
+          : null,
+        heroRectHeight: heroRect ? Math.round(heroRect.height) : null,
+        scrollY: Number.isFinite(window.scrollY) ? Math.round(window.scrollY) : null,
+      });
     };
 
     const visualViewport = window.visualViewport;
-    window.addEventListener("resize", updateViewportDebugSnapshot, {
+    const onWindowResize = () => updateViewportDebugSnapshot("win:resize");
+    const onWindowOrientationChange = () =>
+      updateViewportDebugSnapshot("win:orientationchange");
+    const onWindowScroll = () => updateViewportDebugSnapshot("win:scroll");
+    const onVisualViewportResize = () =>
+      updateViewportDebugSnapshot("vv:resize");
+    const onVisualViewportScroll = () =>
+      updateViewportDebugSnapshot("vv:scroll");
+
+    window.addEventListener("resize", onWindowResize, {
       passive: true,
     });
-    window.addEventListener("orientationchange", updateViewportDebugSnapshot, {
+    window.addEventListener("orientationchange", onWindowOrientationChange, {
       passive: true,
     });
-    window.addEventListener("scroll", updateViewportDebugSnapshot, {
+    window.addEventListener("scroll", onWindowScroll, {
       passive: true,
     });
-    visualViewport?.addEventListener("resize", updateViewportDebugSnapshot, {
+    visualViewport?.addEventListener("resize", onVisualViewportResize, {
       passive: true,
     });
-    visualViewport?.addEventListener("scroll", updateViewportDebugSnapshot, {
+    visualViewport?.addEventListener("scroll", onVisualViewportScroll, {
       passive: true,
     });
+    updateViewportDebugSnapshot("debug:mount");
 
     return () => {
-      window.removeEventListener("resize", updateViewportDebugSnapshot);
-      window.removeEventListener(
-        "orientationchange",
-        updateViewportDebugSnapshot,
-      );
-      window.removeEventListener("scroll", updateViewportDebugSnapshot);
-      visualViewport?.removeEventListener(
-        "resize",
-        updateViewportDebugSnapshot,
-      );
-      visualViewport?.removeEventListener(
-        "scroll",
-        updateViewportDebugSnapshot,
-      );
+      window.removeEventListener("resize", onWindowResize);
+      window.removeEventListener("orientationchange", onWindowOrientationChange);
+      window.removeEventListener("scroll", onWindowScroll);
+      visualViewport?.removeEventListener("resize", onVisualViewportResize);
+      visualViewport?.removeEventListener("scroll", onVisualViewportScroll);
     };
   }, [showViewportDebug]);
 
@@ -693,12 +734,10 @@ function Hero({ initialRoleTitle }: HeroProps) {
           onViewportDebugOverride={setShowViewportDebug}
         />
       </Suspense>
-      {showViewportDebug && viewportDebugSummary ? (
-        // TODO(viewport-debug-cleanup): Remove temporary on-page viewport debug overlay after Safari investigation.
-        <div className={styles.viewportDebug} aria-live="polite">
-          {viewportDebugSummary}
-        </div>
-      ) : null}
+      <DebugOverlay
+        visible={showViewportDebug}
+        summary={viewportDebugSummary}
+      />
       <div>
         <GridController
           key={`grid-${heroRuntimeKey}`}

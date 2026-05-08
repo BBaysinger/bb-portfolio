@@ -1,0 +1,19 @@
+.debugOverlay {
+  position: absolute;
+  top: var(--hero-padding, 0.75rem);
+  left: var(--hero-padding, 0.75rem);
+  z-index: 10001;
+  max-width: min(32rem, calc(100% - (var(--hero-padding, 0.75rem) * 2)));
+  padding: 0.45rem 0.65rem;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  background: rgb(0 0 0 / 0.72);
+  color: #f8f4e8;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  white-space: pre-wrap;
+}
