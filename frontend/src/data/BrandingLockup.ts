@@ -1,6 +1,4 @@
-import { defaultRoleTitle } from "@/app/siteMetadata";
 import {
-  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
   isHeroRoleTitleClassName,
   type HeroRoleTitleClassName,
 } from "@/data/heroRoleTitleClasses";
@@ -32,16 +30,16 @@ const parseBrandingLockupResponse = (
     "Branding lockup",
   );
 
+  if (!isHeroRoleTitleClassName(data?.activeRoleTitleClassName)) {
+    throw new Error("Response missing activeRoleTitleClassName.");
+  }
+
   return {
-    activeRoleTitle:
-      typeof data?.activeRoleTitle === "string" && data.activeRoleTitle.trim()
-        ? data.activeRoleTitle.trim()
-        : defaultRoleTitle,
-    activeRoleTitleClassName: isHeroRoleTitleClassName(
-      data?.activeRoleTitleClassName,
-    )
-      ? data.activeRoleTitleClassName
-      : DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
+    activeRoleTitle: requireTrimmedString(
+      data?.activeRoleTitle,
+      "activeRoleTitle",
+    ),
+    activeRoleTitleClassName: data.activeRoleTitleClassName,
   };
 };
 

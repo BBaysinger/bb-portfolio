@@ -11,29 +11,35 @@ type FooterContactListProps = {
 
 const FooterContactList: React.FC<FooterContactListProps> = ({ className }) => {
   // Contact info (email/phone) loaded via obfuscated contact endpoint
-  const { email: emailAddr, isLoading: emailLoading } = useContactEmail();
-  const {
-    phoneE164,
-    phoneDisplay,
-    isLoading: phoneLoading,
-  } = useContactPhone();
+  const { email: emailAddr, error: emailError } = useContactEmail();
+  const { phoneE164, phoneDisplay, error: phoneError } = useContactPhone();
 
   // Capability-first detection (avoids UA sniffing)
   const { isTouchPrimary } = useDeviceCapabilities();
 
+  if (emailError) {
+    throw new Error(`Failed to resolve contact email: ${emailError}`);
+  }
+
+  if (phoneError) {
+    throw new Error(`Failed to resolve contact phone: ${phoneError}`);
+  }
+
   return (
     <div className={clsx(styles.root, className)}>
       <ul className={styles.list}>
-        <li className={styles.item}>
-          <a href={`mailto:${emailAddr || ""}`}>
-            <div
-              className={styles.contactIcon}
-              style={{ backgroundPositionY: "0px" }}
-              aria-hidden="true"
-            ></div>
-            {emailLoading ? "Loading..." : emailAddr}
-          </a>
-        </li>
+        {emailAddr && (
+          <li className={styles.item}>
+            <a href={`mailto:${emailAddr}`}>
+              <div
+                className={styles.contactIcon}
+                style={{ backgroundPositionY: "0px" }}
+                aria-hidden="true"
+              ></div>
+              {emailAddr}
+            </a>
+          </li>
+        )}
 
         <li className={styles.item}>
           <a
@@ -82,15 +88,15 @@ const FooterContactList: React.FC<FooterContactListProps> = ({ className }) => {
           </a>
         </li>
 
-        {(phoneLoading || phoneE164 || phoneDisplay) && (
+        {phoneE164 && (
           <li className={styles.item}>
-            <a href={`tel:${phoneE164 || ""}`}>
+            <a href={`tel:${phoneE164}`}>
               <div
                 className={styles.contactIcon}
                 style={{ backgroundPositionY: "-104px" }}
                 aria-hidden="true"
               ></div>
-              {phoneLoading ? "Loading..." : phoneDisplay || phoneE164 || ""}
+              {phoneDisplay ?? phoneE164}
             </a>
           </li>
         )}

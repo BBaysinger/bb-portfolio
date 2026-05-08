@@ -1,15 +1,12 @@
 import clsx from "clsx";
 
-import {
-  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
-  type HeroRoleTitleClassName,
-} from "@/data/heroRoleTitleClasses";
+import type { HeroRoleTitleClassName } from "@/data/heroRoleTitleClasses";
 
 import styles from "./BrandLockupView.module.scss";
 
 type BrandLockupViewProps = {
   roleTitle: string;
-  roleTitleStyle?: HeroRoleTitleClassName;
+  roleTitleStyle: HeroRoleTitleClassName;
   logoSrc: string;
   logoAlt?: string;
   roleTitleClassName?: string;
@@ -24,12 +21,7 @@ const BrandLockupView = ({
   roleTitleClassName,
   layout = "wrapped",
 }: BrandLockupViewProps) => {
-  const resolvedRoleTitle =
-    typeof roleTitle === "string" && roleTitle.trim()
-      ? roleTitle.trim()
-      : "Front-End / UI Developer";
-  const resolvedRoleTitleStyle =
-    roleTitleStyle ?? DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
+  const resolvedRoleTitle = roleTitle.trim();
   const isBareLayout = layout === "bare";
 
   const content = (
@@ -43,7 +35,7 @@ const BrandLockupView = ({
           <span
             className={clsx(
               styles.roleTitle,
-              styles[resolvedRoleTitleStyle],
+              styles[roleTitleStyle],
               roleTitleClassName,
             )}
           >

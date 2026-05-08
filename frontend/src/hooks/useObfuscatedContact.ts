@@ -73,7 +73,8 @@ const useObfuscatedContact = () => {
  */
 export const useContactEmail = () => {
   const { data, isLoading, error } = useObfuscatedContact();
-  let email = "Loading...";
+  let email: string | null = null;
+  let derivedError = error;
   if (data) {
     try {
       const localPart = atob(data.l);
@@ -81,32 +82,39 @@ export const useContactEmail = () => {
       email = `${localPart}@${domain}`;
       const expected = (data.l.length + data.d.length).toString(16);
       if (data.checksum !== expected) {
-        console.warn("Email data integrity check failed");
+        derivedError = "Email data integrity check failed.";
       }
-    } catch {
-      // noop, stay with default
+    } catch (decodeError) {
+      derivedError =
+        decodeError instanceof Error
+          ? decodeError.message
+          : "Failed to decode contact email.";
     }
   }
-  return { email, isLoading, error } as const;
+  return { email, isLoading, error: derivedError } as const;
 };
 
 export const useContactPhone = () => {
   const { data, isLoading, error } = useObfuscatedContact();
-  let phoneE164 = "";
-  let phoneDisplay = "";
+  let phoneE164: string | null = null;
+  let phoneDisplay: string | null = null;
+  let derivedError = error;
   if (data?.phone) {
     try {
       phoneE164 = atob(data.phone.e);
       phoneDisplay = data.phone.d ? atob(data.phone.d) : phoneE164;
       const expected = (data.phone.e.length + data.phone.d.length).toString(16);
       if (data.phone.checksum !== expected) {
-        console.warn("Phone data integrity check failed");
+        derivedError = "Phone data integrity check failed.";
       }
-    } catch {
-      // noop
+    } catch (decodeError) {
+      derivedError =
+        decodeError instanceof Error
+          ? decodeError.message
+          : "Failed to decode contact phone.";
     }
   }
-  return { phoneE164, phoneDisplay, isLoading, error } as const;
+  return { phoneE164, phoneDisplay, isLoading, error: derivedError } as const;
 };
 
 export default useObfuscatedContact;

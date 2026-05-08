@@ -1,6 +1,5 @@
 import { renderAuthoredParagraphHtml } from "@/utils/authoredText";
 import {
-  getBackendServiceBase,
   normalizeBackendProfile,
   resolveBackendBase,
 } from "@/utils/backend-base";
@@ -256,12 +255,10 @@ async function fetchPortfolioProjects(opts?: {
     ).toLowerCase();
   const normalizedProfile = normalizeBackendProfile(rawProfile);
   const base = isServer ? resolveBackendBase({ rawProfile }) : "";
-  const serviceDnsFallback = getBackendServiceBase(normalizedProfile);
 
   // Build URL
   // - Client: always use relative path so Next.js rewrites proxy to backend and forwards cookies
-  // - Server: if request cookies exist, prefer same-origin relative URL so auth is preserved;
-  //           otherwise fall back to absolute backend URL (with a service-DNS fallback in dev/local)
+  // - Server: use the resolved backend base directly.
   // We need depth=2 so that nested relations on brand (logoLight/logoDark uploads) are populated
   // alongside the project -> brand -> upload chain.
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
@@ -323,10 +320,6 @@ async function fetchPortfolioProjects(opts?: {
   const primaryUrl = isServer
     ? `${base.replace(/\/$/, "")}${serverPath}`
     : path;
-  const fallbackUrl =
-    isServer && serviceDnsFallback
-      ? `${serviceDnsFallback.replace(/\/$/, "")}${serverPath}`
-      : undefined;
 
   const fetchOptions: RequestInit & {
     next?: { revalidate?: number; tags?: string[] };
@@ -387,7 +380,6 @@ async function fetchPortfolioProjects(opts?: {
       ? 20000
       : 5000
     : 20000;
-  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
   // Helper to add a timeout so we can fail fast and try a retry/fallback
   const withTimeout = async (url: string, ms: number = baseTimeoutMs) => {
     const controller = new AbortController();
@@ -414,7 +406,6 @@ async function fetchPortfolioProjects(opts?: {
             ? "<same-origin>/api/projects"
             : `${base.replace(/\/$/, "")}${serverPath}`
           : path,
-        fallbackUrl,
       });
     } catch {}
   }
@@ -422,49 +413,11 @@ async function fetchPortfolioProjects(opts?: {
   let res: Response;
   try {
     res = await withTimeout(primaryUrl, baseTimeoutMs);
-    // If upstream is clearly failing (>=500) and we have a service DNS alternative, try it
-    if (
-      !res.ok &&
-      res.status >= 500 &&
-      fallbackUrl &&
-      fallbackUrl !== primaryUrl
-    ) {
-      try {
-        const alt = await withTimeout(fallbackUrl, baseTimeoutMs);
-        if (alt.ok) {
-          res = alt;
-          if (debug)
-            console.info("[ProjectData] primary failed, using fallback", {
-              primaryStatus: `${res.status} ${res.statusText}`,
-              fallbackUrl,
-            });
-        }
-      } catch {
-        // ignore, will error on primary result below
-      }
-    }
   } catch (e) {
-    // Network failure on primary; try one retry path.
     const err = e as Error & { name?: string };
-    // Prefer fallback URL if it's different; otherwise retry primary once after a brief backoff with longer timeout.
-    const retryUrl =
-      fallbackUrl && fallbackUrl !== primaryUrl ? fallbackUrl : primaryUrl;
-    try {
-      if (process.env.NODE_ENV !== "production") {
-        // small jitter to allow backend warm-up
-        await delay(600);
-      }
-      res = await withTimeout(retryUrl, Math.floor(baseTimeoutMs * 1.5));
-    } catch (e2) {
-      // Provide a clearer message including both attempts
-      const suffix =
-        retryUrl === primaryUrl
-          ? "(retried primary)"
-          : `(fallback ${retryUrl})`;
-      const msg = `Failed to fetch project data: ${primaryUrl} (${err?.message}) ${suffix} also failed (${(e2 as Error).message})`;
-      if (debug) console.error("[ProjectData] fetch error", msg);
-      throw new Error(msg);
-    }
+    const msg = `Failed to fetch project data: ${primaryUrl} (${err?.message})`;
+    if (debug) console.error("[ProjectData] fetch error", msg);
+    throw new Error(msg);
   }
   if (!res.ok) {
     let detail = "";

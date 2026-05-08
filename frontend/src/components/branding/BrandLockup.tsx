@@ -2,20 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-import { defaultRoleTitle } from "@/app/siteMetadata";
 import type { ServerBrandingLockup } from "@/data/BrandingLockup";
-import {
-  DEFAULT_HERO_ROLE_TITLE_CLASS_NAME,
-  isHeroRoleTitleClassName,
-} from "@/data/heroRoleTitleClasses";
+import { isHeroRoleTitleClassName } from "@/data/heroRoleTitleClasses";
+import { requireTrimmedString } from "@/data/responseValidation";
 
 import BrandLockupView from "./BrandLockupView";
 
 const LOGO_SRC = "/images/hero/bb-logo.svg";
 const LOGO_ALT = "BB Logo";
-const DEFAULT_BRANDING: ServerBrandingLockup = {
-  activeRoleTitle: defaultRoleTitle,
-};
 
 type BrandingLockupResponse =
   | ServerBrandingLockup
@@ -43,30 +37,32 @@ const normalizeBrandingPayload = (
     candidate = payload as ServerBrandingLockup;
   }
 
-  const activeRoleTitle =
-    candidate &&
-    typeof candidate === "object" &&
-    typeof candidate.activeRoleTitle === "string" &&
-    candidate.activeRoleTitle.trim()
-      ? candidate.activeRoleTitle.trim()
-      : defaultRoleTitle;
+  if (!candidate || typeof candidate !== "object") {
+    throw new Error("Branding lockup response did not include data.");
+  }
 
-  const activeRoleTitleClassName =
-    candidate &&
-    typeof candidate === "object" &&
-    isHeroRoleTitleClassName(candidate.activeRoleTitleClassName)
-      ? candidate.activeRoleTitleClassName
-      : DEFAULT_HERO_ROLE_TITLE_CLASS_NAME;
+  if (!isHeroRoleTitleClassName(candidate.activeRoleTitleClassName)) {
+    throw new Error(
+      "Branding lockup response missing activeRoleTitleClassName.",
+    );
+  }
 
   return {
-    activeRoleTitle,
-    activeRoleTitleClassName,
+    activeRoleTitle: requireTrimmedString(
+      candidate.activeRoleTitle,
+      "activeRoleTitle",
+    ),
+    activeRoleTitleClassName: candidate.activeRoleTitleClassName,
   };
 };
 
 const BrandLockup = () => {
-  const [branding, setBranding] =
-    useState<ServerBrandingLockup>(DEFAULT_BRANDING);
+  const [branding, setBranding] = useState<ServerBrandingLockup | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  if (error) {
+    throw error;
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -79,7 +75,11 @@ const BrandLockup = () => {
           cache: "no-store",
           signal: controller.signal,
         });
-        if (!response.ok) return;
+        if (!response.ok) {
+          throw new Error(
+            `Branding lockup fetch failed with status ${response.status}.`,
+          );
+        }
 
         setBranding(
           normalizeBrandingPayload(
@@ -90,6 +90,12 @@ const BrandLockup = () => {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
         }
+
+        setError(
+          error instanceof Error
+            ? error
+            : new Error("Failed to load branding lockup."),
+        );
       }
     };
 
@@ -99,6 +105,14 @@ const BrandLockup = () => {
       controller.abort();
     };
   }, []);
+
+  if (!branding) {
+    return null;
+  }
+
+  if (!branding.activeRoleTitleClassName) {
+    throw new Error("Branding lockup missing activeRoleTitleClassName.");
+  }
 
   return (
     <BrandLockupView

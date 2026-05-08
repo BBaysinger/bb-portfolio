@@ -26,8 +26,6 @@ export default function HomePageClient({
 }: HomePageClientProps) {
   const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
-  const hasSsrSnapshot =
-    ssrProjects.length > 0 || Object.keys(ssrProjectRecord || {}).length > 0;
   // Before the client has checked auth, allow SSR-auth to avoid flicker.
   // After initialization (or explicit reset on logout), trust client state.
   const compositeAuth = hasInitialized
@@ -40,17 +38,8 @@ export default function HomePageClient({
     //   - if the server already gave us a projects list for this render, paint it
     //     immediately and avoid a client-side fetch + layout jump.
     if (ssrProjects.length > 0) return ssrProjects;
-    // If this component remounts (e.g., after router.refresh) and the server-side
-    // fetch transiently fails (empty snapshot), fall back to the previously
-    // hydrated singleton snapshot. This prevents a one-frame "empty list" flicker
-    // where the grid disappears and then repopulates.
-    const cached = ProjectData.listedProjects;
-    if (cached.length > 0) return cached;
     return [];
   });
-  const [isResolvingProjects, setIsResolvingProjects] = useState(
-    !hasSsrSnapshot && ProjectData.listedProjects.length === 0,
-  );
   const hydratedRef = useRef(false);
   const prevAuthRef = useRef<boolean>(compositeAuth);
 
@@ -78,34 +67,6 @@ export default function HomePageClient({
     ssrProjects,
     ssrContainsSanitizedPlaceholders,
   ]);
-
-  // If SSG/SSR failed to fetch (common in CI/static export), populate projects client-side.
-  useEffect(() => {
-    if (!hydratedRef.current) return;
-    if (ssrAuthenticated) return;
-    if (ssrProjects.length > 0) return;
-    if (Object.keys(ssrProjectRecord || {}).length > 0) return;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        await ProjectData.initialize({
-          disableCache: true,
-          includeNdaInActive: false,
-        });
-      } catch {
-        if (!cancelled) setIsResolvingProjects(false);
-        return;
-      }
-      if (cancelled) return;
-      setProjects([...ProjectData.listedProjects]);
-      setIsResolvingProjects(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ssrAuthenticated, ssrProjects.length, ssrProjectRecord]);
 
   useEffect(() => {
     if (!hydratedRef.current) return;
@@ -164,7 +125,7 @@ export default function HomePageClient({
   return (
     <ProjectsList
       allProjects={projects}
-      showEmptyState={!isResolvingProjects}
+      showEmptyState={true}
       isAuthenticated={
         hasInitialized ? clientAuth : clientAuth || ssrAuthenticated
       }
