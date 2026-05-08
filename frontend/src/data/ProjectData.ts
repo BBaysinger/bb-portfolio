@@ -371,7 +371,7 @@ async function fetchPortfolioProjects(opts?: {
   // Timeout policy: give dev/local a bit more time, prod moderate.
   // Timeout policy: initial cold starts for Payload + Next.js in dev/local can exceed 8s
   // due to on-demand route compilation and deep population (depth=2). Increase to 20s
-  // for dev/local to avoid premature aborts causing SSR fallback failures.
+  // for dev/local to avoid premature aborts during SSR cold starts.
   // Timeout policy:
   // - Browsers: allow more time for cold-starts / route compilation; don't abort too aggressively.
   // - Server: keep prod moderate, dev/local longer.
@@ -380,7 +380,7 @@ async function fetchPortfolioProjects(opts?: {
       ? 20000
       : 5000
     : 20000;
-  // Helper to add a timeout so we can fail fast and try a retry/fallback
+  // Helper to bound fetch time and fail fast when the projects API stalls.
   const withTimeout = async (url: string, ms: number = baseTimeoutMs) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), ms);
