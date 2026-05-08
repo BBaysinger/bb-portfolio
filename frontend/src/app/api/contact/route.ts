@@ -30,8 +30,7 @@ export async function POST(request: NextRequest) {
   const upstream = await fetch(`${backendUrl}/api/contact/`, {
     method: "POST",
     headers: {
-      "Content-Type":
-        request.headers.get("content-type") || "application/json",
+      "Content-Type": request.headers.get("content-type") || "application/json",
       Accept: "application/json",
       ...(request.headers.get("user-agent") && {
         "User-Agent": request.headers.get("user-agent")!,
