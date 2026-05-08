@@ -246,6 +246,10 @@
     "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 🪄 Canonical aggregate dataset migration entrypoint. Uses an internal temporary staging dir rather than the configured content root.
     "content:migrate": "bash ./scripts/content-workflow.sh migrate",
+    // 🪄 Migrate the full local dataset into dev, then refresh both frontend snapshot secrets from the dev environment and sync only dev/repo GitHub secrets.
+    "content:migrate:local-to-dev:refresh-snapshots": "bash ./scripts/migrate-and-refresh-snapshots.sh --source local --target dev",
+    // 🪄 Migrate the full local dataset into prod, then refresh both frontend snapshot secrets from the prod environment and sync only prod/repo GitHub secrets.
+    "content:migrate:local-to-prod:refresh-snapshots": "bash ./scripts/migrate-and-refresh-snapshots.sh --source local --target prod",
     // 🪄 Export the full local dataset into the configured content root
     "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
     // 🪄 Export the full dev dataset into the configured content root

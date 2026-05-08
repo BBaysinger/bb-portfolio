@@ -86,6 +86,8 @@
     "update:deps:dry": "tsx scripts/update-deps-guarded.ts --dry-run",
     "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "content:migrate": "bash ./scripts/content-workflow.sh migrate",
+    "content:migrate:local-to-dev:refresh-snapshots": "bash ./scripts/migrate-and-refresh-snapshots.sh --source local --target dev",
+    "content:migrate:local-to-prod:refresh-snapshots": "bash ./scripts/migrate-and-refresh-snapshots.sh --source local --target prod",
     "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
     "content:pull:dev:content-dir": "bash ./scripts/content-workflow.sh pull-dev",
     "content:pull:prod:all": "npm run content:pull:prod:content-dir",
