@@ -23,8 +23,6 @@ const shouldFailFastProjectSsg = (): boolean => {
   return process.env.PROJECT_SSG_FAIL_FAST !== "0";
 };
 
-const shouldFailFastProjectRuntime = (): boolean => false;
-
 // Allow SSG/ISR for the project detail route.
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
 export const revalidate = 86400;
@@ -44,20 +42,13 @@ export async function generateMetadata({
   params: Promise<{ projectId: string }>;
 }): Promise<Metadata> {
   const { projectId } = await params;
+  const projectData = new ProjectDataStore();
+  await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: false,
+  });
 
-  let title = buildProjectPageTitle();
-
-  try {
-    const projectData = new ProjectDataStore();
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-
-    title = buildProjectPageTitle(projectData.getProject(projectId));
-  } catch {
-    // Fall back to the generic project section title when prefetch fails.
-  }
+  const title = buildProjectPageTitle(projectData.getProject(projectId));
 
   return buildPageMetadata({
     title,
@@ -79,29 +70,16 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const failFast = shouldFailFastProjectRuntime();
+  const projectData = new ProjectDataStore();
+  await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: false,
+  });
 
-  let ssrParsed:
-    | import("@/data/ProjectData").ParsedPortfolioProjectData
-    | undefined;
+  const rec = projectData.getProject(projectId);
+  if (!rec) return notFound();
 
-  try {
-    const projectData = new ProjectDataStore();
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-
-    const rec = projectData.getProject(projectId);
-    if (!rec) return notFound();
-
-    ssrParsed = projectData.projectsRecord;
-  } catch (error) {
-    if (failFast) throw error;
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Failed to SSR prefetch public projects", error);
-    }
-  }
+  const ssrParsed = projectData.projectsRecord;
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
@@ -124,30 +102,19 @@ export async function generateStaticParams() {
   const failFast = shouldFailFastProjectSsg();
   const projectData = new ProjectDataStore();
 
-  try {
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-  } catch (error) {
-    if (failFast) throw error;
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Failed to generate public project static params", error);
-    }
-    return [];
-  }
+  await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: false,
+  });
 
   const uniqueIds = Array.from(new Set(projectData.activeKeys)).filter(
     (id): id is string => Boolean(id),
   );
 
-  if (uniqueIds.length === 0) {
-    if (failFast) {
-      throw new Error(
-        "SSG parameter generation produced zero public project IDs.",
-      );
-    }
-    return [];
+  if (uniqueIds.length === 0 && failFast) {
+    throw new Error(
+      "SSG parameter generation produced zero public project IDs.",
+    );
   }
 
   return uniqueIds.map((projectId) => ({ projectId }));
