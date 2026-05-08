@@ -46,6 +46,27 @@ Tools reviewing or generating code should flag non-standard or hard-to-justify p
 
 ---
 
+## Failure handling and fallback policy
+
+Correctness failures must be visible by default. Do not hide broken configuration, missing backend data, stale contracts, or upstream errors behind convenience defaults.
+
+Rules:
+
+- **Fail fast on data/contract errors**: if required backend data is missing, malformed, or structurally incompatible with the current frontend contract, throw or return the real failure. Do not substitute default content just to keep rendering.
+- **No silent fetch fallbacks for correctness**: do not catch fetch/data errors and replace them with placeholder content, empty arrays, generic success-like values, or alternate fake UI states. If a recovery path is intentionally required, document why and make the behavior explicit in code comments.
+- **Proxy routes forward upstream truth**: frontend proxy routes should preserve upstream status codes and response bodies unless a documented normalization requirement exists. Do not rewrite upstream failures into generic local JSON messages like “Failed to fetch...” unless that translation is itself the intended product behavior.
+- **Placeholders are loading-only**: placeholder text such as `Loading...` may represent a genuine in-flight state, but must not become the fallback result of a failed fetch, decode error, or integrity check.
+- **Catch blocks must justify themselves**: catch blocks should either add actionable context and rethrow, or implement a deliberate, documented recovery path. Silent catches, no-op catches, and “log then continue as if valid” behavior are not acceptable for content/data correctness paths.
+- **Default values must be limited to presentation or platform compatibility**: visual defaults and browser/platform fallbacks are acceptable when they do not hide missing business data or broken contracts. Data-bearing defaults must be treated as suspect and documented if they remain.
+- **Backwards compatibility is not a reason to keep masking failures**: because this repository does not preserve backwards compatibility guarantees, prefer deleting compatibility fallbacks over retaining them.
+
+Review guidance:
+
+- If code introduces a new fallback, ask whether it protects presentation only or whether it hides a correctness problem.
+- If a route, hook, or loader can return something that looks valid after an upstream failure, treat that as a review issue unless the recovery behavior is explicitly documented and approved.
+
+---
+
 ## AI assistant workflow standards
 
 For AI coding assistants:
