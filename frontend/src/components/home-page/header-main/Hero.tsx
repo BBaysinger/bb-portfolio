@@ -112,7 +112,7 @@ const MAX_SLINGER_RELEASE_SPEED = 750;
 const MIN_SLINGER_RELEASE_SPEED_VIEWPORT = 320;
 const MAX_SLINGER_RELEASE_SPEED_VIEWPORT = 1792; // My laptop
 const ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT = 1440;
-const SLINGER_BOUNDS_INSET = 2;
+const SLINGER_BOUNDS_INSET = 2.5;
 
 const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
   if (viewportWidth === null) return MAX_SLINGER_RELEASE_SPEED;
