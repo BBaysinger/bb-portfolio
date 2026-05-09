@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
       EXPLICIT_CONFIRM=true
       shift
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;
