@@ -153,18 +153,18 @@
     // 🌐 Same as caddy:up but with React Strict Mode disabled
     // Same as caddy:up with React Strict Mode disabled
     "caddy:up:no-strict": "REACT_STRICT_MODE=false zsh deploy/scripts/caddy-helper.sh up",
+    // Start the frontend in detached production-like mode on port 3004 by default so Docker local can stay up.
+    "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
     // Stop the detached production-like frontend instance for the selected port.
     "frontend:prod-like:down": "cd frontend && PORT=${PORT:-3004} sh ./scripts/stop-prod-like.sh",
-    // Tail logs from the detached production-like frontend instance.
-    "frontend:prod-like:logs": "cd frontend && tail -f ./.runtime/prod-like/logs/prod-like-${PORT:-3004}.log",
+    // Watch and rebuild the detached production-like frontend against a local backend.
+    "frontend:prod-like:watch": "cd frontend && PORT=${PORT:-3004} BACKEND_INTERNAL_URL=${BACKEND_INTERNAL_URL:-http://localhost:8081} npm run start:prod-like:watch",
     // Restart the detached production-like frontend process for the selected port.
     "frontend:prod-like:restart": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached:restart",
     // Show whether the detached production-like frontend is running and where its logs live.
     "frontend:prod-like:status": "cd frontend && PORT=${PORT:-3004} sh ./scripts/status-prod-like.sh",
-    // Start the frontend in detached production-like mode on port 3004 by default so Docker local can stay up.
-    "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
-    // Watch and rebuild the detached production-like frontend against a local backend.
-    "frontend:prod-like:watch": "cd frontend && PORT=${PORT:-3004} BACKEND_INTERNAL_URL=${BACKEND_INTERNAL_URL:-http://localhost:8081} npm run start:prod-like:watch",
+    // Tail logs from the detached production-like frontend instance.
+    "frontend:prod-like:logs": "cd frontend && tail -f ./.runtime/prod-like/logs/prod-like-${PORT:-3004}.log",
     // Purge .next inside the running frontend dev container (forces clean rebuild on next request)
     "frontend:purge": "docker exec -t bb-portfolio-frontend-local sh -lc 'rm -rf .next && echo Purged .next'",
     // Rebuild images for the SSG profile (frontend gets a fresh production-style build)
