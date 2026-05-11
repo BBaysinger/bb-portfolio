@@ -12,7 +12,7 @@ const CV_SECTION_OPTIONS = [
     label: 'Independent R&D',
     value: 'independent-rd',
   },
-] as const
+]
 
 export const CvExperienceItems: CollectionConfig = {
   slug: 'cvExperienceItems',
