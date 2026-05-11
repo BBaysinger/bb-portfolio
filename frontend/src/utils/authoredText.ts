@@ -32,12 +32,31 @@ const sanitizeLinkTarget = (value: string | undefined) => {
   return ALLOWED_LINK_TARGETS.has(trimmed) ? trimmed : null;
 };
 
-const renderStyledText = (value: string): string => {
+const renderStyledSegment = (value: string): string => {
   const escaped = escapeHtml(value);
 
   return escaped
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+};
+
+const renderStyledText = (value: string): string => {
+  let html = "";
+  let lastIndex = 0;
+  const codePattern = /`([^`]+)`/g;
+
+  for (const match of value.matchAll(codePattern)) {
+    const [fullMatch, codeValue] = match;
+    const matchIndex = match.index ?? 0;
+
+    html += renderStyledSegment(value.slice(lastIndex, matchIndex));
+    html += `<code>${escapeHtml(codeValue)}</code>`;
+
+    lastIndex = matchIndex + fullMatch.length;
+  }
+
+  html += renderStyledSegment(value.slice(lastIndex));
+  return html;
 };
 
 export const renderAuthoredInlineTextToHtml = (value: string) => {

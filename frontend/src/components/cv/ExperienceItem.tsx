@@ -3,6 +3,7 @@ import React from "react";
 
 import styles from "@/app/cv/CvPage.module.scss";
 import { RawImg } from "@/components/common/RawImg";
+import { renderAuthoredInlineTextToHtml } from "@/utils/authoredText";
 
 export type CvExperienceItemData = {
   company: string;
@@ -27,6 +28,12 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
   const bulletPoints = Array.isArray(item.bulletPoints)
     ? item.bulletPoints
     : [];
+  const descriptionHtml = item.description
+    ? renderAuthoredInlineTextToHtml(item.description)
+    : null;
+  const technicalScopeHtml = item.technicalScope
+    ? renderAuthoredInlineTextToHtml(item.technicalScope)
+    : null;
   const divClassLt = clsx(
     "col-xs-12",
     "col-sm-12",
@@ -75,13 +82,16 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
 
         {item.description ? (
           <p ref={addToRefs} className={styles.desc}>
-            {item.description}
+            <span dangerouslySetInnerHTML={{ __html: descriptionHtml ?? "" }} />
           </p>
         ) : null}
 
         {item.technicalScope ? (
           <p ref={addToRefs} className={styles.scope}>
-            <span>Technical Scope:</span> {item.technicalScope}
+            <span>Technical Scope:</span>{" "}
+            <span
+              dangerouslySetInnerHTML={{ __html: technicalScopeHtml ?? "" }}
+            />
           </p>
         ) : null}
 
@@ -91,9 +101,10 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
               <li
                 key={`${item.company}-${item.date}-${index}-${point.slice(0, 24)}`}
                 ref={addToRefs}
-              >
-                {point}
-              </li>
+                dangerouslySetInnerHTML={{
+                  __html: renderAuthoredInlineTextToHtml(point),
+                }}
+              />
             ))}
           </ul>
         ) : null}

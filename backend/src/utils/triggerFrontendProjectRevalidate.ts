@@ -4,13 +4,17 @@ let hasWarnedMissingSecret = false
 
 const withNoTrailingSlash = (value: string): string => value.replace(/\/+$/, '')
 
-const getPrimaryOrigin = (raw: string): string | undefined => {
-  const first = raw
+const getOrigins = (raw: string): string[] => {
+  return raw
     .split(',')
     .map((value) => value.trim())
-    .find(Boolean)
+    .filter(Boolean)
+    .map(withNoTrailingSlash)
+}
 
-  return first ? withNoTrailingSlash(first) : undefined
+const getPrimaryOrigin = (raw: string): string | undefined => {
+  const [first] = getOrigins(raw)
+  return first
 }
 
 const isLocalProfile = (): boolean => {
@@ -23,34 +27,36 @@ const shouldSkipFrontendRevalidation = (): boolean => {
   return value === '1' || value === 'true' || value === 'yes'
 }
 
-const resolveEndpoint = (): string | undefined => {
+const resolveEndpoints = (): string[] => {
   const explicit = (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
-  if (explicit) return explicit
+  if (explicit) return [explicit]
 
-  const frontendUrl = getPrimaryOrigin(process.env.FRONTEND_URL || '')
-  if (frontendUrl) return `${frontendUrl}/api/revalidate/projects`
+  const frontendUrls = getOrigins(process.env.FRONTEND_URL || '')
+  if (frontendUrls.length > 0) {
+    return frontendUrls.map((frontendUrl) => `${frontendUrl}/api/revalidate/projects`)
+  }
 
   const publicUrl = (process.env.PUBLIC_SERVER_URL || '').trim()
-  if (!publicUrl) return undefined
+  if (!publicUrl) return []
 
-  return `${withNoTrailingSlash(publicUrl)}/api/revalidate/projects`
+  return [`${withNoTrailingSlash(publicUrl)}/api/revalidate/projects`]
 }
 
-const resolvePublicOrigin = (): string | undefined => {
+const resolvePublicOrigins = (): string[] => {
   const explicit = (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
   if (explicit) {
     try {
-      return new URL(explicit).origin
+      return [new URL(explicit).origin]
     } catch {
       // Fall through to PUBLIC_SERVER_URL.
     }
   }
 
-  const frontendUrl = getPrimaryOrigin(process.env.FRONTEND_URL || '')
-  if (frontendUrl) return frontendUrl
+  const frontendUrls = getOrigins(process.env.FRONTEND_URL || '')
+  if (frontendUrls.length > 0) return frontendUrls
 
   const publicUrl = (process.env.PUBLIC_SERVER_URL || '').trim()
-  return publicUrl ? withNoTrailingSlash(publicUrl) : undefined
+  return publicUrl ? [withNoTrailingSlash(publicUrl)] : []
 }
 
 const normalizeWarmPaths = (paths?: string[]): string[] => {
@@ -83,11 +89,23 @@ const normalizeWarmPaths = (paths?: string[]): string[] => {
 // recruiter/employer visit. Warm the key public routes immediately after a successful
 // revalidation ping so the next human visitor is much more likely to receive already-regenerated
 // HTML instead of paying the first-hit regeneration cost.
-const warmFrontendPaths = async (paths: string[], reason: string): Promise<void> => {
+const originForEndpoint = (endpoint: string): string | undefined => {
+  try {
+    return new URL(endpoint).origin
+  } catch {
+    return undefined
+  }
+}
+
+const warmFrontendPaths = async (
+  paths: string[],
+  reason: string,
+  originOverride?: string,
+): Promise<void> => {
   const normalizedPaths = normalizeWarmPaths(paths)
   if (normalizedPaths.length === 0) return
 
-  const origin = resolvePublicOrigin()
+  const origin = originOverride ?? resolvePublicOrigins()[0]
   if (!origin) return
 
   await Promise.allSettled(
@@ -130,8 +148,8 @@ export const triggerFrontendProjectRevalidate = async (
 ): Promise<void> => {
   if (shouldSkipFrontendRevalidation()) return
 
-  const endpoint = resolveEndpoint()
-  if (!endpoint) return
+  const endpoints = resolveEndpoints()
+  if (endpoints.length === 0) return
 
   const secret = (process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET || '').trim()
   const isLocal = isLocalProfile()
@@ -146,35 +164,42 @@ export const triggerFrontendProjectRevalidate = async (
     return
   }
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort('timeout'), DEFAULT_TIMEOUT_MS)
+  const failures: string[] = []
 
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(secret ? { authorization: `Bearer ${secret}` } : {}),
-      },
-      body: JSON.stringify({ reason, source: 'payload-cms' }),
-      signal: controller.signal,
-    })
+  for (const endpoint of endpoints) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort('timeout'), DEFAULT_TIMEOUT_MS)
 
-    if (!res.ok) {
-      const body = await res.text().catch(() => '')
-      console.warn(
-        `[revalidate] Frontend project revalidation failed (${res.status}) at ${endpoint}${
-          body ? `: ${body}` : ''
-        }`,
-      )
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          ...(secret ? { authorization: `Bearer ${secret}` } : {}),
+        },
+        body: JSON.stringify({ reason, source: 'payload-cms' }),
+        signal: controller.signal,
+      })
+
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        failures.push(`${endpoint} (${res.status}${body ? `: ${body}` : ''})`)
+        continue
+      }
+
+      await warmFrontendPaths(options.warmPaths ?? [], reason, originForEndpoint(endpoint))
       return
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      failures.push(`${endpoint} (${message})`)
+    } finally {
+      clearTimeout(timeout)
     }
+  }
 
-    await warmFrontendPaths(options.warmPaths ?? [], reason)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    console.warn(`[revalidate] Frontend project revalidation request error: ${message}`)
-  } finally {
-    clearTimeout(timeout)
+  if (failures.length > 0) {
+    console.warn(
+      `[revalidate] Frontend project revalidation failed for all configured endpoints: ${failures.join('; ')}`,
+    )
   }
 }
