@@ -17,6 +17,7 @@ import { buildConfig } from 'payload'
 import { AuthEvents } from './collections/AuthEvents'
 import { BrandLogos } from './collections/BrandLogos'
 import { ProjectBrands } from './collections/Brands'
+import { CvExperienceItems } from './collections/CvExperienceItems'
 import { CvExperienceLogos } from './collections/CvExperienceLogos'
 import { Projects } from './collections/Projects'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
@@ -24,7 +25,7 @@ import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
 import { BrandingLockup } from './globals/BrandingLockup'
 import { ContactInfo } from './globals/ContactInfo'
-import { CvExperience } from './globals/CvExperience'
+import { CvExperienceConfig } from './globals/CvExperienceConfig'
 import { Greeting } from './globals/Greeting'
 
 // ===============================================================
@@ -170,12 +171,13 @@ export default buildConfig({
     AuthEvents,
     Projects,
     ProjectBrands,
+    CvExperienceItems,
     CvExperienceLogos,
     BrandLogos,
     ProjectScreenshots,
     ProjectThumbnails,
   ],
-  globals: [ContactInfo, BrandingLockup, Greeting, CvExperience],
+  globals: [ContactInfo, BrandingLockup, Greeting, CvExperienceConfig],
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
   secret: (() => {

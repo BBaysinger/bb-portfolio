@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 const CV_EXPERIENCE_LOGO_COLLECTION = 'cvExperienceLogos'
 const CV_EXPERIENCE_LOGO_PREFIX = 'cv-experience-logos'
+const CV_EXPERIENCE_ITEM_COLLECTION = 'cvExperienceItems'
 
 type BrandLogoRef = {
   url?: unknown
@@ -16,8 +17,12 @@ type BulletPoint = {
   enabled?: unknown
 }
 
-type ExperienceItem = {
-  blockType?: unknown
+type CvExperienceConfigGlobal = {
+  experienceSectionHeading?: unknown
+  recentIndependentStudySectionHeading?: unknown
+}
+
+type CollectionExperienceItem = {
   company?: unknown
   location?: unknown
   title?: unknown
@@ -26,13 +31,9 @@ type ExperienceItem = {
   date?: unknown
   logo?: unknown
   bulletPoints?: unknown
-}
-
-type CvExperienceGlobal = {
-  experienceSectionHeading?: unknown
-  recentIndependentStudySectionHeading?: unknown
-  experienceItems?: unknown
-  recentIndependentStudy?: unknown
+  active?: unknown
+  section?: unknown
+  position?: unknown
 }
 
 const asTrimmedString = (value: unknown): string => {
@@ -145,66 +146,94 @@ const toBulletPoints = (value: unknown): string[] => {
     .filter((item): item is string => Boolean(item))
 }
 
+const mapCollectionItem = (entry: unknown) => {
+  if (!entry || typeof entry !== 'object') return null
+  const item = entry as CollectionExperienceItem
+  if (item.active === false) return null
+
+  const company = asTrimmedString(item.company)
+  const location = asTrimmedString(item.location)
+  const title = asTrimmedString(item.title)
+  const description = asTrimmedString(item.description)
+  const technicalScope = asTrimmedString(item.technicalScope)
+  const date = asTrimmedString(item.date)
+  const bulletPoints = toBulletPoints(item.bulletPoints)
+
+  if (!company || !title || !date) {
+    return null
+  }
+
+  return {
+    company,
+    location,
+    title,
+    description,
+    technicalScope,
+    date,
+    logo: toLogo(item.logo),
+    bulletPoints,
+  }
+}
+
 export async function GET() {
   try {
     const payload = await getPayload({ config: configPromise })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cvExperience = (await (payload as any).findGlobal({
-      slug: 'cvExperience',
-      depth: 1,
-      overrideAccess: true,
-    })) as CvExperienceGlobal
+    const collectionConfig = (await (payload as any)
+      .findGlobal({
+        slug: 'cvExperienceConfig',
+        depth: 0,
+        overrideAccess: true,
+      })
+      .catch(() => null)) as CvExperienceConfigGlobal | null
 
-    const mapItem = (entry: unknown) => {
-      if (!entry || typeof entry !== 'object') return null
-      const item = entry as ExperienceItem
-      if (item.blockType !== 'experienceItem') return null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const collectionItemsResponse = await (payload as any)
+      .find({
+        collection: CV_EXPERIENCE_ITEM_COLLECTION,
+        where: {
+          active: { equals: true },
+        },
+        sort: 'position',
+        depth: 1,
+        limit: 200,
+        overrideAccess: true,
+        disableErrors: true,
+        draft: false,
+      })
+      .catch(() => null)
 
-      const company = asTrimmedString(item.company)
-      const location = asTrimmedString(item.location)
-      const title = asTrimmedString(item.title)
-      const description = asTrimmedString(item.description)
-      const technicalScope = asTrimmedString(item.technicalScope)
-      const date = asTrimmedString(item.date)
-      const bulletPoints = toBulletPoints(item.bulletPoints)
+    const collectionDocs = Array.isArray(collectionItemsResponse?.docs)
+      ? collectionItemsResponse.docs
+      : []
 
-      if (!company || !title || !date) {
-        return null
-      }
-
-      return {
-        company,
-        location,
-        title,
-        description,
-        technicalScope,
-        date,
-        logo: toLogo(item.logo),
-        bulletPoints,
-      }
+    if (!collectionConfig) {
+      throw new Error('Missing cvExperienceConfig global.')
     }
 
-    const items = (Array.isArray(cvExperience?.experienceItems) ? cvExperience.experienceItems : [])
-      .map((entry: unknown) => {
-        return mapItem(entry)
-      })
+    if (collectionDocs.length === 0) {
+      throw new Error('No cvExperienceItems documents found.')
+    }
+
+    const experienceItems = collectionDocs
+      .filter((entry: CollectionExperienceItem) => entry?.section === 'experience')
+      .map((entry: unknown) => mapCollectionItem(entry))
       .filter(Boolean)
 
-    const recentIndependentStudyEntries = Array.isArray(cvExperience?.recentIndependentStudy)
-      ? cvExperience.recentIndependentStudy
-      : []
-    const recentIndependentStudyItems = recentIndependentStudyEntries
-      .map((entry: unknown) => mapItem(entry))
+    const recentIndependentStudyItems = collectionDocs
+      .filter((entry: CollectionExperienceItem) => entry?.section === 'independent-rd')
+      .map((entry: unknown) => mapCollectionItem(entry))
       .filter(Boolean)
 
     return NextResponse.json({
       success: true,
       data: {
         experienceSectionHeading:
-          asTrimmedString(cvExperience?.experienceSectionHeading) || 'Experience',
-        experienceItems: items,
+          asTrimmedString(collectionConfig?.experienceSectionHeading) || 'Experience',
+        experienceItems,
         recentIndependentStudySectionHeading:
-          asTrimmedString(cvExperience?.recentIndependentStudySectionHeading) || 'Independent R&D',
+          asTrimmedString(collectionConfig?.recentIndependentStudySectionHeading) ||
+          'Independent R&D',
         recentIndependentStudyItems,
       },
     })

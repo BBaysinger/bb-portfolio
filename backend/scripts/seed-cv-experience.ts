@@ -5,18 +5,9 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import { getPayload, type Payload } from 'payload'
+import slugify from 'slugify'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
-
-type SeedGlobalUpdater = {
-  updateGlobal: (args: {
-    slug: string
-    data: {
-      experienceItems: unknown[]
-      recentIndependentStudy: unknown[]
-    }
-  }) => Promise<unknown>
-}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -253,13 +244,39 @@ async function main() {
     const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
-    const experienceItems = []
+    await payload.updateGlobal({
+      slug: 'cvExperienceConfig',
+      data: {
+        experienceSectionHeading: 'Experience',
+        recentIndependentStudySectionHeading: 'Independent R&D',
+      },
+      overrideAccess: true,
+    })
 
-    for (const item of experienceSeed) {
+    for (const [index, item] of experienceSeed.entries()) {
       const logoId = await upsertCvLogo(payload, item)
 
-      experienceItems.push({
-        blockType: 'experienceItem' as const,
+      const slug =
+        slugify(`${item.company}-${item.title}`, {
+          lower: true,
+          strict: true,
+          trim: true,
+        }) || `cv-entry-${index + 1}`
+
+      const existing = await payload.find({
+        collection: 'cvExperienceItems',
+        where: { slug: { equals: slug } },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+        disableErrors: true,
+      })
+
+      const doc = {
+        slug,
+        section: 'experience' as const,
+        position: (index + 1) * 10,
+        active: true,
         logo: logoId,
         company: item.company,
         location: item.location,
@@ -267,44 +284,78 @@ async function main() {
         description: item.description,
         technicalScope: item.technicalScope,
         date: item.date,
-        bulletPoints: item.bulletPoints.map((text) => ({
-          text,
-          enabled: true,
-        })),
-      })
+        bulletPoints: item.bulletPoints.map((text) => ({ text, enabled: true })),
+      }
+
+      if (existing.docs.length > 0) {
+        await payload.update({
+          collection: 'cvExperienceItems',
+          id: existing.docs[0].id,
+          data: doc,
+          overrideAccess: true,
+        })
+      } else {
+        await payload.create({
+          collection: 'cvExperienceItems',
+          data: doc,
+          overrideAccess: true,
+        })
+      }
     }
 
     const recentLogoId = await upsertCvLogo(payload, recentIndependentStudySeed)
 
-    const recentIndependentStudy = [
-      {
-        blockType: 'experienceItem' as const,
-        logo: recentLogoId,
-        company: recentIndependentStudySeed.company,
-        location: recentIndependentStudySeed.location,
-        title: recentIndependentStudySeed.title,
-        description: recentIndependentStudySeed.description,
-        technicalScope: recentIndependentStudySeed.technicalScope,
-        date: recentIndependentStudySeed.date,
-        bulletPoints: recentIndependentStudySeed.bulletPoints.map((text) => ({
-          text,
-          enabled: true,
-        })),
-      },
-    ]
+    const recentSlug =
+      slugify(`${recentIndependentStudySeed.company}-${recentIndependentStudySeed.title}`, {
+        lower: true,
+        strict: true,
+        trim: true,
+      }) || 'cv-independent-rd'
 
-    // Generated types can lag schema updates; use a narrow local updater type.
-    const globalUpdater = payload as unknown as SeedGlobalUpdater
-    await globalUpdater.updateGlobal({
-      slug: 'cvExperience',
-      data: {
-        experienceItems,
-        recentIndependentStudy,
-      },
+    const existingRecent = await payload.find({
+      collection: 'cvExperienceItems',
+      where: { slug: { equals: recentSlug } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+      disableErrors: true,
     })
 
+    const recentDoc = {
+      slug: recentSlug,
+      section: 'independent-rd' as const,
+      position: 10,
+      active: true,
+      logo: recentLogoId,
+      company: recentIndependentStudySeed.company,
+      location: recentIndependentStudySeed.location,
+      title: recentIndependentStudySeed.title,
+      description: recentIndependentStudySeed.description,
+      technicalScope: recentIndependentStudySeed.technicalScope,
+      date: recentIndependentStudySeed.date,
+      bulletPoints: recentIndependentStudySeed.bulletPoints.map((text) => ({
+        text,
+        enabled: true,
+      })),
+    }
+
+    if (existingRecent.docs.length > 0) {
+      await payload.update({
+        collection: 'cvExperienceItems',
+        id: existingRecent.docs[0].id,
+        data: recentDoc,
+        overrideAccess: true,
+      })
+    } else {
+      await payload.create({
+        collection: 'cvExperienceItems',
+        data: recentDoc,
+        overrideAccess: true,
+      })
+    }
+
     console.info(
-      `Seeded cvExperience with ${experienceItems.length} experience items and ${recentIndependentStudy.length} recent independent R&D item.`,
+      `Seeded cvExperienceItems with ${experienceSeed.length} experience items and 1 recent independent R&D item.`,
     )
   } catch (error) {
     console.error('Failed to seed cvExperience:', error)

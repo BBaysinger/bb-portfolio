@@ -12,11 +12,6 @@ const getOrigins = (raw: string): string[] => {
     .map(withNoTrailingSlash)
 }
 
-const getPrimaryOrigin = (raw: string): string | undefined => {
-  const [first] = getOrigins(raw)
-  return first
-}
-
 const isLocalProfile = (): boolean => {
   const profile = (process.env.ENV_PROFILE || '').trim().toLowerCase()
   return profile === '' || profile === 'local'

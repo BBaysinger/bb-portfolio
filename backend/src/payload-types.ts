@@ -71,6 +71,7 @@ export interface Config {
     authEvents: AuthEvent;
     projects: Project;
     'project-brands': ProjectBrand;
+    cvExperienceItems: CvExperienceItem;
     cvExperienceLogos: CvExperienceLogo;
     brandLogos: BrandLogo;
     projectScreenshots: ProjectScreenshot;
@@ -86,6 +87,7 @@ export interface Config {
     authEvents: AuthEventsSelect<false> | AuthEventsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'project-brands': ProjectBrandsSelect<false> | ProjectBrandsSelect<true>;
+    cvExperienceItems: CvExperienceItemsSelect<false> | CvExperienceItemsSelect<true>;
     cvExperienceLogos: CvExperienceLogosSelect<false> | CvExperienceLogosSelect<true>;
     brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>;
     projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
@@ -103,13 +105,13 @@ export interface Config {
     contactInfo: ContactInfo;
     heroBranding: HeroBranding;
     greeting: Greeting;
-    cvExperience: CvExperience;
+    cvExperienceConfig: CvExperienceConfig;
   };
   globalsSelect: {
     contactInfo: ContactInfoSelect<false> | ContactInfoSelect<true>;
     heroBranding: HeroBrandingSelect<false> | HeroBrandingSelect<true>;
     greeting: GreetingSelect<false> | GreetingSelect<true>;
-    cvExperience: CvExperienceSelect<false> | CvExperienceSelect<true>;
+    cvExperienceConfig: CvExperienceConfigSelect<false> | CvExperienceConfigSelect<true>;
   };
   locale: null;
   widgets: {
@@ -451,6 +453,41 @@ export interface ProjectThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cvExperienceItems".
+ */
+export interface CvExperienceItem {
+  id: string;
+  adminTitle?: string | null;
+  /**
+   * Stable authored identifier used for imports, exports, and migrations.
+   */
+  slug: string;
+  section: 'experience' | 'independent-rd';
+  /**
+   * Lower numbers render first within the selected CV section.
+   */
+  position: number;
+  active: boolean;
+  logo?: (string | null) | CvExperienceLogo;
+  company: string;
+  location: string;
+  title: string;
+  description: string;
+  technicalScope: string;
+  date: string;
+  bulletPoints?:
+    | {
+        text: string;
+        enabled: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cvExperienceLogos".
  */
 export interface CvExperienceLogo {
@@ -510,6 +547,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'project-brands';
         value: string | ProjectBrand;
+      } | null)
+    | ({
+        relationTo: 'cvExperienceItems';
+        value: string | CvExperienceItem;
       } | null)
     | ({
         relationTo: 'cvExperienceLogos';
@@ -685,6 +726,34 @@ export interface ProjectBrandsSelect<T extends boolean = true> {
   website?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cvExperienceItems_select".
+ */
+export interface CvExperienceItemsSelect<T extends boolean = true> {
+  adminTitle?: T;
+  slug?: T;
+  section?: T;
+  position?: T;
+  active?: T;
+  logo?: T;
+  company?: T;
+  location?: T;
+  title?: T;
+  description?: T;
+  technicalScope?: T;
+  date?: T;
+  bulletPoints?:
+    | T
+    | {
+        text?: T;
+        enabled?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -941,70 +1010,12 @@ export interface Greeting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cvExperience".
+ * via the `definition` "cvExperienceConfig".
  */
-export interface CvExperience {
+export interface CvExperienceConfig {
   id: string;
   experienceSectionHeading: string;
-  /**
-   * Each row is one CV experience component. Drag and drop to control render order on the frontend.
-   */
-  experienceItems: {
-    /**
-     * Upload/select the company logo to render for this experience item.
-     */
-    logo?: (string | null) | CvExperienceLogo;
-    company: string;
-    location: string;
-    title: string;
-    description: string;
-    technicalScope: string;
-    date: string;
-    /**
-     * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
-     */
-    bulletPoints?:
-      | {
-          text: string;
-          enabled: boolean;
-          id?: string | null;
-        }[]
-      | null;
-    id?: string | null;
-    blockName?: string | null;
-    blockType: 'experienceItem';
-  }[];
   recentIndependentStudySectionHeading: string;
-  /**
-   * Each row is one CV experience component for the Independent R&D/Freelance section. Drag and drop to control render order on the frontend.
-   */
-  recentIndependentStudy?:
-    | {
-        /**
-         * Upload/select the company logo to render for this experience item.
-         */
-        logo?: (string | null) | CvExperienceLogo;
-        company: string;
-        location: string;
-        title: string;
-        description: string;
-        technicalScope: string;
-        date: string;
-        /**
-         * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
-         */
-        bulletPoints?:
-          | {
-              text: string;
-              enabled: boolean;
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'experienceItem';
-      }[]
-    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1061,59 +1072,11 @@ export interface GreetingSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cvExperience_select".
+ * via the `definition` "cvExperienceConfig_select".
  */
-export interface CvExperienceSelect<T extends boolean = true> {
+export interface CvExperienceConfigSelect<T extends boolean = true> {
   experienceSectionHeading?: T;
-  experienceItems?:
-    | T
-    | {
-        experienceItem?:
-          | T
-          | {
-              logo?: T;
-              company?: T;
-              location?: T;
-              title?: T;
-              description?: T;
-              technicalScope?: T;
-              date?: T;
-              bulletPoints?:
-                | T
-                | {
-                    text?: T;
-                    enabled?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-      };
   recentIndependentStudySectionHeading?: T;
-  recentIndependentStudy?:
-    | T
-    | {
-        experienceItem?:
-          | T
-          | {
-              logo?: T;
-              company?: T;
-              location?: T;
-              title?: T;
-              description?: T;
-              technicalScope?: T;
-              date?: T;
-              bulletPoints?:
-                | T
-                | {
-                    text?: T;
-                    enabled?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

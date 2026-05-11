@@ -12,19 +12,14 @@ import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { readYamlFile, requireDirectory, resolvePortfolioContentDir } from './lib/portfolio-content'
 import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
 
-type SeedGlobalUpdater = {
-  updateGlobal: (args: {
-    slug: string
-    data: {
-      experienceItems: unknown[]
-      recentIndependentStudy: unknown[]
-    }
-  }) => Promise<unknown>
-}
-
 type CvOrderFile = {
   experience?: unknown
   independentRd?: unknown
+}
+
+type CvConfigFile = {
+  experienceSectionHeading?: unknown
+  recentIndependentStudySectionHeading?: unknown
 }
 
 type CvLogoConfig = {
@@ -223,11 +218,20 @@ const upsertCvLogo = async (
   return String(created.id)
 }
 
-const mapCvEntryToBlock = async (payload: Payload, logosDir: string, entry: NormalizedCvEntry) => {
+const mapCvEntryToDoc = async (
+  payload: Payload,
+  logosDir: string,
+  entry: NormalizedCvEntry,
+  section: 'experience' | 'independent-rd',
+  position: number,
+) => {
   const logoId = await upsertCvLogo(payload, logosDir, entry)
 
   return {
-    blockType: 'experienceItem' as const,
+    slug: entry.slug,
+    section,
+    position,
+    active: true,
     ...(logoId ? { logo: logoId } : {}),
     company: entry.company,
     location: entry.location,
@@ -252,6 +256,7 @@ async function main() {
     const independentRdDir = path.resolve(cvDir, 'independent-rd')
     const logosDir = path.resolve(contentDir, 'cv-experience-logos')
     const orderPath = path.resolve(cvDir, 'order.yaml')
+    const configPath = path.resolve(cvDir, 'config.yaml')
 
     requireDirectory(cvDir, 'cv-experiences directory')
     requireDirectory(experienceDir, 'cv-experiences/experience directory')
@@ -259,6 +264,7 @@ async function main() {
     requireDirectory(logosDir, 'cv-experience-logos directory')
 
     const orderFile = readYamlFile<CvOrderFile>(orderPath)
+    const configFile = fs.existsSync(configPath) ? readYamlFile<CvConfigFile>(configPath) : {}
     const experienceOrder = asSlugList(orderFile.experience, 'experience', orderPath)
     const independentRdOrder = asSlugList(orderFile.independentRd ?? [], 'independentRd', orderPath)
 
@@ -272,27 +278,106 @@ async function main() {
     process.env.SKIP_FRONTEND_REVALIDATE = 'true'
 
     try {
-      const experienceItems = []
-      for (const entry of experienceEntries) {
-        experienceItems.push(await mapCvEntryToBlock(payload, logosDir, entry))
-      }
-
-      const recentIndependentStudy = []
-      for (const entry of independentEntries) {
-        recentIndependentStudy.push(await mapCvEntryToBlock(payload, logosDir, entry))
-      }
-
-      const globalUpdater = payload as unknown as SeedGlobalUpdater
-      await globalUpdater.updateGlobal({
-        slug: 'cvExperience',
+      await payload.updateGlobal({
+        slug: 'cvExperienceConfig',
         data: {
-          experienceItems,
-          recentIndependentStudy,
+          experienceSectionHeading: asNonEmptyString(
+            configFile.experienceSectionHeading ?? 'Experience',
+            'experienceSectionHeading',
+            configPath,
+          ),
+          recentIndependentStudySectionHeading: asNonEmptyString(
+            configFile.recentIndependentStudySectionHeading ?? 'Independent R&D',
+            'recentIndependentStudySectionHeading',
+            configPath,
+          ),
         },
+        overrideAccess: true,
       })
 
+      const desiredSlugs = new Set<string>()
+
+      for (const [index, entry] of experienceEntries.entries()) {
+        desiredSlugs.add(entry.slug)
+        const doc = await mapCvEntryToDoc(payload, logosDir, entry, 'experience', (index + 1) * 10)
+        const existing = await payload.find({
+          collection: 'cvExperienceItems',
+          where: { slug: { equals: entry.slug } },
+          limit: 1,
+          depth: 0,
+          overrideAccess: true,
+          disableErrors: true,
+        })
+
+        if (existing.docs.length > 0) {
+          await payload.update({
+            collection: 'cvExperienceItems',
+            id: existing.docs[0].id,
+            data: doc,
+            overrideAccess: true,
+          })
+        } else {
+          await payload.create({
+            collection: 'cvExperienceItems',
+            data: doc,
+            overrideAccess: true,
+          })
+        }
+      }
+
+      for (const [index, entry] of independentEntries.entries()) {
+        desiredSlugs.add(entry.slug)
+        const doc = await mapCvEntryToDoc(
+          payload,
+          logosDir,
+          entry,
+          'independent-rd',
+          (index + 1) * 10,
+        )
+        const existing = await payload.find({
+          collection: 'cvExperienceItems',
+          where: { slug: { equals: entry.slug } },
+          limit: 1,
+          depth: 0,
+          overrideAccess: true,
+          disableErrors: true,
+        })
+
+        if (existing.docs.length > 0) {
+          await payload.update({
+            collection: 'cvExperienceItems',
+            id: existing.docs[0].id,
+            data: doc,
+            overrideAccess: true,
+          })
+        } else {
+          await payload.create({
+            collection: 'cvExperienceItems',
+            data: doc,
+            overrideAccess: true,
+          })
+        }
+      }
+
+      const existingDocs = await payload.find({
+        collection: 'cvExperienceItems',
+        limit: 500,
+        depth: 0,
+        overrideAccess: true,
+        disableErrors: true,
+      })
+
+      for (const doc of existingDocs.docs) {
+        if (typeof doc.slug !== 'string' || desiredSlugs.has(doc.slug)) continue
+        await payload.delete({
+          collection: 'cvExperienceItems',
+          id: doc.id,
+          overrideAccess: true,
+        })
+      }
+
       console.info(
-        `Imported cvExperience content from ${contentDir} with ${experienceItems.length} experience items and ${recentIndependentStudy.length} independent R&D items.`,
+        `Imported cvExperience content from ${contentDir} with ${experienceEntries.length} experience items and ${independentEntries.length} independent R&D items.`,
       )
     } finally {
       if (previousSkipFrontendRevalidate === undefined) {

@@ -6,9 +6,6 @@ import { fileURLToPath } from 'url'
 
 import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
-import slugify from 'slugify'
-
-import type { CvExperience } from '@/payload-types'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { resolvePortfolioContentDirPath } from './lib/portfolio-content'
@@ -28,7 +25,6 @@ type BulletPoint = {
 }
 
 type ExperienceItem = {
-  blockType?: unknown
   company?: unknown
   location?: unknown
   title?: unknown
@@ -37,14 +33,20 @@ type ExperienceItem = {
   date?: unknown
   logo?: unknown
   bulletPoints?: unknown
+  slug?: unknown
+  section?: unknown
+  position?: unknown
 }
 
-type PayloadWithCvExperienceGlobal = Payload & {
+type PayloadWithCvExperienceConfigGlobal = Payload & {
   findGlobal(args: {
-    slug: 'cvExperience'
+    slug: 'cvExperienceConfig'
     depth?: number
     overrideAccess?: boolean
-  }): Promise<CvExperience>
+  }): Promise<{
+    experienceSectionHeading?: string | null
+    recentIndependentStudySectionHeading?: string | null
+  }>
 }
 
 type NormalizedBulletPoint = {
@@ -130,7 +132,6 @@ const normalizeEntry = (value: unknown): NormalizedEntry | null => {
   if (!value || typeof value !== 'object') return null
 
   const item = value as ExperienceItem
-  if (item.blockType !== 'experienceItem') return null
 
   const company = asTrimmedString(item.company)
   const location = asTrimmedString(item.location)
@@ -154,24 +155,6 @@ const normalizeEntry = (value: unknown): NormalizedEntry | null => {
     date,
     ...(logo ? { logo } : {}),
     bulletPoints: toBulletPoints(item.bulletPoints),
-  }
-}
-
-const createSlugFactory = () => {
-  const seen = new Map<string, number>()
-
-  return (entry: NormalizedEntry) => {
-    const baseSlug =
-      slugify(`${entry.company}-${entry.title}`, {
-        lower: true,
-        strict: true,
-        trim: true,
-      }) || 'cv-entry'
-
-    const count = (seen.get(baseSlug) ?? 0) + 1
-    seen.set(baseSlug, count)
-
-    return count === 1 ? baseSlug : `${baseSlug}-${count}`
   }
 }
 
@@ -220,45 +203,75 @@ async function main() {
     const independentRdDir = path.resolve(cvDir, 'independent-rd')
     const logosDir = path.resolve(contentDir, 'cv-experience-logos')
     const orderPath = path.resolve(cvDir, 'order.yaml')
+    const staleFiles = [...listYamlFiles(experienceDir), ...listYamlFiles(independentRdDir)]
 
     const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
-    const cvExperience = await (payload as PayloadWithCvExperienceGlobal).findGlobal({
-      slug: 'cvExperience',
-      depth: 1,
+    const cvExperienceConfig = await (payload as PayloadWithCvExperienceConfigGlobal).findGlobal({
+      slug: 'cvExperienceConfig',
+      depth: 0,
       overrideAccess: true,
     })
 
-    const experienceItemValues = Array.isArray(cvExperience.experienceItems)
-      ? cvExperience.experienceItems
-      : []
+    const itemsResponse = await payload.find({
+      collection: 'cvExperienceItems',
+      where: {
+        active: { equals: true },
+      },
+      sort: 'position',
+      depth: 1,
+      limit: 500,
+      overrideAccess: true,
+      disableErrors: true,
+      draft: false,
+    })
 
-    const independentStudyValue = (cvExperience as unknown as Record<string, unknown>)[
-      'recentIndependentStudy'
-    ]
-    const independentStudyValues = Array.isArray(independentStudyValue) ? independentStudyValue : []
-
-    const experienceItems = experienceItemValues
+    const experienceItems = itemsResponse.docs
+      .filter((entry) => entry.section === 'experience')
       .map(normalizeEntry)
       .filter((entry): entry is NormalizedEntry => Boolean(entry))
 
-    const independentItems = independentStudyValues
+    const independentItems = itemsResponse.docs
+      .filter((entry) => entry.section === 'independent-rd')
       .map(normalizeEntry)
       .filter((entry): entry is NormalizedEntry => Boolean(entry))
 
-    const createSlug = createSlugFactory()
-    const serializedExperience = experienceItems.map((entry) => {
-      const slug = createSlug(entry)
-      return { slug, yaml: serializeEntry(slug, entry) }
-    })
-    const serializedIndependent = independentItems.map((entry) => {
-      const slug = createSlug(entry)
-      return { slug, yaml: serializeEntry(slug, entry) }
-    })
+    const serializedExperience = itemsResponse.docs
+      .filter((entry) => entry.section === 'experience')
+      .map((entry) => {
+        const normalized = normalizeEntry(entry)
+        if (!normalized) return null
+        const slug = asTrimmedString(entry.slug) || 'cv-entry'
+        return { slug, yaml: serializeEntry(slug, normalized) }
+      })
+      .filter((entry): entry is { slug: string; yaml: string } => Boolean(entry))
 
-    const staleFiles = [...listYamlFiles(experienceDir), ...listYamlFiles(independentRdDir)]
-    const orderYaml = dumpYaml(
+    const serializedIndependent = itemsResponse.docs
+      .filter((entry) => entry.section === 'independent-rd')
+      .map((entry) => {
+        const normalized = normalizeEntry(entry)
+        if (!normalized) return null
+        const slug = asTrimmedString(entry.slug) || 'cv-entry'
+        return { slug, yaml: serializeEntry(slug, normalized) }
+      })
+      .filter((entry): entry is { slug: string; yaml: string } => Boolean(entry))
+
+    const headingsYaml = dumpYaml(
+      {
+        experienceSectionHeading: cvExperienceConfig.experienceSectionHeading || 'Experience',
+        recentIndependentStudySectionHeading:
+          cvExperienceConfig.recentIndependentStudySectionHeading || 'Independent R&D',
+      },
+      {
+        lineWidth: -1,
+        noRefs: true,
+        quotingType: '"',
+        forceQuotes: false,
+      },
+    )
+
+    const serializedOrderYaml = dumpYaml(
       {
         experience: serializedExperience.map((entry) => entry.slug),
         independentRd: serializedIndependent.map((entry) => entry.slug),
@@ -272,12 +285,13 @@ async function main() {
     )
 
     console.info(
-      `${options.dryRun ? '[DRY RUN] ' : ''}Preparing to export ${serializedExperience.length} CV experience entries and ${serializedIndependent.length} independent R&D entries to ${cvDir}.`,
+      `${options.dryRun ? '[DRY RUN] ' : ''}Preparing to export ${experienceItems.length} CV experience entries and ${independentItems.length} independent R&D entries to ${cvDir}.`,
     )
 
     if (options.dryRun) {
       console.info(`Would prune ${staleFiles.length} existing YAML entry files before export.`)
       console.info(`Would write ${orderPath}`)
+      console.info(`Would write ${path.join(cvDir, 'config.yaml')}`)
       for (const entry of serializedExperience) {
         console.info(`Would write ${path.join(experienceDir, `${entry.slug}.yaml`)}`)
       }
@@ -298,7 +312,8 @@ async function main() {
       fs.unlinkSync(staleFile)
     }
 
-    fs.writeFileSync(orderPath, orderYaml, 'utf8')
+    fs.writeFileSync(path.join(cvDir, 'config.yaml'), headingsYaml, 'utf8')
+    fs.writeFileSync(orderPath, serializedOrderYaml, 'utf8')
     for (const entry of serializedExperience) {
       fs.writeFileSync(path.join(experienceDir, `${entry.slug}.yaml`), entry.yaml, 'utf8')
     }
