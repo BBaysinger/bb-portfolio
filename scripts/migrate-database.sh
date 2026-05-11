@@ -46,14 +46,12 @@ read_collection_args() {
   local IFS=','
   read -r -a raw_collections <<<"$COLLECTIONS_CSV"
 
-  COLLECTION_ARGS=()
   COLLECTION_DISPLAY=()
 
   local collection
   for collection in "${raw_collections[@]}"; do
     collection="$(trim "$collection")"
     [[ -n "$collection" ]] || continue
-    COLLECTION_ARGS+=(--nsInclude "*.${collection}")
     COLLECTION_DISPLAY+=("$collection")
   done
 
@@ -393,15 +391,24 @@ create_backup() {
 
   mkdir -p "$backup_dir"
 
-  local dump_cmd=(mongodump --uri "$target_db_uri" --out "$backup_dir")
-  if [[ -n "$QUIET_FLAG" ]]; then
-    dump_cmd+=("$QUIET_FLAG")
-  fi
-  if [[ ${#COLLECTION_ARGS[@]} -gt 0 ]]; then
-    dump_cmd+=("${COLLECTION_ARGS[@]}")
-  fi
+  if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+    local collection
+    for collection in "${COLLECTION_DISPLAY[@]}"; do
+      local dump_cmd=(mongodump --uri "$target_db_uri" --db "$target_db_name" --collection "$collection" --out "$backup_dir")
+      if [[ -n "$QUIET_FLAG" ]]; then
+        dump_cmd+=("$QUIET_FLAG")
+      fi
 
-  "${dump_cmd[@]}" </dev/null
+      "${dump_cmd[@]}" </dev/null
+    done
+  else
+    local dump_cmd=(mongodump --uri "$target_db_uri" --out "$backup_dir")
+    if [[ -n "$QUIET_FLAG" ]]; then
+      dump_cmd+=("$QUIET_FLAG")
+    fi
+
+    "${dump_cmd[@]}" </dev/null
+  fi
 
   log_success "Backup created: $backup_dir"
   echo "  Use this to restore if needed:"
@@ -434,8 +441,16 @@ migrate_database() {
     masked_target_uri="$(mask_uri "$target_db_uri")"
     echo "  Source URI: $(mask_uri "$source_db_uri")"
     echo "  Target URI: $(mask_uri "$target_db_uri")"
-    echo "  Will run: mongodump --uri \"$masked_source_uri\" --out \"$temp_dump_dir\"${QUIET_FLAG:+ $QUIET_FLAG}${COLLECTIONS_CSV:+ --collections $COLLECTIONS_CSV}"
-    echo "  Then:     mongorestore --uri \"$masked_target_uri\" --drop --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
+    if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+      local collection
+      for collection in "${COLLECTION_DISPLAY[@]}"; do
+        echo "  Will run: mongodump --uri \"$masked_source_uri\" --db \"$source_db_name\" --collection \"$collection\" --out \"$temp_dump_dir\"${QUIET_FLAG:+ $QUIET_FLAG}"
+        echo "  Then:     mongorestore --uri \"$masked_target_uri\" --db \"${target_db_name}\" --collection \"$collection\" --drop \"$temp_dump_dir/$source_db_name/$collection.bson\"${QUIET_FLAG:+ $QUIET_FLAG}"
+      done
+    else
+      echo "  Will run: mongodump --uri \"$masked_source_uri\" --out \"$temp_dump_dir\"${QUIET_FLAG:+ $QUIET_FLAG}"
+      echo "  Then:     mongorestore --uri \"$masked_target_uri\" --drop --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
+    fi
     echo
     return
   fi
@@ -446,18 +461,31 @@ migrate_database() {
   # Capture mongodump errors for diagnostics
   local dump_log
   dump_log=$(mktemp -t mongodump.XXXXXX)
-  local dump_cmd=(mongodump --uri "$source_db_uri" --out "$temp_dump_dir")
-  if [[ -n "$QUIET_FLAG" ]]; then
-    dump_cmd+=("$QUIET_FLAG")
-  fi
-  if [[ ${#COLLECTION_ARGS[@]} -gt 0 ]]; then
-    dump_cmd+=("${COLLECTION_ARGS[@]}")
-  fi
-  if ! "${dump_cmd[@]}" </dev/null 2>"$dump_log"; then
-    log_error "mongodump failed. Last lines from dump log:"
-    tail -n 50 "$dump_log"
-    rm -f "$dump_log"
-    exit 1
+  if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+    local collection
+    for collection in "${COLLECTION_DISPLAY[@]}"; do
+      local dump_cmd=(mongodump --uri "$source_db_uri" --db "$source_db_name" --collection "$collection" --out "$temp_dump_dir")
+      if [[ -n "$QUIET_FLAG" ]]; then
+        dump_cmd+=("$QUIET_FLAG")
+      fi
+      if ! "${dump_cmd[@]}" </dev/null 2>>"$dump_log"; then
+        log_error "mongodump failed. Last lines from dump log:"
+        tail -n 50 "$dump_log"
+        rm -f "$dump_log"
+        exit 1
+      fi
+    done
+  else
+    local dump_cmd=(mongodump --uri "$source_db_uri" --out "$temp_dump_dir")
+    if [[ -n "$QUIET_FLAG" ]]; then
+      dump_cmd+=("$QUIET_FLAG")
+    fi
+    if ! "${dump_cmd[@]}" </dev/null 2>"$dump_log"; then
+      log_error "mongodump failed. Last lines from dump log:"
+      tail -n 50 "$dump_log"
+      rm -f "$dump_log"
+      exit 1
+    fi
   fi
 
   # Determine actual dump directory name (some versions may not match the db name exactly)
@@ -491,22 +519,46 @@ migrate_database() {
   # Map source DB namespace to target DB to ensure correct restore
   local restore_log
   restore_log=$(mktemp -t mongorestore.XXXXXX)
-  local restore_cmd=(
-    mongorestore
-    --uri "$target_db_uri"
-    --drop
-    --nsFrom "${source_dump_name}.*"
-    --nsTo "${target_db_name}.*"
-    "$source_dump_dir"
-  )
-  if [[ -n "$QUIET_FLAG" ]]; then
-    restore_cmd+=("$QUIET_FLAG")
-  fi
-  if ! "${restore_cmd[@]}" </dev/null 2>"$restore_log"; then
-    log_error "mongorestore failed. Last lines from restore log:"
-    tail -n 50 "$restore_log"
-    rm -f "$restore_log"
-    exit 1
+  if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+    local collection
+    for collection in "${COLLECTION_DISPLAY[@]}"; do
+      local bson_path="$source_dump_dir/$collection.bson"
+      local restore_cmd=(
+        mongorestore
+        --uri "$target_db_uri"
+        --db "$target_db_name"
+        --collection "$collection"
+        --drop
+        "$bson_path"
+      )
+      if [[ -n "$QUIET_FLAG" ]]; then
+        restore_cmd+=("$QUIET_FLAG")
+      fi
+      if ! "${restore_cmd[@]}" </dev/null 2>>"$restore_log"; then
+        log_error "mongorestore failed. Last lines from restore log:"
+        tail -n 50 "$restore_log"
+        rm -f "$restore_log"
+        exit 1
+      fi
+    done
+  else
+    local restore_cmd=(
+      mongorestore
+      --uri "$target_db_uri"
+      --drop
+      --nsFrom "${source_dump_name}.*"
+      --nsTo "${target_db_name}.*"
+      "$source_dump_dir"
+    )
+    if [[ -n "$QUIET_FLAG" ]]; then
+      restore_cmd+=("$QUIET_FLAG")
+    fi
+    if ! "${restore_cmd[@]}" </dev/null 2>"$restore_log"; then
+      log_error "mongorestore failed. Last lines from restore log:"
+      tail -n 50 "$restore_log"
+      rm -f "$restore_log"
+      exit 1
+    fi
   fi
   rm -f "$restore_log"
 
@@ -529,7 +581,6 @@ main() {
     QUIET_FLAG=
   fi
 
-  COLLECTION_ARGS=()
   COLLECTION_DISPLAY=()
   read_collection_args
 
