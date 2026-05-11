@@ -17,13 +17,13 @@ export function ErrorSurface({
     <main className={styles.page}>
       <section className={styles.card}>
         <div className={styles.eyebrowRow}>
-          <span className={styles.eyebrow}>Temporary</span>
+          <span className={styles.eyebrow}>Server Error</span>
           <span className={styles.status}>Error 500</span>
         </div>
         <h1 className={styles.title}>Service interruption</h1>
         <p className={styles.body}>
-          The site hit a server-side failure while rendering this page. Please
-          try again in a moment.
+          The site hit a server-side failure while rendering this page. This is
+          different from the planned deploy-mode maintenance page.
         </p>
         <div className={styles.actions}>
           {onRetry ? (
@@ -39,7 +39,8 @@ export function ErrorSurface({
           </Link>
         </div>
         <p className={styles.detail}>
-          If the problem persists, the latest release may still be settling.
+          Retry the request. If deploy mode is active, nginx will serve the
+          dedicated "Deploy in progress" page instead.
         </p>
       </section>
     </main>
