@@ -272,11 +272,10 @@ async function main() {
           cvExperienceConfig.experienceSectionHeading,
           'cvExperienceConfig.experienceSectionHeading',
         ),
-        recentIndependentStudySectionHeading:
-          asNonEmptyString(
-            cvExperienceConfig.recentIndependentStudySectionHeading,
-            'cvExperienceConfig.recentIndependentStudySectionHeading',
-          ),
+        recentIndependentStudySectionHeading: asNonEmptyString(
+          cvExperienceConfig.recentIndependentStudySectionHeading,
+          'cvExperienceConfig.recentIndependentStudySectionHeading',
+        ),
       },
       {
         lineWidth: -1,
