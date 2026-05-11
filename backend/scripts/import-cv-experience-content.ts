@@ -69,7 +69,7 @@ const __dirname = path.dirname(__filename)
 
 const { envProfile } = loadBackendScriptEnvironment(__dirname)
 
-requireExplicitProdWriteConfirmation('cvExperience import', envProfile)
+await requireExplicitProdWriteConfirmation('cvExperience import', envProfile, 'import-cv-prod')
 
 const asNonEmptyString = (value: unknown, fieldName: string, filePath: string) => {
   if (typeof value !== 'string' || value.trim().length === 0) {

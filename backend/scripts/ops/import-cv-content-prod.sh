@@ -26,4 +26,4 @@ if [[ ! -f "${REPO_ROOT}/.github-secrets.private.json5" && ! -f "${REPO_ROOT}/.g
 fi
 
 cd "${BACKEND_DIR}"
-ALLOW_PROD_WRITE=true USE_GITHUB_SECRETS=true npm run import:cv-content -- --env "${PROFILE}" --confirm-prod-write
+ALLOW_PROD_WRITE=true PROD_WRITE_CONFIRMATION='import-cv-prod' USE_GITHUB_SECRETS=true npm run import:cv-content -- --env "${PROFILE}" --confirm-prod-write

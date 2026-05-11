@@ -30,4 +30,4 @@ if [[ ! -f "${REPO_ROOT}/.github-secrets.private.json5" && ! -f "${REPO_ROOT}/.g
 fi
 
 cd "${BACKEND_DIR}"
-USE_GITHUB_SECRETS=true npm run seed:cv-experience -- --env "${PROFILE}"
+ALLOW_PROD_WRITE=true PROD_WRITE_CONFIRMATION='seed-prod' USE_GITHUB_SECRETS=true npm run seed:cv-experience -- --env "${PROFILE}" --confirm-prod-write

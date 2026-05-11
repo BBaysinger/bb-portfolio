@@ -58,7 +58,11 @@ const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
 const { envProfile } = loadBackendScriptEnvironment(__dirname)
 
 if (!hasFlag('--skip-confirmation')) {
-  requireExplicitProdWriteConfirmation('media cache version refresh', envProfile)
+  await requireExplicitProdWriteConfirmation(
+    'media cache version refresh',
+    envProfile,
+    'refresh-media-cache-prod',
+  )
 }
 
 async function main() {

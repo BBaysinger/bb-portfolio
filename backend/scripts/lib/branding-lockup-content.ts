@@ -171,7 +171,11 @@ const normalizeExportedRoleVariants = (value: unknown): RoleVariant[] => {
 
 export const importBrandingLockupContent = async () => {
   const { envProfile } = loadBackendScriptEnvironment(scriptsDir)
-  requireExplicitProdWriteConfirmation('branding lockup import', envProfile)
+  await requireExplicitProdWriteConfirmation(
+    'branding lockup import',
+    envProfile,
+    'import-branding-prod',
+  )
 
   let payload: Payload | null = null
 

@@ -103,7 +103,7 @@ const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
 
 export const importGreetingContent = async () => {
   const { envProfile } = loadBackendScriptEnvironment(scriptsDir)
-  requireExplicitProdWriteConfirmation('greeting import', envProfile)
+  await requireExplicitProdWriteConfirmation('greeting import', envProfile, 'import-greeting-prod')
 
   let payload: Payload | null = null
 

@@ -153,7 +153,11 @@ const __dirname = path.dirname(__filename)
 
 const { envProfile } = loadBackendScriptEnvironment(__dirname)
 
-requireExplicitProdWriteConfirmation('project descriptions import', envProfile)
+await requireExplicitProdWriteConfirmation(
+  'project descriptions import',
+  envProfile,
+  'import-projects-prod',
+)
 
 async function main() {
   let payload: Payload | null = null

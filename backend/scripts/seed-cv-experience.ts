@@ -8,11 +8,14 @@ import { getPayload, type Payload } from 'payload'
 import slugify from 'slugify'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
+import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-loadBackendScriptEnvironment(__dirname)
+const { envProfile } = loadBackendScriptEnvironment(__dirname)
+
+await requireExplicitProdWriteConfirmation('cvExperience seed', envProfile, 'seed-prod')
 
 type SeedExperience = {
   logoFilename: string
