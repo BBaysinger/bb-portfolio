@@ -8,6 +8,12 @@
   overflow-x: hidden;
   // Include shared graphite page styles without using @extend to satisfy Turbopack's CSS Modules parser
   @include graphite-page.graphite-page-scope();
+
+  code,
+  a > code {
+    color: #ccc;
+  }
+
   h5 {
     .location {
       font-weight: 500;
