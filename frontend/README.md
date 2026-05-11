@@ -9,7 +9,7 @@ This directory contains the frontend service for the BB-Portfolio portfolio syst
 - Owns the public-facing Next.js App Router UI, including homepage interaction systems, project browsing, NDA-aware client flows, and route-driven presentation logic.
 - Hosts the custom rendering and interaction layers used by the site, including the parallax carousel, fluxel grid, sprite/sequencer systems, kinetic orb, and viewport/layout stabilization hooks.
 - Provides frontend-focused build/runtime helpers such as project snapshot consumption, production-like local perf runs, and browser-facing environment/config wiring.
-- Defers the full feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
+- Defers the full feature inventory to the root [README](../README.md) and the flat list in [docs/flat-features-list.md](../docs/flat-features-list.md).
 
 ## Development
 
@@ -77,7 +77,7 @@ PORT=3010 npm run frontend:prod-like:down
 
 ## Service Notes
 
-Keep the full feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
+Keep the full feature narrative in the root [README](../README.md) and the flat inventory in [docs/flat-features-list.md](../docs/flat-features-list.md).
 
 This README stays focused on frontend-local concerns:
 

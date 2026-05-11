@@ -1,6 +1,6 @@
 # Reviewer Signals From Features
 
-Reviewer-facing interpretation extracted from the flat main features list so it can be tracked, refined, or omitted independently.
+Reviewer-facing interpretation extracted from the flat features list so it can be tracked, refined, or omitted independently.
 
 ## Why This Matters
 
@@ -14,5 +14,5 @@ Reviewer-facing interpretation extracted from the flat main features list so it 
 ## Notes
 
 - Keep this document interpretive and reviewer-oriented.
-- Keep `docs/main-features-list.md` factual and inventory-like.
+- Keep `docs/flat-features-list.md` factual and inventory-like.
 - If any point here cannot be defended directly from repository artifacts, remove or narrow it.

@@ -9,7 +9,7 @@ This directory contains the backend service for the BB-Portfolio portfolio syste
 - Owns the Payload CMS application, collection schemas, generated types, auth flows, and server-side content gating for public versus NDA-aware delivery.
 - Provides backend APIs and delivery paths for projects, contact flows, health checks, media/static asset access, and app-facing content reads.
 - Encapsulates environment-profiled runtime behavior, including local filesystem media, S3-backed storage, and operational scripts tied to migration and recovery workflows.
-- Defers the full feature inventory to the root [README](../README.md) and the flat list in [docs/main-features-list.md](../docs/main-features-list.md).
+- Defers the full feature inventory to the root [README](../README.md) and the flat list in [docs/flat-features-list.md](../docs/flat-features-list.md).
 
 ## Local Development
 
@@ -38,7 +38,7 @@ For backend-only development:
 
 ## Service Notes
 
-Keep the full feature narrative in the root [README](../README.md) and the flat inventory in [docs/main-features-list.md](../docs/main-features-list.md).
+Keep the full feature narrative in the root [README](../README.md) and the flat inventory in [docs/flat-features-list.md](../docs/flat-features-list.md).
 
 This README stays focused on backend-local concerns:
 

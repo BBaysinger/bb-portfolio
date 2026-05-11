@@ -1,6 +1,6 @@
-# Main Features List
+# Flat Features List
 
-Working list of notable features and technical systems
+Flat working inventory of notable features and technical systems
 
 ## Frontend UX / Interaction Systems
 
