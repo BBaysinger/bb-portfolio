@@ -264,7 +264,7 @@ async function main() {
     requireDirectory(logosDir, 'cv-experience-logos directory')
 
     const orderFile = readYamlFile<CvOrderFile>(orderPath)
-    const configFile = fs.existsSync(configPath) ? readYamlFile<CvConfigFile>(configPath) : {}
+    const configFile = readYamlFile<CvConfigFile>(configPath)
     const experienceOrder = asSlugList(orderFile.experience, 'experience', orderPath)
     const independentRdOrder = asSlugList(orderFile.independentRd ?? [], 'independentRd', orderPath)
 
@@ -282,12 +282,12 @@ async function main() {
         slug: 'cvExperienceConfig',
         data: {
           experienceSectionHeading: asNonEmptyString(
-            configFile.experienceSectionHeading ?? 'Experience',
+            configFile.experienceSectionHeading,
             'experienceSectionHeading',
             configPath,
           ),
           recentIndependentStudySectionHeading: asNonEmptyString(
-            configFile.recentIndependentStudySectionHeading ?? 'Independent R&D',
+            configFile.recentIndependentStudySectionHeading,
             'recentIndependentStudySectionHeading',
             configPath,
           ),

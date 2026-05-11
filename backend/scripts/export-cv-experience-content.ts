@@ -82,6 +82,15 @@ const asTrimmedString = (value: unknown) => {
   return value.trim()
 }
 
+const asNonEmptyString = (value: unknown, fieldName: string) => {
+  const normalized = asTrimmedString(value)
+  if (!normalized) {
+    throw new Error(`Expected ${fieldName} to be a non-empty string.`)
+  }
+
+  return normalized
+}
+
 const destroyPayloadWithTimeout = async (payload: Payload, label: string) => {
   const destroy = payload.db?.destroy
   if (typeof destroy !== 'function') return
@@ -242,7 +251,7 @@ async function main() {
       .map((entry) => {
         const normalized = normalizeEntry(entry)
         if (!normalized) return null
-        const slug = asTrimmedString(entry.slug) || 'cv-entry'
+        const slug = asNonEmptyString(entry.slug, 'cvExperienceItems.slug')
         return { slug, yaml: serializeEntry(slug, normalized) }
       })
       .filter((entry): entry is { slug: string; yaml: string } => Boolean(entry))
@@ -252,16 +261,22 @@ async function main() {
       .map((entry) => {
         const normalized = normalizeEntry(entry)
         if (!normalized) return null
-        const slug = asTrimmedString(entry.slug) || 'cv-entry'
+        const slug = asNonEmptyString(entry.slug, 'cvExperienceItems.slug')
         return { slug, yaml: serializeEntry(slug, normalized) }
       })
       .filter((entry): entry is { slug: string; yaml: string } => Boolean(entry))
 
     const headingsYaml = dumpYaml(
       {
-        experienceSectionHeading: cvExperienceConfig.experienceSectionHeading || 'Experience',
+        experienceSectionHeading: asNonEmptyString(
+          cvExperienceConfig.experienceSectionHeading,
+          'cvExperienceConfig.experienceSectionHeading',
+        ),
         recentIndependentStudySectionHeading:
-          cvExperienceConfig.recentIndependentStudySectionHeading || 'Independent R&D',
+          asNonEmptyString(
+            cvExperienceConfig.recentIndependentStudySectionHeading,
+            'cvExperienceConfig.recentIndependentStudySectionHeading',
+          ),
       },
       {
         lineWidth: -1,
