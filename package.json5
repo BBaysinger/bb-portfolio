@@ -269,8 +269,9 @@
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
     // 🪄 Import target content into prod. Requires ALLOW_PROD_WRITE=true and extra confirmation.
     "content:import:prod:content-dir": "bash ./scripts/content-workflow.sh import-prod",
-    // 🪄 One-shot portfolio data sync across environments. Pass through args such as --source local --target dev --dry-run.
-    "data:sync": "npm --prefix backend run sync:env --",
+    // 🪄 One-shot database sync across environments via the canonical Mongo migration tool.
+    // Usage: npm run data:sync -- local dev --dry-run --collections cvexperienceitems
+    "data:sync": "bash ./scripts/migrate-database.sh",
     // 🪄 Pull prod media + authored content into the configured content root.
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     // 🧪 Dry-run variant of content:pull:prod:content-dir.

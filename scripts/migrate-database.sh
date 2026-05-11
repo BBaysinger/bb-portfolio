@@ -21,6 +21,8 @@
 # =============================================================================
 
 set -eEo pipefail # Exit on error, propagate ERR in functions, and fail on pipeline errors
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # Flags (default values)
 DRY_RUN=false
 NO_BACKUP=false
@@ -31,6 +33,7 @@ SOURCE_DB_OVERRIDE=""
 TARGET_DB_OVERRIDE=""
 COLLECTIONS_CSV=""
 PROD_CONFIRMATION_PHRASE="overwrite-prod"
+SKIP_REVALIDATE=false
 
 trim() {
   local value="$1"
@@ -133,6 +136,10 @@ parse_flags() {
       --collections)
         COLLECTIONS_CSV="$2"
         shift 2
+        ;;
+      --skip-revalidate)
+        SKIP_REVALIDATE=true
+        shift
         ;;
       *)
         log_warning "Unknown option: $1"
@@ -437,6 +444,59 @@ create_backup() {
   echo
 }
 
+trigger_frontend_revalidation() {
+  local source_env=$1
+  local target_env=$2
+
+  if [[ "$SKIP_REVALIDATE" == "true" ]]; then
+    log_info "Skipping frontend revalidation due to --skip-revalidate."
+    return
+  fi
+
+  if [[ ! -d "$REPO_ROOT/backend" ]]; then
+    log_warning "Backend workspace not found; skipping frontend revalidation."
+    return
+  fi
+
+  log_info "Requesting frontend project revalidation for $target_env"
+
+  local -a revalidate_cmd=(
+    env
+    ENV_PROFILE="$target_env"
+    npm
+    exec
+    --prefix
+    "$REPO_ROOT/backend"
+    --
+    tsx
+    "$REPO_ROOT/backend/scripts/revalidate-project-routes.ts"
+    "--reason=dbMigration:${source_env}-to-${target_env}"
+  )
+
+  if [[ "$target_env" != "local" ]]; then
+    revalidate_cmd=(
+      env
+      ENV_PROFILE="$target_env"
+      USE_GITHUB_SECRETS=true
+      npm
+      exec
+      --prefix
+      "$REPO_ROOT/backend"
+      --
+      tsx
+      "$REPO_ROOT/backend/scripts/revalidate-project-routes.ts"
+      "--reason=dbMigration:${source_env}-to-${target_env}"
+    )
+  fi
+
+  if ! "${revalidate_cmd[@]}"; then
+    log_warning "Frontend revalidation failed after migration. Database copy succeeded; rerun backend/scripts/revalidate-project-routes.ts for ${target_env} if needed."
+    return
+  fi
+
+  log_success "Frontend project revalidation requested for ${target_env}"
+}
+
 # Main migration function
 migrate_database() {
   local source_env=$1
@@ -644,6 +704,10 @@ main() {
   # Perform migration
   migrate_database "$source_env" "$target_env"
 
+  if [[ "$DRY_RUN" != "true" ]]; then
+    trigger_frontend_revalidation "$source_env" "$target_env"
+  fi
+
   echo
   if [[ "$DRY_RUN" == "true" ]]; then
     log_success "🧪 Dry run completed. No changes were made."
@@ -651,10 +715,11 @@ main() {
     log_success "🎈 Migration completed successfully!"
     log_info "Next steps:"
     echo "  1. Test the target environment to verify data integrity"
-    echo "  2. Deploy/restart applications if needed"
+    echo "  2. Confirm frontend content is refreshed for the target environment"
+    echo "  3. Deploy/restart applications if needed"
 
     if [[ "$target_env" == "prod" ]]; then
-      echo "  3. Trigger production build to regenerate static pages"
+      echo "  4. Trigger production build only if your deployment still depends on a full rebuild"
     fi
   fi
 }

@@ -97,7 +97,7 @@
     "content:import:local:cv:content-dir": "bash ./scripts/content-workflow.sh import-cv-local",
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
     "content:import:prod:content-dir": "bash ./scripts/content-workflow.sh import-prod",
-    "data:sync": "npm --prefix backend run sync:env --",
+    "data:sync": "bash ./scripts/migrate-database.sh",
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     "content:pull:prod:content-dir:dry": "bash ./scripts/content-workflow.sh pull-prod-dry",
     "media:export": "bash scripts/export-media.sh",

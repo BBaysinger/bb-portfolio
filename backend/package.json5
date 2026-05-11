@@ -51,8 +51,6 @@
     "seed:cv-experience:local": "npm run seed:cv-experience -- --env local",
     // Seed CV experience data into the dev backend environment
     "seed:cv-experience:dev": "npm run seed:cv-experience -- --env dev",
-    // One-shot full portfolio data bundle sync across local/dev/prod.
-    "sync:env": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/ops/ops-db-sync-env.ts",
     // Standalone smoke test for the Payload admin login flow
     "smoke:admin-login": "node scripts/smoke-admin-login.mjs",
     // Run Next.js linter with deprecation warnings suppressed
