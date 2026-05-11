@@ -5,7 +5,7 @@
 # This script uses mongodump/mongorestore to copy data between environments
 #
 # Usage:
-#   ./migrate-database.sh <source> <target> [--dry-run] [--no-backup]
+#   ./migrate-database.sh <source> <target> [--dry-run] [--no-backup] [--collections users,payload-preferences]
 #
 # Examples:
 #   ./migrate-database.sh local prod            # Copy local → production
@@ -13,6 +13,7 @@
 #   ./migrate-database.sh prod dev              # Copy production → development
 #   ./migrate-database.sh local dev --dry-run   # Plan only (no backup/restore)
 #   ./migrate-database.sh prod dev --no-backup  # Skip target backup (not recommended)
+#   ./migrate-database.sh local dev --collections users
 #
 # Prerequisites:
 #   - MongoDB tools (mongodump, mongorestore) installed
@@ -28,6 +29,57 @@ VERBOSE=false
 QUIET_FLAG=--quiet
 SOURCE_DB_OVERRIDE=""
 TARGET_DB_OVERRIDE=""
+COLLECTIONS_CSV=""
+
+trim() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "$value"
+}
+
+read_collection_args() {
+  if [[ -z "$COLLECTIONS_CSV" ]]; then
+    return
+  fi
+
+  local IFS=','
+  read -r -a raw_collections <<<"$COLLECTIONS_CSV"
+
+  COLLECTION_ARGS=()
+  COLLECTION_DISPLAY=()
+
+  local collection
+  for collection in "${raw_collections[@]}"; do
+    collection="$(trim "$collection")"
+    [[ -n "$collection" ]] || continue
+    COLLECTION_ARGS+=(--nsInclude "*.${collection}")
+    COLLECTION_DISPLAY+=("$collection")
+  done
+
+  if [[ ${#COLLECTION_DISPLAY[@]} -eq 0 ]]; then
+    log_error "--collections was provided, but no valid collection names were found."
+    exit 1
+  fi
+}
+
+collection_scope_label() {
+  if [[ ${#COLLECTION_DISPLAY[@]} -eq 0 ]]; then
+    printf '%s' 'all collections'
+    return
+  fi
+
+  local joined=""
+  local collection
+  for collection in "${COLLECTION_DISPLAY[@]}"; do
+    if [[ -n "$joined" ]]; then
+      joined+=", "
+    fi
+    joined+="$collection"
+  done
+
+  printf '%s' "$joined"
+}
 
 # Trap errors to provide a helpful message when something fails silently
 on_error() {
@@ -73,6 +125,14 @@ parse_flags() {
         ;;
       --target-db)
         TARGET_DB_OVERRIDE="$2"
+        shift 2
+        ;;
+      --collection | --collection-name)
+        COLLECTIONS_CSV="$2"
+        shift 2
+        ;;
+      --collections)
+        COLLECTIONS_CSV="$2"
         shift 2
         ;;
       *)
@@ -269,14 +329,21 @@ confirm_migration() {
   echo "  With data from: $source_db_name"
   echo
   echo "  Collections that will be overwritten:"
-  echo "    - projects"
-  echo "    - projectThumbnails"
-  echo "    - projectScreenshots"
-  echo "    - brandLogos"
-  echo "    - clients"
-  echo "    - users"
-  echo "    - payload-preferences"
-  echo "    - payload-migrations"
+  if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+    local collection
+    for collection in "${COLLECTION_DISPLAY[@]}"; do
+      echo "    - $collection"
+    done
+  else
+    echo "    - projects"
+    echo "    - projectThumbnails"
+    echo "    - projectScreenshots"
+    echo "    - brandLogos"
+    echo "    - clients"
+    echo "    - users"
+    echo "    - payload-preferences"
+    echo "    - payload-migrations"
+  fi
   echo
 
   if [[ "$target_env" == "prod" ]]; then
@@ -320,13 +387,21 @@ create_backup() {
   fi
 
   log_info "Creating backup of target database: $target_db_name"
+  if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+    log_info "Backup scope: $(collection_scope_label)"
+  fi
 
   mkdir -p "$backup_dir"
 
-  mongodump \
-    --uri "$target_db_uri" \
-    --out "$backup_dir" \
-    ${QUIET_FLAG:+$QUIET_FLAG} </dev/null
+  local dump_cmd=(mongodump --uri "$target_db_uri" --out "$backup_dir")
+  if [[ -n "$QUIET_FLAG" ]]; then
+    dump_cmd+=("$QUIET_FLAG")
+  fi
+  if [[ ${#COLLECTION_ARGS[@]} -gt 0 ]]; then
+    dump_cmd+=("${COLLECTION_ARGS[@]}")
+  fi
+
+  "${dump_cmd[@]}" </dev/null
 
   log_success "Backup created: $backup_dir"
   echo "  Use this to restore if needed:"
@@ -348,13 +423,19 @@ migrate_database() {
   local temp_dump_dir="./temp_dump_$$"
 
   log_info "Starting database migration: $source_db_name → $target_db_name"
+  if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
+    log_info "Migration scope: $(collection_scope_label)"
+  fi
   if [[ "$DRY_RUN" == "true" ]]; then
     echo
     log_info "Plan (no actions will be performed):"
+    local masked_source_uri masked_target_uri
+    masked_source_uri="$(mask_uri "$source_db_uri")"
+    masked_target_uri="$(mask_uri "$target_db_uri")"
     echo "  Source URI: $(mask_uri "$source_db_uri")"
     echo "  Target URI: $(mask_uri "$target_db_uri")"
-    echo "  Will run: mongodump --uri \"$source_db_uri\" --out \"$temp_dump_dir\" ${QUIET_FLAG:+$QUIET_FLAG}"
-    echo "  Then:     mongorestore --uri \"$target_db_uri\" --drop --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
+    echo "  Will run: mongodump --uri \"$masked_source_uri\" --out \"$temp_dump_dir\"${QUIET_FLAG:+ $QUIET_FLAG}${COLLECTIONS_CSV:+ --collections $COLLECTIONS_CSV}"
+    echo "  Then:     mongorestore --uri \"$masked_target_uri\" --drop --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
     echo
     return
   fi
@@ -365,10 +446,14 @@ migrate_database() {
   # Capture mongodump errors for diagnostics
   local dump_log
   dump_log=$(mktemp -t mongodump.XXXXXX)
-  if ! mongodump \
-    --uri "$source_db_uri" \
-    --out "$temp_dump_dir" \
-    ${QUIET_FLAG:+$QUIET_FLAG} </dev/null 2>"$dump_log"; then
+  local dump_cmd=(mongodump --uri "$source_db_uri" --out "$temp_dump_dir")
+  if [[ -n "$QUIET_FLAG" ]]; then
+    dump_cmd+=("$QUIET_FLAG")
+  fi
+  if [[ ${#COLLECTION_ARGS[@]} -gt 0 ]]; then
+    dump_cmd+=("${COLLECTION_ARGS[@]}")
+  fi
+  if ! "${dump_cmd[@]}" </dev/null 2>"$dump_log"; then
     log_error "mongodump failed. Last lines from dump log:"
     tail -n 50 "$dump_log"
     rm -f "$dump_log"
@@ -406,13 +491,18 @@ migrate_database() {
   # Map source DB namespace to target DB to ensure correct restore
   local restore_log
   restore_log=$(mktemp -t mongorestore.XXXXXX)
-  if ! mongorestore \
-    --uri "$target_db_uri" \
-    --drop \
-    --nsFrom "${source_dump_name}.*" \
-    --nsTo "${target_db_name}.*" \
-    "$source_dump_dir" \
-    ${QUIET_FLAG:+$QUIET_FLAG} </dev/null 2>"$restore_log"; then
+  local restore_cmd=(
+    mongorestore
+    --uri "$target_db_uri"
+    --drop
+    --nsFrom "${source_dump_name}.*"
+    --nsTo "${target_db_name}.*"
+    "$source_dump_dir"
+  )
+  if [[ -n "$QUIET_FLAG" ]]; then
+    restore_cmd+=("$QUIET_FLAG")
+  fi
+  if ! "${restore_cmd[@]}" </dev/null 2>"$restore_log"; then
     log_error "mongorestore failed. Last lines from restore log:"
     tail -n 50 "$restore_log"
     rm -f "$restore_log"
@@ -438,6 +528,10 @@ main() {
     set -x
     QUIET_FLAG=
   fi
+
+  COLLECTION_ARGS=()
+  COLLECTION_DISPLAY=()
+  read_collection_args
 
   echo "🔄 MongoDB Database Migration Tool"
   echo "=================================="

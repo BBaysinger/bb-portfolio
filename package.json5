@@ -79,7 +79,7 @@
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
     "docker:logs": "docker compose -f deploy/compose/docker-compose.yml --profile local logs -f",
-    // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches.
+    // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches. This is key if your machine runs out of disk space due to Docker images.
     "docker:maintenance": "zsh deploy/scripts/docker-maintenance.sh",
     // 🚀 Push backend Docker image to Docker Hub (dev tag)
     "docker:push:backend": "docker push bhbaysinger/bb-portfolio-backend:dev",
@@ -331,11 +331,14 @@
     "projects:upload:both": "tsx scripts/upload-projects-to-s3.ts --env both",
     // 📁 Verify uploaded project files on S3 to ensure integrity
     "projects:verify": "tsx scripts/verify-projects-s3.ts",
-    // ☢️🔥 DANGER: Overwrites dev DB with local data
+    // ☢️🔥 DANGER: Overwrites dev DB with local data.
+    // Pass through flags after `--`, for example: `npm run db:migrate:local-to-dev -- --collections users`.
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
-    // ☢️⚰️ DANGER: Overwrites dev DB with production data
+    // ☢️⚰️ DANGER: Overwrites dev DB with production data.
+    // You can scope the migration to selected collections with the same `-- --collections ...` pass-through.
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    // ☢️⚠️ DANGER: Overwrites local DB with production data
+    // ☢️⚠️ DANGER: Overwrites local DB with production data.
+    // Use the same extra-args pass-through if you only need selected collections.
     "db:migrate:prod-to-local": "bash scripts/migrate-database.sh prod local",
     // ☢️ Convenience: run prod→dev then prod→local
     "db:migrate:prod-to-all": "npm run db:migrate:prod-to-dev && npm run db:migrate:prod-to-local",
