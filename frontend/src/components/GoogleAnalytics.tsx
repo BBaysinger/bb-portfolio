@@ -1,9 +1,13 @@
 "use client";
 
 import Script from "next/script";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import { useRouteChange } from "@/hooks/useRouteChange";
+import {
+  LANDING_R_COOKIE,
+  normalizeLandingR,
+} from "@/utils/landingAttribution";
 import { getSearchParam } from "@/utils/searchParams";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -15,16 +19,42 @@ declare global {
   }
 }
 
-function normalizeLandingR(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
+function stripLandingRFromVisibleUrl() {
+  if (typeof window === "undefined") return;
 
-  // Keep it simple + safe: allow short slugs like "github", "hn", "newsletter-jan".
-  // Reject anything that looks like a URL or has weird characters.
-  if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(trimmed)) return undefined;
+  try {
+    const currentUrl = new URL(window.location.href);
+    if (!currentUrl.searchParams.has("r")) return;
 
-  return trimmed;
+    currentUrl.searchParams.delete("r");
+    const relative = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`;
+    window.history.replaceState(window.history.state, "", relative);
+  } catch {
+    // ignore
+  }
+}
+
+function getCookieValue(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+
+  const prefix = `${encodeURIComponent(name)}=`;
+  const parts = document.cookie ? document.cookie.split(/;\s*/) : [];
+  for (const part of parts) {
+    if (!part.startsWith(prefix)) continue;
+    const rawValue = part.slice(prefix.length);
+    try {
+      return decodeURIComponent(rawValue);
+    } catch {
+      return rawValue;
+    }
+  }
+
+  return undefined;
+}
+
+function clearCookie(name: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${encodeURIComponent(name)}=; Max-Age=0; Path=/; SameSite=Lax`;
 }
 
 function sendPageView(pagePath: string) {
@@ -40,7 +70,9 @@ function sendPageView(pagePath: string) {
   // explicit page_view events for SPA/app-router navigation.
   const currentUrl = new URL(window.location.href);
   const hasRParam = currentUrl.searchParams.has("r");
-  const landingR = normalizeLandingR(getSearchParam(currentUrl.search, "r"));
+  const landingR = normalizeLandingR(
+    getSearchParam(currentUrl.search, "r") || getCookieValue(LANDING_R_COOKIE),
+  );
 
   // Prefer keeping `?r=` out of the canonical URL we send to GA (and the URL bar)
   // while still capturing it as a dedicated event parameter.
@@ -66,6 +98,10 @@ function sendPageView(pagePath: string) {
     ...(landingR ? { landing_r: landingR } : {}),
   });
 
+  if (landingR) {
+    clearCookie(LANDING_R_COOKIE);
+  }
+
   // Now that attribution has been captured, strip `r` from the visible URL
   // to keep links clean and avoid polluting canonical page URLs.
   if (hasRParam) {
@@ -86,6 +122,11 @@ function sendPageView(pagePath: string) {
  * Enabled only when NEXT_PUBLIC_GA_MEASUREMENT_ID is set.
  */
 export function GoogleAnalytics() {
+  useEffect(() => {
+    // Remove only the tracking param from the visible URL on first client mount.
+    stripLandingRFromVisibleUrl();
+  }, []);
+
   const handleRouteChange = useCallback((pathname: string, search: string) => {
     if (!GA_MEASUREMENT_ID) return;
     if (!pathname) return;
