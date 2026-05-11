@@ -13,7 +13,7 @@ FRONTEND_PROJECTS_REVALIDATE_SECRET="${FRONTEND_PROJECTS_REVALIDATE_SECRET:?FRON
 SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
 
 declare -a SSH_OPTS_ARR
-read -r -a SSH_OPTS_ARR <<< "$(bb_ssh_opts_string)"
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
 
 port=3000
 if [ "$ENVIRONMENT" = "dev" ]; then
