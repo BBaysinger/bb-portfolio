@@ -1,0 +1,123 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: #f2f4f7;
+  background:
+    radial-gradient(circle at top, rgba(244, 157, 55, 0.16), transparent 38%),
+    linear-gradient(180deg, #161a20, #0d0f12);
+}
+
+.card {
+  width: min(42rem, 100%);
+  padding: clamp(2rem, 5vw, 3rem);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 55%),
+    rgba(18, 21, 27, 0.9);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.eyebrowRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.eyebrow,
+.status {
+  display: inline-block;
+  padding: 0.35rem 0.65rem;
+  font:
+    700 0.75rem/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  color: #f49d37;
+  background: rgba(244, 157, 55, 0.22);
+}
+
+.status {
+  color: rgba(242, 244, 247, 0.86);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.title {
+  font-weight: 500;
+  margin: 0 0 0.85rem;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 0.95;
+}
+
+.body {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(242, 244, 247, 0.72);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.button,
+.secondaryButton {
+  appearance: none;
+  border: 1px solid transparent;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.button {
+  color: #0d0f12;
+  background: #f49d37;
+}
+
+.secondaryButton {
+  color: #f2f4f7;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.button:hover,
+.secondaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.button:hover {
+  background: #ffac51;
+}
+
+.secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.detail {
+  margin-top: 1.25rem;
+  font:
+    400 0.92rem/1.6 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  color: rgba(242, 244, 247, 0.56);
+}
