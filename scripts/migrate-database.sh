@@ -30,6 +30,7 @@ QUIET_FLAG=--quiet
 SOURCE_DB_OVERRIDE=""
 TARGET_DB_OVERRIDE=""
 COLLECTIONS_CSV=""
+PROD_CONFIRMATION_PHRASE="overwrite-prod"
 
 trim() {
   local value="$1"
@@ -320,6 +321,8 @@ confirm_migration() {
   local target_env=$2
   local source_db_name=$(resolve_db_name "$source_env" source)
   local target_db_name=$(resolve_db_name "$target_env" target)
+  local confirmation_prompt="yes"
+  local confirmation_read_prompt="Are you sure you want to continue? (type '$confirmation_prompt' to confirm): "
 
   echo
   log_warning "DESTRUCTIVE OPERATION WARNING"
@@ -346,27 +349,45 @@ confirm_migration() {
 
   if [[ "$target_env" == "prod" ]]; then
     log_error "⚠️  PRODUCTION DATABASE WILL BE OVERWRITTEN ⚠️"
+    confirmation_prompt="$PROD_CONFIRMATION_PHRASE"
+    confirmation_read_prompt="Input: "
+    echo "  PRODUCTION CONFIRMATION REQUIRED"
+    echo "  Type exactly: '$confirmation_prompt'"
+    echo "  The next prompt accepts only that exact text."
     echo
   fi
 
   if [[ "$DRY_RUN" == "true" ]]; then
     log_info "Dry run mode enabled: no backup or restore will be executed."
+    if [[ "$target_env" != "prod" ]]; then
+      return
+    fi
+  fi
+
+  if [[ "$ASSUME_YES" == "true" && "$target_env" != "prod" ]]; then
+    log_info "--yes provided: skipping interactive confirmation."
     return
   fi
 
-  if [[ "$ASSUME_YES" == "true" ]]; then
-    log_info "--yes provided: skipping interactive confirmation."
-    return
+  if [[ "$ASSUME_YES" == "true" && "$target_env" == "prod" ]]; then
+    log_warning "--yes does not bypass the production confirmation prompt."
+  fi
+
+  if [[ "$target_env" == "prod" && ! -t 0 ]]; then
+    log_error "Production migrations require an interactive terminal confirmation."
+    echo "  Re-run this command in an interactive terminal."
+    echo "  When prompted, type exactly: '$confirmation_prompt'"
+    exit 1
   fi
 
   # Read confirmation directly from the terminal to avoid stdin piping issues
   local confirmation
   if [[ -t 0 && -r /dev/tty ]]; then
-    read -r -p "Are you sure you want to continue? (type 'yes' to confirm): " confirmation </dev/tty
+    read -r -p "$confirmation_read_prompt" confirmation </dev/tty
   else
-    read -r -p "Are you sure you want to continue? (type 'yes' to confirm): " confirmation
+    read -r -p "$confirmation_read_prompt" confirmation
   fi
-  if [[ "$confirmation" != "yes" ]]; then
+  if [[ "$confirmation" != "$confirmation_prompt" ]]; then
     log_info "Migration cancelled."
     exit 0
   fi
