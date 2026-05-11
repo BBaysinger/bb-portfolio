@@ -8,7 +8,7 @@ source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
 KEY_PATH="${1:?ssh key path arg required}"
-EC2_HOST="$(bb_ec2_host_or_die)"
+SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
 ENVIRONMENT="${ENVIRONMENT:?ENVIRONMENT env required}"
 START_DEV="${START_DEV:-true}"
 ATTEMPTS="${HEALTH_ATTEMPTS:-12}"
@@ -21,11 +21,19 @@ CURL_ZERO_EXTRA_ATTEMPTS="${CURL_ZERO_EXTRA_ATTEMPTS:-6}"
 CURL_ZERO_DELAY="${CURL_ZERO_DELAY_SECONDS:-$CURL_DELAY}"
 GRACE="${HEALTH_STARTING_GRACE_SECONDS:-40}"                # Allow backend health: starting state for this many seconds
 POST_GRACE_WAIT="${HEALTH_POST_GRACE_WAIT_SECONDS:-$GRACE}" # Additional wait before HTTP checks if we relied on grace
+SSH_RETRY_ATTEMPTS="${SSH_RETRY_ATTEMPTS:-3}"
+SSH_RETRY_DELAY="${SSH_RETRY_DELAY_SECONDS:-4}"
 
 DEV_GRACE_USED=false
 PROD_GRACE_USED=false
 
-ssh_cmd() { ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "$@"; }
+declare -a SSH_OPTS_ARR
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
+
+ssh_cmd() {
+  bb_retry "$SSH_RETRY_ATTEMPTS" "$SSH_RETRY_DELAY" "ssh health probe" \
+    ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" "$@"
+}
 
 parse_uptime_seconds() {
   # Input: docker ps status line e.g. 'Up 18 seconds (health: starting)'
@@ -52,6 +60,13 @@ parse_uptime_seconds() {
   echo 0
 }
 
+fetch_container_statuses() {
+  local backend_name="$1"
+  local frontend_name="$2"
+
+  ssh_cmd "backend=\$(docker ps --filter name=${backend_name} --format '{{.Status}}' | head -n 1 || true); frontend=\$(docker ps --filter name=${frontend_name} --format '{{.Status}}' | head -n 1 || true); printf '%s\\n%s\\n' \"\$backend\" \"\$frontend\""
+}
+
 poll_containers() {
   local env="$1"
   local tries=0
@@ -68,9 +83,10 @@ poll_containers() {
   esac
   echo "Polling container health for $env (max $ATTEMPTS attempts, $DELAY s delay)" >&2
   while [ $tries -lt $ATTEMPTS ]; do
-    local be_status fe_status
-    be_status=$(ssh_cmd "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
-    fe_status=$(ssh_cmd "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
+    local status_output be_status fe_status
+    status_output=$(fetch_container_statuses "$be_name" "$fe_name" || true)
+    be_status=$(printf '%s\n' "$status_output" | sed -n '1p')
+    fe_status=$(printf '%s\n' "$status_output" | sed -n '2p')
     be_ready=false
     fe_ready=false
     # Frontend readiness: simply Up

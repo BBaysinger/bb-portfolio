@@ -8,11 +8,14 @@ source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
 KEY_PATH="${1:?ssh key path arg required}"
-EC2_HOST="$(bb_ec2_host_or_die)"
+SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
+declare -a SSH_OPTS_ARR
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
 
-ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/bb-portfolio/deploy/compose && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
-scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -C \
-  "deploy/compose/docker-compose.yml" \
-  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml
+bb_retry 3 4 "ensure remote compose directory" \
+  ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" "sudo mkdir -p /home/ec2-user/bb-portfolio/deploy/compose && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
+
+bb_retry 3 4 "compose file upload" \
+  scp -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "deploy/compose/docker-compose.yml" "$SSH_TARGET":/home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml
 
 echo "Compose file uploaded"

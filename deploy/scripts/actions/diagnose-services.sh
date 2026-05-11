@@ -19,8 +19,14 @@ resolve_ssl_domain() {
 }
 
 KEY_PATH="${1:?ssh key path arg required}"
-EC2_HOST="$(bb_ec2_host_or_die)"
-ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" $'set -e
+SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
+SSL_DOMAIN_VALUE="$(resolve_ssl_domain || true)"
+declare -a SSH_OPTS_ARR
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
+
+bb_retry 3 4 "remote service diagnostics" \
+  ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" "SSL_DOMAIN='${SSL_DOMAIN_VALUE}' bash -s" <<'BASH'
+set -e
   echo "== Docker ps =="
   docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
   echo
@@ -53,7 +59,7 @@ ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null e
   done
   echo
   echo "== Nginx vhost probes =="
-  DOMAIN=$(resolve_ssl_domain || true)
+  DOMAIN="${SSL_DOMAIN:-}"
   if [[ -n "$DOMAIN" ]]; then
     # Probe HTTP vhost routing via Host header to ensure /api goes to backend
     http_code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: ${DOMAIN}" http://127.0.0.1/api/health/ || true)
@@ -72,4 +78,4 @@ ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null e
   echo "== Nginx logs (last 50 lines with /api/health) =="
   sudo sh -lc "grep -E '/api/health' /var/log/nginx/access.log | tail -n 50" || true
   sudo sh -lc "tail -n 50 /var/log/nginx/error.log" || true
-'
+BASH

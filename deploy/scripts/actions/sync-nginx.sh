@@ -19,8 +19,10 @@ resolve_ssl_domain() {
 }
 
 KEY_PATH="${1:?ssh key path arg required}"
-EC2_HOST="$(bb_ec2_host_or_die)"
+SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
 SSL_DOMAIN_LOCAL="$(resolve_ssl_domain || true)"
+declare -a SSH_OPTS_ARR
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
 
 if [[ -n "$SSL_DOMAIN_LOCAL" ]] && ! bb_is_apex_ssl_domain "$SSL_DOMAIN_LOCAL"; then
   echo "Refusing to sync nginx with non-canonical SSL domain: $SSL_DOMAIN_LOCAL" >&2
@@ -28,16 +30,19 @@ if [[ -n "$SSL_DOMAIN_LOCAL" ]] && ! bb_is_apex_ssl_domain "$SSL_DOMAIN_LOCAL"; 
 fi
 
 echo "== Uploading Nginx vhost config =="
-scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
-  deploy/nginx/bb-portfolio.conf ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/bb-portfolio.conf
+bb_retry 3 4 "upload nginx vhost" \
+  scp -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
+  deploy/nginx/bb-portfolio.conf "$SSH_TARGET":/home/ec2-user/bb-portfolio/bb-portfolio.conf
 
 echo "== Uploading deploy maintenance page =="
-scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
-  deploy/nginx/__deploying.html ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/__deploying.html
+bb_retry 3 4 "upload deploy maintenance page" \
+  scp -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
+  deploy/nginx/__deploying.html "$SSH_TARGET":/home/ec2-user/bb-portfolio/__deploying.html
 
 echo "== Installing to /etc/nginx/conf.d and reloading =="
-ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-  ec2-user@"$EC2_HOST" "SSL_DOMAIN='$SSL_DOMAIN_LOCAL' bash -s" <<'SSH'
+bb_retry 3 4 "install nginx config" \
+  ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
+  "$SSH_TARGET" "SSL_DOMAIN='$SSL_DOMAIN_LOCAL' bash -s" <<'SSH'
 set -e
 sudo mkdir -p /etc/nginx/conf.d
 sudo mkdir -p /var/www/html

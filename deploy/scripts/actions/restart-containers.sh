@@ -8,12 +8,15 @@ source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
 KEY_PATH="${1:?ssh key path arg required}"
-EC2_HOST="$(bb_ec2_host_or_die)"
+SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
 ENVIRONMENT="${ENVIRONMENT:?ENVIRONMENT env required}"
 START_DEV="${START_DEV:-true}"
+declare -a SSH_OPTS_ARR
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
 
 remote_pre_clean() {
-  ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='$ENVIRONMENT' bash -s" <<'BASH'
+  bb_retry 3 4 "remote docker cleanup" \
+    ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" "ENVIRONMENT='$ENVIRONMENT' bash -s" <<'BASH'
 set -e
 echo "== Disk usage before =="
 df -h / || true
@@ -36,7 +39,8 @@ BASH
 }
 
 remote_restart() {
-  ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='$ENVIRONMENT' START_DEV='$START_DEV' bash -s" <<'BASH'
+  bb_retry 3 4 "remote container restart" \
+    ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" "ENVIRONMENT='$ENVIRONMENT' START_DEV='$START_DEV' bash -s" <<'BASH'
 set -e
 cd /home/ec2-user/bb-portfolio
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)

@@ -9,16 +9,19 @@ bb_load_repo_env "$REPO_ROOT"
 
 KEY_PATH="${1:?ssh key path arg required}"
 MODE="${DEPLOY_MODE_ACTION:-${2:-}}"
-EC2_HOST="$(bb_ec2_host_or_die)"
+SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
 ENVIRONMENT="${ENVIRONMENT:?ENVIRONMENT env required}"
+declare -a SSH_OPTS_ARR
+read -r -a SSH_OPTS_ARR <<<"$(bb_ssh_opts_string)"
 
 if [[ "$MODE" != "enable" && "$MODE" != "disable" ]]; then
   echo "DEPLOY_MODE_ACTION must be enable or disable" >&2
   exit 1
 fi
 
-ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-  ec2-user@"$EC2_HOST" "MODE='$MODE' ENVIRONMENT='$ENVIRONMENT' bash -s" <<'SSH'
+bb_retry 3 4 "deploy mode ${MODE}" \
+  ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
+  "$SSH_TARGET" "MODE='$MODE' ENVIRONMENT='$ENVIRONMENT' bash -s" <<'SSH'
 set -euo pipefail
 
 marker_path() {

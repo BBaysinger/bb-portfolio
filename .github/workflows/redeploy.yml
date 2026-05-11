@@ -248,18 +248,7 @@ jobs:
           ENVIRONMENT: ${{ matrix.target }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           FRONTEND_PROJECTS_REVALIDATE_SECRET: ${{ secrets.FRONTEND_PROJECTS_REVALIDATE_SECRET }}
-        run: |
-          set -euo pipefail
-          port=3000
-          if [ "$ENVIRONMENT" = "dev" ]; then
-            port=4000
-          fi
-          payload='{"reason":"post-deploy-revalidate","source":"github-actions-redeploy"}'
-          ssh -i "${{ steps.ssh.outputs.key }}" \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            ec2-user@"$EC2_HOST" \
-            "curl -fsS -X POST -H 'Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET' -H 'Content-Type: application/json' -d '$payload' http://127.0.0.1:${port}/api/revalidate/projects/ >/dev/null"
+        run: bash deploy/scripts/actions/trigger-frontend-revalidation.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Dump container logs on failure
         if: failure()
