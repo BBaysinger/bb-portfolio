@@ -215,13 +215,13 @@
     "snapshot:projects:secret:write": "npm --prefix frontend run snapshot:projects:secret:write",
     // Refresh both the raw snapshot and the cached secret snapshot file in one run.
     "snapshot:projects:secret:refresh": "npm --prefix frontend run snapshot:projects && npm --prefix frontend run snapshot:projects:secret:write",
-    //
+    // Export the current static-content snapshot used for build-time CMS-derived content inputs.
     "snapshot:static-content": "npm --prefix frontend run snapshot:static-content",
-    //
+    // Prepare the redacted static-content snapshot payload for secret storage or sharing.
     "snapshot:static-content:secret": "npm --prefix frontend run snapshot:static-content:secret",
-    //
+    // Write the redacted static-content snapshot to the frontend cache directory.
     "snapshot:static-content:secret:write": "npm --prefix frontend run snapshot:static-content:secret:write",
-    //
+    // Refresh the cached secret static-content snapshot file from the latest source snapshot.
     "snapshot:static-content:secret:refresh": "npm --prefix frontend run snapshot:static-content:secret:write",
     // Generate the branded social image asset used by the frontend.
     "social-image:generate": "npm --prefix frontend run social-image:generate",
