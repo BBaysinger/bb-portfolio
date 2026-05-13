@@ -444,7 +444,12 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     );
 
     return (
-      <div ref={wrapperRef} className={clsx(styles.gridController, className)}>
+      <div
+        ref={wrapperRef}
+        className={clsx(styles.gridController, className, {
+          [styles.animationSequencerPaused]: isAnimationSequencerPaused,
+        })}
+      >
         <AnimationSequencer
           className={styles.animationSequencer}
           isPaused={isAnimationSequencerPaused}

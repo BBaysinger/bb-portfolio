@@ -20,6 +20,14 @@
   aspect-ratio: 4/3;
   width: 100%;
   height: 100%;
+  opacity: 1;
+  transition: opacity 220ms ease;
+}
+
+.animationSequencerPaused {
+  .animationSequencer {
+    opacity: 0;
+  }
 }
 
 .fluxelGridCanvas {
