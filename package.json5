@@ -411,9 +411,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.59.2",
+    "@typescript-eslint/eslint-plugin": "8.59.3",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.59.2",
+    "@typescript-eslint/parser": "8.59.3",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.29",
     // Run multiple commands concurrently in scripts
@@ -437,7 +437,7 @@
     // JSON5 parser for annotated config files
     "json5": "^2.2.3",
     // CLI that syncs documented package.json5 companions from canonical package.json files
-    "json5-manifest-sync": "^0.2.1",
+    "json5-manifest-sync": "^0.2.2",
     // Code formatter for consistent style
     "prettier": "^3.8.3",
     // TypeScript execution environment for scripts
