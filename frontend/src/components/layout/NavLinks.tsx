@@ -195,6 +195,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
         <AuthNavItem
           className={styles.login}
           linkClassName={linkClass("login")}
+          variant={variant === "mobile" ? "mobile" : "default"}
           {...(isInactiveMobile ? { tabIndex: -1 } : {})}
         />
       </ul>

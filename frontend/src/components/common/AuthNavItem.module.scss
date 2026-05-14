@@ -22,6 +22,14 @@
     }
   }
 
+  .logoutControlMobile {
+    height: 100%;
+    margin-inline: 0;
+    align-self: stretch;
+    justify-content: center;
+    mask-position: left center;
+  }
+
   .logoutControlError {
     width: auto;
     padding-left: initial;

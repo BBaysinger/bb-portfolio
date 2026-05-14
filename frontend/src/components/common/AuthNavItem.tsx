@@ -25,6 +25,7 @@ interface Props {
   className?: string;
   /** Optional class to apply to the clickable control (<Link> or <button>) */
   linkClassName?: string;
+  variant?: "default" | "mobile";
 }
 
 /**
@@ -40,6 +41,7 @@ interface Props {
 export default function AuthNavItem({
   className = "",
   linkClassName = "",
+  variant = "default",
 }: Props) {
   const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const authed = isLoggedIn || Boolean(user);
@@ -80,6 +82,7 @@ export default function AuthNavItem({
           className={clsx(
             linkClassName,
             styles.logoutControl,
+            variant === "mobile" && styles.logoutControlMobile,
             hasLogoutError && styles.logoutControlError,
           )}
           aria-label={logoutError ?? "Logout"}
