@@ -46,16 +46,24 @@ const HomePage = async () => {
   // That dataset depends on per-request cookies; rendering it on the server would
   // make the page dynamic/no-store (or risk leaking NDA content via caching).
   const projectData = new ProjectDataStore();
-  const initResult = await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+  let ssrProjects = projectData.listedProjects;
+  let ssrProjectRecord = projectData.projectsRecord;
+  let containsSanitizedPlaceholders = false;
 
-  const ssrProjects = projectData.listedProjects;
-  const ssrProjectRecord = projectData.projectsRecord;
-  const containsSanitizedPlaceholders = Boolean(
-    initResult.containsSanitizedPlaceholders,
-  );
+  try {
+    const initResult = await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+
+    ssrProjects = projectData.listedProjects;
+    ssrProjectRecord = projectData.projectsRecord;
+    containsSanitizedPlaceholders = Boolean(
+      initResult.containsSanitizedPlaceholders,
+    );
+  } catch (error) {
+    console.error("Home page project SSR initialization failed:", error);
+  }
 
   const ssrAuthenticated = false;
   const ssrIncludeNdaInActive = false;

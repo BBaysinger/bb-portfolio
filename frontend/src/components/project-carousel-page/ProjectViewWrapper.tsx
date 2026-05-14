@@ -67,6 +67,36 @@ export default function ProjectViewWrapper({
   const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
   const prevAuthRef = useRef(clientAuth);
+  const [clientBootstrapPending, setClientBootstrapPending] = useState(false);
+
+  useEffect(() => {
+    const routeHasProject = Boolean(ProjectData.getProject(params.projectId));
+    if (didHydrateFromSsr && routeHasProject) return;
+
+    let cancelled = false;
+    setClientBootstrapPending(true);
+
+    (async () => {
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive,
+        });
+      } catch {
+        if (!cancelled) {
+          setClientBootstrapPending(false);
+        }
+        return;
+      }
+
+      if (cancelled) return;
+      setClientBootstrapPending(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [didHydrateFromSsr, includeNdaInActive, params.projectId]);
 
   useEffect(() => {
     if (!allowNda) {
@@ -94,7 +124,7 @@ export default function ProjectViewWrapper({
       try {
         await ProjectData.initialize({
           disableCache: true,
-          includeNdaInActive: clientAuth,
+          includeNdaInActive,
         });
       } catch {
         return;
@@ -110,6 +140,7 @@ export default function ProjectViewWrapper({
     allowNda,
     clientAuth,
     hasInitialized,
+    includeNdaInActive,
     params.projectId,
     ssrContainsSanitizedPlaceholders,
   ]);
@@ -120,6 +151,7 @@ export default function ProjectViewWrapper({
     <ProjectViewRouterBridge
       initialProjectId={params.projectId}
       allowNda={Boolean(allowNda)}
+      clientBootstrapPending={clientBootstrapPending}
     />
   );
 }
@@ -127,9 +159,11 @@ export default function ProjectViewWrapper({
 function ProjectViewRouterBridge({
   initialProjectId,
   allowNda,
+  clientBootstrapPending,
 }: {
   initialProjectId: string;
   allowNda: boolean;
+  clientBootstrapPending: boolean;
 }) {
   const [projectId] = useProjectUrlSync(initialProjectId);
   // Shareable/canonical URLs follow the current carousel context.
@@ -150,6 +184,25 @@ function ProjectViewRouterBridge({
       >
         <h2>Oops! No project ID was provided!</h2>
         <p>This page expects a valid projectId parameter.</p>
+      </div>
+    );
+  }
+
+  if (
+    clientBootstrapPending &&
+    !(ProjectData.activeProjectsRecord || {})[projectId]
+  ) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <h2>Loading project…</h2>
       </div>
     );
   }

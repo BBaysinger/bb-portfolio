@@ -105,6 +105,43 @@ export default function HomePageClient({
     };
   }, [clientAuth, ssrAuthenticated]);
 
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+
+    const hasSnapshot =
+      (ssrProjects?.length || 0) > 0 ||
+      Object.keys(ssrProjectRecord || {}).length > 0;
+
+    if (hasSnapshot) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: false,
+        });
+      } catch (initError) {
+        if (!cancelled) {
+          setError(
+            initError instanceof Error
+              ? initError
+              : new Error("Failed to recover project data after SSR miss."),
+          );
+        }
+        return;
+      }
+
+      if (cancelled) return;
+      setProjects([...ProjectData.listedProjects]);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ssrProjectRecord, ssrProjects]);
+
   // When a previously authenticated visitor logs out, re-fetch so NDA data is replaced with placeholders.
   useEffect(() => {
     if (!hydratedRef.current) {

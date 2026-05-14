@@ -39,6 +39,11 @@ bb_retry 3 4 "upload deploy maintenance page" \
   scp -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
   deploy/nginx/__deploying.html "$SSH_TARGET":/home/ec2-user/bb-portfolio/__deploying.html
 
+echo "== Uploading server error page =="
+bb_retry 3 4 "upload server error page" \
+  scp -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
+  deploy/nginx/__server-error.html "$SSH_TARGET":/home/ec2-user/bb-portfolio/__server-error.html
+
 echo "== Installing to /etc/nginx/conf.d and reloading =="
 bb_retry 3 4 "install nginx config" \
   ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" \
@@ -48,8 +53,10 @@ sudo mkdir -p /etc/nginx/conf.d
 sudo mkdir -p /var/www/html
 sudo mv -f /home/ec2-user/bb-portfolio/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
 sudo mv -f /home/ec2-user/bb-portfolio/__deploying.html /var/www/html/__deploying.html
+sudo mv -f /home/ec2-user/bb-portfolio/__server-error.html /var/www/html/__server-error.html
 sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 sudo chown root:root /var/www/html/__deploying.html
+sudo chown root:root /var/www/html/__server-error.html
 
 if command -v certbot >/dev/null 2>&1 && systemctl list-unit-files | grep -q '^certbot-renew.timer'; then
   sudo systemctl enable --now certbot-renew.timer || echo "Failed to enable certbot-renew.timer"
@@ -94,6 +101,7 @@ server {
   if (\$http_referer ~* /admin/) { set \$next_upstream_prod_local http://127.0.0.1:3001; }
 
   proxy_intercept_errors on;
+  error_page 500 =500 /__server-error.html;
   error_page 418 502 503 504 =503 /__deploying.html;
 
   location = /__deploying.html {
@@ -103,6 +111,14 @@ server {
     add_header Retry-After "15" always;
     root /var/www/html;
     try_files /__deploying.html =503;
+  }
+
+  location = /__server-error.html {
+    internal;
+    default_type text/html;
+    add_header Cache-Control "no-store, max-age=0" always;
+    root /var/www/html;
+    try_files /__server-error.html =500;
   }
 
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
@@ -167,6 +183,7 @@ server {
   if (\$http_referer ~* /admin/) { set \$next_upstream_dev_local http://127.0.0.1:4001; }
 
   proxy_intercept_errors on;
+  error_page 500 =500 /__server-error.html;
   error_page 418 502 503 504 =503 /__deploying.html;
 
   location = /__deploying.html {
@@ -176,6 +193,14 @@ server {
     add_header Retry-After "15" always;
     root /var/www/html;
     try_files /__deploying.html =503;
+  }
+
+  location = /__server-error.html {
+    internal;
+    default_type text/html;
+    add_header Cache-Control "no-store, max-age=0" always;
+    root /var/www/html;
+    try_files /__server-error.html =500;
   }
 
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }

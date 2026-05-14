@@ -43,10 +43,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { projectId } = await params;
   const projectData = new ProjectDataStore();
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+  } catch (error) {
+    console.error("Project metadata SSR initialization failed:", error);
+  }
 
   const title = buildProjectPageTitle(projectData.getProject(projectId));
 
@@ -71,15 +76,24 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params;
   const projectData = new ProjectDataStore();
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+  let initialized = false;
+  let ssrParsed:
+    | import("@/data/ProjectData").ParsedPortfolioProjectData
+    | undefined;
 
-  const rec = projectData.getProject(projectId);
-  if (!rec) return notFound();
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+    initialized = true;
+    ssrParsed = projectData.projectsRecord;
+  } catch (error) {
+    console.error("Project page SSR initialization failed:", error);
+  }
 
-  const ssrParsed = projectData.projectsRecord;
+  const rec = initialized ? projectData.getProject(projectId) : undefined;
+  if (initialized && !rec) return notFound();
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>

@@ -733,14 +733,25 @@ sync_nginx_config() {
     return 0
   fi
   local SRC_CFG="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf"
+  local SRC_DEPLOYING_PAGE="${REPO_ROOT}/deploy/nginx/__deploying.html"
+  local SRC_SERVER_ERROR_PAGE="${REPO_ROOT}/deploy/nginx/__server-error.html"
   if [[ ! -f "$SRC_CFG" ]]; then
     warn "Nginx sync skipped: local config missing at $SRC_CFG"
     return 0
   fi
+  if [[ ! -f "$SRC_DEPLOYING_PAGE" || ! -f "$SRC_SERVER_ERROR_PAGE" ]]; then
+    warn "Nginx sync skipped: static nginx error pages are missing"
+    return 0
+  fi
   log "Syncing nginx config to $host and reloading"
   scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SRC_CFG" ec2-user@"$host":/home/ec2-user/bb-portfolio.conf.tmp
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SRC_DEPLOYING_PAGE" ec2-user@"$host":/home/ec2-user/__deploying.html.tmp
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SRC_SERVER_ERROR_PAGE" ec2-user@"$host":/home/ec2-user/__server-error.html.tmp
   ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+    sudo mkdir -p /var/www/html
     sudo mv /home/ec2-user/bb-portfolio.conf.tmp /etc/nginx/conf.d/bb-portfolio.conf
+    sudo mv /home/ec2-user/__deploying.html.tmp /var/www/html/__deploying.html
+    sudo mv /home/ec2-user/__server-error.html.tmp /var/www/html/__server-error.html
     sudo nginx -t
     sudo systemctl reload nginx
   '
@@ -795,6 +806,15 @@ server {
   ssl_certificate     /etc/letsencrypt/live/$PROD_CERT_DOMAIN/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/$PROD_CERT_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
+  proxy_intercept_errors on;
+  error_page 500 =500 /__server-error.html;
+  location = /__server-error.html {
+    internal;
+    default_type text/html;
+    add_header Cache-Control "no-store, max-age=0" always;
+    root /var/www/html;
+    try_files /__server-error.html =500;
+  }
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
@@ -810,6 +830,15 @@ server {
   ssl_certificate     /etc/letsencrypt/live/$DEV_CERT_DOMAIN/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/$DEV_CERT_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
+  proxy_intercept_errors on;
+  error_page 500 =500 /__server-error.html;
+  location = /__server-error.html {
+    internal;
+    default_type text/html;
+    add_header Cache-Control "no-store, max-age=0" always;
+    root /var/www/html;
+    try_files /__server-error.html =500;
+  }
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location /api/ { proxy_pass http://127.0.0.1:4001; }
   location / { proxy_pass http://127.0.0.1:4000/; }

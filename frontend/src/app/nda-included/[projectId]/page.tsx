@@ -31,10 +31,15 @@ export async function generateMetadata({
   const { projectId } = await params;
   const robots = { index: false, follow: false };
   const projectData = new ProjectDataStore();
-  await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: true,
-  });
+
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: true,
+    });
+  } catch (error) {
+    console.error("NDA project metadata SSR initialization failed:", error);
+  }
 
   const title = buildProjectPageTitle(projectData.getProject(projectId));
 
@@ -52,18 +57,28 @@ export default async function NdaIncludedProjectPage({
 }) {
   const { projectId } = await params;
   const projectData = new ProjectDataStore();
-  const initResult = await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: true,
-  });
+  let initialized = false;
+  let ssrParsed:
+    | import("@/data/ProjectData").ParsedPortfolioProjectData
+    | undefined;
+  let ssrContainsSanitizedPlaceholders = false;
 
-  const rec = projectData.getProject(projectId);
-  if (!rec) return notFound();
+  try {
+    const initResult = await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: true,
+    });
+    initialized = true;
+    ssrParsed = projectData.projectsRecord;
+    ssrContainsSanitizedPlaceholders = Boolean(
+      initResult?.containsSanitizedPlaceholders,
+    );
+  } catch (error) {
+    console.error("NDA project page SSR initialization failed:", error);
+  }
 
-  const ssrParsed = projectData.projectsRecord;
-  const ssrContainsSanitizedPlaceholders = Boolean(
-    initResult?.containsSanitizedPlaceholders,
-  );
+  const rec = initialized ? projectData.getProject(projectId) : undefined;
+  if (initialized && !rec) return notFound();
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
