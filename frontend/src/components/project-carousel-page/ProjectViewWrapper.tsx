@@ -67,14 +67,22 @@ export default function ProjectViewWrapper({
   const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
   const prevAuthRef = useRef(clientAuth);
-  const [clientBootstrapPending, setClientBootstrapPending] = useState(false);
+  const initialRouteHasProject = Boolean(
+    ProjectData.getProject(params.projectId),
+  );
+  const initialBootstrapNeeded = !(didHydrateFromSsr && initialRouteHasProject);
+  const [clientBootstrapComplete, setClientBootstrapComplete] = useState(
+    () => !initialBootstrapNeeded,
+  );
+  const clientBootstrapPending =
+    initialBootstrapNeeded && !clientBootstrapComplete;
 
   useEffect(() => {
     const routeHasProject = Boolean(ProjectData.getProject(params.projectId));
     if (didHydrateFromSsr && routeHasProject) return;
+    if (clientBootstrapComplete) return;
 
     let cancelled = false;
-    setClientBootstrapPending(true);
 
     (async () => {
       try {
@@ -84,19 +92,24 @@ export default function ProjectViewWrapper({
         });
       } catch {
         if (!cancelled) {
-          setClientBootstrapPending(false);
+          setClientBootstrapComplete(true);
         }
         return;
       }
 
       if (cancelled) return;
-      setClientBootstrapPending(false);
+      setClientBootstrapComplete(true);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [didHydrateFromSsr, includeNdaInActive, params.projectId]);
+  }, [
+    clientBootstrapComplete,
+    didHydrateFromSsr,
+    includeNdaInActive,
+    params.projectId,
+  ]);
 
   useEffect(() => {
     if (!allowNda) {
