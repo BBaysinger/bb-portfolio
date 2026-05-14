@@ -4,6 +4,7 @@ import path from 'path'
 import type { CollectionConfig, PayloadRequest, Where } from 'payload'
 
 import { buildProjectWarmPaths, loadProjectWarmTarget } from '../utils/frontendRouteWarmup'
+import { computeProjectMediaNda } from '../utils/projectMediaNda'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 type RelRecord = Record<string, unknown>
@@ -13,39 +14,6 @@ const getRelValueString = (rel: unknown): string | undefined => {
   const rec = rel as RelRecord
   const value = rec.value
   return typeof value === 'string' ? value : undefined
-}
-
-async function computeNdaForProject(
-  req: Pick<PayloadRequest, 'payload'>,
-  projectId: string | undefined,
-): Promise<boolean> {
-  if (!projectId) return false
-  try {
-    const existing = await req.payload.find({
-      collection: 'projects',
-      where: { id: { equals: projectId } },
-      limit: 1,
-      depth: 0,
-    })
-    const project = existing?.docs?.[0] as undefined | { nda?: boolean | null; brandId?: unknown }
-    const projectNda = Boolean(project?.nda)
-    const brandIdRaw = project?.brandId
-    const brandId = typeof brandIdRaw === 'string' ? brandIdRaw : getRelValueString(brandIdRaw)
-    if (!brandId) return projectNda
-
-    const brandRes = await req.payload.find({
-      collection: 'project-brands',
-      where: { id: { equals: brandId } },
-      limit: 1,
-      depth: 0,
-    })
-    const brand = brandRes?.docs?.[0] as undefined | { nda?: boolean | null }
-    const brandNda = Boolean(brand?.nda)
-    return projectNda || brandNda
-  } catch {
-    // Fail closed would hide public media; prefer fail-open but only for computed flag.
-    return false
-  }
 }
 
 type OverwriteMeta = {
@@ -252,7 +220,7 @@ export const ProjectScreenshots: CollectionConfig = {
         const projectRaw = (data as unknown as { project?: unknown })?.project
         const projectId =
           typeof projectRaw === 'string' ? projectRaw : getRelValueString(projectRaw)
-        ;(data as Record<string, unknown>).nda = await computeNdaForProject(req, projectId)
+        ;(data as Record<string, unknown>).nda = await computeProjectMediaNda(req, projectId)
 
         return data
       },

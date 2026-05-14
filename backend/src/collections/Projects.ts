@@ -3,6 +3,7 @@ import slugify from 'slugify'
 
 import { canReadNdaField } from '../access/nda'
 import { buildProjectWarmPaths } from '../utils/frontendRouteWarmup'
+import { propagateProjectMediaNda } from '../utils/projectMediaNda'
 import { generateShortCode } from '../utils/shortCode'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
@@ -150,7 +151,12 @@ export const Projects: CollectionConfig = {
       },
     ],
     afterChange: [
-      async ({ doc }) => {
+      async ({ doc, req }) => {
+        await propagateProjectMediaNda(
+          req.payload,
+          (doc as { id?: unknown })?.id as string | undefined,
+        )
+
         await triggerFrontendProjectRevalidate('projects.afterChange', {
           warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
             includeHome: true,

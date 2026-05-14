@@ -2,6 +2,7 @@ import type { CollectionConfig, Where } from 'payload'
 
 import { canReadNdaBrandAsset } from '../access/nda'
 import { buildProjectsWarmPaths, loadProjectsByBrand } from '../utils/frontendRouteWarmup'
+import { propagateBrandProjectsMediaNda } from '../utils/projectMediaNda'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 export const ProjectBrands: CollectionConfig = {
@@ -61,6 +62,11 @@ export const ProjectBrands: CollectionConfig = {
         } catch (e) {
           console.warn('[project-brands] failed to propagate NDA flag to brandLogos:', e)
         }
+
+        await propagateBrandProjectsMediaNda(
+          req.payload,
+          (doc as { id?: unknown })?.id as string | undefined,
+        )
 
         const warmPaths = buildProjectsWarmPaths(
           await loadProjectsByBrand(req.payload, (doc as { id?: unknown })?.id),
