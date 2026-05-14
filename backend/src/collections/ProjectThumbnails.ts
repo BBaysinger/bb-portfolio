@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import type { CollectionConfig, PayloadRequest, Where } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 
 import { buildProjectWarmPaths, loadProjectWarmTarget } from '../utils/frontendRouteWarmup'
 import { computeProjectMediaNda } from '../utils/projectMediaNda'
