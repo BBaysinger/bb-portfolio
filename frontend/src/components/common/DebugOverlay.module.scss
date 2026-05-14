@@ -20,7 +20,7 @@
   backdrop-filter: blur(10px);
   white-space: pre-wrap;
 
-  @include breakpointDown($b992px) {
+  @media screen and (max-width: #{$b992px - 0.02px}) {
     top: calc(#{$navBarHeight} + var(--hero-padding, 0.75rem));
     max-width: min(
       32rem,
