@@ -3,6 +3,11 @@ import path from 'path'
 
 import { NextRequest } from 'next/server'
 
+const resolveEnvProfile = () => (process.env.ENV_PROFILE || 'local').toLowerCase()
+
+export const isFilesystemMediaRouteEnabled = (envProfile = resolveEnvProfile()) =>
+  envProfile === 'local' || envProfile === 'test'
+
 const prefixToDir: Record<string, string> = {
   // Hyphenated folder names
   'project-brand-logos': 'project-brand-logos',
@@ -37,6 +42,10 @@ function getContentType(filePath: string): string {
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   try {
+    if (!isFilesystemMediaRouteEnabled()) {
+      return new Response('Not found', { status: 404 })
+    }
+
     const { path: pathParts } = await ctx.params
     const [prefix, ...rest] = pathParts
     const dir = prefixToDir[prefix]
