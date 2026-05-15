@@ -36,11 +36,11 @@ Flat working inventory of notable features and technical systems
 
 ## Visual Design / Art Direction / Graphics
 
-- Custom project graphics for each portfolio entry, developed through AI-assisted iteration, Photoshop compositing/editing, and art direction
+- Custom project graphics for each portfolio entry, developed through concept iteration, Photoshop compositing/editing, and art direction
 - Fluxel background animations authored in Photoshop and Adobe Animate, then exported as sprite sheets
 - Visual direction for portfolio-specific branding, thumbnail treatment, and presentation framing
 - Designed and refined motion-heavy UI treatments with a polished, tactile, and visually distinctive feel
-- Combined AI generation, manual compositing, and iterative design correction to produce custom artwork aligned to each project's tone and content
+- Combined compositing, visual exploration, and iterative design correction to produce custom artwork aligned to each project's tone and content
 
 ## Fluid Responsive System
 
@@ -150,7 +150,7 @@ Flat working inventory of notable features and technical systems
 - Playwright end-to-end and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
 - `release:promote` automation with staged promotion flow: synchronize `dev`/`main`, deploy current `dev`, wait for successful CI/CD, bump and propagate the canonical root patch version, deploy `main`, then fast-forward `dev` back to the released `main` commit while CI skips the redundant final dev rerun when both branches match (plus a legacy deploy-all override)
-- Detailed engineering standards, including AI assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
+- Detailed engineering standards, including assistant workflow guidance for commits, checks, approvals, and escalation of non-standard patterns
 - Extensively commented `package.json5` companion manifests alongside canonical `package.json` files
 - Hermetic project-data snapshot pipeline for build-time/static exports
 - Build-safe SSG policy that relaxes project route enumeration separately from authoritative static-content requirements, avoiding silent fallback content during prerender

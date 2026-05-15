@@ -147,7 +147,7 @@
     //   • everything else goes to the frontend
     // The only “extra” is the Docker network (infrastructure), not an extra app.
     // Uses compose profiles: local (frontend+backend dev) + proxy (Caddy)
-    // Hey AI: Use this command to start local development (this is the default)
+    // Default command to start local development
     // Starts proxy + frontend using helper (warns if prune is overdue)
     "caddy:up": "zsh deploy/scripts/caddy-helper.sh up",
     // 🌐 Same as caddy:up but with React Strict Mode disabled
