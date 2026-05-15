@@ -130,7 +130,6 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./app/.next/static
 COPY --from=builder /app/.next/server ./app/.next/server
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/scripts/seed-assets ./scripts/seed-assets
 # Payload admin runtime still reads these source-tree artifacts directly.
 COPY --from=builder /app/src/app/(payload)/importMap.js ./src/app/(payload)/importMap.js
 COPY --from=builder /app/src/payload.config.ts ./src/payload.config.ts
