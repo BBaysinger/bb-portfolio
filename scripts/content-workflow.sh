@@ -510,6 +510,7 @@ Usage: scripts/content-workflow.sh <command>
 Commands:
   migrate         Sync the full CMS database from --source local|dev|prod into --target local|dev|prod, plus stage and apply supported media collections
                   Requires ALLOW_DEV_WRITE=true for dev targets. Prod targets require ALLOW_PROD_WRITE=true and still enforce separate prod confirmation.
+                  Does not read PORTFOLIO_CONTENT_DIR and does not auto-run authored-content import commands; those remain the explicit import-* workflows below.
   import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
   import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)

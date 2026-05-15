@@ -33,17 +33,23 @@
     "export:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-cv-experience-content.ts",
     // Export project description paragraphs into the external seedings folder.
     "export:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-project-descriptions-content.ts",
-    // Import CV experience content from the external seedings folder into Payload
+    // Apply/import authored CV experience content from the external seedings folder into Payload.
+    // This is not a CMS database migration command.
     "import:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-cv-experience-content.ts",
-    // Import CV experience content into the local backend environment
+    // Apply/import authored CV experience content into the local backend environment.
+    // This is not a CMS database migration command.
     "import:cv-content:local": "npm run import:cv-content -- --env local",
-    // Import CV experience content into the dev backend environment
+    // Apply/import authored CV experience content into the dev backend environment.
+    // This is not a CMS database migration command.
     "import:cv-content:dev": "npm run import:cv-content -- --env dev",
-    // Import project description paragraphs from the external seedings folder into Payload
+    // Apply/import authored project description paragraphs from the external seedings folder into Payload.
+    // This is not a CMS database migration command.
     "import:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-project-descriptions-content.ts",
-    // Import project descriptions into the local backend environment
+    // Apply/import authored project descriptions into the local backend environment.
+    // This is not a CMS database migration command.
     "import:project-descriptions:local": "npm run import:project-descriptions -- --env local",
-    // Import project descriptions into the dev backend environment
+    // Apply/import authored project descriptions into the dev backend environment.
+    // This is not a CMS database migration command.
     "import:project-descriptions:dev": "npm run import:project-descriptions -- --env dev",
     // Seed CV experience data into Payload using the shared seed script
     "seed:cv-experience": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/seed-cv-experience.ts",

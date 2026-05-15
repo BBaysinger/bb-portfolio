@@ -12,9 +12,12 @@ usage() {
   cat >&2 <<'EOF'
 Usage: scripts/migrate-and-refresh-snapshots.sh --target dev|prod [--source local|dev|prod] [--confirm-prod-write]
 
-Runs the aggregate content migration, then regenerates both frontend snapshot
-secret payloads from the target environment and syncs only the relevant GitHub
-environment secrets.
+Runs the aggregate content:migrate workflow only, then regenerates both
+frontend snapshot secret payloads from the target environment and syncs only
+the relevant GitHub environment secrets.
+
+This wrapper does not import authored content from PORTFOLIO_CONTENT_DIR.
+Use content:import:* separately when you intend a content-root import.
 
 Examples:
   bash scripts/migrate-and-refresh-snapshots.sh --target dev

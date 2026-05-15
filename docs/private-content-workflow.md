@@ -134,9 +134,9 @@ From repo root:
 - `ALLOW_DEV_WRITE=true npm run content:migrate -- --source local --target dev`
 - `npm run content:migrate -- --source dev --target prod --confirm-prod-write`
 - `npm run content:migrate -- --source prod --target local`
-- `npm run content:import:local:content-dir`
-- `ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
-- `ALLOW_PROD_WRITE=true npm run content:import:prod:content-dir -- --confirm-prod-write`
+- `npm run content:apply-authored:local:content-dir`
+- `ALLOW_DEV_WRITE=true npm run content:apply-authored:dev:content-dir`
+- `ALLOW_PROD_WRITE=true npm run content:apply-authored:prod:content-dir -- --confirm-prod-write`
 - `npm run content:pull:local:content-dir`
 - `PORTFOLIO_CONTENT_DIR=../cms-snapshots/_dev-compare npm run content:pull:dev:content-dir`
 - `npm run content:pull:prod:all`
@@ -146,9 +146,13 @@ From repo root:
 
 These root commands route through `scripts/content-workflow.sh`, which centralizes content-root resolution, media staging/import sequencing, full-database migration for `content:migrate`, and production overwrite confirmation.
 
+`content:migrate` and `content:import:*` are intentionally different workflows in this repo. Migration means database migration plus supported media staging/application between environments. Import means applying authored content from `PORTFOLIO_CONTENT_DIR`. Do not treat migrate as shorthand for import.
+
+For operator-facing commands, prefer the `content:apply-authored:*:content-dir` aliases when you intend the authored-content apply/import workflow. The older `content:import:*` names remain as compatibility aliases.
+
 The `ALLOW_DEV_WRITE=true` and `ALLOW_PROD_WRITE=true` prefixes satisfy the required write guards for remote targets. They do not disable other safety checks. Production writes still require the separate production confirmation step.
 
-`content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
+`content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target and it does not automatically run authored-content imports. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
 
 When `content:migrate` stages local media, it copies from `backend/media` and treats that local media state as authoritative. If a sibling `../cms-media-seedings` directory exists and overlapping files have different hashes, the migrate run stops before writing so local media and hydration seedings can be reconciled intentionally.
 
