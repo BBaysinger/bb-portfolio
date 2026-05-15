@@ -32,6 +32,7 @@ import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
+import { isManagedStableViewportHeightRequiredForCurrentBrowser } from "@/hooks/viewport/stableViewportHeightPolicy";
 import useLockedStableViewportHeightVar from "@/hooks/viewport/useLockedStableViewportHeightVar";
 import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 import useViewportSize from "@/hooks/viewport/useViewportSize";
@@ -194,27 +195,26 @@ function Hero({
 
   const resolvedViewportHeightStrategy =
     viewportHeightStrategyOverride ?? viewportHeightStrategy;
+  const shouldUseLockedViewportHeight =
+    resolvedViewportHeightStrategy === "locked" ||
+    (resolvedViewportHeightStrategy === "default" &&
+      isManagedStableViewportHeightRequiredForCurrentBrowser());
 
   // `default` keeps the existing site behavior. `locked` enables the experimental
   // settle-then-lock hook so the real home hero can be A/B tested via query string.
 
   useLockedStableViewportHeightVar(heroRef, {
-    cssVarName:
-      resolvedViewportHeightStrategy === "locked"
-        ? "--hero-stable-vh"
-        : "--hero-stable-vh-probe",
-    enabled: resolvedViewportHeightStrategy === "locked",
+    cssVarName: shouldUseLockedViewportHeight
+      ? "--hero-stable-vh"
+      : "--hero-stable-vh-probe",
+    enabled: shouldUseLockedViewportHeight,
   });
 
   const stableHeightPx = useStableViewportHeightVar(heroRef, {
-    cssVarName:
-      resolvedViewportHeightStrategy === "locked"
-        ? "--hero-stable-vh-default"
-        : "--hero-stable-vh",
-    mode:
-      resolvedViewportHeightStrategy === "locked"
-        ? "use-svh-for-all"
-        : "use-where-required",
+    cssVarName: shouldUseLockedViewportHeight
+      ? "--hero-stable-vh-default"
+      : "--hero-stable-vh",
+    mode: "use-svh-for-all",
     heightOnlyResizePolicy: "pointer-fine-or-shrink",
   });
 

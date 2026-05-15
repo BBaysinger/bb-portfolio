@@ -18,14 +18,10 @@ import {
 export interface UseLockedStableViewportHeightVarOptions {
   cssVarName?: string;
   enabled?: boolean;
-  settleMs?: number;
-  trailingSampleMs?: number[];
   widthChangeThresholdPx?: number;
   topScrollGuardPx?: number;
 }
 
-const DEFAULT_SETTLE_MS = 2500;
-const DEFAULT_TRAILING_SAMPLE_MS = [150, 1000, 2500] as const;
 const DEFAULT_WIDTH_CHANGE_THRESHOLD_PX = 60;
 const DEFAULT_TOP_SCROLL_GUARD_PX = 2;
 
@@ -50,8 +46,6 @@ export default function useLockedStableViewportHeightVar(
   const {
     cssVarName = "--hero-stable-vh",
     enabled = true,
-    settleMs = DEFAULT_SETTLE_MS,
-    trailingSampleMs = [...DEFAULT_TRAILING_SAMPLE_MS],
     widthChangeThresholdPx = DEFAULT_WIDTH_CHANGE_THRESHOLD_PX,
     topScrollGuardPx = DEFAULT_TOP_SCROLL_GUARD_PX,
   } = options;
@@ -59,18 +53,12 @@ export default function useLockedStableViewportHeightVar(
   const [stableHeightPx, setStableHeightPx] = useState<number | null>(null);
   const stableHeightRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number | null>(null);
-  const settleActiveUntilRef = useRef<number>(0);
-  const timeoutIdsRef = useRef<number[]>([]);
   const rafIdsRef = useRef<number[]>([]);
 
   const clearScheduledSamples = useCallback(() => {
-    for (const id of timeoutIdsRef.current) {
-      window.clearTimeout(id);
-    }
     for (const id of rafIdsRef.current) {
       window.cancelAnimationFrame(id);
     }
-    timeoutIdsRef.current = [];
     rafIdsRef.current = [];
   }, []);
 
@@ -84,24 +72,15 @@ export default function useLockedStableViewportHeightVar(
     );
   }, [topScrollGuardPx]);
 
-  const scheduleSettleWindow = useCallback(() => {
+  const scheduleLockedMeasurement = useCallback(() => {
     clearScheduledSamples();
-    settleActiveUntilRef.current = Date.now() + settleMs;
 
     rafIdsRef.current.push(
       window.requestAnimationFrame(() => {
         commitStableHeight();
       }),
     );
-
-    for (const delayMs of trailingSampleMs) {
-      timeoutIdsRef.current.push(
-        window.setTimeout(() => {
-          commitStableHeight();
-        }, delayMs),
-      );
-    }
-  }, [clearScheduledSamples, commitStableHeight, settleMs, trailingSampleMs]);
+  }, [clearScheduledSamples, commitStableHeight]);
 
   useEffect(() => {
     const el = elementRef.current;
@@ -113,19 +92,12 @@ export default function useLockedStableViewportHeightVar(
       return;
     }
 
-    const isWithinSettleWindow = () =>
-      settleActiveUntilRef.current > Date.now();
     const { hasCoarsePointer, canHover } = getInteractionCapabilities();
     const shouldUseMobileSettleLock = hasCoarsePointer || !canHover;
 
-    const commitIfSettling = () => {
-      if (!isWithinSettleWindow()) return;
-      commitStableHeight();
-    };
-
     const reopenSettleWindow = () => {
       lastWidthRef.current = window.innerWidth;
-      scheduleSettleWindow();
+      scheduleLockedMeasurement();
     };
 
     const onWindowResize = () => {
@@ -180,15 +152,7 @@ export default function useLockedStableViewportHeightVar(
     };
 
     lastWidthRef.current = window.innerWidth;
-    if (shouldUseMobileSettleLock) {
-      scheduleSettleWindow();
-    } else {
-      rafIdsRef.current.push(
-        window.requestAnimationFrame(() => {
-          commitStableHeight();
-        }),
-      );
-    }
+    scheduleLockedMeasurement();
 
     window.addEventListener("resize", onWindowResize, { passive: true });
     window.addEventListener("orientationchange", onOrientationChange, {
@@ -197,25 +161,12 @@ export default function useLockedStableViewportHeightVar(
     window.addEventListener("pageshow", onPageShow, { passive: true });
     document.addEventListener("fullscreenchange", onFullscreenChange);
 
-    const viewport = window.visualViewport;
-    viewport?.addEventListener("resize", commitIfSettling, { passive: true });
-    if (shouldUseMobileSettleLock) {
-      viewport?.addEventListener("scroll", commitIfSettling, {
-        passive: true,
-      });
-    }
-
     return () => {
       clearScheduledSamples();
-      settleActiveUntilRef.current = 0;
       window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("orientationchange", onOrientationChange);
       window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("fullscreenchange", onFullscreenChange);
-      viewport?.removeEventListener("resize", commitIfSettling);
-      if (shouldUseMobileSettleLock) {
-        viewport?.removeEventListener("scroll", commitIfSettling);
-      }
     };
   }, [
     clearScheduledSamples,
@@ -223,7 +174,7 @@ export default function useLockedStableViewportHeightVar(
     cssVarName,
     elementRef,
     enabled,
-    scheduleSettleWindow,
+    scheduleLockedMeasurement,
     widthChangeThresholdPx,
   ]);
 
