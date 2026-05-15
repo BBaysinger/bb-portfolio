@@ -10,6 +10,32 @@ import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjec
 const SHORT_CODE_LENGTH = 10
 const SHORT_CODE_MAX_ATTEMPTS = 10
 
+const extractRelationId = (value: unknown): string | undefined => {
+  if (typeof value === 'string' && value.trim().length > 0) return value.trim()
+  if (!value || typeof value !== 'object') return undefined
+
+  const record = value as Record<string, unknown>
+  const id = record.id
+  if (typeof id === 'string' && id.trim().length > 0) return id.trim()
+
+  const relationValue = record.value
+  if (typeof relationValue === 'string' && relationValue.trim().length > 0) {
+    return relationValue.trim()
+  }
+
+  return undefined
+}
+
+const projectNdaInputsChanged = (current: unknown, previous: unknown): boolean => {
+  const currentRecord = (current ?? {}) as Record<string, unknown>
+  const previousRecord = (previous ?? {}) as Record<string, unknown>
+
+  return (
+    Boolean(currentRecord.nda) !== Boolean(previousRecord.nda) ||
+    extractRelationId(currentRecord.brandId) !== extractRelationId(previousRecord.brandId)
+  )
+}
+
 const findUniqueShortCode = async (req: Pick<PayloadRequest, 'payload'>) => {
   for (let attempt = 1; attempt <= SHORT_CODE_MAX_ATTEMPTS; attempt++) {
     const candidate = generateShortCode(SHORT_CODE_LENGTH)
@@ -151,11 +177,13 @@ export const Projects: CollectionConfig = {
       },
     ],
     afterChange: [
-      async ({ doc, req }) => {
-        await propagateProjectMediaNda(
-          req.payload,
-          (doc as { id?: unknown })?.id as string | undefined,
-        )
+      async ({ doc, previousDoc, operation, req }) => {
+        if (operation === 'create' || projectNdaInputsChanged(doc, previousDoc)) {
+          await propagateProjectMediaNda(
+            req.payload,
+            (doc as { id?: unknown })?.id as string | undefined,
+          )
+        }
 
         await triggerFrontendProjectRevalidate('projects.afterChange', {
           warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {

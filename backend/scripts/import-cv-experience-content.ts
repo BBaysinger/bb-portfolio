@@ -172,14 +172,22 @@ const loadCvEntry = (sectionDir: string, slug: string) => {
 
 const upsertCvLogo = async (
   payload: Payload,
-  logosDir: string,
+  logosDir: string | undefined,
   entry: NormalizedCvEntry,
 ): Promise<string | undefined> => {
   if (!entry.logoFile) return undefined
 
+  if (!logosDir) {
+    console.warn(
+      `Skipping logo for '${entry.slug}' because the cv-experience-logos directory is not available.`,
+    )
+    return undefined
+  }
+
   const sourceFilePath = path.resolve(logosDir, entry.logoFile)
   if (!fs.existsSync(sourceFilePath)) {
-    throw new Error(`Missing logo file for '${entry.slug}': ${sourceFilePath}`)
+    console.warn(`Skipping logo for '${entry.slug}' because ${sourceFilePath} was not found.`)
+    return undefined
   }
 
   const existing = await payload.find({
@@ -222,7 +230,7 @@ const upsertCvLogo = async (
 
 const mapCvEntryToDoc = async (
   payload: Payload,
-  logosDir: string,
+  logosDir: string | undefined,
   entry: NormalizedCvEntry,
   section: 'experience' | 'independent-rd',
   position: number,
@@ -234,7 +242,7 @@ const mapCvEntryToDoc = async (
     section,
     position,
     active: true,
-    ...(logoId ? { logo: logoId } : {}),
+    logo: logoId ?? null,
     company: entry.company,
     location: entry.location,
     title: entry.title,
@@ -262,8 +270,6 @@ async function main() {
 
     requireDirectory(cvDir, 'cv-experiences directory')
     requireDirectory(experienceDir, 'cv-experiences/experience directory')
-    requireDirectory(logosDir, 'cv-experience-logos directory')
-
     const orderFile = readYamlFile<CvOrderFile>(orderPath)
     const configFile = readYamlFile<CvConfigFile>(configPath)
     const experienceOrder = asSlugList(orderFile.experience, 'experience', orderPath)
@@ -272,6 +278,14 @@ async function main() {
       return fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()
     }
     const hasIndependentRdDir = isDirectory(independentRdDir)
+    const hasLogosDir = isDirectory(logosDir)
+    const availableLogosDir = hasLogosDir ? logosDir : undefined
+
+    if (!hasLogosDir) {
+      console.warn(
+        `cv-experience-logos directory not found at ${logosDir}; importing CV experience entries without logos.`,
+      )
+    }
 
     if (independentRdOrder.length > 0 && !hasIndependentRdDir) {
       throw new Error(
@@ -318,7 +332,13 @@ async function main() {
 
       for (const [index, entry] of experienceEntries.entries()) {
         desiredSlugs.add(entry.slug)
-        const doc = await mapCvEntryToDoc(payload, logosDir, entry, 'experience', (index + 1) * 10)
+        const doc = await mapCvEntryToDoc(
+          payload,
+          availableLogosDir,
+          entry,
+          'experience',
+          (index + 1) * 10,
+        )
         const existing = await payload.find({
           collection: 'cvExperienceItems',
           where: { slug: { equals: entry.slug } },
@@ -348,7 +368,7 @@ async function main() {
         desiredSlugs.add(entry.slug)
         const doc = await mapCvEntryToDoc(
           payload,
-          logosDir,
+          availableLogosDir,
           entry,
           'independent-rd',
           (index + 1) * 10,

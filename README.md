@@ -8,9 +8,9 @@ It is built with **React**, **TypeScript**, and the **Next.js App Router**, with
 Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an experimental **'Fluxel'** (fluxing pixel) grid that reacts to physics projectile collisions. Every motion and frame transition is built natively, without external 3D, physics, or sprite libraries.  
 Around that UI layer is the rest of the supporting work: content modeling, media and project-file pipelines, auth-aware NDA delivery, CI/CD, secrets automation, and multi-environment deployment and operations.
 
-The result is more than a site but narrower than a general-purpose platform: a long-running portfolio project that also serves as a working environment for interaction design, application architecture, content workflows, and deployment practices.
+The result is a production portfolio system that combines interactive frontend work, structured content workflows, deployment automation, and reusable architecture patterns.
 
-> **Repository note:** This repo includes both the portfolio system and its deployment/CI/CD tooling. Over time I plan to extract the most reusable pieces into separate packages or repos. The current AWS setup is intentionally cost-constrained: `dev` and `prod` share a single EC2 host, and there is no separate staging environment because there is no client-facing staging process yet. That keeps the operational workflow real without adding infrastructure I do not currently need.
+> **Repository note:** This repo includes both the portfolio system and its deployment/CI/CD tooling. Reusable pieces are kept modular so they can be extracted into separate packages or repos over time. The current AWS setup is intentionally cost-constrained: `dev` and `prod` share a single EC2 host, with local and dev environments covering iteration before production release.
 
 Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
@@ -22,7 +22,7 @@ This repo is an end‑to‑end system, not just a site.
 
 Use this section for a quick mental model of the repo. The [30‑Second Tour](#thirty-second-tour) is the faster code-entry guide.
 
-- **Interactive UI experimentation:** custom interaction/animation systems built directly on the browser platform (no external 3D/physics/sprite runtime)
+- **Interactive UI systems:** custom interaction/animation systems built directly on the browser platform (no external 3D/physics/sprite runtime)
 - **Content + delivery system:** Payload CMS + media/static asset pipelines designed for both public and private/NDA-included content
 - **Production ops:** Docker + Terraform + environment/secrets automation + reverse proxy options + observability (CloudWatch RUM, optional GA4)
 
@@ -65,7 +65,7 @@ Live site reference moments:
 
 ### 🎨 Frontend features (full list)
 
-#### 🧲 Physics + experimental rendering
+#### 🧲 Physics + custom rendering
 
 - [Simulated depth magnetic “fluxel” grid with pointer influence](#frontend-fluxel-grid)
 - [Fluxel grid projectile collision response](#frontend-fluxel-grid)
@@ -873,12 +873,12 @@ High-level AWS/IaC overview only.
 
 Canonical day-to-day deployment commands live earlier in [Deployment conveniences catalog](./README.md#-deployment-conveniences-catalog). The deployment runner details and common invocations live in [docs/deployment-runner.md](./docs/deployment-runner.md).
 
-### 🧠 Deployment Runner (Current State, optional)
+### 🧠 Deployment Runner
 
-The deployment runner remains the optional single entrypoint for Terraform discovery/apply, image build/push, env regeneration, and profile restarts when shipping changes.
+The deployment runner provides a guarded single entrypoint for Terraform discovery/apply, image build/push, env regeneration, and profile restarts when shipping changes.
 
 - Script: `deploy/scripts/deployment-runner.sh`
-- Use it when you want one guarded deployment path; skip it when the stack is already healthy and you only need targeted debugging or container restarts.
+- Use it for coordinated deployment runs; use targeted commands when the stack is already healthy and only needs focused debugging or container restarts.
 - For common commands, flags, and operator notes, use [docs/deployment-runner.md](./docs/deployment-runner.md) rather than duplicating that runbook here.
 
 ### ⚙️ Architecture Overview
@@ -895,17 +895,17 @@ The deployment runner remains the optional single entrypoint for Terraform disco
 
 ### 👤 Single-Developer Operating Assumptions
 
-This repo is optimized for a single operator shipping a personal portfolio, not for a multi-person product team. That assumption simplifies cost and workflow, but it also drives several intentional tradeoffs:
+This repo is optimized for single-operator ownership: fast iteration, clear deployment control, cost-aware infrastructure, and explicit operational guardrails. That scope simplifies cost and workflow while making the main tradeoffs visible:
 
-- `dev` and `prod` currently run on the same EC2 host to keep infrastructure spend down. That is acceptable here because there is no client-facing staging approval process, but it also means host-level isolation is limited and bad deploy/runtime behavior in `dev` can still create noise for `prod` operations.
-- There is no separate staging environment. In practice, `local` handles most iteration, `dev` is the integration sandbox, and `prod` is the public-facing release target.
-- `release:promote` is built for a single human driving `dev` and `main`. It now protects against overlapping local runs, but it does not try to arbitrate between multiple developers, police unrelated remote branches, or model a PR approval workflow.
-- Deployment automation assumes the same operator owns branch sync, environment generation, infra changes, and runtime verification. That keeps the pipeline fast, but it is not a substitute for peer review or change-management gates.
+- `dev` and `prod` currently run on the same EC2 host to keep infrastructure spend down. Local and dev environments cover iteration before production release, while the shared host makes the isolation tradeoff explicit.
+- A separate staging environment is intentionally omitted for now. In practice, `local` handles most iteration, `dev` is the integration sandbox, and `prod` is the public-facing release target.
+- `release:promote` is built for a single operator driving `dev` and `main`. It protects against overlapping local runs and is intentionally scoped for single-operator branch promotion rather than multi-developer release arbitration or PR approval workflows.
+- Deployment automation assumes the same operator owns branch sync, environment generation, infra changes, and runtime verification. That keeps the pipeline fast and explicit within the current project scope.
 - Public URL and revalidation settings need to reflect the real canonical HTTPS hostnames. A small env drift there can break otherwise-correct content deploys or ISR invalidation.
 - Some content workflows intentionally favor operator clarity over indirection. For example, authored project-description files stay slug-named for readability, so slug changes are allowed only when the source files are renamed in step and mismatches fail fast.
 - The docs are maintained as active runbooks and guardrails, not as a long-lived architecture decision log. Operational truth should live in maintained docs such as `deploy/DEPLOYMENT.md`, `docs/deployment-runner.md`, and `docs/engineering-standards.md`.
 
-If this repo ever moves to a team-maintained product, the first things to revisit are environment isolation, release ownership, approval gates, and stronger coordination around branch promotion.
+If this repo moves to a team-maintained product, the first things to revisit are environment isolation, release ownership, approval gates, and stronger coordination around branch promotion.
 
 ### 📈 Monitoring & CloudWatch
 
@@ -1062,19 +1062,16 @@ For deep dives and implementation details:
 
 ## Roadmap
 
-- Additional polish, accessibility, and performance passes as time allows
-- Make the hero animation more game-like
-  - Still exploring rendering capabilities to know just how much I can get out of it
-  - But it will become more than just a fidget spinner
-- Most of the notable features will become their own portable repos
-- Filterable Project Tags/Categories
-- Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
-- Global light/dark mode preferences via Redux
-- Fluxels further optimizations WebGL and/or PixiJS shaders
-- Implement testing frameworks (once experiments have matured)
-- Capture and store data about user interactions
-- Accessibility should be improved with respect to ARIA, rem font scaling, etc.
-- Remove Bootstrap? (Not relying on it much anyhow)
-- Header animations will be in response to user interactions vs just a timer
-
-Last major: Mon Nov 16, 2025
+- Continue polish, accessibility, and performance passes across key UI flows
+- Expand the hero interaction system with richer state, motion, and user-triggered behavior
+- Continue performance exploration for Canvas/WebGL/PixiJS rendering paths
+- Extract mature interaction systems into portable packages or standalone repos
+- Add filterable project tags/categories
+- Add interactive tutorials for the kinetic orb and carousel
+- Add global light/dark mode preferences via Redux
+- Continue Fluxel optimization work through WebGL and/or PixiJS shader exploration
+- Expand automated test coverage around stable interaction, routing, and content workflows
+- Capture and store structured data about user interactions
+- Continue accessibility improvements around ARIA semantics, keyboard behavior, and rem-based scaling
+- Remove remaining Bootstrap dependency if it no longer carries meaningful layout/UI value
+- Move header animations further toward user-triggered behavior rather than timer-driven playback
