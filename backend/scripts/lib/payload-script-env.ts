@@ -65,6 +65,13 @@ const loadSecretsFromJson5 = (repoRoot: string, profile: string): SecretBundle =
   }
 }
 
+const hasJson5SecretsForProfile = (repoRoot: string, profile: string) => {
+  const sharedPath = path.resolve(repoRoot, '.github-secrets.private.json5')
+  const profilePath = path.resolve(repoRoot, `.github-secrets.private.${profile}.json5`)
+
+  return fs.existsSync(sharedPath) || fs.existsSync(profilePath)
+}
+
 export const loadBackendScriptEnvironment = (scriptDir: string) => {
   const envProfileArgIndex = process.argv.indexOf('--env')
   const envProfile =
@@ -75,12 +82,17 @@ export const loadBackendScriptEnvironment = (scriptDir: string) => {
 
   const backendDir = path.resolve(scriptDir, '..')
   const repoRoot = path.resolve(scriptDir, '../..')
+  const shouldLoadGithubSecrets =
+    process.env.USE_GITHUB_SECRETS === 'true' ||
+    (envProfile !== 'local' && hasJson5SecretsForProfile(repoRoot, String(envProfile)))
 
-  if (process.env.USE_GITHUB_SECRETS === 'true') {
+  if (shouldLoadGithubSecrets) {
     const bundle = loadSecretsFromJson5(repoRoot, String(envProfile))
 
     for (const [key, value] of Object.entries(bundle.strings)) {
-      process.env[key] = value
+      if (process.env[key] === undefined || process.env[key] === '') {
+        process.env[key] = value
+      }
     }
 
     if (!process.env.S3_AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID) {
