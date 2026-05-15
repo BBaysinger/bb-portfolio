@@ -2,6 +2,11 @@ import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
+import {
+  DEFAULT_CV_CORE_STRENGTHS_HTML,
+  DEFAULT_CV_SUMMARY_HTML,
+} from '@/globals/cvExperienceConfigDefaults'
+
 const CV_EXPERIENCE_LOGO_COLLECTION = 'cvExperienceLogos'
 const CV_EXPERIENCE_LOGO_PREFIX = 'cv-experience-logos'
 const CV_EXPERIENCE_ITEM_COLLECTION = 'cvExperienceItems'
@@ -18,6 +23,8 @@ type BulletPoint = {
 }
 
 type CvExperienceConfigGlobal = {
+  summaryHtml?: unknown
+  coreStrengthsHtml?: unknown
   experienceSectionHeading?: unknown
   recentIndependentStudySectionHeading?: unknown
 }
@@ -228,6 +235,11 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
+        summaryHtml:
+          asTrimmedString(collectionConfig?.summaryHtml) || DEFAULT_CV_SUMMARY_HTML,
+        coreStrengthsHtml:
+          asTrimmedString(collectionConfig?.coreStrengthsHtml) ||
+          DEFAULT_CV_CORE_STRENGTHS_HTML,
         experienceSectionHeading:
           asTrimmedString(collectionConfig?.experienceSectionHeading) || 'Experience',
         experienceItems,

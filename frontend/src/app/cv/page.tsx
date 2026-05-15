@@ -16,6 +16,8 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function CvPage() {
   const {
+    summaryHtml,
+    coreStrengthsHtml,
     experienceSectionHeading,
     experienceItems,
     recentIndependentStudySectionHeading,
@@ -24,6 +26,8 @@ export default async function CvPage() {
 
   return (
     <CvPageClient
+      summaryHtml={summaryHtml}
+      coreStrengthsHtml={coreStrengthsHtml}
       experienceSectionHeading={experienceSectionHeading}
       initialExperienceItems={experienceItems}
       recentIndependentStudySectionHeading={

@@ -1,5 +1,9 @@
 import type { GlobalConfig } from 'payload'
 
+import {
+  DEFAULT_CV_CORE_STRENGTHS_HTML,
+  DEFAULT_CV_SUMMARY_HTML,
+} from './cvExperienceConfigDefaults'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 export const CvExperienceConfig: GlobalConfig = {
@@ -19,6 +23,30 @@ export const CvExperienceConfig: GlobalConfig = {
     update: ({ req }) => req.user?.role === 'admin',
   },
   fields: [
+    {
+      name: 'summaryHtml',
+      label: 'Summary HTML',
+      type: 'textarea',
+      required: true,
+      defaultValue: DEFAULT_CV_SUMMARY_HTML,
+      admin: {
+        rows: 8,
+        description:
+          'Admin-authored HTML for the CV summary section. Use semantic tags like <p>, <strong>, and <a>.',
+      },
+    },
+    {
+      name: 'coreStrengthsHtml',
+      label: 'Core Strengths HTML',
+      type: 'textarea',
+      required: true,
+      defaultValue: DEFAULT_CV_CORE_STRENGTHS_HTML,
+      admin: {
+        rows: 18,
+        description:
+          'Admin-authored HTML for the Core Strengths section. Use semantic tags like <h5>, <ul>, <li>, <strong>, and <a>.',
+      },
+    },
     {
       name: 'experienceSectionHeading',
       label: 'Experience Section Heading',

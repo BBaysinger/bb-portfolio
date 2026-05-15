@@ -4,6 +4,8 @@ import type { ServerBrandingLockup } from "./BrandingLockup";
 import type { ServerGreeting } from "./Greeting";
 
 export type StaticCvExperienceData = {
+  summaryHtml: string;
+  coreStrengthsHtml: string;
   experienceSectionHeading: string;
   experienceItems: CvExperienceItemData[];
   recentIndependentStudySectionHeading: string;

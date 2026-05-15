@@ -18,6 +18,8 @@ type CvOrderFile = {
 }
 
 type CvConfigFile = {
+  summaryHtml?: unknown
+  coreStrengthsHtml?: unknown
   experienceSectionHeading?: unknown
   recentIndependentStudySectionHeading?: unknown
 }
@@ -281,6 +283,12 @@ async function main() {
       await payload.updateGlobal({
         slug: 'cvExperienceConfig',
         data: {
+          summaryHtml: asNonEmptyString(configFile.summaryHtml, 'summaryHtml', configPath),
+          coreStrengthsHtml: asNonEmptyString(
+            configFile.coreStrengthsHtml,
+            'coreStrengthsHtml',
+            configPath,
+          ),
           experienceSectionHeading: asNonEmptyString(
             configFile.experienceSectionHeading,
             'experienceSectionHeading',

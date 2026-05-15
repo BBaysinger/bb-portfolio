@@ -14,6 +14,8 @@ import {
 type CvExperienceResponse = {
   success?: boolean;
   data?: {
+    summaryHtml?: string;
+    coreStrengthsHtml?: string;
     experienceSectionHeading?: string;
     experienceItems?: CvExperienceItemData[];
     recentIndependentStudySectionHeading?: string;
@@ -30,6 +32,11 @@ const parseCvExperienceResponse = (
   );
 
   return {
+    summaryHtml: requireTrimmedString(data?.summaryHtml, "summaryHtml"),
+    coreStrengthsHtml: requireTrimmedString(
+      data?.coreStrengthsHtml,
+      "coreStrengthsHtml",
+    ),
     experienceSectionHeading: requireTrimmedString(
       data?.experienceSectionHeading,
       "experienceSectionHeading",

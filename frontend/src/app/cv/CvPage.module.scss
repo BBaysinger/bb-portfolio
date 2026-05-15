@@ -208,6 +208,12 @@ img.cvLogo {
   }
 }
 
+.authoredSummaryHtml {
+  > *:last-child {
+    margin-bottom: 0;
+  }
+}
+
 .strengths {
   ul {
     margin-bottom: 40px;
@@ -218,6 +224,21 @@ img.cvLogo {
   }
   li {
     font-size: 16px;
+  }
+}
+
+.authoredStrengthsHtml {
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  h5 {
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+
+  ul {
+    margin-bottom: 28px;
   }
 }
 

@@ -1014,6 +1014,8 @@ export interface Greeting {
  */
 export interface CvExperienceConfig {
   id: string;
+  summaryHtml: string;
+  coreStrengthsHtml: string;
   experienceSectionHeading: string;
   recentIndependentStudySectionHeading: string;
   updatedAt?: string | null;
@@ -1075,6 +1077,8 @@ export interface GreetingSelect<T extends boolean = true> {
  * via the `definition` "cvExperienceConfig_select".
  */
 export interface CvExperienceConfigSelect<T extends boolean = true> {
+  summaryHtml?: T;
+  coreStrengthsHtml?: T;
   experienceSectionHeading?: T;
   recentIndependentStudySectionHeading?: T;
   updatedAt?: T;
