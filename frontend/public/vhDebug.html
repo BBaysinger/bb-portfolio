@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Viewport Height Debug</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: #050505;
+        color: #f4f4f4;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", monospace;
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      .overlay {
+        position: fixed;
+        top: max(env(safe-area-inset-top, 0px), 12px);
+        left: max(env(safe-area-inset-left, 0px), 12px);
+        right: max(env(safe-area-inset-right, 0px), 12px);
+        z-index: 20;
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(8, 8, 8, 0.88);
+        white-space: pre-wrap;
+        line-height: 1.35;
+        font-size: 13px;
+      }
+
+      .page {
+        min-height: 100vh;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.08) 1px,
+            transparent 1px
+          ),
+          linear-gradient(180deg, #101010 0%, #050505 100%);
+        background-size:
+          100% 80px,
+          80px 100%,
+          100% 100%;
+      }
+
+      .measurements {
+        position: relative;
+      }
+
+      .box {
+        display: flex;
+        align-items: flex-end;
+        margin: 0;
+        border: 2px solid currentColor;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+
+      .vh {
+        height: 100vh;
+        color: #8be9fd;
+      }
+
+      .svh {
+        height: 100svh;
+        color: #50fa7b;
+      }
+
+      .dvh {
+        height: 100dvh;
+        color: #ffb86c;
+      }
+
+      .lvh {
+        height: 100lvh;
+        color: #ff79c6;
+      }
+
+      .fill {
+        min-height: -webkit-fill-available;
+        color: #f1fa8c;
+      }
+
+      .log {
+        margin-top: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.45);
+        padding: 10px 12px;
+        font-size: 12px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="overlay" class="overlay">Loading metrics...</div>
+    <main class="page">
+      <section class="measurements">
+        <div id="vhBox" class="box vh"><span>100vh</span></div>
+        <div id="svhBox" class="box svh"><span>100svh</span></div>
+        <div id="dvhBox" class="box dvh"><span>100dvh</span></div>
+        <div id="lvhBox" class="box lvh"><span>100lvh</span></div>
+        <div id="fillBox" class="box fill">
+          <span>-webkit-fill-available</span>
+        </div>
+        <div id="log" class="log"></div>
+        <div style="height: 120vh"></div>
+      </section>
+    </main>
+    <script>
+      const overlay = document.getElementById("overlay");
+      const log = document.getElementById("log");
+      const pageLoadedAt = performance.now();
+      const logLines = [];
+
+      const round = (value) =>
+        typeof value === "number" && Number.isFinite(value)
+          ? Math.round(value)
+          : null;
+
+      const readBoxHeight = (id) => {
+        const element = document.getElementById(id);
+        if (!element) return null;
+        return round(element.getBoundingClientRect().height);
+      };
+
+      const takeSnapshot = (label) => {
+        const vv = window.visualViewport;
+        const snapshot = {
+          label,
+          elapsed: Math.round(performance.now() - pageLoadedAt),
+          innerWidth: round(window.innerWidth),
+          innerHeight: round(window.innerHeight),
+          clientWidth: round(document.documentElement.clientWidth),
+          clientHeight: round(document.documentElement.clientHeight),
+          scrollY: round(window.scrollY),
+          visualViewportWidth: round(vv && vv.width),
+          visualViewportHeight: round(vv && vv.height),
+          visualViewportOffsetTop: round(vv && vv.offsetTop),
+          visualViewportOffsetLeft: round(vv && vv.offsetLeft),
+          visualViewportScale:
+            vv && typeof vv.scale === "number" && Number.isFinite(vv.scale)
+              ? Number(vv.scale.toFixed(3))
+              : "-",
+          orientation:
+            screen.orientation && typeof screen.orientation.angle === "number"
+              ? screen.orientation.angle
+              : typeof window.orientation === "number"
+                ? window.orientation
+                : "-",
+          vhBox: readBoxHeight("vhBox"),
+          svhBox: readBoxHeight("svhBox"),
+          dvhBox: readBoxHeight("dvhBox"),
+          lvhBox: readBoxHeight("lvhBox"),
+          fillBox: readBoxHeight("fillBox"),
+        };
+
+        overlay.textContent = [
+          `label:${snapshot.label} t:${snapshot.elapsed}ms`,
+          `inner:${snapshot.innerWidth ?? "-"}x${snapshot.innerHeight ?? "-"}`,
+          `client:${snapshot.clientWidth ?? "-"}x${snapshot.clientHeight ?? "-"}`,
+          `vv:${snapshot.visualViewportWidth ?? "-"}x${snapshot.visualViewportHeight ?? "-"}`,
+          `off:${snapshot.visualViewportOffsetLeft ?? "-"},${snapshot.visualViewportOffsetTop ?? "-"}`,
+          `scale:${snapshot.visualViewportScale} y:${snapshot.scrollY ?? "-"}`,
+          `vh:${snapshot.vhBox ?? "-"} svh:${snapshot.svhBox ?? "-"}`,
+          `dvh:${snapshot.dvhBox ?? "-"} lvh:${snapshot.lvhBox ?? "-"}`,
+          `fill:${snapshot.fillBox ?? "-"} orient:${snapshot.orientation}`,
+        ].join("\n");
+
+        const nextLine = [
+          `${snapshot.elapsed}ms`,
+          snapshot.label,
+          `inner=${snapshot.innerHeight ?? "-"}`,
+          `client=${snapshot.clientHeight ?? "-"}`,
+          `vv=${snapshot.visualViewportHeight ?? "-"}`,
+          `offTop=${snapshot.visualViewportOffsetTop ?? "-"}`,
+          `svhBox=${snapshot.svhBox ?? "-"}`,
+          `dvhBox=${snapshot.dvhBox ?? "-"}`,
+          `lvhBox=${snapshot.lvhBox ?? "-"}`,
+          `fillBox=${snapshot.fillBox ?? "-"}`,
+          `y=${snapshot.scrollY ?? "-"}`,
+        ].join("  ");
+
+        logLines.unshift(nextLine);
+        log.textContent = logLines.slice(0, 24).join("\n");
+      };
+
+      const scheduleSnapshot = (label) => {
+        window.requestAnimationFrame(() => {
+          takeSnapshot(label);
+        });
+      };
+
+      [150, 1000, 2500].forEach((delayMs) => {
+        window.setTimeout(() => {
+          takeSnapshot(`timeout-${delayMs}ms`);
+        }, delayMs);
+      });
+
+      scheduleSnapshot("mount");
+      window.addEventListener(
+        "resize",
+        () => scheduleSnapshot("window:resize"),
+        { passive: true },
+      );
+      window.addEventListener(
+        "orientationchange",
+        () => scheduleSnapshot("window:orientationchange"),
+        { passive: true },
+      );
+      window.addEventListener(
+        "scroll",
+        () => scheduleSnapshot("window:scroll"),
+        { passive: true },
+      );
+      window.addEventListener(
+        "pageshow",
+        () => scheduleSnapshot("window:pageshow"),
+        { passive: true },
+      );
+      document.addEventListener("visibilitychange", () => {
+        scheduleSnapshot(
+          `document:visibilitychange:${document.visibilityState}`,
+        );
+      });
+      window.visualViewport?.addEventListener(
+        "resize",
+        () => scheduleSnapshot("visualViewport:resize"),
+        { passive: true },
+      );
+      window.visualViewport?.addEventListener(
+        "scroll",
+        () => scheduleSnapshot("visualViewport:scroll"),
+        { passive: true },
+      );
+    </script>
+  </body>
+</html>

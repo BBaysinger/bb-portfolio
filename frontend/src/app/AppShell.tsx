@@ -54,18 +54,25 @@ type AppShellProps = {
 function getLifecycleProbePayload(pathname: string | null) {
   if (typeof window === "undefined") return null;
 
-  const navEntry = performance
-    .getEntriesByType("navigation")
-    .find(
-      (entry): entry is PerformanceNavigationTiming =>
-        entry instanceof PerformanceNavigationTiming,
+  let navType: string | undefined;
+
+  try {
+    const navigationEntries = performance.getEntriesByType("navigation");
+    const navEntry = navigationEntries.find(
+      (entry) => typeof (entry as { type?: unknown }).type === "string",
     );
+    const navEntryType = (navEntry as { type?: unknown } | undefined)?.type;
+
+    navType = typeof navEntryType === "string" ? navEntryType : undefined;
+  } catch {
+    navType = undefined;
+  }
 
   return {
     path: pathname || window.location.pathname,
     visibilityState:
       typeof document === "undefined" ? undefined : document.visibilityState,
-    navType: navEntry?.type,
+    navType,
     wasDiscarded:
       typeof document === "undefined"
         ? undefined
@@ -113,6 +120,36 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
   const lifecycleProbeSentRef = useRef(false);
   const isDebugRoute = (pathname || "").startsWith("/_debug");
 
+  const safelyRecordLifecycleProbe = React.useCallback(
+    (
+      prefix: "bb_resume" | "bb_lastBackground",
+      eventName: "app_lifecycle_resume_probe",
+      payload: LifecycleProbePayload,
+      extra: Record<string, unknown>,
+    ) => {
+      try {
+        setRUMSessionAttributes(
+          buildLifecycleSessionAttributes(prefix, payload, extra),
+        );
+
+        recordEvent(eventName, {
+          ...payload,
+          ...extra,
+        });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "lifecycle probe failed";
+        console.warn("[AppShell] lifecycle probe skipped", {
+          message,
+          prefix,
+          payload,
+          extra,
+        });
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     if (lifecycleProbeSentRef.current) return;
 
@@ -128,19 +165,16 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
           ? "history"
           : "navigate";
 
-    setRUMSessionAttributes(
-      buildLifecycleSessionAttributes("bb_resume", payload, {
+    safelyRecordLifecycleProbe(
+      "bb_resume",
+      "app_lifecycle_resume_probe",
+      payload,
+      {
         phase: "mount",
         restoreKind,
-      }),
+      },
     );
-
-    recordEvent("app_lifecycle_resume_probe", {
-      ...payload,
-      phase: "mount",
-      restoreKind,
-    });
-  }, [pathname]);
+  }, [pathname, safelyRecordLifecycleProbe]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -149,27 +183,23 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
       const payload = getLifecycleProbePayload(pathname);
       if (!payload) return;
 
-      setRUMSessionAttributes(
-        buildLifecycleSessionAttributes("bb_resume", payload, {
+      safelyRecordLifecycleProbe(
+        "bb_resume",
+        "app_lifecycle_resume_probe",
+        payload,
+        {
           phase: "pageshow",
           persisted: event.persisted,
           restoreKind: event.persisted ? "bfcache" : "pageshow",
-        }),
+        },
       );
-
-      recordEvent("app_lifecycle_resume_probe", {
-        ...payload,
-        phase: "pageshow",
-        persisted: event.persisted,
-        restoreKind: event.persisted ? "bfcache" : "pageshow",
-      });
     };
 
     window.addEventListener("pageshow", onPageShow);
     return () => {
       window.removeEventListener("pageshow", onPageShow);
     };
-  }, [pathname]);
+  }, [pathname, safelyRecordLifecycleProbe]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -177,12 +207,15 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
     const handlePageExit = (event: PageTransitionEvent) => {
       const payload = getLifecycleProbePayload(pathname);
       if (payload) {
-        setRUMSessionAttributes(
-          buildLifecycleSessionAttributes("bb_lastBackground", payload, {
+        safelyRecordLifecycleProbe(
+          "bb_lastBackground",
+          "app_lifecycle_resume_probe",
+          payload,
+          {
             phase: "pagehide",
             persisted: event.persisted,
             restoreKind: event.persisted ? "bfcache" : "pagehide",
-          }),
+          },
         );
       }
 
@@ -196,7 +229,7 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
     return () => {
       window.removeEventListener("pagehide", handlePageExit);
     };
-  }, [pathname]);
+  }, [pathname, safelyRecordLifecycleProbe]);
 
   useEffect(() => {
     if (pathname === "/") return;

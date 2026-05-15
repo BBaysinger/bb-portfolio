@@ -94,9 +94,28 @@ function readBoxHeight(id: string) {
   return round(element.getBoundingClientRect().height);
 }
 
+function readOrientationAngle() {
+  if (typeof window === "undefined") return "-";
+
+  try {
+    if (
+      typeof screen !== "undefined" &&
+      screen.orientation &&
+      typeof screen.orientation.angle === "number"
+    ) {
+      return screen.orientation.angle;
+    }
+  } catch {
+    // Some history restore paths can expose fragile orientation access.
+  }
+
+  return typeof window.orientation === "number" ? window.orientation : "-";
+}
+
 export default function ViewportDebugRoute() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [logLines, setLogLines] = useState<string[]>([]);
+  const [snapshotError, setSnapshotError] = useState<string | null>(null);
 
   useEffect(() => {
     const pageLoadedAt = performance.now();
@@ -119,12 +138,7 @@ export default function ViewportDebugRoute() {
           vv && typeof vv.scale === "number" && Number.isFinite(vv.scale)
             ? Number(vv.scale.toFixed(3))
             : "-",
-        orientation:
-          screen.orientation && typeof screen.orientation.angle === "number"
-            ? screen.orientation.angle
-            : typeof window.orientation === "number"
-              ? window.orientation
-              : "-",
+        orientation: readOrientationAngle(),
         vhBox: readBoxHeight("vhBox"),
         svhBox: readBoxHeight("svhBox"),
         dvhBox: readBoxHeight("dvhBox"),
@@ -132,6 +146,7 @@ export default function ViewportDebugRoute() {
         fillBox: readBoxHeight("fillBox"),
       };
 
+      setSnapshotError(null);
       setSnapshot(nextSnapshot);
       setLogLines((previousLines) => {
         const nextLine = [
@@ -152,15 +167,40 @@ export default function ViewportDebugRoute() {
       });
     };
 
-    const scheduleSnapshot = (label: string) => {
-      window.requestAnimationFrame(() => {
+    const safeTakeSnapshot = (label: string) => {
+      try {
         takeSnapshot(label);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown snapshot failure";
+        setSnapshotError(message);
+        setLogLines((previousLines) => {
+          const nextLine = `${Math.round(performance.now() - pageLoadedAt)}ms  ${label}  error=${message}`;
+          return [nextLine, ...previousLines].slice(0, 24);
+        });
+      }
+    };
+
+    const scheduleSnapshot = (label: string, delayMs = 0) => {
+      const run = () => {
+        window.requestAnimationFrame(() => {
+          safeTakeSnapshot(label);
+        });
+      };
+
+      if (delayMs > 0) {
+        window.setTimeout(run, delayMs);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        safeTakeSnapshot(label);
       });
     };
 
     const timeoutIds = [150, 1000, 2500].map((delayMs) =>
       window.setTimeout(() => {
-        takeSnapshot(`timeout-${delayMs}ms`);
+        safeTakeSnapshot(`timeout-${delayMs}ms`);
       }, delayMs),
     );
 
@@ -168,7 +208,15 @@ export default function ViewportDebugRoute() {
     const onOrientationChange = () =>
       scheduleSnapshot("window:orientationchange");
     const onScroll = () => scheduleSnapshot("window:scroll");
-    const onPageShow = () => scheduleSnapshot("window:pageshow");
+    const onPageShow = (event: PageTransitionEvent) => {
+      scheduleSnapshot(
+        `window:pageshow:${event.persisted ? "persisted" : "fresh"}`,
+      );
+      scheduleSnapshot(
+        `window:pageshow:${event.persisted ? "persisted" : "fresh"}:settled`,
+        120,
+      );
+    };
     const onVisibilityChange = () =>
       scheduleSnapshot(`document:visibilitychange:${document.visibilityState}`);
     const onVisualViewportResize = () =>
@@ -176,6 +224,7 @@ export default function ViewportDebugRoute() {
     const onVisualViewportScroll = () =>
       scheduleSnapshot("visualViewport:scroll");
 
+    safeTakeSnapshot("mount:sync");
     scheduleSnapshot("mount");
     window.addEventListener("resize", onResize, { passive: true });
     window.addEventListener("orientationchange", onOrientationChange, {
@@ -210,7 +259,11 @@ export default function ViewportDebugRoute() {
   }, []);
 
   const overlayText = useMemo(() => {
-    if (!snapshot) return "Loading metrics...";
+    if (!snapshot) {
+      return snapshotError
+        ? `Snapshot error: ${snapshotError}`
+        : "Loading metrics...";
+    }
 
     return [
       `label:${snapshot.label} t:${snapshot.elapsed}ms`,
@@ -222,8 +275,9 @@ export default function ViewportDebugRoute() {
       `vh:${snapshot.vhBox ?? "-"} svh:${snapshot.svhBox ?? "-"}`,
       `dvh:${snapshot.dvhBox ?? "-"} lvh:${snapshot.lvhBox ?? "-"}`,
       `fill:${snapshot.fillBox ?? "-"} orient:${snapshot.orientation}`,
+      snapshotError ? `error:${snapshotError}` : null,
     ].join("\n");
-  }, [snapshot]);
+  }, [snapshot, snapshotError]);
 
   return (
     <main style={pageStyle}>
