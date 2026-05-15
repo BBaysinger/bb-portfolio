@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { getServerBrandingLockup } from "../src/data/BrandingLockup";
-import { getCvExperienceData } from "../src/data/CvExperience";
+import { getBuildTimeCvExperienceData } from "../src/data/CvExperience";
 import { getServerGreeting } from "../src/data/Greeting";
 
 const TAG = "[frontend:export-static-content-snapshot]";
@@ -27,7 +27,7 @@ async function main() {
   const [brandingLockup, greeting, cvExperience] = await Promise.all([
     getServerBrandingLockup(),
     getServerGreeting(),
-    getCvExperienceData(),
+    getBuildTimeCvExperienceData(),
   ]);
 
   const envelope = {

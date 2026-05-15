@@ -56,16 +56,8 @@ const parseCvExperienceResponse = (
   };
 };
 
-export const getCvExperienceData =
+const fetchCvExperienceDataFromBackend =
   async (): Promise<StaticCvExperienceData> => {
-    const snapshot = await loadStaticContentSnapshot();
-    if (snapshot?.cvExperience) {
-      return parseCvExperienceResponse({
-        success: true,
-        data: snapshot.cvExperience,
-      });
-    }
-
     const backendBase = resolveBackendBase();
     const response = await fetch(`${backendBase}/api/cv-experience/`, {
       method: "GET",
@@ -82,4 +74,32 @@ export const getCvExperienceData =
     return parseCvExperienceResponse(
       (await response.json()) as CvExperienceResponse,
     );
+  };
+
+export const getCvExperienceData =
+  async (): Promise<StaticCvExperienceData> => {
+    const snapshot = await loadStaticContentSnapshot();
+    if (!snapshot?.cvExperience) {
+      throw new Error(
+        "Static content snapshot missing cvExperience. The /cv route is snapshot-only and must be built with STATIC_CONTENT_SNAPSHOT_PATH.",
+      );
+    }
+
+    return parseCvExperienceResponse({
+      success: true,
+      data: snapshot.cvExperience,
+    });
+  };
+
+export const getBuildTimeCvExperienceData =
+  async (): Promise<StaticCvExperienceData> => {
+    const snapshot = await loadStaticContentSnapshot();
+    if (snapshot?.cvExperience) {
+      return parseCvExperienceResponse({
+        success: true,
+        data: snapshot.cvExperience,
+      });
+    }
+
+    return fetchCvExperienceDataFromBackend();
   };

@@ -1,7 +1,5 @@
 import type { GlobalConfig } from 'payload'
 
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
-
 import {
   CV_CORE_STRENGTHS_HTML_SEED,
   CV_EXPERIENCE_SECTION_HEADING_SEED,
@@ -12,15 +10,6 @@ import {
 export const CvExperienceConfig: GlobalConfig = {
   slug: 'cvExperienceConfig',
   label: 'CV Experience Config',
-  hooks: {
-    afterChange: [
-      async () => {
-        await triggerFrontendProjectRevalidate('cvExperienceConfig.afterChange', {
-          warmPaths: ['/cv/'],
-        })
-      },
-    ],
-  },
   access: {
     read: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',

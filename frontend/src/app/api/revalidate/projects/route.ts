@@ -27,7 +27,6 @@ const revalidateProjectRoutes = () => {
   revalidateTag(PROJECTS_CACHE_TAG, "max");
   revalidatePath("/", "layout");
   revalidatePath("/", "page");
-  revalidatePath("/cv", "page");
   revalidatePath("/project", "page");
   revalidatePath("/project/[projectId]", "page");
   revalidatePath("/nda-included", "page");
@@ -48,7 +47,6 @@ export async function POST(req: NextRequest) {
         revalidated: [
           "/ (layout)",
           "/",
-          "/cv",
           "/project",
           "/project/[projectId]",
           "/nda-included",
@@ -77,7 +75,6 @@ export async function POST(req: NextRequest) {
     revalidated: [
       "/ (layout)",
       "/",
-      "/cv",
       "/project",
       "/project/[projectId]",
       "/nda-included",
