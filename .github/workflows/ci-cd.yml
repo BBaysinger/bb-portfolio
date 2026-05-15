@@ -95,28 +95,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          # Do not use pnpm cache here to avoid requiring pnpm before it's installed
-
-      # Install pnpm explicitly to ensure availability on runner
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 9
-          run_install: false
-
-      # Fallback: ensure pnpm is on PATH even if action was skipped/restricted
-      - name: Ensure pnpm available
-        run: |
-          if ! command -v pnpm >/dev/null 2>&1; then
-            echo "pnpm not found on PATH; installing via npm..."
-            npm i -g pnpm@9
-            pnpm -v
-          else
-            echo "pnpm already available: $(pnpm -v)"
-          fi
-
-      - name: pnpm version
-        run: pnpm -v
+          cache: npm
 
       # Sanitize required env list: split frontend/backend requirements
       - name: Sanitize required env lists (dev build)
@@ -129,11 +108,11 @@ jobs:
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
       # =======================================================================
-      - name: Install backend dependencies (pnpm)
+      - name: Install backend dependencies
         working-directory: ./backend
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1" # Avoid heavy download during install
-        run: pnpm install --no-frozen-lockfile --prefer-offline
+        run: npm ci --prefer-offline
 
       - name: Build backend
         working-directory: ./backend
@@ -164,12 +143,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
           SES_TO_EMAIL: ${{ secrets.SES_TO_EMAIL }}
-        run: pnpm run build # Next.js production build (Payload CMS)
+        run: npm run build # Next.js production build (Payload CMS)
 
       # Install Playwright browsers only when running tests
       - name: Install Playwright browsers
         working-directory: ./backend
-        run: pnpm exec playwright install --with-deps || true
+        run: npx playwright install --with-deps || true
 
       - name: Test backend
         working-directory: ./backend
@@ -195,14 +174,14 @@ jobs:
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           # Ensure tests use a definition list (backend-safe)
           REQUIRED_ENVIRONMENT_VARIABLES_BACKEND: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
-        run: pnpm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
+        run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
       # FRONTEND BUILD AND TEST (After backend is ready)
       # =======================================================================
-      - name: Install frontend dependencies (pnpm)
+      - name: Install frontend dependencies
         working-directory: ./frontend
-        run: pnpm install --no-frozen-lockfile --prefer-offline
+        run: npm ci --prefer-offline
 
       - name: Build frontend
         working-directory: ./frontend
@@ -231,7 +210,7 @@ jobs:
             export STATIC_CONTENT_SNAPSHOT_PATH=/tmp/static_content_snapshot
           fi
           BUILD_LOG="$(mktemp)"
-          pnpm run build | tee "$BUILD_LOG"
+          npm run build | tee "$BUILD_LOG"
           grep -F "● /project/[projectId]" "$BUILD_LOG"
           grep -F "● /nda-included/[projectId]" "$BUILD_LOG"
           rm -f /tmp/project_data_snapshot /tmp/static_content_snapshot

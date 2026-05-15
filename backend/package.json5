@@ -62,9 +62,9 @@
     // Start production server
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     // Run both integration and E2E tests (sequential)
-    "test": "pnpm run test:integration && pnpm run test:e2e",
+    "test": "npm run test:integration && npm run test:e2e",
     // Run Playwright tests (end-to-end testing framework)
-    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
+    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" npx playwright test",
     // Run Vitest (unit/integration tests) using its config file
     "test:integration": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
   },
