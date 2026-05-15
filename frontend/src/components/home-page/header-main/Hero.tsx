@@ -25,26 +25,16 @@ import {
   useState,
 } from "react";
 
-import DebugOverlay from "@/components/common/DebugOverlay";
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
-import { isManagedStableViewportHeightRequiredForCurrentBrowser } from "@/hooks/viewport/stableViewportHeightPolicy";
 import useLockedStableViewportHeightVar from "@/hooks/viewport/useLockedStableViewportHeightVar";
-import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
-import {
-  detectOs,
-  isEdge,
-  isFirefox,
-  isOpera,
-  isSafari,
-} from "@/utils/browser";
 import {
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
   consumeHomeHeroIntroReplayRequest,
@@ -60,12 +50,6 @@ import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 import HeroLockup from "./HeroLockup";
 import HeroQueryConfig from "./HeroQueryConfig";
-import {
-  buildHeroViewportRumPayload,
-  getHeroViewportSamplePlan,
-  getViewportDebugSnapshot,
-  parseComputedPixelValue,
-} from "./heroViewportDiagnostics";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import TypewriterEffect from "./TypewriterEffect";
 
@@ -137,16 +121,9 @@ const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
 
 type HeroProps = {
   initialRoleTitle?: string;
-  viewportDebugDefault?: boolean;
-  // Route-level default for the current Safari viewport investigation.
-  viewportHeightStrategy?: "default" | "locked";
 };
 
-function Hero({
-  initialRoleTitle,
-  viewportDebugDefault = false,
-  viewportHeightStrategy = "default",
-}: HeroProps) {
+function Hero({ initialRoleTitle }: HeroProps) {
   const id = "hero";
   const initialRows = 12;
   const initialCols = 16;
@@ -166,21 +143,6 @@ function Hero({
   const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
   const [playHeroIntro, setPlayHeroIntro] = useState(false);
   const [heroRuntimeKey, setHeroRuntimeKey] = useState(0);
-  // Temporary investigation toggles driven by `vhStrategy` / `vhDebug`.
-  const [showViewportDebug, setShowViewportDebug] =
-    useState(viewportDebugDefault);
-  const [viewportHeightStrategyOverride, setViewportHeightStrategyOverride] =
-    useState<HeroProps["viewportHeightStrategy"] | null>(null);
-  const [viewportDebugTrigger, setViewportDebugTrigger] = useState<
-    string | null
-  >(null);
-  const [viewportDebugLayoutDetails, setViewportDebugLayoutDetails] = useState<{
-    cssVarStableHeight: number | null;
-    computedHeroHeight: number | null;
-    computedHeroMinHeight: number | null;
-    heroRectHeight: number | null;
-    scrollY: number | null;
-  } | null>(null);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -190,33 +152,8 @@ function Hero({
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const isSlingerInFlightRef = useRef(false);
-  const recordedViewportSampleLabelsRef = useRef<Set<string>>(new Set());
-  const recordedViewportAnomalyLabelsRef = useRef<Set<string>>(new Set());
 
-  const resolvedViewportHeightStrategy =
-    viewportHeightStrategyOverride ?? viewportHeightStrategy;
-  const shouldUseLockedViewportHeight =
-    resolvedViewportHeightStrategy === "locked" ||
-    (resolvedViewportHeightStrategy === "default" &&
-      isManagedStableViewportHeightRequiredForCurrentBrowser());
-
-  // `default` keeps the existing site behavior. `locked` enables the experimental
-  // settle-then-lock hook so the real home hero can be A/B tested via query string.
-
-  useLockedStableViewportHeightVar(heroRef, {
-    cssVarName: shouldUseLockedViewportHeight
-      ? "--hero-stable-vh"
-      : "--hero-stable-vh-probe",
-    enabled: shouldUseLockedViewportHeight,
-  });
-
-  const stableHeightPx = useStableViewportHeightVar(heroRef, {
-    cssVarName: shouldUseLockedViewportHeight
-      ? "--hero-stable-vh-default"
-      : "--hero-stable-vh",
-    mode: "use-svh-for-all",
-    heightOnlyResizePolicy: "pointer-fine-or-shrink",
-  });
+  useLockedStableViewportHeightVar(heroRef);
 
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
@@ -232,46 +169,6 @@ function Hero({
     viewportWidth !== null &&
     viewportWidth > ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT &&
     !isSlingerIdle;
-  const viewportHeightMode = stableHeightPx === null ? "svh" : "managed";
-  const viewportBrowserLabel = useMemo(() => {
-    if (!mounted || typeof window === "undefined") return "unknown";
-
-    const os = detectOs();
-    if (isFirefox()) return `${os}-firefox`;
-    if (isEdge()) return `${os}-edge`;
-    if (isOpera()) return `${os}-opera`;
-    if (isSafari()) return `${os}-safari`;
-    return os;
-  }, [mounted]);
-  const viewportDebugSnapshot =
-    showViewportDebug && typeof window !== "undefined"
-      ? getViewportDebugSnapshot(stableHeightPx)
-      : null;
-  const viewportDebugSummary = useMemo(() => {
-    if (!viewportDebugSnapshot) return null;
-
-    return [
-      `mode:${viewportHeightMode}`,
-      `stable:${viewportDebugSnapshot.stableHeightPx ?? "-"}`,
-      `var:${viewportDebugLayoutDetails?.cssVarStableHeight ?? "-"}`,
-      `vv:${viewportDebugSnapshot.visualViewportHeight ?? "-"}`,
-      `off:${viewportDebugSnapshot.visualViewportOffsetTop ?? "-"}`,
-      `inner:${viewportDebugSnapshot.innerHeight ?? "-"}`,
-      `client:${viewportDebugSnapshot.clientHeight ?? "-"}`,
-      `min:${viewportDebugLayoutDetails?.computedHeroMinHeight ?? "-"}`,
-      `h:${viewportDebugLayoutDetails?.computedHeroHeight ?? "-"}`,
-      `rect:${viewportDebugLayoutDetails?.heroRectHeight ?? "-"}`,
-      `y:${viewportDebugLayoutDetails?.scrollY ?? "-"}`,
-      `evt:${viewportDebugTrigger ?? "-"}`,
-      viewportBrowserLabel,
-    ].join(" ");
-  }, [
-    viewportBrowserLabel,
-    viewportDebugLayoutDetails,
-    viewportDebugSnapshot,
-    viewportDebugTrigger,
-    viewportHeightMode,
-  ]);
 
   // useEffect(() => {
   //   if (viewportWidth === null) return;
@@ -561,161 +458,6 @@ function Hero({
     };
   }, [restartHeroRuntime]);
 
-  useEffect(() => {
-    if (!showViewportDebug) return;
-
-    const updateViewportDebugSnapshot = (trigger: string) => {
-      const heroElement = heroRef.current;
-      const computedStyle = heroElement
-        ? window.getComputedStyle(heroElement)
-        : null;
-      const heroRect = heroElement?.getBoundingClientRect();
-
-      setViewportDebugTrigger(trigger);
-      setViewportDebugLayoutDetails({
-        cssVarStableHeight: computedStyle
-          ? parseComputedPixelValue(
-              computedStyle.getPropertyValue("--hero-stable-vh"),
-            )
-          : null,
-        computedHeroHeight: computedStyle
-          ? parseComputedPixelValue(computedStyle.height)
-          : null,
-        computedHeroMinHeight: computedStyle
-          ? parseComputedPixelValue(computedStyle.minHeight)
-          : null,
-        heroRectHeight: heroRect ? Math.round(heroRect.height) : null,
-        scrollY: Number.isFinite(window.scrollY)
-          ? Math.round(window.scrollY)
-          : null,
-      });
-    };
-
-    const visualViewport = window.visualViewport;
-    const onWindowResize = () => updateViewportDebugSnapshot("win:resize");
-    const onWindowOrientationChange = () =>
-      updateViewportDebugSnapshot("win:orientationchange");
-    const onWindowScroll = () => updateViewportDebugSnapshot("win:scroll");
-    const onVisualViewportResize = () =>
-      updateViewportDebugSnapshot("vv:resize");
-    const onVisualViewportScroll = () =>
-      updateViewportDebugSnapshot("vv:scroll");
-
-    window.addEventListener("resize", onWindowResize, {
-      passive: true,
-    });
-    window.addEventListener("orientationchange", onWindowOrientationChange, {
-      passive: true,
-    });
-    window.addEventListener("scroll", onWindowScroll, {
-      passive: true,
-    });
-    visualViewport?.addEventListener("resize", onVisualViewportResize, {
-      passive: true,
-    });
-    visualViewport?.addEventListener("scroll", onVisualViewportScroll, {
-      passive: true,
-    });
-    updateViewportDebugSnapshot("debug:mount");
-
-    return () => {
-      window.removeEventListener("resize", onWindowResize);
-      window.removeEventListener(
-        "orientationchange",
-        onWindowOrientationChange,
-      );
-      window.removeEventListener("scroll", onWindowScroll);
-      visualViewport?.removeEventListener("resize", onVisualViewportResize);
-      visualViewport?.removeEventListener("scroll", onVisualViewportScroll);
-    };
-  }, [showViewportDebug]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    if (typeof window === "undefined") return;
-    const timeouts: number[] = [];
-
-    const recordViewportTelemetry = (
-      sampleLabel: string,
-      sampleIndex: number,
-    ) => {
-      if (recordedViewportSampleLabelsRef.current.has(sampleLabel)) return;
-
-      const heroElement = heroRef.current;
-      const lockupElement = titleRef.current;
-      const messageElement = heroElement?.querySelector<HTMLElement>(
-        `.${styles.message}`,
-      );
-      const navElement = document.querySelector<HTMLElement>("nav.topBar");
-      const computedStyle = heroElement
-        ? window.getComputedStyle(heroElement)
-        : null;
-      const payload = buildHeroViewportRumPayload({
-        viewport: getViewportDebugSnapshot(stableHeightPx),
-        viewportHeightMode,
-        viewportBrowserLabel,
-        sampleLabel,
-        sampleIndex,
-        heroRect: heroElement?.getBoundingClientRect(),
-        messageRect: messageElement?.getBoundingClientRect(),
-        lockupRect: lockupElement?.getBoundingClientRect(),
-        navRect: navElement?.getBoundingClientRect(),
-        computedStyle: computedStyle
-          ? {
-              height: parseComputedPixelValue(computedStyle.height),
-              minHeight: parseComputedPixelValue(computedStyle.minHeight),
-              maxHeight: parseComputedPixelValue(computedStyle.maxHeight),
-              paddingTop: parseComputedPixelValue(computedStyle.paddingTop),
-              paddingBottom: parseComputedPixelValue(
-                computedStyle.paddingBottom,
-              ),
-            }
-          : null,
-        scrollY: window.scrollY,
-      });
-
-      recordEvent("hero_viewport_diagnostics", {
-        page: window.location.pathname,
-        ...payload,
-      });
-      recordedViewportSampleLabelsRef.current.add(sampleLabel);
-
-      if (
-        payload.suspicious &&
-        !recordedViewportAnomalyLabelsRef.current.has(sampleLabel)
-      ) {
-        recordEvent("hero_viewport_anomaly", {
-          page: window.location.pathname,
-          ...payload,
-        });
-        recordedViewportAnomalyLabelsRef.current.add(sampleLabel);
-      }
-    };
-
-    const samplePlan = getHeroViewportSamplePlan(viewportBrowserLabel);
-
-    samplePlan.forEach(({ delayMs, sampleLabel, sampleIndex }) => {
-      const timeoutId = window.setTimeout(() => {
-        recordViewportTelemetry(sampleLabel, sampleIndex);
-      }, delayMs);
-      timeouts.push(timeoutId);
-    });
-
-    const onPageShow = (event: PageTransitionEvent) => {
-      const sampleLabel = event.persisted ? "pageshow-bfcache" : "pageshow";
-      recordViewportTelemetry(sampleLabel, samplePlan.length);
-    };
-
-    window.addEventListener("pageshow", onPageShow);
-
-    return () => {
-      timeouts.forEach((timeoutId) => {
-        window.clearTimeout(timeoutId);
-      });
-      window.removeEventListener("pageshow", onPageShow);
-    };
-  }, [mounted, stableHeightPx, viewportBrowserLabel, viewportHeightMode]);
-
   const handleHeroParagraphComplete = useCallback(() => {
     if (!playHeroIntro) return;
 
@@ -735,9 +477,6 @@ function Hero({
       id={id}
       ref={heroRef}
       data-nav="hero"
-      // TODO(viewport-debug-cleanup): Remove these temporary debug attributes after viewport-height investigation is complete.
-      data-viewport-height-mode={viewportHeightMode}
-      data-viewport-browser={viewportBrowserLabel}
       onContextMenu={handleSuppressContextMenu}
       className={clsx(
         // Scoped module class + global hook for easier debugging/targeting
@@ -763,18 +502,11 @@ function Hero({
       )}
     >
       <Suspense fallback={null}>
-        {/* TODO(viewport-debug-cleanup): Remove temporary query-param wiring used to toggle hero viewport diagnostics. */}
         <HeroQueryConfig
           onUpdate={setUseSlingerTracking}
           onFpsOverride={setFpsOverride}
-          onViewportDebugOverride={setShowViewportDebug}
-          onViewportHeightStrategyOverride={setViewportHeightStrategyOverride}
         />
       </Suspense>
-      <DebugOverlay
-        visible={showViewportDebug}
-        summary={viewportDebugSummary}
-      />
       <div>
         <GridController
           key={`grid-${heroRuntimeKey}`}

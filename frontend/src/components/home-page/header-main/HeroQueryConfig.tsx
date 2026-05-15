@@ -10,28 +10,15 @@
  * This is intentionally renderless so it can live inside a `Suspense` boundary
  * without affecting layout or SEO.
  *
- * Current viewport-debug surface:
- * - `vhStrategy=default|locked`
- * - `vhDebug=1`
  */
 
 import { useEffect } from "react";
 
 import useQueryParams from "@/hooks/useQueryParams";
 
-import {
-  readViewportDebugQueryParam,
-  readViewportHeightStrategyQueryParam,
-  type HeroViewportHeightStrategy,
-} from "./heroViewportQueryParams";
-
 type Props = {
   onUpdate: (value: boolean) => void;
   onFpsOverride?: (value: boolean | null) => void;
-  onViewportDebugOverride?: (value: boolean) => void;
-  onViewportHeightStrategyOverride?: (
-    value: HeroViewportHeightStrategy | null,
-  ) => void;
 };
 
 /**
@@ -60,12 +47,7 @@ type Props = {
  * @see useQueryParams
  *
  */
-export default function HeroQueryConfig({
-  onUpdate,
-  onFpsOverride,
-  onViewportDebugOverride,
-  onViewportHeightStrategyOverride,
-}: Props) {
+export default function HeroQueryConfig({ onUpdate, onFpsOverride }: Props) {
   const queryParams = useQueryParams();
 
   const slingerTrackingParam = queryParams?.useSlingerTracking;
@@ -103,10 +85,6 @@ export default function HeroQueryConfig({
                 )
               ? false
               : null;
-  const viewportDebug = readViewportDebugQueryParam(queryParams);
-  const viewportHeightStrategy =
-    readViewportHeightStrategyQueryParam(queryParams);
-
   useEffect(() => {
     onUpdate(slingerTracking);
   }, [slingerTracking, onUpdate]);
@@ -115,16 +93,6 @@ export default function HeroQueryConfig({
     if (!onFpsOverride) return;
     onFpsOverride(fpsOverride);
   }, [fpsOverride, onFpsOverride]);
-
-  useEffect(() => {
-    if (!onViewportDebugOverride) return;
-    onViewportDebugOverride(viewportDebug);
-  }, [onViewportDebugOverride, viewportDebug]);
-
-  useEffect(() => {
-    if (!onViewportHeightStrategyOverride) return;
-    onViewportHeightStrategyOverride(viewportHeightStrategy);
-  }, [onViewportHeightStrategyOverride, viewportHeightStrategy]);
 
   return null;
 }

@@ -42,6 +42,5 @@ export default function useStableViewportHeightVar(
     el.style.setProperty(cssVarName, `${stableHeightPx}px`);
   }, [cssVarName, elementRef, stableHeightPx]);
 
-  // TODO(viewport-debug-cleanup): Remove the return value again if no callers need the measured height for temporary diagnostics.
   return stableHeightPx;
 }

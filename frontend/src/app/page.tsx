@@ -72,10 +72,7 @@ const HomePage = async () => {
 
   return (
     <>
-      <Hero
-        initialRoleTitle={brandingLockup.activeRoleTitle}
-        viewportHeightStrategy="locked"
-      />
+      <Hero initialRoleTitle={brandingLockup.activeRoleTitle} />
       <Greeting introHtml={greeting.introHtml} bodyHtml={greeting.bodyHtml} />
       <HomePageClient
         ssrProjects={ssrProjects}
