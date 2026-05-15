@@ -34,7 +34,7 @@
     "test:integration": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.1046.0",
+    "@aws-sdk/client-ses": "^3.1047.0",
     "@aws-sdk/types": "^3.973.8",
     "@payloadcms/db-mongodb": "3.84.1",
     "@payloadcms/email-nodemailer": "3.84.1",
@@ -63,10 +63,10 @@
     "@testing-library/react": "16.3.2",
     "@types/express": "^5.0.6",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.8.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "6.0.1",
+    "@vitejs/plugin-react": "6.0.2",
     "baseline-browser-mapping": "^2.10.29",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
@@ -74,7 +74,7 @@
     "playwright": "1.60.0",
     "playwright-core": "1.60.0",
     "prettier": "^3.8.3",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.0",
     "typescript": "6.0.3",
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "4.1.6"
@@ -92,5 +92,5 @@
     "esbuild",
     "unrs-resolver"
   ],
-  "packageManager": "npm@11.12.1+sha512.cdca14b85d647b3192028d02aadbe82d75f79a446aceea9874be98e6d768f20ebd3555770a48d0e9906106007877bbc690f715e9372f2e2dc644a3c3157fb14c"
+  "packageManager": "npm@11.14.1"
 }

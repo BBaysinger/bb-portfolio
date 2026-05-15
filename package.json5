@@ -443,7 +443,7 @@
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.0",
     // TypeScript language support
     "typescript": "^6.0.3",
   },

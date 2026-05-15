@@ -71,7 +71,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1046.0",
+    "@aws-sdk/client-ses": "^3.1047.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.8",
     // MongoDB adapter for Payload CMS
@@ -128,13 +128,13 @@
     // TypeScript definitions for js-yaml used by private content import helpers
     "@types/js-yaml": "^4.0.9",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.8.0",
     // React 19 types
     "@types/react": "19.2.14",
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "6.0.1",
+    "@vitejs/plugin-react": "6.0.2",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.29",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
@@ -150,7 +150,7 @@
     // Code formatter with opinionated defaults
     "prettier": "^3.8.3",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.0",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "6.0.3",
     // Vite path mapping support (resolves TypeScript path aliases)
@@ -185,5 +185,5 @@
     "unrs-resolver",
   ],
   //
-  "packageManager": "npm@11.12.1+sha512.cdca14b85d647b3192028d02aadbe82d75f79a446aceea9874be98e6d768f20ebd3555770a48d0e9906106007877bbc690f715e9372f2e2dc644a3c3157fb14c",
+  "packageManager": "npm@11.14.1",
 }
