@@ -7,10 +7,6 @@ import { fileURLToPath } from 'url'
 import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 
-import {
-  DEFAULT_CV_CORE_STRENGTHS_HTML,
-  DEFAULT_CV_SUMMARY_HTML,
-} from '../src/globals/cvExperienceConfigDefaults'
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { resolvePortfolioContentDirPath } from './lib/portfolio-content'
 
@@ -274,10 +270,14 @@ async function main() {
 
     const headingsYaml = dumpYaml(
       {
-        summaryHtml: asTrimmedString(cvExperienceConfig.summaryHtml) || DEFAULT_CV_SUMMARY_HTML,
-        coreStrengthsHtml:
-          asTrimmedString(cvExperienceConfig.coreStrengthsHtml) ||
-          DEFAULT_CV_CORE_STRENGTHS_HTML,
+        summaryHtml: asNonEmptyString(
+          cvExperienceConfig.summaryHtml,
+          'cvExperienceConfig.summaryHtml',
+        ),
+        coreStrengthsHtml: asNonEmptyString(
+          cvExperienceConfig.coreStrengthsHtml,
+          'cvExperienceConfig.coreStrengthsHtml',
+        ),
         experienceSectionHeading: asNonEmptyString(
           cvExperienceConfig.experienceSectionHeading,
           'cvExperienceConfig.experienceSectionHeading',

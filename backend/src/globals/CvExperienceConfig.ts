@@ -1,10 +1,11 @@
 import type { GlobalConfig } from 'payload'
 
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 import {
   DEFAULT_CV_CORE_STRENGTHS_HTML,
   DEFAULT_CV_SUMMARY_HTML,
 } from './cvExperienceConfigDefaults'
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 export const CvExperienceConfig: GlobalConfig = {
   slug: 'cvExperienceConfig',
