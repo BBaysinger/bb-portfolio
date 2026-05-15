@@ -1,31 +1,9 @@
-/**
- * Frontend API proxy for `GET /api/cv-experience`.
- *
- * Keeps client-side fetches same-origin while forwarding to backend.
- */
-import { NextRequest } from "next/server";
+import { getCvExperienceData } from "@/data/CvExperience";
 
-import { resolveBackendBase } from "@/utils/backend-base";
-
-export async function GET(request: NextRequest) {
-  const backendUrl = resolveBackendBase();
-
-  const response = await fetch(`${backendUrl}/api/cv-experience/`, {
-    method: "GET",
+export async function GET() {
+  return Response.json(await getCvExperienceData(), {
     headers: {
-      Accept: "application/json",
-      ...(request.headers.get("user-agent") && {
-        "User-Agent": request.headers.get("user-agent")!,
-      }),
-    },
-    cache: "no-store",
-  });
-
-  return new Response(await response.text(), {
-    status: response.status,
-    headers: {
-      "content-type":
-        response.headers.get("content-type") || "application/json",
+      "cache-control": "no-store",
     },
   });
 }

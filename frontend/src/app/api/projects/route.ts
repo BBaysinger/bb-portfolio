@@ -16,11 +16,27 @@
  */
 import type { NextRequest } from "next/server";
 
+import { ProjectDataStore } from "@/data/ProjectData";
 import { resolveBackendBase } from "@/utils/backend-base";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // evaluate auth per request
 export const revalidate = 0;
+
+async function buildSnapshotFallbackResponse(req: NextRequest) {
+  const projectData = new ProjectDataStore();
+  await projectData.initialize({
+    headers: req.headers,
+    disableCache: true,
+  });
+
+  return Response.json(projectData.projectsRecord, {
+    headers: {
+      "cache-control": "no-store",
+      "x-bb-project-data-source": "snapshot-fallback",
+    },
+  });
+}
 
 function buildTargetUrl(req: NextRequest): string {
   const base = resolveBackendBase();
@@ -46,18 +62,38 @@ export async function GET(req: NextRequest) {
     (headers as Record<string, string>)["authorization"] = `Bearer ${token}`;
 
   // No caching at this proxy; caching is controlled at the caller via fetch options.
-  const res = await fetch(url, {
-    method: "GET",
-    headers,
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
 
-  const text = await res.text();
-  return new Response(text, {
-    status: res.status,
-    headers: {
-      "content-type": res.headers.get("content-type") || "application/json",
-      "cache-control": "no-store",
-    },
-  });
+    if (!res.ok) {
+      try {
+        return await buildSnapshotFallbackResponse(req);
+      } catch {
+        const text = await res.text();
+        return new Response(text, {
+          status: res.status,
+          headers: {
+            "content-type":
+              res.headers.get("content-type") || "application/json",
+            "cache-control": "no-store",
+          },
+        });
+      }
+    }
+
+    const text = await res.text();
+    return new Response(text, {
+      status: res.status,
+      headers: {
+        "content-type": res.headers.get("content-type") || "application/json",
+        "cache-control": "no-store",
+      },
+    });
+  } catch {
+    return buildSnapshotFallbackResponse(req);
+  }
 }

@@ -93,11 +93,16 @@ assign_secret BACKEND_INTERNAL_URL backend_internal_url
 assign_secret PUBLIC_PROJECTS_BUCKET public_projects_bucket
 assign_secret NDA_PROJECTS_BUCKET nda_projects_bucket
 
+mkdir -p /app/runtime-snapshots
+
 # Optional hermetic SSG input (JSON snapshot). If present, build-time project data reads
 # this file and avoids live backend fetches.
 if [ -s /run/secrets/project_data_snapshot ]; then
 	cp /run/secrets/project_data_snapshot /tmp/project-data-snapshot.json
 	export PROJECT_DATA_SNAPSHOT_PATH=/tmp/project-data-snapshot.json
+	cp /run/secrets/project_data_snapshot /app/runtime-snapshots/project-data-snapshot.json
+else
+	: >/app/runtime-snapshots/project-data-snapshot.json
 fi
 
 # Optional hermetic static-content input (JSON snapshot). If present, build-time
@@ -105,6 +110,9 @@ fi
 if [ -s /run/secrets/static_content_snapshot ]; then
 	cp /run/secrets/static_content_snapshot /tmp/static-content-snapshot.json
 	export STATIC_CONTENT_SNAPSHOT_PATH=/tmp/static-content-snapshot.json
+	cp /run/secrets/static_content_snapshot /app/runtime-snapshots/static-content-snapshot.json
+else
+	: >/app/runtime-snapshots/static-content-snapshot.json
 fi
 
 # GA4 build-time config (Next.js client bundles only see NEXT_PUBLIC_* at build time)
@@ -129,6 +137,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
+ENV PROJECT_DATA_SNAPSHOT_PATH=/app/runtime-snapshots/project-data-snapshot.json
+ENV STATIC_CONTENT_SNAPSHOT_PATH=/app/runtime-snapshots/static-content-snapshot.json
 
 # Include package.json metadata
 COPY package.json .
@@ -139,6 +149,7 @@ COPY package.json .
 COPY --from=builder /app/.next/standalone .
 COPY --from=builder /app/.next/static ./app/.next/static
 COPY --from=builder /app/public ./app/public
+COPY --from=builder /app/runtime-snapshots ./runtime-snapshots
 
 EXPOSE 3000
 

@@ -151,7 +151,7 @@ const runtimeImport = <T>(specifier: string): Promise<T> => {
 
 const loadProjectDataSnapshot = async (
   snapshotPath: string,
-): Promise<FetchProjectsResult> => {
+): Promise<FetchProjectsResult | null> => {
   type ReadFileFn = (path: string, encoding: string) => Promise<string>;
 
   let readFile: ReadFileFn | undefined;
@@ -174,6 +174,10 @@ const loadProjectDataSnapshot = async (
   }
 
   const raw = await readFile(snapshotPath, "utf8");
+  if (!raw.trim()) {
+    return null;
+  }
+
   const parsed = JSON.parse(raw) as ProjectDataSnapshotFile;
 
   if (isProjectDataSnapshotEnvelope(parsed)) {
@@ -233,7 +237,10 @@ async function fetchPortfolioProjects(opts?: {
       : "";
   if (snapshotPath) {
     try {
-      return await loadProjectDataSnapshot(snapshotPath);
+      const snapshot = await loadProjectDataSnapshot(snapshotPath);
+      if (snapshot) {
+        return snapshot;
+      }
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Unknown snapshot error";

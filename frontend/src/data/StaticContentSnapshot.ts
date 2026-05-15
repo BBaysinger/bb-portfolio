@@ -90,7 +90,26 @@ export const loadStaticContentSnapshot =
           return null;
         }
 
-        const raw = await loadSnapshotText(snapshotPath);
+        let raw: string;
+        try {
+          raw = await loadSnapshotText(snapshotPath);
+        } catch (error) {
+          if (
+            error &&
+            typeof error === "object" &&
+            "code" in error &&
+            (error as { code?: string }).code === "ENOENT"
+          ) {
+            return null;
+          }
+
+          throw error;
+        }
+
+        if (!raw.trim()) {
+          return null;
+        }
+
         const parsed = JSON.parse(raw) as unknown;
         return parseStaticContentSnapshot(parsed);
       })();
