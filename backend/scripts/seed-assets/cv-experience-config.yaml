@@ -1,0 +1,22 @@
+summaryHtml: |-
+  <p><strong>Front-end / UI developer specializing in interaction-driven, visually polished, performance-sensitive interfaces.</strong></p>
+  <p>Built production UI for enterprise clients, with strong <strong>HTML</strong>, <strong>CSS</strong>, and <strong>JavaScript</strong> fundamentals and working experience in <strong>React</strong>, <strong>TypeScript</strong>, <strong>Next.js</strong>, and <strong>Angular</strong>. Extensive background also in <strong>DOM manipulation</strong>, <strong>jQuery</strong>, and <strong>vanilla JavaScript</strong>.</p>
+coreStrengthsHtml: |-
+  <h5>Modern UI Development</h5>
+  <ul>
+    <li>React (2 years): Component-driven UI, hooks, routing, and state management with Redux</li>
+    <li>Angular (2 years): Enterprise component architecture, RxJS, and SCSS-based theming</li>
+    <li>TypeScript (3 years): Client-side application development, component architecture, and maintainable typed UI code, with many years of prior experience in strongly typed languages (including Haxe)</li>
+  </ul>
+  <h5>Creative Problem-Solving</h5>
+  <ul>
+    <li>Animation &amp; UI Design: Evolved from award-winning Flash/AS3 motion work into modern CSS/JS animation systems</li>
+    <li>Interactive Web Development: Built rich tools including data explorers and Canvas/SVG-driven UI</li>
+  </ul>
+  <h5>Design &amp; Animation Background</h5>
+  <ul>
+    <li>Strong foundation in visual design with extensive Adobe Creative Suite experience</li>
+    <li>Deep experience in technical animation, including physics-based custom tweening systems for interactive work</li>
+  </ul>
+experienceSectionHeading: Experience
+recentIndependentStudySectionHeading: Independent R&D

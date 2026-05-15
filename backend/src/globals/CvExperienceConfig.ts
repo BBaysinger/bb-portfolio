@@ -3,9 +3,11 @@ import type { GlobalConfig } from 'payload'
 import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 import {
-  DEFAULT_CV_CORE_STRENGTHS_HTML,
-  DEFAULT_CV_SUMMARY_HTML,
-} from './cvExperienceConfigDefaults'
+  CV_CORE_STRENGTHS_HTML_SEED,
+  CV_EXPERIENCE_SECTION_HEADING_SEED,
+  CV_RECENT_INDEPENDENT_STUDY_SECTION_HEADING_SEED,
+  CV_SUMMARY_HTML_SEED,
+} from './cvExperienceConfigSeed'
 
 export const CvExperienceConfig: GlobalConfig = {
   slug: 'cvExperienceConfig',
@@ -29,7 +31,7 @@ export const CvExperienceConfig: GlobalConfig = {
       label: 'Summary HTML',
       type: 'textarea',
       required: true,
-      defaultValue: DEFAULT_CV_SUMMARY_HTML,
+      defaultValue: CV_SUMMARY_HTML_SEED,
       admin: {
         rows: 8,
         description:
@@ -41,7 +43,7 @@ export const CvExperienceConfig: GlobalConfig = {
       label: 'Core Strengths HTML',
       type: 'textarea',
       required: true,
-      defaultValue: DEFAULT_CV_CORE_STRENGTHS_HTML,
+      defaultValue: CV_CORE_STRENGTHS_HTML_SEED,
       admin: {
         rows: 18,
         description:
@@ -53,14 +55,14 @@ export const CvExperienceConfig: GlobalConfig = {
       label: 'Experience Section Heading',
       type: 'text',
       required: true,
-      defaultValue: 'Experience',
+      defaultValue: CV_EXPERIENCE_SECTION_HEADING_SEED,
     },
     {
       name: 'recentIndependentStudySectionHeading',
       label: 'Independent R&D / Freelance Section Heading',
       type: 'text',
       required: true,
-      defaultValue: 'Independent R&D',
+      defaultValue: CV_RECENT_INDEPENDENT_STUDY_SECTION_HEADING_SEED,
     },
   ],
 }

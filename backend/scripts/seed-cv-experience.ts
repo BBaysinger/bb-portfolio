@@ -8,9 +8,11 @@ import { getPayload, type Payload } from 'payload'
 import slugify from 'slugify'
 
 import {
-  DEFAULT_CV_CORE_STRENGTHS_HTML,
-  DEFAULT_CV_SUMMARY_HTML,
-} from '../src/globals/cvExperienceConfigDefaults'
+  CV_CORE_STRENGTHS_HTML_SEED,
+  CV_EXPERIENCE_SECTION_HEADING_SEED,
+  CV_RECENT_INDEPENDENT_STUDY_SECTION_HEADING_SEED,
+  CV_SUMMARY_HTML_SEED,
+} from '../src/globals/cvExperienceConfigSeed'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
@@ -255,10 +257,10 @@ async function main() {
     await payload.updateGlobal({
       slug: 'cvExperienceConfig',
       data: {
-        summaryHtml: DEFAULT_CV_SUMMARY_HTML,
-        coreStrengthsHtml: DEFAULT_CV_CORE_STRENGTHS_HTML,
-        experienceSectionHeading: 'Experience',
-        recentIndependentStudySectionHeading: 'Independent R&D',
+        summaryHtml: CV_SUMMARY_HTML_SEED,
+        coreStrengthsHtml: CV_CORE_STRENGTHS_HTML_SEED,
+        experienceSectionHeading: CV_EXPERIENCE_SECTION_HEADING_SEED,
+        recentIndependentStudySectionHeading: CV_RECENT_INDEPENDENT_STUDY_SECTION_HEADING_SEED,
       },
       overrideAccess: true,
     })
