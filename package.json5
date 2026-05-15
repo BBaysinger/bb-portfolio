@@ -261,9 +261,6 @@
     "content:pull:prod:all": "npm run content:pull:prod:content-dir",
     // 🧪 Dry run: preview all authored production content pulls
     "content:pull:prod:all:dry": "npm run content:pull:prod:content-dir:dry",
-    // 🪄 Preferred explicit alias for authored-content apply into local from PORTFOLIO_CONTENT_DIR.
-    // Use this when you mean apply/import authored content; do not use content:migrate for that workflow.
-    "content:apply-authored:local:content-dir": "npm run content:import:local:content-dir",
     // 🪄 Import a target content root into local: seed media then import project descriptions and CV content.
     // Use these content:import:* commands when you intend to apply authored content from PORTFOLIO_CONTENT_DIR; migrate does not do that for you.
     // Content-root resolution and validation are centralized in scripts/content-workflow.sh.
@@ -272,14 +269,8 @@
     "content:import:local:projects:content-dir": "bash ./scripts/content-workflow.sh import-projects-local",
     // 🪄 Import only local CV experiences and CV logo media from the configured content root.
     "content:import:local:cv:content-dir": "bash ./scripts/content-workflow.sh import-cv-local",
-    // 🪄 Preferred explicit alias for authored-content apply into dev from PORTFOLIO_CONTENT_DIR.
-    // Use this when you mean apply/import authored content; do not use content:migrate for that workflow.
-    "content:apply-authored:dev:content-dir": "npm run content:import:dev:content-dir",
     // 🪄 Import authored content from PORTFOLIO_CONTENT_DIR into dev. Requires ALLOW_DEV_WRITE=true.
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
-    // 🪄 Preferred explicit alias for authored-content apply into prod from PORTFOLIO_CONTENT_DIR.
-    // Use this when you mean apply/import authored content; do not use content:migrate for that workflow.
-    "content:apply-authored:prod:content-dir": "npm run content:import:prod:content-dir",
     // 🪄 Import authored content from PORTFOLIO_CONTENT_DIR into prod. Requires ALLOW_PROD_WRITE=true and extra confirmation.
     "content:import:prod:content-dir": "bash ./scripts/content-workflow.sh import-prod",
     // 🪄 One-shot database sync across environments via the canonical Mongo migration tool.
