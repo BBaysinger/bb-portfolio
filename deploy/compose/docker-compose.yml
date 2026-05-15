@@ -213,7 +213,10 @@ services:
 
   bb-portfolio-backend-local:
     profiles: ["local"]
-    image: bhbaysinger/bb-portfolio-backend:dev
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+      target: dev
     container_name: bb-portfolio-backend-local
     working_dir: /app
     # Install deps if missing, then run Next dev on the expected port

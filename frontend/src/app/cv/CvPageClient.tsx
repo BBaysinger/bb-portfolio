@@ -70,6 +70,8 @@ const CurriculumVitae: React.FC<CvPageClientProps> = ({
 
   const cvExperienceItems = initialExperienceItems;
   const recentIndependentStudyItems = initialRecentIndependentStudyItems;
+  const showRecentIndependentStudySection =
+    recentIndependentStudyItems.length > 0;
 
   return (
     <div>
@@ -129,18 +131,18 @@ const CurriculumVitae: React.FC<CvPageClientProps> = ({
           </div>
         </div>
 
-        {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
-
-        <div className={"container"}>
-          <h4 ref={addToRefs}>{recentIndependentStudySectionHeading}</h4>
-          {recentIndependentStudyItems.map((item, index) => (
-            <ExperienceItem
-              key={`${item.company}-${item.date}-${index}`}
-              item={item}
-              addToRefs={addToRefs}
-            />
-          ))}
-        </div>
+        {showRecentIndependentStudySection ? (
+          <div className={"container"}>
+            <h4 ref={addToRefs}>{recentIndependentStudySectionHeading}</h4>
+            {recentIndependentStudyItems.map((item, index) => (
+              <ExperienceItem
+                key={`${item.company}-${item.date}-${index}`}
+                item={item}
+                addToRefs={addToRefs}
+              />
+            ))}
+          </div>
+        ) : null}
 
         <div className={"container"}>
           <h4 ref={addToRefs}>{experienceSectionHeading}</h4>

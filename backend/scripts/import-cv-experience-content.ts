@@ -262,16 +262,27 @@ async function main() {
 
     requireDirectory(cvDir, 'cv-experiences directory')
     requireDirectory(experienceDir, 'cv-experiences/experience directory')
-    requireDirectory(independentRdDir, 'cv-experiences/independent-rd directory')
     requireDirectory(logosDir, 'cv-experience-logos directory')
 
     const orderFile = readYamlFile<CvOrderFile>(orderPath)
     const configFile = readYamlFile<CvConfigFile>(configPath)
     const experienceOrder = asSlugList(orderFile.experience, 'experience', orderPath)
     const independentRdOrder = asSlugList(orderFile.independentRd ?? [], 'independentRd', orderPath)
+    function isDirectory(dirPath: string) {
+      return fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()
+    }
+    const hasIndependentRdDir = isDirectory(independentRdDir)
+
+    if (independentRdOrder.length > 0 && !hasIndependentRdDir) {
+      throw new Error(
+        `cv-experiences/independent-rd directory not found at ${independentRdDir}, but independentRd order entries were provided.`,
+      )
+    }
 
     const experienceEntries = experienceOrder.map((slug) => loadCvEntry(experienceDir, slug))
-    const independentEntries = independentRdOrder.map((slug) => loadCvEntry(independentRdDir, slug))
+    const independentEntries = hasIndependentRdDir
+      ? independentRdOrder.map((slug) => loadCvEntry(independentRdDir, slug))
+      : []
 
     const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
