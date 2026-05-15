@@ -190,6 +190,6 @@
     // Native module resolver binary pulled in by the modern toolchain
     "unrs-resolver",
   ],
-  //
+  // Canonical npm version for backend scripts, installs, and CI consistency
   "packageManager": "npm@11.14.1",
 }
