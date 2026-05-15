@@ -111,6 +111,7 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [resumeCheckError, setResumeCheckError] = useState<string | null>(null);
   const lifecycleProbeSentRef = useRef(false);
+  const isDebugRoute = (pathname || "").startsWith("/_debug");
 
   useEffect(() => {
     if (lifecycleProbeSentRef.current) return;
@@ -649,17 +650,21 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
         reduceMotion && "reduce-motion",
       )}
     >
-      <NavVariant
-        variant={NavVariants.SLIDE_OUT}
-        brandingLockup={brandingLockup}
-      />
+      {!isDebugRoute && (
+        <NavVariant
+          variant={NavVariants.SLIDE_OUT}
+          brandingLockup={brandingLockup}
+        />
+      )}
       {/* Anchor target for in-page navigation / scroll-to-top behaviors. */}
       <div id="top" style={{ position: "absolute", top: 0 }} />
-      <div className={styles.underlay} />
-      <NavVariant
-        variant={NavVariants.TOP_BAR}
-        brandingLockup={brandingLockup}
-      />
+      {!isDebugRoute && <div className={styles.underlay} />}
+      {!isDebugRoute && (
+        <NavVariant
+          variant={NavVariants.TOP_BAR}
+          brandingLockup={brandingLockup}
+        />
+      )}
       {/*
         SkipLink target. `tabIndex={-1}` allows programmatic focus after clicking
         the skip link, without inserting it into the normal tab order.
@@ -696,7 +701,7 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
           />
           {children}
         </div>
-        <Footer mutationElemRef={childContentRef} />
+        {!isDebugRoute && <Footer mutationElemRef={childContentRef} />}
       </div>
     </div>
   );

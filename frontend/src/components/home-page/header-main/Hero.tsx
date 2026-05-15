@@ -32,6 +32,7 @@ import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
+import useLockedStableViewportHeightVar from "@/hooks/viewport/useLockedStableViewportHeightVar";
 import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
@@ -135,9 +136,16 @@ const getMaxSlingerReleaseSpeed = (viewportWidth: number | null) => {
 
 type HeroProps = {
   initialRoleTitle?: string;
+  viewportDebugDefault?: boolean;
+  // Route-level default for the current Safari viewport investigation.
+  viewportHeightStrategy?: "default" | "locked";
 };
 
-function Hero({ initialRoleTitle }: HeroProps) {
+function Hero({
+  initialRoleTitle,
+  viewportDebugDefault = false,
+  viewportHeightStrategy = "default",
+}: HeroProps) {
   const id = "hero";
   const initialRows = 12;
   const initialCols = 16;
@@ -157,8 +165,11 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
   const [playHeroIntro, setPlayHeroIntro] = useState(false);
   const [heroRuntimeKey, setHeroRuntimeKey] = useState(0);
-  // TODO(viewport-debug-cleanup): Remove this temporary hero viewport-debug state once the iOS Safari height issue is resolved.
-  const [showViewportDebug, setShowViewportDebug] = useState(false);
+  // Temporary investigation toggles driven by `vhStrategy` / `vhDebug`.
+  const [showViewportDebug, setShowViewportDebug] =
+    useState(viewportDebugDefault);
+  const [viewportHeightStrategyOverride, setViewportHeightStrategyOverride] =
+    useState<HeroProps["viewportHeightStrategy"] | null>(null);
   const [viewportDebugTrigger, setViewportDebugTrigger] = useState<
     string | null
   >(null);
@@ -181,9 +192,29 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const recordedViewportSampleLabelsRef = useRef<Set<string>>(new Set());
   const recordedViewportAnomalyLabelsRef = useRef<Set<string>>(new Set());
 
+  const resolvedViewportHeightStrategy =
+    viewportHeightStrategyOverride ?? viewportHeightStrategy;
+
+  // `default` keeps the existing site behavior. `locked` enables the experimental
+  // settle-then-lock hook so the real home hero can be A/B tested via query string.
+
+  useLockedStableViewportHeightVar(heroRef, {
+    cssVarName:
+      resolvedViewportHeightStrategy === "locked"
+        ? "--hero-stable-vh"
+        : "--hero-stable-vh-probe",
+    enabled: resolvedViewportHeightStrategy === "locked",
+  });
+
   const stableHeightPx = useStableViewportHeightVar(heroRef, {
-    cssVarName: "--hero-stable-vh",
-    mode: "use-where-required",
+    cssVarName:
+      resolvedViewportHeightStrategy === "locked"
+        ? "--hero-stable-vh-default"
+        : "--hero-stable-vh",
+    mode:
+      resolvedViewportHeightStrategy === "locked"
+        ? "use-svh-for-all"
+        : "use-where-required",
     heightOnlyResizePolicy: "pointer-fine-or-shrink",
   });
 
@@ -737,6 +768,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
           onUpdate={setUseSlingerTracking}
           onFpsOverride={setFpsOverride}
           onViewportDebugOverride={setShowViewportDebug}
+          onViewportHeightStrategyOverride={setViewportHeightStrategyOverride}
         />
       </Suspense>
       <DebugOverlay

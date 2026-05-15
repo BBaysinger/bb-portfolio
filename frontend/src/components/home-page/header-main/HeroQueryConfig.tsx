@@ -9,32 +9,29 @@
  *
  * This is intentionally renderless so it can live inside a `Suspense` boundary
  * without affecting layout or SEO.
+ *
+ * Current viewport-debug surface:
+ * - `vhStrategy=default|locked`
+ * - `vhDebug=1`
  */
 
 import { useEffect } from "react";
 
 import useQueryParams from "@/hooks/useQueryParams";
 
+import {
+  readViewportDebugQueryParam,
+  readViewportHeightStrategyQueryParam,
+  type HeroViewportHeightStrategy,
+} from "./heroViewportQueryParams";
+
 type Props = {
   onUpdate: (value: boolean) => void;
   onFpsOverride?: (value: boolean | null) => void;
   onViewportDebugOverride?: (value: boolean) => void;
-};
-
-type QueryParamValue = string | number | boolean;
-
-const parseBooleanParam = (value?: QueryParamValue): boolean | null => {
-  if (value === undefined) return null;
-  if (typeof value === "boolean") return value;
-  if (typeof value === "number") {
-    if (value === 1) return true;
-    if (value === 0) return false;
-    return null;
-  }
-  const normalized = String(value).trim().toLowerCase();
-  if (["1", "true", "on", "yes"].includes(normalized)) return true;
-  if (["0", "false", "off", "no"].includes(normalized)) return false;
-  return null;
+  onViewportHeightStrategyOverride?: (
+    value: HeroViewportHeightStrategy | null,
+  ) => void;
 };
 
 /**
@@ -67,6 +64,7 @@ export default function HeroQueryConfig({
   onUpdate,
   onFpsOverride,
   onViewportDebugOverride,
+  onViewportHeightStrategyOverride,
 }: Props) {
   const queryParams = useQueryParams();
 
@@ -76,15 +74,38 @@ export default function HeroQueryConfig({
     queryParams?.fpsCounter ??
     queryParams?.showFps ??
     queryParams?.showFpsCounter;
-  // TODO(viewport-debug-cleanup): Remove temporary hero viewport-debug query params after the iOS Safari height investigation.
-  const viewportDebugParam =
-    queryParams?.heroViewportDebug ??
-    queryParams?.viewportDebug ??
-    queryParams?.vhDebug;
 
-  const slingerTracking = parseBooleanParam(slingerTrackingParam) ?? false;
-  const fpsOverride = parseBooleanParam(fpsParam);
-  const viewportDebug = parseBooleanParam(viewportDebugParam) ?? false;
+  const slingerTracking =
+    (typeof slingerTrackingParam === "boolean"
+      ? slingerTrackingParam
+      : typeof slingerTrackingParam === "number"
+        ? slingerTrackingParam === 1
+        : String(slingerTrackingParam ?? "")
+            .trim()
+            .toLowerCase() === "true") || false;
+  const fpsOverride =
+    fpsParam === undefined
+      ? null
+      : typeof fpsParam === "boolean"
+        ? fpsParam
+        : typeof fpsParam === "number"
+          ? fpsParam === 1
+            ? true
+            : fpsParam === 0
+              ? false
+              : null
+          : ["1", "true", "on", "yes"].includes(
+                String(fpsParam).trim().toLowerCase(),
+              )
+            ? true
+            : ["0", "false", "off", "no"].includes(
+                  String(fpsParam).trim().toLowerCase(),
+                )
+              ? false
+              : null;
+  const viewportDebug = readViewportDebugQueryParam(queryParams);
+  const viewportHeightStrategy =
+    readViewportHeightStrategyQueryParam(queryParams);
 
   useEffect(() => {
     onUpdate(slingerTracking);
@@ -99,6 +120,11 @@ export default function HeroQueryConfig({
     if (!onViewportDebugOverride) return;
     onViewportDebugOverride(viewportDebug);
   }, [onViewportDebugOverride, viewportDebug]);
+
+  useEffect(() => {
+    if (!onViewportHeightStrategyOverride) return;
+    onViewportHeightStrategyOverride(viewportHeightStrategy);
+  }, [onViewportHeightStrategyOverride, viewportHeightStrategy]);
 
   return null;
 }
