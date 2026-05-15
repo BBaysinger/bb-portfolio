@@ -41,7 +41,9 @@ on:
 jobs:
   # GitHub still creates a workflow run for the final post-release dev sync push.
   # This classifier turns the dev push into a no-op when dev was simply
-  # fast-forwarded to the already released main commit.
+  # fast-forwarded to the already released main commit via release:promote.
+  # The opt-in signal is an explicit marker added by scripts/sync-branches.sh
+  # to the staged release version-bump commit body.
   classify-run:
     runs-on: ubuntu-latest
     outputs:
@@ -64,10 +66,12 @@ jobs:
             git fetch --no-tags origin main
             head_sha="$(git rev-parse HEAD)"
             main_sha="$(git rev-parse origin/main)"
+            head_body="$(git log -1 --pretty=%B HEAD)"
 
-            # The final staged-release sync should leave dev at the already
-            # deployed main commit, so the duplicate dev workflow can be skipped.
-            if [[ "$head_sha" == "$main_sha" ]]; then
+            # release:promote ends by fast-forwarding dev to the already
+            # released main version-bump commit. Skip only that duplicate dev run,
+            # never a release:sync-only push that happens to align dev and main.
+            if [[ "$head_sha" == "$main_sha" && "$head_body" == *"Release-Promote-Post-Release-Sync: true"* ]]; then
               skip_dev_post_release_sync=true
             fi
           fi

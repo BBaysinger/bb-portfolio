@@ -20,6 +20,11 @@ set -euo pipefail
 log() { echo -e "\033[1;34m[sync-branches]\033[0m $*"; }
 err() { echo -e "\033[1;31m[sync-branches]\033[0m $*" 1>&2; }
 
+# Marker embedded in the staged release version-bump commit body.
+# .github/workflows/ci-cd.yml checks for this exact line before it suppresses
+# the final dev push after release:promote fast-forwards dev back to main.
+PROMOTE_POST_RELEASE_SYNC_MARKER="Release-Promote-Post-Release-Sync: true"
+
 print_usage() {
   cat <<'EOF'
 Usage: npm run release:promote | npm run release:sync-only | npm run release:promote -- --deploy-all
@@ -336,7 +341,7 @@ create_version_bump_commit() {
     backend/package.json backend/package.json5 backend/package-lock.json \
     frontend/package.json frontend/package.json5 frontend/package-lock.json
   VERSION_BUMP_MESSAGE="Bump version to $NEW_VERSION"
-  git commit -m "$VERSION_BUMP_MESSAGE"
+  git commit -m "$VERSION_BUMP_MESSAGE" -m "$PROMOTE_POST_RELEASE_SYNC_MARKER"
 }
 
 assert_remote_branch_sha() {
@@ -402,7 +407,7 @@ else
   git checkout dev
   git merge --ff-only main
 
-  log "Pushing dev to the released main commit; CI will skip the redundant final dev run when dev matches main"
+  log "Pushing dev to the released main commit; CI will skip the redundant final dev run only when the promoted commit carries the explicit release:promote marker"
   git push origin dev
 fi
 

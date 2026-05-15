@@ -403,9 +403,9 @@
     "search:repo": "rg --line-number --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     // 📄 Quickly list files matching glob filters (shares ignore rules above)
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
-    // 🚀 Promote the validated dev branch through the release flow and return to dev.
+    // 🚀 Promote the validated dev branch through the staged release flow; this writes an explicit post-release sync marker that CI uses to skip the final redundant dev run.
     "release:promote": "bash ./scripts/sync-branches.sh",
-    // 🚀 Synchronize dev and main without the canonical version bump commit, triggering both workflows as needed.
+    // 🚀 Synchronize dev and main without the canonical version bump commit or promote-only marker, so matching dev/main SHAs still trigger real sync-only workflows.
     "release:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
