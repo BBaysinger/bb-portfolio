@@ -40,13 +40,12 @@ export default function HomePageClient({
     if (ssrProjects.length > 0) return ssrProjects;
     return [];
   });
-  const [error, setError] = useState<Error | null>(null);
   const hydratedRef = useRef(false);
   const prevAuthRef = useRef<boolean>(compositeAuth);
 
-  if (error) {
-    throw error;
-  }
+  const reportProjectDataError = (error: unknown, context: string) => {
+    console.error(`[HomePageClient] ${context}`, error);
+  };
 
   useEffect(() => {
     const hasSnapshot =
@@ -87,13 +86,8 @@ export default function HomePageClient({
           includeNdaInActive: true,
         });
       } catch (initError) {
-        if (!cancelled) {
-          setError(
-            initError instanceof Error
-              ? initError
-              : new Error("Failed to refresh project data after login."),
-          );
-        }
+        if (!cancelled)
+          reportProjectDataError(initError, "Login refresh failed.");
         return;
       }
       if (cancelled) return;
@@ -123,13 +117,8 @@ export default function HomePageClient({
           includeNdaInActive: false,
         });
       } catch (initError) {
-        if (!cancelled) {
-          setError(
-            initError instanceof Error
-              ? initError
-              : new Error("Failed to recover project data after SSR miss."),
-          );
-        }
+        if (!cancelled)
+          reportProjectDataError(initError, "SSR miss recovery failed.");
         return;
       }
 
@@ -160,13 +149,8 @@ export default function HomePageClient({
           includeNdaInActive: false,
         });
       } catch (initError) {
-        if (!cancelled) {
-          setError(
-            initError instanceof Error
-              ? initError
-              : new Error("Failed to refresh project data after logout."),
-          );
-        }
+        if (!cancelled)
+          reportProjectDataError(initError, "Logout refresh failed.");
         return;
       }
       if (cancelled) return;
