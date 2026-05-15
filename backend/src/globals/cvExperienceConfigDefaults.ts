@@ -6,7 +6,7 @@ export const DEFAULT_CV_SUMMARY_HTML = [
 export const DEFAULT_CV_CORE_STRENGTHS_HTML = [
   '<h5>Modern UI Development</h5>',
   '<ul>',
-  '  <li>React (2 years): Component-driven UI, hooks, routing, and state management with Redux</li>',
+  '  <li>React (3 years): Component-driven UI, hooks, routing, and state management with Redux</li>',
   '  <li>Angular (2 years): Enterprise component architecture, RxJS, and SCSS-based theming</li>',
   '  <li>TypeScript (3 years): Client-side application development, component architecture, and maintainable typed UI code, with many years of prior experience in strongly typed languages (including Haxe)</li>',
   '</ul>',
