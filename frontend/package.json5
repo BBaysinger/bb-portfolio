@@ -75,7 +75,7 @@
     // AWS SDK v3 presigner for generating pre-signed S3 requests
     "@aws-sdk/s3-request-presigner": "^3.1047.0",
     // Modern Redux state management with simplified API
-    "@reduxjs/toolkit": "^2.11.2",
+    "@reduxjs/toolkit": "^2.12.0",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
     "aws-rum-web": "^3.0.0",
     // CSS framework for responsive design and components
