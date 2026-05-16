@@ -100,9 +100,6 @@ mkdir -p /app/runtime-snapshots
 if [ -s /run/secrets/project_data_snapshot ]; then
 	cp /run/secrets/project_data_snapshot /tmp/project-data-snapshot.json
 	export PROJECT_DATA_SNAPSHOT_PATH=/tmp/project-data-snapshot.json
-	cp /run/secrets/project_data_snapshot /app/runtime-snapshots/project-data-snapshot.json
-else
-	: >/app/runtime-snapshots/project-data-snapshot.json
 fi
 
 # Optional hermetic static-content input (JSON snapshot). If present, build-time
@@ -137,7 +134,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
-ENV PROJECT_DATA_SNAPSHOT_PATH=/app/runtime-snapshots/project-data-snapshot.json
 ENV STATIC_CONTENT_SNAPSHOT_PATH=/app/runtime-snapshots/static-content-snapshot.json
 
 # Include package.json metadata

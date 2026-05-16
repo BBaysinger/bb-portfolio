@@ -219,6 +219,29 @@ Scope of reuse:
 
 ---
 
+## Content authority and publishing conventions
+
+These standards should define decision principles, not incident-specific fixes. They do not need to describe every content bug we encounter, but they must be specific enough that an engineer can tell which architecture is conventional and which one is a temporary deviation.
+
+Rules:
+
+- **One authoritative source per content domain**: each user-facing content surface must have a clearly named authority at runtime. For CMS-managed content, that authority should normally be the CMS-backed API or database-backed server read path, not a second exported copy.
+- **Snapshots are a build input or an explicit publish artifact, not an implicit second database**: generated JSON/YAML snapshots may be used to unblock builds, support local development, or intentionally publish static content. If a snapshot is used in production runtime reads, that choice must be explicit, documented, and justified as the primary publishing model.
+- **Build fallback must not silently become runtime authority**: a fallback introduced so builds can succeed before another service is ready must remain scoped to build/bootstrap paths. Runtime code must not prefer that fallback over live authoritative content unless this document explicitly says that surface is snapshot-published.
+- **Publishing path must match the editing model**: if content is intended to be editable in production via admin/CMS workflows, the standard path must allow those edits to reach production without requiring a rebuild. Cache invalidation or revalidation is acceptable; rebuilding the application is not the default publishing mechanism for CMS-managed content.
+- **Static publishing must be declared intentionally**: if a route is intentionally static-from-snapshot, document that the snapshot is the publishing artifact, who refreshes it, and what invalidation or redeploy step makes changes visible.
+- **Revalidation must refresh the real authority**: cache invalidation should re-render from the authoritative source of truth. Revalidation is not a substitute for syncing a stale snapshot or other secondary store.
+- **Avoid split authority for the same rendered field**: do not mix live CMS reads, exported snapshots, hardcoded fallbacks, and transformed mirrors for the same content field unless there is a documented precedence order and a strong operational reason.
+- **Deviations need a removal path**: if a route temporarily uses a less conventional authority model, document why, what risk it introduces, and what condition or follow-up change removes the deviation.
+
+Review guidance:
+
+- Ask what system is authoritative for this content in production.
+- Ask whether the runtime path matches how editors are expected to publish changes.
+- Treat “import succeeded but page stayed stale until rebuild” as a design smell unless the route is explicitly documented as snapshot-published.
+
+---
+
 ## Evolving standards
 
 These standards evolve with the codebase.

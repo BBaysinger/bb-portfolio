@@ -116,7 +116,7 @@ Override output path when needed:
 PROJECT_DATA_SNAPSHOT_OUT=./tmp/project-data-snapshot.json BACKEND_INTERNAL_URL=http://localhost:8081 npm run snapshot:projects --prefix frontend
 ```
 
-The build reads snapshot data only when `PROJECT_DATA_SNAPSHOT_PATH` is set (wired automatically in Docker builds when the optional `project_data_snapshot` secret is provided).
+The build reads snapshot data only when `PROJECT_DATA_SNAPSHOT_PATH` is set during the build phase (wired automatically in Docker builds when the optional `project_data_snapshot` secret is provided). Runtime project pages should read the live backend authority instead of this snapshot.
 
 For GitHub Actions image builds, store snapshot JSON in the secret:
 

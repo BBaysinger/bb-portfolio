@@ -38,6 +38,7 @@ General conventions:
 
 - **Purpose**: Server-only path to a local snapshot file consumed during frontend build-time project data loading.
 - **Typical source**: Set inside Docker build stage when `project_data_snapshot` BuildKit secret is mounted.
+- **Runtime rule**: Build/bootstrap input only. Production runtime reads should use the live project data authority rather than this snapshot.
 - **Usage**: `frontend/src/data/ProjectData.ts`
 
 ### PROJECT_DATA_SNAPSHOT_OUT

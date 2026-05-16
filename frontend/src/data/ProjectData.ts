@@ -231,6 +231,9 @@ async function fetchPortfolioProjects(opts?: {
   const cookieHeaderRaw = getCookieHeaderValue(requestHeaders);
   const payloadToken = extractPayloadTokenFromCookie(cookieHeaderRaw);
   const isServer = typeof window === "undefined";
+  // Project snapshots are a build/bootstrap fallback, not a production runtime
+  // authority. Runtime deployments should avoid setting this env so live backend
+  // reads remain the default authority.
   const snapshotPath =
     isServer && process.env.PROJECT_DATA_SNAPSHOT_PATH
       ? process.env.PROJECT_DATA_SNAPSHOT_PATH.trim()
