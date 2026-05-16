@@ -2,16 +2,22 @@ const DEFAULT_LOGIN_URL = 'http://localhost:3000/admin/login/'
 const DEFAULT_TIMEOUT_MS = 15000
 const MAX_REDIRECTS = 5
 
-function toURL(input, base) {
+type FetchWithRedirectsResult = {
+  body: string
+  response: Response
+  url: URL
+}
+
+function toURL(input: string, base?: URL): URL {
   return new URL(input, base)
 }
 
-function isLocalAsset(url, origin) {
+function isLocalAsset(url: URL, origin: string): boolean {
   return url.origin === origin && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))
 }
 
-function collectAssetUrls(html, pageUrl) {
-  const assetUrls = new Set()
+function collectAssetUrls(html: string, pageUrl: URL): string[] {
+  const assetUrls = new Set<string>()
   const assetPattern = /<(?:script|link)\b[^>]+(?:src|href)=["']([^"']+)["'][^>]*>/gi
 
   for (const match of html.matchAll(assetPattern)) {
@@ -29,14 +35,17 @@ function collectAssetUrls(html, pageUrl) {
   return Array.from(assetUrls)
 }
 
-async function fetchWithRedirects(inputUrl, timeoutMs) {
+async function fetchWithRedirects(
+  inputUrl: string,
+  timeoutMs: number,
+): Promise<FetchWithRedirectsResult> {
   let currentUrl = new URL(inputUrl)
 
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
-    let response
+    let response: Response
     try {
       try {
         response = await fetch(currentUrl, {
@@ -69,12 +78,12 @@ async function fetchWithRedirects(inputUrl, timeoutMs) {
   throw new Error(`Too many redirects while requesting ${inputUrl}.`)
 }
 
-async function assertOk(url, timeoutMs) {
+async function assertOk(url: URL, timeoutMs: number): Promise<Response> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
-    let response
+    let response: Response
     try {
       response = await fetch(url, {
         redirect: 'follow',
@@ -86,7 +95,7 @@ async function assertOk(url, timeoutMs) {
       )
     }
     if (!response.ok) {
-      throw new Error(`${url} returned HTTP ${response.status}.`)
+      throw new Error(`${url.toString()} returned HTTP ${response.status}.`)
     }
     return response
   } finally {
@@ -94,7 +103,7 @@ async function assertOk(url, timeoutMs) {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   const loginUrl = process.argv[2] || process.env.ADMIN_SMOKE_URL || DEFAULT_LOGIN_URL
   const timeoutMs = Number.parseInt(
     process.env.ADMIN_SMOKE_TIMEOUT_MS || `${DEFAULT_TIMEOUT_MS}`,
@@ -131,17 +140,19 @@ async function main() {
     ? new URL(process.env.ADMIN_SMOKE_IMPORTMAP_URL)
     : new URL('/api/importmap-status', loginResult.url.origin)
   const importMapResponse = await assertOk(importMapUrl, timeoutMs)
-  const importMapStatus = await importMapResponse.json()
+  const importMapStatus = (await importMapResponse.json()) as {
+    anyExists?: boolean
+  }
   if (!importMapStatus.anyExists) {
     throw new Error(
       `Import-map artifacts are missing at runtime according to ${importMapUrl.toString()}.`,
     )
   }
 
-  const failedAssets = []
+  const failedAssets: string[] = []
   for (const assetUrl of assetUrls) {
     try {
-      await assertOk(assetUrl, timeoutMs)
+      await assertOk(new URL(assetUrl), timeoutMs)
     } catch (error) {
       failedAssets.push(error instanceof Error ? error.message : `${assetUrl} failed to load.`)
     }

@@ -22,7 +22,7 @@
     // 🧰 Explicit Webpack build target for comparing bundler output or debugging prod-only bugs.
     "build:webpack": "next build --webpack",
     // 🏗️ Build the "when-ready" component (pre-build step to prepare assets used to gate rendering until env is ready)
-    "build:when-ready": "node ./scripts/pre-build.mjs",
+    "build:when-ready": "tsx ./scripts/pre-build.ts",
     // Experimental build with Turbopack (faster bundling)
     "build:turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     // Preview the built static site using serve

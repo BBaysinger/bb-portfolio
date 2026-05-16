@@ -58,7 +58,7 @@
     // Seed CV experience data into the dev backend environment
     "seed:cv-experience:dev": "npm run seed:cv-experience -- --env dev",
     // Standalone smoke test for the Payload admin login flow
-    "smoke:admin-login": "node scripts/smoke-admin-login.mjs",
+    "smoke:admin-login": "tsx scripts/smoke-admin-login.ts",
     // Run Next.js linter with deprecation warnings suppressed
     "lint": "cd .. && eslint backend",
     // Start Payload-only CLI (e.g., to seed or run utilities)

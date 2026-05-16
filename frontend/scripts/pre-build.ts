@@ -12,9 +12,9 @@
  * Note: Health check logic moved to runtime for better environment detection.
  */
 
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 
-async function preBuild() {
+function preBuild(): void {
   // SUPER OBVIOUS LOG BLOCK: BUILD START
   console.info(
     `\n${"/".repeat(250)}\nFrontend Next Build STARTED\n${"/".repeat(250)}\n`,
@@ -31,7 +31,7 @@ async function preBuild() {
       stdio: "inherit",
       cwd: process.cwd(),
     });
-    console.info("� Build completed successfully!");
+    console.info("Build completed successfully!");
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";

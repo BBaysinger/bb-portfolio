@@ -86,7 +86,7 @@
     // 🚀 Push frontend Docker image to Docker Hub (dev tag)
     "docker:push:frontend": "docker push bhbaysinger/bb-portfolio-frontend:dev",
     // 🩺 Quick smoke test: verify the local backend admin login route responds
-    "docker:smoke:admin": "cd backend && ADMIN_SMOKE_URL=http://localhost:8081/admin/login/ node scripts/smoke-admin-login.mjs",
+    "docker:smoke:admin": "cd backend && ADMIN_SMOKE_URL=http://localhost:8081/admin/login/ tsx scripts/smoke-admin-login.ts",
     // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
     "docker:ssg:build": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg build",
     // 🛑 Stop and remove static site generation containers (local-ssg profile)

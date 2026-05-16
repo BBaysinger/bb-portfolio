@@ -10,7 +10,7 @@
     "prebuild": "tsx ./scripts/check-required-env.ts",
     "build": "next build --webpack",
     "build:webpack": "next build --webpack",
-    "build:when-ready": "node ./scripts/pre-build.mjs",
+    "build:when-ready": "tsx ./scripts/pre-build.ts",
     "build:turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     "preview": "npx serve out",
     "prestart": "tsx ./scripts/check-required-env.ts",
