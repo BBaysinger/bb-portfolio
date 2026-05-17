@@ -142,7 +142,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "6.0.2",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.29",
+    "baseline-browser-mapping": "^2.10.30",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
@@ -156,7 +156,7 @@
     // Code formatter with opinionated defaults
     "prettier": "^3.8.3",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
-    "tsx": "^4.22.0",
+    "tsx": "^4.22.1",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "6.0.3",
     // Vite path mapping support (resolves TypeScript path aliases)

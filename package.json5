@@ -419,7 +419,7 @@
     // TypeScript parser for ESLint
     "@typescript-eslint/parser": "8.59.3",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.29",
+    "baseline-browser-mapping": "^2.10.30",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
@@ -447,7 +447,7 @@
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
-    "tsx": "^4.22.0",
+    "tsx": "^4.22.1",
     // TypeScript language support
     "typescript": "^6.0.3",
   },

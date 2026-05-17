@@ -136,7 +136,7 @@
     // Opinionated code formatter for consistent style
     "prettier": "^3.8.3",
     // Lightweight TypeScript runtime for executing guard scripts
-    "tsx": "^4.22.0",
+    "tsx": "^4.22.1",
     // TypeScript compiler (v5 for latest language features)
     "typescript": "6.0.3",
     // Fast unit and integration test runner for the frontend package.
