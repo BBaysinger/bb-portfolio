@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { buildPageMetadata } from "@/app/siteMetadata";
-import { getBuildTimeCvExperienceData } from "@/data/CvExperience";
+import { getCvExperiencePageData } from "@/data/CvExperience";
 
 import CvPageClient from "./CvPageClient";
 
@@ -21,7 +21,7 @@ export default async function CvPage() {
     experienceItems,
     recentIndependentStudySectionHeading,
     recentIndependentStudyItems,
-  } = await getBuildTimeCvExperienceData();
+  } = await getCvExperiencePageData();
 
   return (
     <CvPageClient

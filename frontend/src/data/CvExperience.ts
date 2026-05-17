@@ -95,6 +95,19 @@ export const getCvExperienceData =
     return fetchCvExperienceDataFromBackend();
   };
 
+const isProductionBuildPhase = (): boolean => {
+  return process.env.NEXT_PHASE === "phase-production-build";
+};
+
+export const getCvExperiencePageData =
+  async (): Promise<StaticCvExperienceData> => {
+    if (isProductionBuildPhase()) {
+      return getBuildTimeCvExperienceData();
+    }
+
+    return getCvExperienceData();
+  };
+
 export const getBuildTimeCvExperienceData =
   async (): Promise<StaticCvExperienceData> => {
     const snapshot = await loadStaticContentSnapshot();
