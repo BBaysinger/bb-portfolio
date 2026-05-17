@@ -1,4 +1,4 @@
-# Interactive Portfolio System with CMS and Deployment Tooling
+# Interactive Portfolio System with CMS and Extensive Deployment Tooling
 
 Custom UI systems, content modeling, media pipelines, and production deployment infrastructure for a long-running portfolio/cv project.
 
