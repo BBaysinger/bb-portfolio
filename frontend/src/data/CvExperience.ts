@@ -26,6 +26,8 @@ type CvExperienceResponse = {
   };
 };
 
+export const CV_CACHE_TAG = "cv-experience";
+
 const parseCvExperienceResponse = (
   payload: unknown,
 ): StaticCvExperienceData => {
@@ -74,7 +76,7 @@ const fetchCvExperienceDataFromBackend =
       headers: { Accept: "application/json" },
       ...(isLocalLike
         ? { cache: "no-store" as const }
-        : { next: { revalidate: 86400 } }),
+        : { next: { revalidate: 86400, tags: [CV_CACHE_TAG] } }),
     });
 
     if (!response.ok) {
@@ -90,28 +92,7 @@ const fetchCvExperienceDataFromBackend =
 
 export const getCvExperienceData =
   async (): Promise<StaticCvExperienceData> => {
-    const snapshot = await loadStaticContentSnapshot();
-    if (!snapshot?.cvExperience) {
-      const normalizedProfile = normalizeBackendProfile(
-        process.env.ENV_PROFILE || process.env.NODE_ENV || "",
-      );
-      if (
-        normalizedProfile === "local" ||
-        normalizedProfile === "dev" ||
-        normalizedProfile === "development"
-      ) {
-        return fetchCvExperienceDataFromBackend();
-      }
-
-      throw new Error(
-        "Static content snapshot missing cvExperience. The /cv route is snapshot-only and must be built with STATIC_CONTENT_SNAPSHOT_PATH.",
-      );
-    }
-
-    return parseCvExperienceResponse({
-      success: true,
-      data: snapshot.cvExperience,
-    });
+    return fetchCvExperienceDataFromBackend();
   };
 
 export const getBuildTimeCvExperienceData =

@@ -7,7 +7,11 @@ This repo supports two distinct private-content workflows:
 
 Authority model:
 
-- Local CMS state is authoritative for `content:migrate` when the source is `local`.
+- Runtime authority and authoring origin are different concepts in this repo.
+- Runtime authority: each environment should render CMS-managed content from that same environment's live CMS/API unless a route is explicitly documented as snapshot-published.
+- Authoring origin: the team may choose `local`, `dev`, or `prod` as the current source for the next intended content change before promotion.
+- Local CMS state is authoritative for `content:migrate` when the source is `local`, but only as the migration source for that operation. It does not make local the runtime authority for `dev` or `prod`.
+- Direct edits made in an environment are expected to appear immediately in that same environment. Later promotions from the current authoring origin may intentionally overwrite those edits.
 - `../cms-media-seedings` is a hydration source for local media workflows, not the source of truth for local migrate.
 - Canonical local YAML snapshots live at the configured `PORTFOLIO_CONTENT_DIR`; non-local pull/export runs must target an explicit alternate directory and cannot overwrite that canonical local snapshot.
 

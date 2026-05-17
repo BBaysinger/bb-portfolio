@@ -5,7 +5,7 @@ import { getCvExperienceData } from "@/data/CvExperience";
 
 import CvPageClient from "./CvPageClient";
 
-export const dynamic = "force-static";
+export const revalidate = 86400;
 export const metadata: Metadata = buildPageMetadata({
   title: "CV",
   description:

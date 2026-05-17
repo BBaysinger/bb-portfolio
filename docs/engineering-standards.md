@@ -226,10 +226,14 @@ These standards should define decision principles, not incident-specific fixes. 
 
 Rules:
 
-- **One authoritative source per content domain**: each user-facing content surface must have a clearly named authority at runtime. For CMS-managed content, that authority should normally be the CMS-backed API or database-backed server read path, not a second exported copy.
+- **Distinguish runtime authority from authoring origin**: every content domain must name both (a) the runtime authority that production renders from and (b) the current authoring origin used for promotion workflows. These are different roles. Runtime authority answers "what does this environment render right now?" Authoring origin answers "where do we make the next intended edit before promotion?"
+- **One runtime authority per content domain**: each user-facing content surface must have a clearly named authority at runtime. For CMS-managed content, that authority should normally be the CMS-backed API or database-backed server read path for that same environment, not a second exported copy.
+- **Authoring origin is a workflow choice, not a runtime override**: teams may choose `local`, `dev`, or `prod` as the current authoring origin for a content domain. That choice governs promotion direction and overwrite expectations; it must not change which system is authoritative at runtime for the target environment.
 - **Snapshots are a build input or an explicit publish artifact, not an implicit second database**: generated JSON/YAML snapshots may be used to unblock builds, support local development, or intentionally publish static content. If a snapshot is used in production runtime reads, that choice must be explicit, documented, and justified as the primary publishing model.
 - **Build fallback must not silently become runtime authority**: a fallback introduced so builds can succeed before another service is ready must remain scoped to build/bootstrap paths. Runtime code must not prefer that fallback over live authoritative content unless this document explicitly says that surface is snapshot-published.
 - **Publishing path must match the editing model**: if content is intended to be editable in production via admin/CMS workflows, the standard path must allow those edits to reach production without requiring a rebuild. Cache invalidation or revalidation is acceptable; rebuilding the application is not the default publishing mechanism for CMS-managed content.
+- **Edits must be visible in the environment where they are made**: if an operator edits CMS-managed content directly in `prod`, `dev`, or `local`, that environment should reflect the change through its normal runtime authority without waiting for a later promotion from another environment. Later promotions may intentionally overwrite those edits, but visibility inside the edited environment must be immediate.
+- **Promotion policy may overwrite downstream environments**: promotion flows may intentionally replace content in downstream environments with the state from the current authoring origin. That overwrite behavior is a workflow policy and must not be implemented by making downstream runtimes read from some other environment's snapshot or export.
 - **Static publishing must be declared intentionally**: if a route is intentionally static-from-snapshot, document that the snapshot is the publishing artifact, who refreshes it, and what invalidation or redeploy step makes changes visible.
 - **Revalidation must refresh the real authority**: cache invalidation should re-render from the authoritative source of truth. Revalidation is not a substitute for syncing a stale snapshot or other secondary store.
 - **Avoid split authority for the same rendered field**: do not mix live CMS reads, exported snapshots, hardcoded fallbacks, and transformed mirrors for the same content field unless there is a documented precedence order and a strong operational reason.
@@ -238,6 +242,7 @@ Rules:
 Review guidance:
 
 - Ask what system is authoritative for this content in production.
+- Ask which environment is the current authoring origin and whether that affects only promotion workflow or is incorrectly leaking into runtime reads.
 - Ask whether the runtime path matches how editors are expected to publish changes.
 - Treat “import succeeded but page stayed stale until rebuild” as a design smell unless the route is explicitly documented as snapshot-published.
 

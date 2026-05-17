@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { triggerFrontendCvRevalidate } from '../utils/triggerFrontendCvRevalidate'
+
 export const CvExperienceLogos: CollectionConfig = {
   slug: 'cvExperienceLogos',
   labels: {
@@ -18,6 +20,22 @@ export const CvExperienceLogos: CollectionConfig = {
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
+  },
+  hooks: {
+    afterChange: [
+      async () => {
+        await triggerFrontendCvRevalidate('cvExperienceLogos.afterChange', {
+          warmPaths: ['/cv'],
+        })
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendCvRevalidate('cvExperienceLogos.afterDelete', {
+          warmPaths: ['/cv'],
+        })
+      },
+    ],
   },
   fields: [
     {

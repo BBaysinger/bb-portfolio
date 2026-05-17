@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
 import slugify from 'slugify'
 
+import { triggerFrontendCvRevalidate } from '../utils/triggerFrontendCvRevalidate'
+
 const CV_SECTION_OPTIONS = [
   {
     label: 'Experience',
@@ -48,6 +50,20 @@ export const CvExperienceItems: CollectionConfig = {
         }
 
         return data
+      },
+    ],
+    afterChange: [
+      async () => {
+        await triggerFrontendCvRevalidate('cvExperienceItems.afterChange', {
+          warmPaths: ['/cv'],
+        })
+      },
+    ],
+    afterDelete: [
+      async () => {
+        await triggerFrontendCvRevalidate('cvExperienceItems.afterDelete', {
+          warmPaths: ['/cv'],
+        })
       },
     ],
   },
