@@ -36,6 +36,7 @@ import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
 import {
+  consumeHomeHeroIntroReplayRequest,
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
   shouldReplayHomeHeroIntroOnPageShow,
   shouldPlayHomeHeroIntroOnEntry,
