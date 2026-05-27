@@ -51,13 +51,15 @@ Note on `:dry` scripts: `migrate:all:<env>:dry` and `media:upload:<env>:dry` now
 npm run media:seed
 ```
 
-You can also target a different content root for one run:
+You can also target a different media root for one run:
 
 ```
 npm run media:seed -- --seedings-dir ../cms-media-seedings
 ```
 
-If you use the same content root regularly, set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local` instead of overriding it on each command.
+If you use the same media root regularly, set `PORTFOLIO_MEDIA_SEED_DIR` once in repo `.env.local` instead of overriding it on each command.
+
+Keep `PORTFOLIO_CONTENT_DIR` reserved for authored YAML/content workflows. Media scripts do not read it.
 
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 

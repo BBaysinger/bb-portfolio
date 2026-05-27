@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
 import ExperienceItem, {
@@ -43,9 +43,23 @@ const CurriculumVitae: React.FC<CvPageClientProps> = ({
   initialRecentIndependentStudyItems,
 }) => {
   const pageRef = useRef<HTMLElement>(null);
+  const coreStrengthsRef = useRef<HTMLDivElement>(null);
   // Returns a callback ref. Attaching it to elements adds an "in-view" class
   // when they enter the viewport (used for scroll-triggered animations).
   const addToRefs = useInViewAnimation("in-view");
+
+  useEffect(() => {
+    const authoredStrengthsEl = coreStrengthsRef.current;
+
+    if (!authoredStrengthsEl) return;
+
+    const animatedNodes =
+      authoredStrengthsEl.querySelectorAll<HTMLElement>("h5, p, ul");
+
+    animatedNodes.forEach((node) => {
+      addToRefs(node);
+    });
+  }, [addToRefs, coreStrengthsHtml]);
 
   useStableViewportHeightVar(pageRef, {
     cssVarName: "--graphite-stable-vh",
@@ -122,8 +136,9 @@ const CurriculumVitae: React.FC<CvPageClientProps> = ({
               />
             </div>
 
-            <div ref={addToRefs} className={divClassRt}>
+            <div className={divClassRt}>
               <div
+                ref={coreStrengthsRef}
                 className={styles.authoredStrengthsHtml}
                 dangerouslySetInnerHTML={{ __html: coreStrengthsHtml }}
               />

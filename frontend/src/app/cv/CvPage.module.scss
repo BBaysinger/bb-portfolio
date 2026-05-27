@@ -110,7 +110,7 @@ img.cvLogo {
   margin-left: auto;
   margin-right: auto;
   @include remRange(height, 120px, 130px);
-  @include remRange(max-width, 130px, 140px, $b360, $b1440);
+  @include remRange(max-width, 150px, 175px, $b360, $b1440);
 
   @include breakpointUp($b768px) {
     position: relative;

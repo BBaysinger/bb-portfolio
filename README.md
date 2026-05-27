@@ -441,7 +441,7 @@ Note: By default, the deployment runner builds and pushes both frontend and back
 
 Envs: `dev`, `prod`, `both`. Use `:dry` to preview URL rewrites.
 
-`media:seed` defaults to sibling `../cms-media-seedings`. For authored content imports/exports, set `PORTFOLIO_CONTENT_DIR` in repo `.env.local`/`.env` (or backend `.env.local`/`.env`) to a target inside sibling `../cms-content-variants`.
+`media:seed` defaults to sibling `../cms-media-seedings`. Set `PORTFOLIO_MEDIA_SEED_DIR` when your canonical media source lives somewhere else, such as `../cms-snapshots/<target>`. Keep `PORTFOLIO_CONTENT_DIR` reserved for authored content imports/exports.
 
 For operator-facing content syncs, distinguish the two workflows clearly:
 

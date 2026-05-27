@@ -19,7 +19,9 @@ Default content source:
 
 - `../cms-content-variants/_general-purpose` relative to this repo root.
 - Preferred override: set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local`.
-- `PORTFOLIO_CONTENT_DIR` is for authored content roots; `npm run media:seed` uses sibling `../cms-media-seedings` by default.
+- `PORTFOLIO_CONTENT_DIR` is for authored content roots.
+- `PORTFOLIO_MEDIA_SEED_DIR` is for media hydration roots.
+- `npm run media:seed` uses sibling `../cms-media-seedings` by default, or `PORTFOLIO_MEDIA_SEED_DIR` when set.
 
 Recommended local setup:
 

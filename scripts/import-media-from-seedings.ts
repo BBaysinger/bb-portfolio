@@ -17,6 +17,7 @@
  * Usage:
  *   npm run media:seed
  *   npm run media:seed -- --seedings-dir ../cms-media-seedings
+ *   PORTFOLIO_MEDIA_SEED_DIR=../cms-snapshots/_interactive-dev-w-outcomes npm run media:seed
  */
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
@@ -32,6 +33,10 @@ const SUPPORTED_COLLECTIONS = [
 ] as const;
 
 type SupportedCollection = (typeof SUPPORTED_COLLECTIONS)[number];
+type ResolvedSeedingsRoot = {
+  path: string;
+  source: "flag" | "media-env" | "default";
+};
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -87,17 +92,33 @@ function parseArgs() {
   };
 }
 
-function resolveSeedingsRoot(root: string, overrideDir?: string) {
-  const configuredDir =
-    overrideDir?.trim() || process.env.PORTFOLIO_CONTENT_DIR?.trim();
-
-  if (!configuredDir) {
-    return path.join(root, "..", "cms-media-seedings");
+function resolveSeedingsRoot(
+  root: string,
+  overrideDir?: string,
+): ResolvedSeedingsRoot {
+  if (overrideDir?.trim()) {
+    return {
+      path: path.isAbsolute(overrideDir)
+        ? overrideDir
+        : path.resolve(root, overrideDir),
+      source: "flag",
+    };
   }
 
-  return path.isAbsolute(configuredDir)
-    ? configuredDir
-    : path.resolve(root, configuredDir);
+  const mediaSeedDir = process.env.PORTFOLIO_MEDIA_SEED_DIR?.trim();
+  if (mediaSeedDir) {
+    return {
+      path: path.isAbsolute(mediaSeedDir)
+        ? mediaSeedDir
+        : path.resolve(root, mediaSeedDir),
+      source: "media-env",
+    };
+  }
+
+  return {
+    path: path.join(root, "..", "cms-media-seedings"),
+    source: "default",
+  };
 }
 
 async function exists(p: string) {
@@ -143,7 +164,8 @@ type Mapping = { label: string; dest: string; sources: string[] };
 async function main() {
   const { seedingsDir, collections } = parseArgs();
   const root = process.cwd();
-  const seedBaseCandidates = [resolveSeedingsRoot(root, seedingsDir)];
+  const resolvedSeedingsRoot = resolveSeedingsRoot(root, seedingsDir);
+  const seedBaseCandidates = [resolvedSeedingsRoot.path];
 
   let seedBase: string | null = null;
   for (const c of seedBaseCandidates) {
@@ -154,10 +176,15 @@ async function main() {
   }
   if (!seedBase) {
     console.error(
-      "No seed folder found. Create ../cms-media-seedings next to the repo, pass --seedings-dir, or set PORTFOLIO_CONTENT_DIR in .env.local/.env.",
+      "No media seed folder found. Create ../cms-media-seedings next to the repo, pass --seedings-dir, or set PORTFOLIO_MEDIA_SEED_DIR in .env.local/.env.",
     );
     process.exit(2);
   }
+
+  console.info(
+    `Resolved media seed root (${resolvedSeedingsRoot.source}): ${seedBase}`,
+  );
+  console.info(`Collections: ${collections.join(", ")}`);
 
   const backendMedia = path.join(root, "backend", "media");
 

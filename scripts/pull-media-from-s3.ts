@@ -51,6 +51,11 @@ interface Options {
   seedingsDir?: string;
 }
 
+type ResolvedSeedingsRoot = {
+  path: string;
+  source: "flag" | "media-env" | "default";
+};
+
 function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
   if (!existsSync(tfvarsPath)) return undefined;
   const raw = readFileSync(tfvarsPath, "utf8");
@@ -162,22 +167,30 @@ Examples:
   };
 }
 
-function resolveSeedingsRoot(seedingsDir?: string): string {
-  const contentDir = process.env.PORTFOLIO_CONTENT_DIR?.trim();
-
+function resolveSeedingsRoot(seedingsDir?: string): ResolvedSeedingsRoot {
   if (seedingsDir?.trim()) {
-    return path.isAbsolute(seedingsDir)
-      ? seedingsDir
-      : path.resolve(repoRoot, seedingsDir);
+    return {
+      path: path.isAbsolute(seedingsDir)
+        ? seedingsDir
+        : path.resolve(repoRoot, seedingsDir),
+      source: "flag",
+    };
   }
 
-  if (contentDir) {
-    return path.isAbsolute(contentDir)
-      ? contentDir
-      : path.resolve(repoRoot, contentDir);
+  const mediaSeedDir = process.env.PORTFOLIO_MEDIA_SEED_DIR?.trim();
+  if (mediaSeedDir) {
+    return {
+      path: path.isAbsolute(mediaSeedDir)
+        ? mediaSeedDir
+        : path.resolve(repoRoot, mediaSeedDir),
+      source: "media-env",
+    };
   }
 
-  return path.resolve(repoRoot, "../cms-media-seedings");
+  return {
+    path: path.resolve(repoRoot, "../cms-media-seedings"),
+    source: "default",
+  };
 }
 
 function checkPrerequisites(destinationDir: string) {
@@ -196,11 +209,18 @@ function syncCollection(options: Options) {
   const bucket = resolveBucket(options.environment, {
     tfvarsPath: options.tfvarsPath,
   });
-  const seedingsRoot = resolveSeedingsRoot(options.seedingsDir);
-  const destinationDir = path.resolve(seedingsRoot, options.collection);
+  const resolvedSeedingsRoot = resolveSeedingsRoot(options.seedingsDir);
+  const destinationDir = path.resolve(
+    resolvedSeedingsRoot.path,
+    options.collection,
+  );
 
   checkPrerequisites(destinationDir);
   ensureAwsCredentials({ profile: options.profile, region: options.region });
+
+  console.info(
+    `Resolved media seed destination (${resolvedSeedingsRoot.source}): ${resolvedSeedingsRoot.path}`,
+  );
 
   const sourcePrefix = SOURCE_PREFIX_BY_COLLECTION[options.collection];
   const sourcePath = `s3://${bucket}/${sourcePrefix}/`;
