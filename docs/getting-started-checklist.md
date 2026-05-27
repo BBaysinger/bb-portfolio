@@ -83,7 +83,7 @@ Pick one:
 
 Optional (recommended if you want the site to have images immediately):
 
-- [ ] Seed local media into `backend/media/*` from your external seedings folder:
+- [ ] Seed local media into `backend/media/*` from your external snapshot root:
   - [ ] `npm run media:seed`
   - [ ] Details and expected folder layouts: [docs/uploads-and-migration.md](./uploads-and-migration.md)
 

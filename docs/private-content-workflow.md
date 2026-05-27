@@ -12,16 +12,17 @@ Authority model:
 - Authoring origin: the team may choose `local`, `dev`, or `prod` as the current source for the next intended content change before promotion.
 - Local CMS state is authoritative for `content:migrate` when the source is `local`, but only as the migration source for that operation. It does not make local the runtime authority for `dev` or `prod`.
 - Direct edits made in an environment are expected to appear immediately in that same environment. Later promotions from the current authoring origin may intentionally overwrite those edits.
-- `../cms-media-seedings` is a hydration source for local media workflows, not the source of truth for local migrate.
+- `../cms-media-seedings` is the default hydration source for local media workflows, not the source of truth for local migrate.
 - Canonical local YAML snapshots live at the configured `PORTFOLIO_CONTENT_DIR`; non-local pull/export runs must target an explicit alternate directory and cannot overwrite that canonical local snapshot.
+- In this repo, `CMS_SNAPSHOT_ROOT` names the external, versionable filesystem representation of CMS state. "Media seeding" is the hydration step that copies asset collections from that snapshot root into local `backend/media`.
 
 Default content source:
 
 - `../cms-content-variants/_general-purpose` relative to this repo root.
 - Preferred override: set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local`.
 - `PORTFOLIO_CONTENT_DIR` is for authored content roots.
-- `PORTFOLIO_MEDIA_SEED_DIR` is for media hydration roots.
-- `npm run media:seed` uses sibling `../cms-media-seedings` by default, or `PORTFOLIO_MEDIA_SEED_DIR` when set.
+- `CMS_SNAPSHOT_ROOT` is for the external snapshot root when media hydration should read from a versioned snapshot directory.
+- `npm run media:seed` uses sibling `../cms-media-seedings` by default, or `CMS_SNAPSHOT_ROOT` when set.
 
 Recommended local setup:
 
@@ -105,7 +106,7 @@ Rules:
 - `slug`, `company`, `location`, `title`, `description`, `technicalScope`, and `date` are required.
 - `logo.file` is optional, but if present it must exist in `cv-experience-logos/`.
 - CV experience logos are intentionally separate from project/client brand logos. Do not point CV YAML at `project-brand-logos/`.
-- The current starter CV YAML is expected to use the files already present in `backend/media/cv-experience-logos/` and the mirrored private seedings folder `cv-experience-logos/`.
+- The current starter CV YAML is expected to use the files already present in `backend/media/cv-experience-logos/` and the mirrored snapshot-root collection `cv-experience-logos/`.
 - `bulletPoints` can use either the object form above or a plain string shorthand.
 
 ## Project description files
@@ -160,13 +161,13 @@ The `ALLOW_DEV_WRITE=true` and `ALLOW_PROD_WRITE=true` prefixes satisfy the requ
 
 `content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target and it does not automatically run authored-content imports. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
 
-When `content:migrate` stages local media, it copies from `backend/media` and treats that local media state as authoritative. If a sibling `../cms-media-seedings` directory exists and overlapping files have different hashes, the migrate run stops before writing so local media and hydration seedings can be reconciled intentionally.
+When `content:migrate` stages local media, it copies from `backend/media` and treats that local media state as authoritative. If the resolved snapshot root exists and overlapping files have different hashes, the migrate run stops before writing so local runtime media and snapshot-root assets can be reconciled intentionally.
 
 Alternate directory examples:
 
-- `npm run media:seed -- --seedings-dir ../cms-media-seedings`
-- `npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-media-seedings`
-- `npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-media-seedings`
+- `npm run media:seed -- --snapshot-root ../cms-media-seedings`
+- `npm run media:pull:prod:cv-experience-logos -- --snapshot-root ../cms-media-seedings`
+- `npm run media:pull:prod:project-brand-logos -- --snapshot-root ../cms-media-seedings`
 
 If you switch variants often, change `PORTFOLIO_CONTENT_DIR` in `.env.local`.
 
@@ -217,15 +218,15 @@ Direct prod imports are also guarded at the script level:
 - `ALLOW_PROD_WRITE=true npm run import:project-descriptions -- --env prod --confirm-prod-write`
 - Without both `ALLOW_PROD_WRITE=true` and `--confirm-prod-write`, direct `--env prod` imports fail before writing.
 
-Project brand logo sync into private seedings:
+Project brand logo sync into the snapshot root:
 
 - `npm run media:pull:prod:project-brand-logos:dry`
 - `npm run media:pull:prod:project-brand-logos`
-- This syncs the current production project-brand logo source into sibling `../cms-media-seedings/project-brand-logos/`.
+- This syncs the current production project-brand logo source into `project-brand-logos/` under the resolved snapshot root.
 - The pull script currently reads from the legacy prod S3 prefix `brand-logos/` and writes into the renamed local folder `project-brand-logos/` so the repo vocabulary is clear while the bucket naming catches up.
 
-CV experience logo sync into private seedings:
+CV experience logo sync into the snapshot root:
 
 - `npm run media:pull:prod:cv-experience-logos:dry`
 - `npm run media:pull:prod:cv-experience-logos`
-- This syncs `s3://<prod-bucket>/cv-experience-logos/` into sibling `../cms-media-seedings/cv-experience-logos/`.
+- This syncs `s3://<prod-bucket>/cv-experience-logos/` into `cv-experience-logos/` under the resolved snapshot root.

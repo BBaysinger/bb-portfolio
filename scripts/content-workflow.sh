@@ -68,6 +68,14 @@ resolve_content_dir() {
   fi
 }
 
+resolve_media_snapshot_root() {
+  if [[ -n "${CMS_SNAPSHOT_ROOT:-}" ]]; then
+    resolve_dir_from_repo_root "$CMS_SNAPSHOT_ROOT"
+  else
+    printf '%s\n' "$REPO_ROOT/../cms-media-seedings"
+  fi
+}
+
 set_profile_env() {
   local profile="$1"
 
@@ -112,27 +120,28 @@ copy_local_media_to_content_dir() {
   local source_root="$REPO_ROOT/backend/media"
 
   if [[ "$enforce_seedings_guard" == "true" ]]; then
-    local seed_root="$REPO_ROOT/../cms-media-seedings"
-    if [[ -d "$seed_root" ]]; then
+    local snapshot_root
+    snapshot_root="$(resolve_media_snapshot_root)"
+    if [[ -d "$snapshot_root" ]]; then
       local -a mismatches=()
-      local collection local_dir seed_dir local_file rel_path seed_file local_hash seed_hash
+      local collection local_dir snapshot_dir local_file rel_path snapshot_file local_hash snapshot_hash
 
       for collection in "${MEDIA_COLLECTIONS[@]}"; do
         local_dir="$source_root/$collection"
-        seed_dir="$seed_root/$collection"
+        snapshot_dir="$snapshot_root/$collection"
 
-        [[ -d "$local_dir" && -d "$seed_dir" ]] || continue
+        [[ -d "$local_dir" && -d "$snapshot_dir" ]] || continue
 
         while IFS= read -r -d '' local_file; do
           rel_path="${local_file#"$local_dir"/}"
-          seed_file="$seed_dir/$rel_path"
+          snapshot_file="$snapshot_dir/$rel_path"
 
-          [[ -f "$seed_file" ]] || continue
+          [[ -f "$snapshot_file" ]] || continue
 
           local_hash="$(hash_file "$local_file")"
-          seed_hash="$(hash_file "$seed_file")"
+          snapshot_hash="$(hash_file "$snapshot_file")"
 
-          if [[ "$local_hash" != "$seed_hash" ]]; then
+          if [[ "$local_hash" != "$snapshot_hash" ]]; then
             mismatches+=("$collection/$rel_path")
           fi
         done < <(
@@ -145,9 +154,9 @@ copy_local_media_to_content_dir() {
       done
 
       if ((${#mismatches[@]} > 0)); then
-        printf '[content-workflow] Refusing local migrate because backend/media diverges from ../cms-media-seedings for:%s\n' "" >&2
+        printf '[content-workflow] Refusing local migrate because backend/media diverges from snapshot root %s for:%s\n' "$snapshot_root" "" >&2
         printf '  - %s\n' "${mismatches[@]}" >&2
-        die "Local media is authoritative for migrate. Reconcile backend/media and cms-media-seedings before retrying."
+        die "Local media is authoritative for migrate. Reconcile backend/media and the snapshot root before retrying."
       fi
     fi
   fi

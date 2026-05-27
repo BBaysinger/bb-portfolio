@@ -45,21 +45,23 @@ Note on `:dry` scripts: `migrate:all:<env>:dry` and `media:upload:<env>:dry` now
 - Canonical upload root for local dev: `backend/media/`
   - Subfolders: `project-brand-logos/`, `cv-experience-logos/`, `project-screenshots/`, `project-thumbnails/`
 - These folders are ignored by git (we keep only `.gitkeep` so directories exist after clone).
-- To import assets from your external `../cms-media-seedings` folder (or `../cms-media-seedings/images/*`) into `backend/media/*`, use:
+- To import assets from your external snapshot root into `backend/media/*`, use:
 
 ```
 npm run media:seed
 ```
 
-You can also target a different media root for one run:
+You can also target a different snapshot root for one run:
 
 ```
-npm run media:seed -- --seedings-dir ../cms-media-seedings
+npm run media:seed -- --snapshot-root ../cms-media-seedings
 ```
 
-If you use the same media root regularly, set `PORTFOLIO_MEDIA_SEED_DIR` once in repo `.env.local` instead of overriding it on each command.
+If you use the same snapshot root regularly, set `CMS_SNAPSHOT_ROOT` once in repo `.env.local` instead of overriding it on each command.
 
 Keep `PORTFOLIO_CONTENT_DIR` reserved for authored YAML/content workflows. Media scripts do not read it.
+
+In this repo, `CMS_SNAPSHOT_ROOT` is the external, versionable CMS snapshot on disk. "Seed" is just the local hydration verb: copy asset collections from that snapshot root into `backend/media`. If your canonical working source is under `../cms-snapshots/<target>`, seeding is one step within that snapshot-driven workflow.
 
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
@@ -68,7 +70,7 @@ This script copies files into `backend/media/*` for local dev only. It won't com
 Most of the time you want one of these flows:
 
 - **Fresh local clone (filesystem uploads only)**
-  - Seed local media from your external seedings folder: `npm run media:seed`
+  - Seed local media from your external snapshot root: `npm run media:seed`
   - Start the stack (Docker or bare metal) and upload media through Payload as usual.
 
 - **First-time S3 setup for an environment (dev/prod)**
@@ -96,9 +98,9 @@ Advanced / recovery scripts (manual, use with care):
   - This is intended for disaster recovery / reconstruction scenarios.
   - It currently has some hard-coded assumptions (bucket name, secrets loading) and should be reviewed/updated before use.
 
-### Importing from an external seedings folder
+### Importing from an external snapshot root
 
-If you keep non-checked-in working assets outside the repo (recommended), place them under a sibling directory to this repo named `seedings`. Supported layouts include either flat or under an `images/` folder. For example:
+If you keep non-checked-in working assets outside the repo, place them under your snapshot root. The default is sibling `../cms-media-seedings`, but snapshot-driven workflows will often point `CMS_SNAPSHOT_ROOT` at `../cms-snapshots/<target>`. Supported layouts include either flat or under an `images/` folder. For example:
 
 ```
 ../cms-media-seedings/
@@ -120,11 +122,11 @@ Then run the same import:
 npm run media:seed
 ```
 
-To pull production media into a non-default seedings directory, use the existing `--seedings-dir` flag:
+To pull production media into a non-default snapshot root, use the `--snapshot-root` flag:
 
 ```
-npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-media-seedings
-npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-media-seedings
+npm run media:pull:prod:cv-experience-logos -- --snapshot-root ../cms-media-seedings
+npm run media:pull:prod:project-brand-logos -- --snapshot-root ../cms-media-seedings
 ```
 
 For backend-authored content pulls and imports, the root content workflow commands read `PORTFOLIO_CONTENT_DIR` from your shell or repo `.env.local`/`.env`:

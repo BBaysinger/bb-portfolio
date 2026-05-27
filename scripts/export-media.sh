@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Export PSDs from ../_work/{project-screenshots,project-thumbnails}
-# into WebP files written under ../cms-media-seedings/{project-screenshots,project-thumbnails}.
+# into WebP files written under the external CMS snapshot root.
 # This script is location-independent and resolves all paths relative to the repo root.
 
 # Resolve directories
@@ -17,14 +17,16 @@ if [[ -z "$WORK_BASE" || ! -d "$WORK_BASE" ]]; then
   exit 2
 fi
 
-# Output base: sibling to repo -> ../cms-media-seedings (absolute)
-SEED_BASE="$(cd "${REPO_DIR}/../cms-media-seedings" 2>/dev/null && pwd || true)"
-if [[ -z "$SEED_BASE" ]]; then
-  # If cms-media-seedings doesn't exist yet, create it
-  SEED_BASE="${REPO_DIR}/../cms-media-seedings"
-  mkdir -p "$SEED_BASE"
-  SEED_BASE="$(cd "$SEED_BASE" && pwd)"
+# Output base: CMS_SNAPSHOT_ROOT when set, otherwise sibling to repo -> ../cms-media-seedings
+SNAPSHOT_BASE_RAW="${CMS_SNAPSHOT_ROOT:-${REPO_DIR}/../cms-media-seedings}"
+if [[ "$SNAPSHOT_BASE_RAW" = /* ]]; then
+  SEED_BASE="$SNAPSHOT_BASE_RAW"
+else
+  SEED_BASE="${REPO_DIR}/${SNAPSHOT_BASE_RAW}"
 fi
+
+mkdir -p "$SEED_BASE"
+SEED_BASE="$(cd "$SEED_BASE" && pwd)"
 
 # Subdirectories to process
 SUBDIRS=(

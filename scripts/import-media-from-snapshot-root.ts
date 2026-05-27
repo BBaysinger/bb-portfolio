@@ -1,12 +1,12 @@
 /**
- * Import media from an external sibling folder (../cms-media-seedings)
- * into backend/media/* for local development.
+ * Import media from an external CMS snapshot root into backend/media/* for
+ * local development.
  *
  * This does NOT commit any media. It only copies files into the ignored
  * backend/media folders so a fresh clone can be hydrated from your local
  * working assets directory that lives outside the repo.
  *
- * Supported structure examples under the selected seedings root:
+ * Supported structure examples under the selected snapshot root:
  * - project-brand-logos/
  * - cv-experience-logos/
  * - project-screenshots/
@@ -16,8 +16,8 @@
  *
  * Usage:
  *   npm run media:seed
- *   npm run media:seed -- --seedings-dir ../cms-media-seedings
- *   PORTFOLIO_MEDIA_SEED_DIR=../cms-snapshots/_interactive-dev-w-outcomes npm run media:seed
+ *   npm run media:seed -- --snapshot-root ../cms-media-seedings
+ *   CMS_SNAPSHOT_ROOT=../cms-snapshots/_interactive-dev-w-outcomes npm run media:seed
  */
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
@@ -33,27 +33,27 @@ const SUPPORTED_COLLECTIONS = [
 ] as const;
 
 type SupportedCollection = (typeof SUPPORTED_COLLECTIONS)[number];
-type ResolvedSeedingsRoot = {
+type ResolvedSnapshotRoot = {
   path: string;
-  source: "flag" | "media-env" | "default";
+  source: "flag" | "snapshot-env" | "default";
 };
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  let seedingsDir: string | undefined;
+  let snapshotRoot: string | undefined;
   const collections = new Set<SupportedCollection>();
 
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
 
-    if (arg === "--seedings-dir") {
-      seedingsDir = args[index + 1];
+    if (arg === "--snapshot-root") {
+      snapshotRoot = args[index + 1];
       index++;
       continue;
     }
 
-    if (arg.startsWith("--seedings-dir=")) {
-      seedingsDir = arg.slice("--seedings-dir=".length);
+    if (arg.startsWith("--snapshot-root=")) {
+      snapshotRoot = arg.slice("--snapshot-root=".length);
       continue;
     }
 
@@ -86,16 +86,16 @@ function parseArgs() {
   }
 
   return {
-    seedingsDir,
+    snapshotRoot,
     collections:
       collections.size > 0 ? [...collections] : [...SUPPORTED_COLLECTIONS],
   };
 }
 
-function resolveSeedingsRoot(
+function resolveSnapshotRoot(
   root: string,
   overrideDir?: string,
-): ResolvedSeedingsRoot {
+): ResolvedSnapshotRoot {
   if (overrideDir?.trim()) {
     return {
       path: path.isAbsolute(overrideDir)
@@ -105,13 +105,13 @@ function resolveSeedingsRoot(
     };
   }
 
-  const mediaSeedDir = process.env.PORTFOLIO_MEDIA_SEED_DIR?.trim();
-  if (mediaSeedDir) {
+  const snapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
+  if (snapshotRoot) {
     return {
-      path: path.isAbsolute(mediaSeedDir)
-        ? mediaSeedDir
-        : path.resolve(root, mediaSeedDir),
-      source: "media-env",
+      path: path.isAbsolute(snapshotRoot)
+        ? snapshotRoot
+        : path.resolve(root, snapshotRoot),
+      source: "snapshot-env",
     };
   }
 
@@ -121,9 +121,9 @@ function resolveSeedingsRoot(
   };
 }
 
-async function exists(p: string) {
+async function exists(filePath: string) {
   try {
-    await fs.access(p, fsConstants.F_OK);
+    await fs.access(filePath, fsConstants.F_OK);
     return true;
   } catch {
     return false;
@@ -162,27 +162,27 @@ async function copyDirFiltered(src: string, dest: string): Promise<number> {
 type Mapping = { label: string; dest: string; sources: string[] };
 
 async function main() {
-  const { seedingsDir, collections } = parseArgs();
+  const { snapshotRoot, collections } = parseArgs();
   const root = process.cwd();
-  const resolvedSeedingsRoot = resolveSeedingsRoot(root, seedingsDir);
-  const seedBaseCandidates = [resolvedSeedingsRoot.path];
+  const resolvedSnapshotRoot = resolveSnapshotRoot(root, snapshotRoot);
+  const sourceCandidates = [resolvedSnapshotRoot.path];
 
-  let seedBase: string | null = null;
-  for (const c of seedBaseCandidates) {
-    if (await exists(c)) {
-      seedBase = c;
+  let sourceRoot: string | null = null;
+  for (const candidate of sourceCandidates) {
+    if (await exists(candidate)) {
+      sourceRoot = candidate;
       break;
     }
   }
-  if (!seedBase) {
+  if (!sourceRoot) {
     console.error(
-      "No media seed folder found. Create ../cms-media-seedings next to the repo, pass --seedings-dir, or set PORTFOLIO_MEDIA_SEED_DIR in .env.local/.env.",
+      "No media source folder found. Create ../cms-media-seedings next to the repo, pass --snapshot-root, or set CMS_SNAPSHOT_ROOT in .env.local/.env.",
     );
     process.exit(2);
   }
 
   console.info(
-    `Resolved media seed root (${resolvedSeedingsRoot.source}): ${seedBase}`,
+    `Resolved media source root (${resolvedSnapshotRoot.source}): ${sourceRoot}`,
   );
   console.info(`Collections: ${collections.join(", ")}`);
 
@@ -193,34 +193,34 @@ async function main() {
       label: "project-brand-logos",
       dest: path.join(backendMedia, "project-brand-logos"),
       sources: [
-        path.join(seedBase, "project-brand-logos"),
-        path.join(seedBase, "images", "project-brand-logos"),
-        path.join(seedBase, "brand-logos"),
-        path.join(seedBase, "images", "brand-logos"),
+        path.join(sourceRoot, "project-brand-logos"),
+        path.join(sourceRoot, "images", "project-brand-logos"),
+        path.join(sourceRoot, "brand-logos"),
+        path.join(sourceRoot, "images", "brand-logos"),
       ],
     },
     {
       label: "cv-experience-logos",
       dest: path.join(backendMedia, "cv-experience-logos"),
       sources: [
-        path.join(seedBase, "cv-experience-logos"),
-        path.join(seedBase, "images", "cv-experience-logos"),
+        path.join(sourceRoot, "cv-experience-logos"),
+        path.join(sourceRoot, "images", "cv-experience-logos"),
       ],
     },
     {
       label: "project-screenshots",
       dest: path.join(backendMedia, "project-screenshots"),
       sources: [
-        path.join(seedBase, "project-screenshots"),
-        path.join(seedBase, "images", "project-screenshots"),
+        path.join(sourceRoot, "project-screenshots"),
+        path.join(sourceRoot, "images", "project-screenshots"),
       ],
     },
     {
       label: "project-thumbnails",
       dest: path.join(backendMedia, "project-thumbnails"),
       sources: [
-        path.join(seedBase, "project-thumbnails"),
-        path.join(seedBase, "images", "project-thumbnails"),
+        path.join(sourceRoot, "project-thumbnails"),
+        path.join(sourceRoot, "images", "project-thumbnails"),
       ],
     },
   ];
@@ -244,7 +244,7 @@ async function main() {
 
   if (grandTotal === 0) {
     console.info(
-      "No media imported. Ensure you placed files under the seed folder in one of the supported subpaths.",
+      "No media imported. Ensure you placed files under the snapshot root in one of the supported subpaths.",
     );
   } else {
     console.info(`Import complete. Total files copied: ${grandTotal}`);

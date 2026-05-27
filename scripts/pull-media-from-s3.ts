@@ -1,9 +1,11 @@
 #!/usr/bin/env tsx
 /**
- * Pull media files from an S3 media bucket into the external sibling seedings folder.
+ * Pull media files from an S3 media bucket into the external CMS snapshot root.
  *
  * Default destination:
  *   ../cms-media-seedings/<collection>/
+ *
+ * If `CMS_SNAPSHOT_ROOT` is set, collections are written under that snapshot root instead.
  *
  * Supported collections:
  * - project-brand-logos
@@ -48,12 +50,12 @@ interface Options {
   profile?: string;
   region?: string;
   tfvarsPath?: string;
-  seedingsDir?: string;
+  snapshotRoot?: string;
 }
 
-type ResolvedSeedingsRoot = {
+type ResolvedSnapshotRoot = {
   path: string;
-  source: "flag" | "media-env" | "default";
+  source: "flag" | "snapshot-env" | "default";
 };
 
 function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
@@ -87,7 +89,7 @@ function parseArgs(): Options {
   let profile: string | undefined;
   let region: string | undefined;
   let tfvarsPath: string | undefined;
-  let seedingsDir: string | undefined;
+  let snapshotRoot: string | undefined;
 
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
@@ -124,8 +126,8 @@ function parseArgs(): Options {
       case "--tfvars":
         tfvarsPath = args[++index];
         break;
-      case "--seedings-dir":
-        seedingsDir = args[++index];
+      case "--snapshot-root":
+        snapshotRoot = args[++index];
         break;
       case "--help":
       case "-h":
@@ -139,7 +141,7 @@ Options:
   --profile <name>       AWS CLI profile to use
   --region <name>        AWS region
   --tfvars <path>        Terraform tfvars path
-  --seedings-dir <path>  Override default ../cms-media-seedings destination
+  --snapshot-root <path> Override the snapshot root destination for this run
   --help, -h             Show help
 
 Examples:
@@ -163,27 +165,27 @@ Examples:
     profile,
     region,
     tfvarsPath,
-    seedingsDir,
+    snapshotRoot,
   };
 }
 
-function resolveSeedingsRoot(seedingsDir?: string): ResolvedSeedingsRoot {
-  if (seedingsDir?.trim()) {
+function resolveSnapshotRoot(snapshotRoot?: string): ResolvedSnapshotRoot {
+  if (snapshotRoot?.trim()) {
     return {
-      path: path.isAbsolute(seedingsDir)
-        ? seedingsDir
-        : path.resolve(repoRoot, seedingsDir),
+      path: path.isAbsolute(snapshotRoot)
+        ? snapshotRoot
+        : path.resolve(repoRoot, snapshotRoot),
       source: "flag",
     };
   }
 
-  const mediaSeedDir = process.env.PORTFOLIO_MEDIA_SEED_DIR?.trim();
-  if (mediaSeedDir) {
+  const snapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
+  if (snapshotRoot) {
     return {
-      path: path.isAbsolute(mediaSeedDir)
-        ? mediaSeedDir
-        : path.resolve(repoRoot, mediaSeedDir),
-      source: "media-env",
+      path: path.isAbsolute(snapshotRoot)
+        ? snapshotRoot
+        : path.resolve(repoRoot, snapshotRoot),
+      source: "snapshot-env",
     };
   }
 
@@ -209,7 +211,7 @@ function syncCollection(options: Options) {
   const bucket = resolveBucket(options.environment, {
     tfvarsPath: options.tfvarsPath,
   });
-  const resolvedSeedingsRoot = resolveSeedingsRoot(options.seedingsDir);
+  const resolvedSeedingsRoot = resolveSnapshotRoot(options.snapshotRoot);
   const destinationDir = path.resolve(
     resolvedSeedingsRoot.path,
     options.collection,
@@ -219,7 +221,7 @@ function syncCollection(options: Options) {
   ensureAwsCredentials({ profile: options.profile, region: options.region });
 
   console.info(
-    `Resolved media seed destination (${resolvedSeedingsRoot.source}): ${resolvedSeedingsRoot.path}`,
+    `Resolved snapshot destination (${resolvedSeedingsRoot.source}): ${resolvedSeedingsRoot.path}`,
   );
 
   const sourcePrefix = SOURCE_PREFIX_BY_COLLECTION[options.collection];

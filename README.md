@@ -147,7 +147,7 @@ Live site reference moments:
 
 - [Sprite sheet image processing scripts (exporter extracted to `BBaysinger/fluxel-animations`)](#backend-media-storage)
 - [Sharp-backed image processing and upload size limits](#backend-media-storage)
-- [Media seeding/import pipeline from external seed folders (`media:seed`)](#backend-media-storage)
+- [Media hydration/import pipeline from external snapshot roots (`media:seed`)](#backend-media-storage)
 - [Image export pipeline to external seed folders/WebP outputs (`media:export`)](#backend-media-storage)
 - [PSD/WebP export script with optional opacity-to-matte flattening for transparent artwork variants](#backend-media-storage)
 - [Local filesystem storage for local profile](#backend-media-storage)
@@ -277,7 +277,7 @@ This section backs the backend/content-system links in the [Feature Index](#feat
 
 - Sprite sheet image processing scripts (exporter work extracted to [BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations))
 - Sharp-backed image processing and upload size limits
-- Media seeding/import pipeline from external seed folders (`media:seed`)
+- Media hydration/import pipeline from external snapshot roots (`media:seed`)
 - Image export pipeline to external seed folders/WebP outputs (`media:export`)
 - PSD/WebP export script with optional opacity-to-matte flattening for transparent artwork variants
 - Local filesystem storage for local profile
@@ -441,7 +441,8 @@ Note: By default, the deployment runner builds and pushes both frontend and back
 
 Envs: `dev`, `prod`, `both`. Use `:dry` to preview URL rewrites.
 
-`media:seed` defaults to sibling `../cms-media-seedings`. Set `PORTFOLIO_MEDIA_SEED_DIR` when your canonical media source lives somewhere else, such as `../cms-snapshots/<target>`. Keep `PORTFOLIO_CONTENT_DIR` reserved for authored content imports/exports.
+`media:seed` defaults to sibling `../cms-media-seedings`. Set `CMS_SNAPSHOT_ROOT` when your canonical versioned CMS state lives somewhere else, such as `../cms-snapshots/<target>`. Keep `PORTFOLIO_CONTENT_DIR` reserved for authored content imports/exports.
+In this repo, "seeding" means hydrating local `backend/media` from the external snapshot root. Local `backend/media` is runtime state for local dev; the snapshot root is the versionable filesystem representation of CMS state.
 
 For operator-facing content syncs, distinguish the two workflows clearly:
 
@@ -450,7 +451,7 @@ For operator-facing content syncs, distinguish the two workflows clearly:
 - `content:migrate:local-to-prod:refresh-snapshots` runs local -> prod migration, regenerates both frontend snapshot secret payloads from the prod environment, then syncs only repo + prod GitHub secrets.
 - `content:apply-authored:*:content-dir` is the preferred root command family when you mean authored-content apply/import from `PORTFOLIO_CONTENT_DIR`.
 - `content:pull:*` and `content:import:*` remain authored-content workflows rooted at `PORTFOLIO_CONTENT_DIR`; they do not define what `content:migrate` will carry.
-- For `content:migrate -- --source local`, local `backend/media` is authoritative. If sibling `../cms-media-seedings` exists and overlapping files diverge, migrate stops so hydration seedings and local media can be reconciled intentionally.
+- For `content:migrate -- --source local`, local `backend/media` is authoritative. If the resolved snapshot root exists and overlapping files diverge, migrate stops so snapshot-root assets and local runtime media can be reconciled intentionally.
 - `pull-local` may export into the canonical configured `PORTFOLIO_CONTENT_DIR`. `pull-dev` and `pull-prod` require an explicit `PORTFOLIO_CONTENT_DIR` override and refuse to overwrite that canonical local snapshot directory.
 - The snapshot-refresh wrappers infer the target backend base from local GitHub secret manifests when possible. Override with `TARGET_BACKEND_BASE=https://...` if the default target URL is not reachable from your machine.
 - See [docs/private-content-workflow.md](docs/private-content-workflow.md) for the full content workflow runbook and safety rules.

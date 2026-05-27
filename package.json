@@ -106,7 +106,7 @@
     "media:pull:prod:cv-experience-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos --dry-run",
     "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
     "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
-    "media:seed": "tsx scripts/import-media-from-seedings.ts",
+    "media:seed": "tsx scripts/import-media-from-snapshot-root.ts",
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     "media:upload:dev:dry": "tsx scripts/upload-media-to-s3.ts --env dev --dry-run",
@@ -158,9 +158,9 @@
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.6",
     "@types/glob": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "8.59.3",
-    "@typescript-eslint/parser": "8.59.3",
-    "baseline-browser-mapping": "^2.10.30",
+    "@typescript-eslint/eslint-plugin": "8.60.0",
+    "@typescript-eslint/parser": "8.60.0",
+    "baseline-browser-mapping": "^2.10.32",
     "concurrently": "^9.2.1",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
@@ -174,7 +174,7 @@
     "json5-manifest-sync": "^0.2.2",
     "prettier": "^3.8.3",
     "ts-node": "^10.9.2",
-    "tsx": "^4.22.1",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   },
   "dependencies": {
