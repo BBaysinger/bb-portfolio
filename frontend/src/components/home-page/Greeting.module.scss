@@ -275,7 +275,10 @@
         position: relative;
 
         p {
-          margin: 0.3em;
+          margin-bottom: 0.5em;
+          &:last-child {
+            margin-bottom: 0;
+          }
         }
 
         p:last-child {
