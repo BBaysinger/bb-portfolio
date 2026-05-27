@@ -293,7 +293,7 @@
     // 🧪 Dry run: preview production project brand logo downloads without writing files
     "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
     // 🪄 Import images from ../cms-media-seedings into backend/media/* for local dev
-    "media:seed": "tsx scripts/import-media-from-seedings.ts",
+    "media:seed": "tsx scripts/import-media-from-snapshot-root.ts",
     // Upload media using the script defaults or explicit CLI flags.
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     // 🪄 Upload media only to the development S3 bucket
@@ -415,11 +415,11 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.59.3",
+    "@typescript-eslint/eslint-plugin": "8.60.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.59.3",
+    "@typescript-eslint/parser": "8.60.0",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.30",
+    "baseline-browser-mapping": "^2.10.32",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
@@ -447,7 +447,7 @@
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
-    "tsx": "^4.22.1",
+    "tsx": "^4.22.3",
     // TypeScript language support
     "typescript": "^6.0.3",
   },
