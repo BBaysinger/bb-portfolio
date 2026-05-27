@@ -4,6 +4,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import React, { useEffect, useRef, useCallback } from "react";
 
+import AdaptiveLink from "@/components/common/AdaptiveLink";
 import AuthNavItem from "@/components/common/AuthNavItem";
 import { useNavHighlight } from "@/hooks/useNavHighlight";
 
@@ -141,7 +142,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
     >
       <ul ref={listRef} className={clsx(styles.navLinks, className)}>
         <li>
-          <Link
+          <AdaptiveLink
             href="/#hero"
             className={linkClass("hero")}
             aria-current={active === "hero" ? "page" : undefined}
@@ -149,31 +150,31 @@ const NavLinks: React.FC<NavLinksProps> = ({
             ref={setFirstLinkRef}
           >
             Home
-          </Link>
+          </AdaptiveLink>
         </li>
         <li>
-          <Link
+          <AdaptiveLink
             href="/#hello"
             className={linkClass("hello")}
             aria-current={active === "hello" ? "page" : undefined}
             tabIndex={isInactiveMobile ? -1 : undefined}
           >
             Hello
-          </Link>
+          </AdaptiveLink>
         </li>
         <li>
-          <Link
+          <AdaptiveLink
             href="/#projects-list"
             className={linkClass("projects-list")}
             aria-current={active === "projects-list" ? "page" : undefined}
             tabIndex={isInactiveMobile ? -1 : undefined}
           >
             Projects
-          </Link>
+          </AdaptiveLink>
         </li>
         <li>
           <Link
-            href="/cv#top"
+            href="/cv/#top"
             className={linkClass("cv")}
             aria-current={active === "cv" ? "page" : undefined}
             aria-label="Curriculum Vitae"
@@ -184,7 +185,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
         </li>
         <li>
           <Link
-            href="/contact#top"
+            href="/contact/#top"
             className={linkClass("contact")}
             aria-current={active === "contact" ? "page" : undefined}
             tabIndex={isInactiveMobile ? -1 : undefined}

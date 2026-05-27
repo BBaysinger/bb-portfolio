@@ -49,6 +49,7 @@ header.hero {
 .gridController {
   position: absolute;
   overflow: hidden;
+  pointer-events: none;
   z-index: 1;
 
   & > * {

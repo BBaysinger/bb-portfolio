@@ -15,7 +15,6 @@
  */
 
 import clsx from "clsx";
-import Link from "next/link";
 import {
   Suspense,
   useCallback,
@@ -25,6 +24,7 @@ import {
   useState,
 } from "react";
 
+import AdaptiveLink from "@/components/common/AdaptiveLink";
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
@@ -37,7 +37,6 @@ import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
 import {
   HOME_HERO_INTRO_REPLAY_REQUESTED_EVENT,
-  consumeHomeHeroIntroReplayRequest,
   shouldReplayHomeHeroIntroOnPageShow,
   shouldPlayHomeHeroIntroOnEntry,
 } from "@/utils/homeHeroIntroReplay";
@@ -544,9 +543,9 @@ function Hero({ initialRoleTitle }: HeroProps) {
           </SlingerBox>
         </div>
         <div className={styles.scrollCtaWrapper}>
-          <Link href="#hello" className={styles.scrollCta}>
+          <AdaptiveLink href="#hello" className={styles.scrollCta}>
             <div className={styles.scrollCtaInner}>Say hello!</div>
-          </Link>
+          </AdaptiveLink>
         </div>
       </div>
 

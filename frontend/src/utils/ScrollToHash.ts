@@ -3,7 +3,10 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 
-import { replaceWithReplaceState } from "@/utils/navigation";
+import {
+  normalizeHashFragment,
+  replaceWithReplaceState,
+} from "@/utils/navigation";
 
 const HASH_SCROLL_RETRY_DELAYS_MS = [0, 80, 200] as const;
 const HASH_CLEANUP_DELAY_MS = 900;
@@ -113,7 +116,16 @@ const ScrollToHash = () => {
   const handleHashNavigation = useCallback(() => {
     if (typeof window === "undefined") return;
 
-    const { hash } = window.location;
+    const liveHash = window.location.hash || "";
+    const hash = normalizeHashFragment(liveHash);
+
+    if (liveHash !== hash) {
+      replaceWithReplaceState(
+        `${window.location.pathname}${window.location.search}${hash}`,
+      );
+      return;
+    }
+
     if (!hash) {
       clearPendingTimers();
       return;

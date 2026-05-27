@@ -142,7 +142,7 @@ const LoginPage = () => {
         <p>
           If you have been provided login credentials, please enter them below
           to proceed. If you need access, feel free to{" "}
-          <Link href="/contact#top">reach out</Link> to me directly.
+          <Link href="/contact/#top">reach out</Link> to me directly.
         </p>
         <p>Thank you for your understanding!</p>
 

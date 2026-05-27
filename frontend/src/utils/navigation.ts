@@ -23,6 +23,36 @@
  * @param url - The URL to navigate to
  * @param state - Optional state object to store with the history entry
  */
+export function normalizeHashFragment(hash: string): string {
+  if (!hash) return "";
+
+  const raw = hash.replace(/^#/, "");
+  const normalized = raw.split("#", 1)[0] || "";
+
+  if (
+    raw !== normalized &&
+    typeof window !== "undefined" &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    console.warn("[navigation] Normalized malformed hash fragment", {
+      originalHash: hash,
+      normalizedHash: normalized ? `#${normalized}` : "",
+      url: window.location.href,
+    });
+  }
+
+  return normalized ? `#${normalized}` : "";
+}
+
+function normalizeNavigationUrl(url: string): string {
+  const target = new URL(url, window.location.origin);
+  const normalizedPathname = target.pathname.endsWith("/")
+    ? target.pathname
+    : `${target.pathname}/`;
+
+  return `${normalizedPathname}${target.search}${normalizeHashFragment(target.hash)}`;
+}
+
 export function navigateWithPushState(
   url: string,
   state?: Record<string, unknown> | null,
@@ -59,15 +89,10 @@ export function navigateWithPushState(
 
   // Build a normalized target URL that preserves search and hash while enforcing
   // a trailing slash on the pathname (to match Next.js `trailingSlash: true`).
-  const target = new URL(url, window.location.origin);
-
-  const normalizedPathname = target.pathname.endsWith("/")
-    ? target.pathname
-    : `${target.pathname}/`;
-  const normalizedUrl = `${normalizedPathname}${target.search}${target.hash}`;
+  const normalizedUrl = normalizeNavigationUrl(url);
 
   // Current URL composed of pathname + search + hash
-  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const currentUrl = `${window.location.pathname}${window.location.search}${normalizeHashFragment(window.location.hash)}`;
 
   // Only navigate if the full URL (path + search + hash) is different
   // Note: Do NOT debounce in this helper. The Project carousel is responsible for
@@ -84,7 +109,10 @@ export function navigateWithPushState(
       // a single net new entry that browsers are less likely to coalesce.
       const dummyKey = (opts?.dummyHashParam || "dp").toString();
       const dummyTarget = new URL(normalizedUrl, window.location.origin);
-      const dummyHash = (dummyTarget.hash || "").replace(/^#/, "");
+      const dummyHash = normalizeHashFragment(dummyTarget.hash).replace(
+        /^#/,
+        "",
+      );
       const dummyParams = new URLSearchParams(dummyHash);
       dummyParams.set(dummyKey, Date.now().toString());
       const dummyUrl = `${dummyTarget.pathname}${dummyTarget.search}#${dummyParams.toString()}`;
@@ -126,11 +154,7 @@ export function replaceWithReplaceState(
   if (typeof window === "undefined") return;
   const DEBUG_NAV = process.env.NEXT_PUBLIC_DEBUG_NAVIGATION === "1";
 
-  const target = new URL(url, window.location.origin);
-  const normalizedPathname = target.pathname.endsWith("/")
-    ? target.pathname
-    : `${target.pathname}/`;
-  const normalizedUrl = `${normalizedPathname}${target.search}${target.hash}`;
+  const normalizedUrl = normalizeNavigationUrl(url);
 
   if (DEBUG_NAV) console.info(`Replacing URL with ${normalizedUrl}`);
   window.history.replaceState(state || null, "", normalizedUrl);

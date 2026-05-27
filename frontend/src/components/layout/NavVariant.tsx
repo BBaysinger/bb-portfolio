@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import Link from "next/link";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import BrandLockup from "@/components/branding/BrandLockup";
+import AdaptiveLink from "@/components/common/AdaptiveLink";
 import Hamburger from "@/components/layout/Hamburger";
 import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import useLayoutMonitor from "@/hooks/useLayoutMonitor";
@@ -244,9 +244,9 @@ const NavVariant: React.FC<NavProps> = ({ variant, brandingLockup }) => {
         </>
       )}
 
-      <Link href="/#top" className={styles.title}>
+      <AdaptiveLink href="/#top" className={styles.title}>
         <BrandLockup branding={brandingLockup} />
-      </Link>
+      </AdaptiveLink>
       <NavLinks
         onClick={closeMobileNavHandler}
         className={styles.navLinks}

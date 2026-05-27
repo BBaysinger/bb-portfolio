@@ -91,7 +91,7 @@ export default function AuthNavItem({
         </button>
       ) : (
         <Link
-          href="/login#top"
+          href="/login/#top"
           className={clsx(linkClassName, isLoading && styles.loadingLink)}
           aria-hidden={loginAriaHidden}
         >
