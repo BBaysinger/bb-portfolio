@@ -34,7 +34,7 @@
     "test:integration": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.1054.0",
+    "@aws-sdk/client-ses": "^3.1057.0",
     "@aws-sdk/types": "^3.973.9",
     "@payloadcms/db-mongodb": "3.85.0",
     "@payloadcms/email-nodemailer": "3.85.0",
@@ -67,7 +67,7 @@
     "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
-    "baseline-browser-mapping": "^2.10.32",
+    "baseline-browser-mapping": "^2.10.33",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
     "jsdom": "29.1.1",
@@ -92,5 +92,5 @@
     "esbuild",
     "unrs-resolver"
   ],
-  "packageManager": "npm@11.15.0"
+  "packageManager": "npm@11.16.0"
 }

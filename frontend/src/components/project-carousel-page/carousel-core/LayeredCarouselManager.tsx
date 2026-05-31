@@ -59,6 +59,7 @@ export interface LayeredCarouselManagerProps {
   prefix?: string;
   styleMap?: { [key: string]: string };
   initialIndex?: number;
+  programmaticScrollDuration?: number;
   onReady?: (index: number) => void;
   onScrollUpdate?: (scrollLeft: number) => void;
   onStabilizationUpdate?: (
@@ -83,6 +84,7 @@ const LayeredCarouselManager = forwardRef<
       prefix = "",
       styleMap,
       initialIndex = 0,
+      programmaticScrollDuration,
       onReady,
       onScrollUpdate,
       onStabilizationUpdate,
@@ -287,6 +289,7 @@ const LayeredCarouselManager = forwardRef<
               })}
               slideSpacing={layer.spacing}
               initialIndex={initialIndex}
+              programmaticScrollDuration={programmaticScrollDuration}
               classNamePrefix={prefix}
               styleMap={styleMap}
               layerId={layer.id}

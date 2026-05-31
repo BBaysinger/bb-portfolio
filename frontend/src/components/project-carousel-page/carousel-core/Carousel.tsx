@@ -73,6 +73,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     onScrollUpdate,
     onStabilizationUpdate,
     stabilizationDelay = 800,
+    programmaticScrollDuration,
     isSlaveMode = false,
     classNamePrefix = "",
     styleMap,
@@ -583,7 +584,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
       const currentScrollLeft = scrollerRef.current.scrollLeft;
       const distanceToScroll = Math.abs(currentScrollLeft - targetScrollLeft);
-      const duration = Math.min(2.0, 0.2 + distanceToScroll / 1500);
+      const duration =
+        programmaticScrollDuration ??
+        Math.min(2.0, 0.2 + distanceToScroll / 1500);
 
       // Use direct scrollLeft animation instead of ScrollToPlugin
       gsap.to(scrollerRef.current, {

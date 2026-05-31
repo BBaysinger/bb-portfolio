@@ -419,9 +419,9 @@
     // TypeScript parser for ESLint
     "@typescript-eslint/parser": "8.60.0",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.32",
+    "baseline-browser-mapping": "^2.10.33",
     // Run multiple commands concurrently in scripts
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.0",
     // Main linter for JS/TS code
     "eslint": "^9.39.4",
     // ESLint plugin for import/export syntax validation

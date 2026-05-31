@@ -23,6 +23,7 @@ interface CarouselProps {
   // Behavioral props
   isSlaveMode?: boolean;
   stabilizationDelay?: number;
+  programmaticScrollDuration?: number;
 
   // Event callbacks
   onImmediateScrollUpdate?: (scrollLeft: number) => void;

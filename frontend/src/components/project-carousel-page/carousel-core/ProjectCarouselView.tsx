@@ -20,6 +20,7 @@ const MAX_SCALE = 1;
 const MIN_VIEWPORT = 320;
 const MAX_VIEWPORT = 680;
 const SCALE_SUPPORT_TEST = "translateX(-50%) scale(clamp(0.5, 1vw, 1))";
+const PROGRAMMATIC_SCROLL_DURATION = 0.4;
 
 /**
  * ProjectCarouselView Component
@@ -137,6 +138,7 @@ const ProjectCarouselView: React.FC<{
         styleMap={styles}
         layers={layers}
         initialIndex={initialIndex}
+        programmaticScrollDuration={PROGRAMMATIC_SCROLL_DURATION}
         onReady={onReady}
         onStabilizationUpdate={onStabilizationUpdate}
       />
