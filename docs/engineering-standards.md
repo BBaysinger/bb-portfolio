@@ -44,6 +44,8 @@ If code or configuration is unconventional, convoluted, or otherwise difficult t
 
 Tools reviewing or generating code should flag non-standard or hard-to-justify patterns that are not already clearly explained in comments or PR context, and should recommend alignment without drawing attention to the tool itself.
 
+This repository is intentionally not an enterprise multi-service platform. It is a single-owner portfolio project, so infrastructure and deployment choices should stay proportional to that scope. Patterns such as rolling deploy orchestration, blue/green environments, canary rollout control, dedicated load balancers, connection draining, multi-instance cutover, and other always-on zero-downtime machinery should be treated as overkill here unless a concrete operational need appears. Prefer the simplest design that is conventional, observable, and easy to recover: explicit maintenance mode when needed, clear error states, health checks, reproducible builds, and straightforward deploy/restart paths.
+
 ---
 
 ## Failure handling and fallback policy
@@ -407,6 +409,8 @@ Earlier iterations used a small client-side fallback to reduce UX flicker (an `a
   - Return consistent JSON for internal and proxied routes; avoid raw HTML in error paths.
 - Logging:
   - Use structured logs for external service errors (e.g., SES) and include relevant context keys.
+  - For permanent repository-owned console output, use `console.info` rather than `console(dot)log`.
+    This is an intentional cleanup convention: `console(dot)log` is reserved as the search target for temporary debugging so it can be found and removed quickly before merge. If a console statement is meant to remain, prefer `console.info`; if it is temporary debugging scaffolding, use `console(dot)log` and delete it before shipping.
 
 ---
 

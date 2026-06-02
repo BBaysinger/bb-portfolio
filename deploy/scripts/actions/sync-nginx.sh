@@ -101,8 +101,8 @@ server {
   if (\$http_referer ~* /admin/) { set \$next_upstream_prod_local http://127.0.0.1:3001; }
 
   proxy_intercept_errors on;
-  error_page 500 =500 /__server-error.html;
-  error_page 418 502 503 504 =503 /__deploying.html;
+  error_page 500 502 503 504 =500 /__server-error.html;
+  error_page 418 =503 /__deploying.html;
 
   location = /__deploying.html {
     internal;
@@ -183,8 +183,8 @@ server {
   if (\$http_referer ~* /admin/) { set \$next_upstream_dev_local http://127.0.0.1:4001; }
 
   proxy_intercept_errors on;
-  error_page 500 =500 /__server-error.html;
-  error_page 418 502 503 504 =503 /__deploying.html;
+  error_page 500 502 503 504 =500 /__server-error.html;
+  error_page 418 =503 /__deploying.html;
 
   location = /__deploying.html {
     internal;
