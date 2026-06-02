@@ -27,6 +27,7 @@ import { BrandingLockup } from './globals/BrandingLockup'
 import { ContactInfo } from './globals/ContactInfo'
 import { CvExperienceConfig } from './globals/CvExperienceConfig'
 import { Greeting } from './globals/Greeting'
+import { getAllowedBrowserOrigins } from './utils/allowedBrowserOrigins'
 
 // ===============================================================
 // ENVIRONMENT FILES (.env.dev, .env.prod)
@@ -107,17 +108,6 @@ const resolvedServerURL =
     ].join('\n'),
   })
 
-// Parse comma-separated origin allowlists used by Payload's CORS/CSRF guards.
-// We keep this intentionally strict: these should be full origins (scheme + host + optional port),
-// not patterns or paths (e.g., "https://bbaysinger.io", "http://localhost:3000").
-const parseOriginList = (raw: string): string[] => {
-  return raw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((origin) => origin.replace(/\/$/, ''))
-}
-
 // Build the list of browser origins allowed to make state-changing requests.
 //
 // Why both FRONTEND_URL and serverURL?
@@ -128,26 +118,12 @@ const parseOriginList = (raw: string): string[] => {
 // FRONTEND_URL to drift (old domain, missing www, http vs https). Allowing the serverURL
 // origin avoids "You are not allowed to perform this action" errors in the admin UI
 // while still remaining an explicit allowlist (no wildcards).
-const getAllowedBrowserOrigins = (): string[] => {
-  const origins = new Set<string>()
+const frontendBrowserOrigins = requireEnv('FRONTEND_URL', {
+  description:
+    'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
+})
 
-  const frontendRaw = requireEnv('FRONTEND_URL', {
-    description:
-      'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
-  })
-
-  for (const origin of parseOriginList(frontendRaw)) origins.add(origin)
-
-  try {
-    origins.add(new URL(resolvedServerURL).origin)
-  } catch {
-    // resolvedServerURL is already validated as required, but keep this defensive.
-  }
-
-  return Array.from(origins)
-}
-
-const allowedBrowserOrigins = getAllowedBrowserOrigins()
+const allowedBrowserOrigins = getAllowedBrowserOrigins(frontendBrowserOrigins, resolvedServerURL)
 
 export default buildConfig({
   // Explicit public origin ensures Payload admin/API use the canonical host

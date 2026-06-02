@@ -5,6 +5,8 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 
+import { getAllowedBrowserOrigins } from './utils/allowedBrowserOrigins'
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -56,10 +58,11 @@ export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/')) {
     const response = NextResponse.next()
 
-    const allowed = (process.env.FRONTEND_URL || 'http://localhost:3000')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
+    const allowed = getAllowedBrowserOrigins(
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      process.env.PUBLIC_SERVER_URL,
+      process.env.PAYLOAD_PUBLIC_SERVER_URL,
+    )
     const origin = request.headers.get('origin')
 
     // Allow requests from configured frontend URLs
