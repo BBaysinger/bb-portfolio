@@ -1,6 +1,11 @@
-const DEFAULT_LOGIN_URL = 'http://localhost:3000/admin/login/'
+const DEFAULT_LOGIN_URL = 'http://localhost:3000/admin/login'
 const DEFAULT_TIMEOUT_MS = 15000
 const MAX_REDIRECTS = 5
+
+const NOT_FOUND_MARKERS = [
+  '404: This page could not be found.',
+  '/_next/static/css/app/(payload)/not-found.css',
+]
 
 type FetchWithRedirectsResult = {
   body: string
@@ -125,9 +130,16 @@ async function main(): Promise<void> {
     )
   }
 
-  if (!/\/admin\/login\/?(?:\?|$)/.test(loginResult.url.pathname + loginResult.url.search)) {
+  if (loginResult.url.pathname !== '/admin/login') {
     throw new Error(
-      `Expected the admin login route, but resolved to ${loginResult.url.toString()}.`,
+      `Expected the canonical admin login route, but resolved to ${loginResult.url.toString()}.`,
+    )
+  }
+
+  const notFoundMarker = NOT_FOUND_MARKERS.find((marker) => loginResult.body.includes(marker))
+  if (notFoundMarker) {
+    throw new Error(
+      `Admin login page rendered a not-found payload instead of the login view (marker: ${notFoundMarker}).`,
     )
   }
 
