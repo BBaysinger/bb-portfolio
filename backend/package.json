@@ -11,7 +11,7 @@
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation npm run generate:importmap && sh ./scripts/run-next-dev.sh",
     "dev:clean": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation sh ./scripts/run-next-dev.sh",
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation sh ./scripts/generate-importmap-stable.sh",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "export:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-cv-experience-content.ts",
     "export:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-project-descriptions-content.ts",

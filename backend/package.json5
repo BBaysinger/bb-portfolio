@@ -25,8 +25,9 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation npm run generate:importmap && sh ./scripts/run-next-dev.sh",
     // Remove the Next build cache before starting the backend dev server.
     "dev:clean": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation sh ./scripts/run-next-dev.sh",
-    // Generates Payload importmap file (used when importing from plugins or dynamic code)
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    // Generates the committed Payload import map using the canonical non-local profile.
+    // This avoids noisy diffs when local ENV_PROFILE disables the S3 plugin.
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation sh ./scripts/generate-importmap-stable.sh",
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     // Export CV experience global content into the external seedings folder.

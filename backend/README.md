@@ -66,7 +66,8 @@ Set `ENV_PROFILE` in your `.env` file to switch between configurations.
 Note for local Docker Compose:
 
 - The compose service `bb-portfolio-backend-local` sets `ENV_PROFILE=local` via environment.
-- Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that the shared variables (`MONGODB_URI`, `PAYLOAD_SECRET`, `FRONTEND_URL`, etc.) are used correctly for whichever profile is active.
+- Runtime dev/build/start scripts should not hardcode a different profile. They should respect the active `ENV_PROFILE` so the shared variables (`MONGODB_URI`, `PAYLOAD_SECRET`, `FRONTEND_URL`, etc.) are used correctly for whichever profile is active.
+- The committed admin import map is the one intentional exception: `npm run generate:importmap` pins generation to a canonical non-local profile (`dev` by default via `PAYLOAD_IMPORTMAP_CANONICAL_PROFILE`) so local filesystem-storage runs do not rewrite the checked-in file.
 - If you see 500 errors like "Missing required DEV\*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` (or `.env.local`) contains the shared variables listed above.
 
 ## Frequently Used URLs
