@@ -32,9 +32,10 @@ if (process.env.NODE_ENV !== 'production') {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Your Next.js config here
-  // Admin routes now live under src/app/(payload)/admin so no Next.js basePath is required
-  // Normalize URLs to include trailing slash to match admin expectations and health checks
-  trailingSlash: true,
+  // Admin routes now live under src/app/(payload)/admin so no Next.js basePath is required.
+  // Keep backend URLs canonical without forced trailing slashes because Payload's
+  // admin login route can resolve `/admin/login/` as a not-found segment tree.
+  trailingSlash: false,
   reactStrictMode: resolvedStrict,
   // Emit a self-contained server bundle suitable for minimal runtimes
   output: 'standalone',

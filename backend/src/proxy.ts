@@ -36,8 +36,10 @@ export function proxy(request: NextRequest) {
     ) {
       // Drop the redirect param completely and serve the login page in place
       url.searchParams.delete('redirect')
-      // Normalize path: ensure /admin/login/ (trailing slash) to match backend config
-      if (url.pathname === '/admin/login') url.pathname = '/admin/login/'
+      // Keep the canonical login route slashless. Payload's admin route tree can
+      // interpret `/admin/login/` as an empty trailing segment and fall through
+      // to its not-found boundary.
+      if (url.pathname === '/admin/login/') url.pathname = '/admin/login'
       if (!alreadySanitized) {
         const res = NextResponse.rewrite(url)
         res.cookies.set('x-admin-login-sanitized', '1', {
