@@ -399,6 +399,7 @@ jobs:
           echo "${{ secrets.SECURITY_TXT_EXPIRES || '2099-01-01T00:00:00.000Z' }}" > /tmp/security_txt_expires
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           DOCKER_BUILDKIT=1 docker build \
+            --target runtime \
             --build-arg ENV_PROFILE=dev \
             --build-arg REQUIRED_ENVIRONMENT_VARIABLES_BACKEND="${SANITIZED_BE_REQ}" \
             --secret id=mongodb_uri,src=/tmp/mongodb_uri \
