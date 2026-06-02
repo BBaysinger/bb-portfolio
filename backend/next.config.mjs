@@ -19,16 +19,6 @@ const resolvedStrict =
     ? strictOverride !== 'false'
     : !['dev', 'development'].includes(envProfile) // disable only for dev
 
-// Dev-only visibility for Strict Mode resolution
-if (process.env.NODE_ENV !== 'production') {
-  console.info('[backend next.config.mjs] React StrictMode resolved:', {
-    ENV_PROFILE: process.env.ENV_PROFILE,
-    NODE_ENV: process.env.NODE_ENV,
-    REACT_STRICT_MODE: strictOverride,
-    resolvedStrict,
-  })
-}
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Your Next.js config here

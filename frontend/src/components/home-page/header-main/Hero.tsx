@@ -170,15 +170,6 @@ function Hero({ initialRoleTitle }: HeroProps) {
     viewportWidth > ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT &&
     !isSlingerIdle;
 
-  // useEffect(() => {
-  //   if (viewportWidth === null) return;
-
-  //   console.log("maxSlingerReleaseSpeed", {
-  //     viewportWidth,
-  //     maxSlingerReleaseSpeed,
-  //   });
-  // }, [maxSlingerReleaseSpeed, viewportWidth]);
-
   const updateHasDragged = useCallback((value: boolean) => {
     try {
       sessionStorage.setItem("hasDragged", value ? "true" : "false");

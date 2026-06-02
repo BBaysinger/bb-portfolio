@@ -76,5 +76,3 @@ for (const lockPath of packageLockPaths) {
 
   writeJsonFile(lockPath, lockfile);
 }
-
-console.log(nextVersion);
