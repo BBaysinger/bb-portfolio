@@ -296,6 +296,21 @@ trigger_manual_workflow() {
   gh workflow run "$CI_WORKFLOW_FILE" --ref "$BRANCH" >/dev/null
 }
 
+find_existing_workflow_run() {
+  local BRANCH=$1
+  local SHA=$2
+
+  require_gh
+
+  gh run list \
+    --workflow "$CI_WORKFLOW_FILE" \
+    --branch "$BRANCH" \
+    --limit 20 \
+    --json databaseId,headSha,status,conclusion,createdAt \
+    --jq ".[] | select(.headSha == \"$SHA\") | [.databaseId, .status, (.conclusion // \"\"), .createdAt] | @tsv" |
+    head -n 1
+}
+
 push_or_dispatch_workflow() {
   local SOURCE_REF=$1
   local DEST_BRANCH=$2
@@ -305,14 +320,34 @@ push_or_dispatch_workflow() {
   local REMOTE_SHA=""
   local EVENT="push"
   local STARTED_AT=""
+  local EXISTING_RUN=""
+  local EXISTING_RUN_ID=""
+  local EXISTING_RUN_STATUS=""
+  local EXISTING_RUN_CONCLUSION=""
 
   REMOTE_SHA=$(remote_branch_sha "$DEST_BRANCH")
   STARTED_AT=$(current_timestamp_utc)
 
   if [[ "$REMOTE_SHA" == "$TARGET_SHA" ]]; then
-    log "$DEST_BRANCH already points at $TARGET_SHA; using workflow_dispatch for $LABEL"
-    trigger_manual_workflow "$DEST_BRANCH" "$LABEL"
-    EVENT="workflow_dispatch"
+    EXISTING_RUN=$(find_existing_workflow_run "$DEST_BRANCH" "$TARGET_SHA")
+
+    if [[ -n "$EXISTING_RUN" ]]; then
+      IFS=$'\t' read -r EXISTING_RUN_ID EXISTING_RUN_STATUS EXISTING_RUN_CONCLUSION _ <<<"$EXISTING_RUN"
+
+      if [[ "$EXISTING_RUN_STATUS" != "completed" ]]; then
+        log "$DEST_BRANCH already points at $TARGET_SHA; reusing in-progress workflow run $EXISTING_RUN_ID for $LABEL"
+      elif [[ "$EXISTING_RUN_CONCLUSION" == "success" ]]; then
+        log "$DEST_BRANCH already points at $TARGET_SHA; reusing successful workflow run $EXISTING_RUN_ID for $LABEL"
+      else
+        log "$DEST_BRANCH already points at $TARGET_SHA but latest workflow run $EXISTING_RUN_ID concluded '$EXISTING_RUN_CONCLUSION'; using workflow_dispatch for $LABEL"
+        trigger_manual_workflow "$DEST_BRANCH" "$LABEL"
+        EVENT="workflow_dispatch"
+      fi
+    else
+      log "$DEST_BRANCH already points at $TARGET_SHA but no workflow run was found for that commit; using workflow_dispatch for $LABEL"
+      trigger_manual_workflow "$DEST_BRANCH" "$LABEL"
+      EVENT="workflow_dispatch"
+    fi
   else
     if [[ "$SOURCE_REF" == "$DEST_BRANCH" ]]; then
       log "Pushing $DEST_BRANCH"
