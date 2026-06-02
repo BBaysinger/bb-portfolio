@@ -148,6 +148,22 @@ server {
     proxy_pass \$next_upstream_prod_local;
   }
 
+  location = /api/revalidate/site {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000;
+  }
+  location = /api/revalidate/site/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000;
+  }
+  location = /api/revalidate/cv {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000;
+  }
+  location = /api/revalidate/cv/ {
+    if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
+    proxy_pass http://127.0.0.1:3000;
+  }
   location = /api/revalidate/projects {
     if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
     proxy_pass http://127.0.0.1:3000;
@@ -226,6 +242,22 @@ server {
     proxy_pass \$next_upstream_dev_local;
   }
 
+  location = /api/revalidate/site {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000;
+  }
+  location = /api/revalidate/site/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000;
+  }
+  location = /api/revalidate/cv {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000;
+  }
+  location = /api/revalidate/cv/ {
+    if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
+    proxy_pass http://127.0.0.1:4000;
+  }
   location = /api/revalidate/projects {
     if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
     proxy_pass http://127.0.0.1:4000;

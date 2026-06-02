@@ -1,10 +1,21 @@
 import type { GlobalConfig } from 'payload'
 
+import { triggerFrontendSiteRevalidate } from '../utils/triggerFrontendSiteRevalidate'
+
 // Site-wide contact info stored in CMS instead of secrets
 // We only store public-safe values here (phone), not sensitive secrets.
 export const ContactInfo: GlobalConfig = {
   slug: 'contactInfo',
   label: 'Contact Info',
+  hooks: {
+    afterChange: [
+      async () => {
+        await triggerFrontendSiteRevalidate('contactInfo.afterChange', {
+          warmPaths: ['/.well-known/security.txt'],
+        })
+      },
+    ],
+  },
   access: {
     // Do NOT expose raw values publicly; restrict admin API/UI access to admin role.
     // Public consumers must use the obfuscated API route instead.

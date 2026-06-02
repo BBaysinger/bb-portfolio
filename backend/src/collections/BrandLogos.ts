@@ -3,6 +3,9 @@ import path from 'path'
 
 import type { CollectionConfig, Where } from 'payload'
 
+import { buildProjectsWarmPaths, loadProjectsByBrandLogo } from '../utils/frontendRouteWarmup'
+import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+
 type OverwriteMeta = { alt?: string | null; logoType?: string | null }
 
 const resolveEnvProfile = () => (process.env.ENV_PROFILE || 'local').toLowerCase()
@@ -149,6 +152,30 @@ export const BrandLogos: CollectionConfig = {
           }
         }
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, req }) => {
+        const warmPaths = buildProjectsWarmPaths(
+          await loadProjectsByBrandLogo(req.payload, (doc as { id?: unknown })?.id),
+          { includeHome: true },
+        )
+
+        await triggerFrontendProjectRevalidate('brandLogos.afterChange', {
+          warmPaths,
+        })
+      },
+    ],
+    afterDelete: [
+      async ({ doc, req }) => {
+        const warmPaths = buildProjectsWarmPaths(
+          await loadProjectsByBrandLogo(req.payload, (doc as { id?: unknown })?.id),
+          { includeHome: true },
+        )
+
+        await triggerFrontendProjectRevalidate('brandLogos.afterDelete', {
+          warmPaths,
+        })
       },
     ],
   },

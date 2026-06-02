@@ -99,3 +99,41 @@ export const loadProjectsByBrand = async (
 
   return Array.isArray(result.docs) ? result.docs : []
 }
+
+export const loadProjectsByBrandLogo = async (
+  payload: Payload,
+  logoId: unknown,
+): Promise<ProjectRouteTarget[]> => {
+  const id = extractRelationId(logoId)
+  if (!id) return []
+
+  const brandResult = (await payload.find({
+    collection: 'project-brands',
+    where: {
+      or: [{ logoLight: { equals: id } }, { logoDark: { equals: id } }],
+    },
+    depth: 0,
+    limit: 1000,
+    overrideAccess: true,
+    disableErrors: true,
+  })) as { docs?: Array<{ id?: unknown }> }
+
+  const brandIds = (Array.isArray(brandResult.docs) ? brandResult.docs : [])
+    .map((brand) => extractRelationId(brand?.id))
+    .filter((brandId): brandId is string => Boolean(brandId))
+
+  if (brandIds.length === 0) return []
+
+  const projectResult = (await payload.find({
+    collection: 'projects',
+    where: {
+      brandId: { in: brandIds },
+    },
+    depth: 0,
+    limit: 1000,
+    overrideAccess: true,
+    disableErrors: true,
+  })) as ProjectLookupResult
+
+  return Array.isArray(projectResult.docs) ? projectResult.docs : []
+}
