@@ -23,10 +23,21 @@ const shouldSkipFrontendRevalidation = (): boolean => {
 }
 
 const resolveEndpoints = (): string[] => {
-  const explicit =
-    (process.env.FRONTEND_CV_REVALIDATE_URL || '').trim() ||
-    (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
-  if (explicit) return [explicit]
+  const explicitCv = (process.env.FRONTEND_CV_REVALIDATE_URL || '').trim()
+  if (explicitCv) return [explicitCv]
+
+  const explicitProjects = (process.env.FRONTEND_PROJECTS_REVALIDATE_URL || '').trim()
+  if (explicitProjects) {
+    try {
+      const url = new URL(explicitProjects)
+      url.pathname = '/api/revalidate/cv'
+      url.search = ''
+      url.hash = ''
+      return [url.toString()]
+    } catch {
+      // Fall through to origin-derived endpoints.
+    }
+  }
 
   const frontendUrls = getOrigins(process.env.FRONTEND_URL || '')
   if (frontendUrls.length > 0) {

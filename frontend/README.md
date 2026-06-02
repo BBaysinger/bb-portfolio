@@ -96,6 +96,8 @@ Useful root sections:
 
 The frontend can consume a pre-generated project snapshot during build to avoid live backend fetches for project SSG routes.
 
+Static-content snapshot input follows the same model: it is a hermetic build-phase input for branding, greeting, and CV content, not a runtime authority.
+
 This is useful when Docker/CI build jobs cannot reliably reach the backend service.
 
 Generate a snapshot locally (backend must be reachable):
@@ -117,6 +119,8 @@ PROJECT_DATA_SNAPSHOT_OUT=./tmp/project-data-snapshot.json BACKEND_INTERNAL_URL=
 ```
 
 The build reads snapshot data only when `PROJECT_DATA_SNAPSHOT_PATH` is set during the build phase (wired automatically in Docker builds when the optional `project_data_snapshot` secret is provided). Runtime project pages should read the live backend authority instead of this snapshot.
+
+Likewise, `STATIC_CONTENT_SNAPSHOT_PATH` is only consumed during the production build phase. Runtime ISR/regeneration reads the live backend authority so manual CMS edits in an environment can appear after frontend revalidation.
 
 For GitHub Actions image builds, store snapshot JSON in the secret:
 

@@ -20,6 +20,10 @@ export type StaticContentSnapshotEnvelope = {
   sourceProfile: string;
 };
 
+const isBuildPhaseSnapshotReadEnabled = (): boolean => {
+  return process.env.NEXT_PHASE === "phase-production-build";
+};
+
 const runtimeImport = <T>(specifier: string): Promise<T> => {
   const loader = Function(
     "moduleSpecifier",
@@ -80,6 +84,13 @@ let staticContentSnapshotPromise: Promise<StaticContentSnapshotEnvelope | null> 
 export const loadStaticContentSnapshot =
   async (): Promise<StaticContentSnapshotEnvelope | null> => {
     if (typeof window !== "undefined") {
+      return null;
+    }
+
+    // Static-content snapshots are a hermetic build input. Runtime ISR should
+    // read the live backend authority so production CMS edits can regenerate on
+    // revalidate instead of rebuilding from a stale copied snapshot.
+    if (!isBuildPhaseSnapshotReadEnabled()) {
       return null;
     }
 
