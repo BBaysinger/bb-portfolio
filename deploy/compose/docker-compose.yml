@@ -165,6 +165,10 @@ services:
     env_file:
       - ../../backend/.env.dev
     environment:
+      # Remote dev uses dev config/data but should still run the built Next runtime,
+      # not next dev. Pin NODE_ENV here so .env.dev cannot switch this deployed
+      # service into development mode.
+      - NODE_ENV=production
       - NEXT_DISABLE_TURBOPACK=1
       - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped # Auto-restart on failure/reboot
