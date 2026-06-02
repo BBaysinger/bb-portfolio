@@ -156,12 +156,12 @@
     "release:sync-only": "bash ./scripts/sync-branches.sh --no-version-bump"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.6",
+    "@next/eslint-plugin-next": "^16.2.7",
     "@types/glob": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "8.60.0",
-    "@typescript-eslint/parser": "8.60.0",
+    "@typescript-eslint/eslint-plugin": "8.60.1",
+    "@typescript-eslint/parser": "8.60.1",
     "baseline-browser-mapping": "^2.10.33",
-    "concurrently": "^10.0.0",
+    "concurrently": "^10.0.1",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -174,7 +174,7 @@
     "json5-manifest-sync": "^0.2.2",
     "prettier": "^3.8.3",
     "ts-node": "^10.9.2",
-    "tsx": "^4.22.3",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },
   "dependencies": {
