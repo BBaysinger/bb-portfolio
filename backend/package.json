@@ -1,6 +1,6 @@
 {
   "name": "bb-portfolio-backend",
-  "version": "0.0.82",
+  "version": "0.0.83",
   "description": "A blank template to get started with Payload 3.0",
   "license": "MIT",
   "type": "module",
