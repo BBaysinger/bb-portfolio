@@ -124,7 +124,7 @@ server {
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location = /admin {
     if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
-    return 308 /admin/;
+    proxy_pass http://127.0.0.1:3001;
   }
   location ^~ /admin/ {
     if (-f /var/run/bb-portfolio-maintenance-prod) { return 418; }
@@ -206,7 +206,7 @@ server {
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location = /admin {
     if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
-    return 308 /admin/;
+    proxy_pass http://127.0.0.1:4001;
   }
   location ^~ /admin/ {
     if (-f /var/run/bb-portfolio-maintenance-dev) { return 418; }
