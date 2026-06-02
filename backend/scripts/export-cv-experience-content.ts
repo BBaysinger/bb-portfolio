@@ -36,6 +36,7 @@ type ExperienceItem = {
   slug?: unknown
   section?: unknown
   position?: unknown
+  active?: unknown
 }
 
 type PayloadWithCvExperienceConfigGlobal = Payload & {
@@ -63,6 +64,7 @@ type NormalizedEntry = {
   description: string
   technicalScope: string
   date: string
+  active: boolean
   logo?: {
     file: string
     alt?: string
@@ -164,6 +166,7 @@ const normalizeEntry = (value: unknown): NormalizedEntry | null => {
     description,
     technicalScope,
     date,
+    active: item.active !== false,
     ...(logo ? { logo } : {}),
     bulletPoints: toBulletPoints(item.bulletPoints),
   }
@@ -189,6 +192,7 @@ const serializeEntry = (slug: string, entry: NormalizedEntry) => {
       description: entry.description,
       technicalScope: entry.technicalScope,
       date: entry.date,
+      active: entry.active,
       bulletPoints: entry.bulletPoints.map((bulletPoint) => ({
         text: bulletPoint.text,
         enabled: bulletPoint.enabled,
@@ -227,9 +231,6 @@ async function main() {
 
     const itemsResponse = await payload.find({
       collection: 'cvExperienceItems',
-      where: {
-        active: { equals: true },
-      },
       sort: 'position',
       depth: 1,
       limit: 500,

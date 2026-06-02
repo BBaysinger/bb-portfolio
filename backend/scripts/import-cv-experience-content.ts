@@ -44,6 +44,7 @@ type CvEntryInput = {
   technicalScope?: unknown
   date?: unknown
   bulletPoints?: unknown
+  active?: unknown
 }
 
 type NormalizedBulletPoint = {
@@ -59,6 +60,7 @@ type NormalizedCvEntry = {
   description: string
   technicalScope: string
   date: string
+  active: boolean
   logoFile?: string
   logoAlt?: string
   bulletPoints: NormalizedBulletPoint[]
@@ -161,6 +163,7 @@ const loadCvEntry = (sectionDir: string, slug: string) => {
     description: asNonEmptyString(entry.description, 'description', filePath),
     technicalScope: asNonEmptyString(entry.technicalScope, 'technicalScope', filePath),
     date: asNonEmptyString(entry.date, 'date', filePath),
+    active: typeof entry.active === 'boolean' ? entry.active : true,
     logoFile:
       logo?.file === undefined ? undefined : asNonEmptyString(logo.file, 'logo.file', filePath),
     logoAlt: logo?.alt === undefined ? undefined : asNonEmptyString(logo.alt, 'logo.alt', filePath),
@@ -239,7 +242,7 @@ const mapCvEntryToDoc = async (
     slug: entry.slug,
     section,
     position,
-    active: true,
+    active: entry.active,
     logo: logoId ?? null,
     company: entry.company,
     location: entry.location,

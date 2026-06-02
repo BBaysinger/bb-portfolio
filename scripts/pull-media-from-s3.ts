@@ -179,12 +179,12 @@ function resolveSnapshotRoot(snapshotRoot?: string): ResolvedSnapshotRoot {
     };
   }
 
-  const snapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
-  if (snapshotRoot) {
+  const envSnapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
+  if (envSnapshotRoot) {
     return {
-      path: path.isAbsolute(snapshotRoot)
-        ? snapshotRoot
-        : path.resolve(repoRoot, snapshotRoot),
+      path: path.isAbsolute(envSnapshotRoot)
+        ? envSnapshotRoot
+        : path.resolve(repoRoot, envSnapshotRoot),
       source: "snapshot-env",
     };
   }
