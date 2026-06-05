@@ -308,6 +308,8 @@
     "media:upload:both": "tsx scripts/upload-media-to-s3.ts --env both",
     // 🧪 Dry run: show planned dev+prod uploads (no S3 writes)
     "media:upload:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
+    // 🧪 Smoke test: verify the media freshness guards catch stale overwrites
+    "media:guards:smoke": "bash scripts/test-media-freshness-guards.sh",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
     // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
@@ -421,7 +423,7 @@
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.33",
     // Run multiple commands concurrently in scripts
-    "concurrently": "^10.0.1",
+    "concurrently": "^10.0.3",
     // Main linter for JS/TS code
     "eslint": "^9.39.4",
     // ESLint plugin for import/export syntax validation

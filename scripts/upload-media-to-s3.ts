@@ -14,7 +14,8 @@
  *   npm run media:upload -- --dry-run --env dev
  */
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
@@ -68,6 +69,11 @@ interface Options {
   region?: string;
   tfvarsPath?: string;
 }
+
+type ResolvedSnapshotRoot = {
+  path: string;
+  source: "snapshot-env" | "default";
+};
 
 function parseArgs(): Options {
   const args = process.argv.slice(2);
@@ -196,6 +202,125 @@ function checkPrerequisites() {
   }
 }
 
+function resolveSnapshotRoot(): ResolvedSnapshotRoot {
+  const envSnapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
+  if (envSnapshotRoot) {
+    return {
+      path: path.isAbsolute(envSnapshotRoot)
+        ? envSnapshotRoot
+        : path.resolve(repoRoot, envSnapshotRoot),
+      source: "snapshot-env",
+    };
+  }
+
+  return {
+    path: path.resolve(repoRoot, "../cms-media-seedings"),
+    source: "default",
+  };
+}
+
+function listCollectionFiles(rootDir: string, relativeDir = ""): string[] {
+  const currentDir = path.join(rootDir, relativeDir);
+  const entries = readdirSync(currentDir, { withFileTypes: true });
+  const results: string[] = [];
+
+  for (const entry of entries) {
+    const entryRelativePath = path.join(relativeDir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...listCollectionFiles(rootDir, entryRelativePath));
+      continue;
+    }
+    if (entry.isFile()) {
+      results.push(entryRelativePath);
+    }
+  }
+
+  return results;
+}
+
+function sha256File(filePath: string): string {
+  return createHash("sha256").update(readFileSync(filePath)).digest("hex");
+}
+
+function resolveSnapshotFilePath(
+  snapshotRoot: string,
+  collection: MediaCollection,
+  relativePath: string,
+): string | null {
+  const candidates = [
+    path.join(snapshotRoot, collection, relativePath),
+    path.join(snapshotRoot, "images", collection, relativePath),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate) && statSync(candidate).isFile()) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function validateSnapshotFreshness(collections: MediaCollection[]) {
+  const resolvedSnapshotRoot = resolveSnapshotRoot();
+  if (!existsSync(resolvedSnapshotRoot.path)) {
+    console.info(
+      `\nSnapshot freshness check skipped: no snapshot root at ${resolvedSnapshotRoot.path}`,
+    );
+    return;
+  }
+
+  const conflicts: string[] = [];
+
+  for (const collection of collections) {
+    const localCollectionDir = path.join(repoRoot, "backend/media", collection);
+    if (!existsSync(localCollectionDir)) continue;
+
+    for (const relativePath of listCollectionFiles(localCollectionDir)) {
+      const localFilePath = path.join(localCollectionDir, relativePath);
+      const snapshotFilePath = resolveSnapshotFilePath(
+        resolvedSnapshotRoot.path,
+        collection,
+        relativePath,
+      );
+      if (!snapshotFilePath) continue;
+
+      const localStat = statSync(localFilePath);
+      const snapshotStat = statSync(snapshotFilePath);
+      if (snapshotStat.mtimeMs <= localStat.mtimeMs) continue;
+
+      if (sha256File(localFilePath) === sha256File(snapshotFilePath)) continue;
+
+      conflicts.push(
+        `${collection}/${relativePath} local=${new Date(localStat.mtimeMs).toISOString()} snapshot=${new Date(snapshotStat.mtimeMs).toISOString()}`,
+      );
+    }
+  }
+
+  if (conflicts.length === 0) {
+    console.info(
+      `\nSnapshot freshness check passed against ${resolvedSnapshotRoot.path} (${resolvedSnapshotRoot.source}).`,
+    );
+    return;
+  }
+
+  const preview = conflicts
+    .slice(0, 10)
+    .map((entry) => `  - ${entry}`)
+    .join("\n");
+  const suffix =
+    conflicts.length > 10
+      ? `\n  ... ${conflicts.length - 10} more conflict(s)`
+      : "";
+
+  throw new Error(
+    "Refusing media upload because backend/media contains older overlapping files than the snapshot root. Reconcile backend/media with the newer snapshot files before uploading.\n" +
+      `Snapshot root: ${resolvedSnapshotRoot.path}\n` +
+      preview +
+      suffix,
+  );
+}
+
 function syncCollection(
   collection: string,
   environment: Environment,
@@ -300,6 +425,7 @@ async function main() {
   console.info("================================");
 
   checkPrerequisites();
+  validateSnapshotFreshness(options.collections);
 
   // Show summary of what will be uploaded
   console.info("\nMedia files summary:");

@@ -78,9 +78,9 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1058.0",
+    "@aws-sdk/client-ses": "^3.1062.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.973.9",
+    "@aws-sdk/types": "^3.973.10",
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.85.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)

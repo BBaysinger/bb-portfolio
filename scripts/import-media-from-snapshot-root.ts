@@ -19,6 +19,7 @@
  *   npm run media:seed -- --snapshot-root ../cms-media-seedings
  *   CMS_SNAPSHOT_ROOT=../cms-snapshots/_interactive-dev-w-outcomes npm run media:seed
  */
+import { createHash } from "node:crypto";
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -134,6 +135,16 @@ async function ensureDir(dir: string) {
   await fs.mkdir(dir, { recursive: true });
 }
 
+async function sha256File(filePath: string): Promise<string> {
+  return createHash("sha256")
+    .update(await fs.readFile(filePath))
+    .digest("hex");
+}
+
+function formatMtime(timestampMs: number): string {
+  return new Date(timestampMs).toISOString();
+}
+
 async function copyDirFiltered(src: string, dest: string): Promise<number> {
   if (!(await exists(src))) return 0;
   await ensureDir(dest);
@@ -147,12 +158,27 @@ async function copyDirFiltered(src: string, dest: string): Promise<number> {
     } else {
       const ext = path.extname(entry.name).toLowerCase();
       if (IMAGE_EXTS.has(ext)) {
-        try {
-          await fs.copyFile(s, d);
-          count++;
-        } catch {
-          // ignore per-file copy errors
+        if (await exists(d)) {
+          const [sourceStat, destStat] = await Promise.all([
+            fs.stat(s),
+            fs.stat(d),
+          ]);
+          if (sourceStat.mtimeMs < destStat.mtimeMs) {
+            const [sourceHash, destHash] = await Promise.all([
+              sha256File(s),
+              sha256File(d),
+            ]);
+            if (sourceHash !== destHash) {
+              throw new Error(
+                "Refusing media:seed because an older local seedings file would overwrite newer backend/media state.\n" +
+                  `Snapshot file: ${s} (${formatMtime(sourceStat.mtimeMs)})\n` +
+                  `Local file: ${d} (${formatMtime(destStat.mtimeMs)})`,
+              );
+            }
+          }
         }
+        await fs.copyFile(s, d);
+        count++;
       }
     }
   }

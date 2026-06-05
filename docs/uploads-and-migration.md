@@ -61,7 +61,7 @@ If you use the same snapshot root regularly, set `CMS_SNAPSHOT_ROOT` once in rep
 
 Keep `PORTFOLIO_CONTENT_DIR` reserved for authored YAML/content workflows. Media scripts do not read it.
 
-In this repo, `CMS_SNAPSHOT_ROOT` is the external, versionable CMS snapshot on disk. "Seed" is just the local hydration verb: copy asset collections from that snapshot root into `backend/media`. If your canonical working source is under `../cms-snapshots/<target>`, seeding is one step within that snapshot-driven workflow.
+In this repo, `CMS_SNAPSHOT_ROOT` is the external, versionable CMS snapshot on disk. "Seed" is just the local hydration verb: copy asset collections from that snapshot root into `backend/media`. The preferred operating pattern is local-first: pull from whichever environment is the current upstream source into `local`, snapshot that local state into the seedings/snapshot root, then hydrate `backend/media` from the snapshot. That is the preferred workflow, not a claim that every snapshot root must always be local-derived. If your canonical working source is under `../cms-snapshots/<target>`, seeding is one step within that snapshot-driven workflow.
 
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
@@ -121,6 +121,8 @@ Then run the same import:
 ```
 npm run media:seed
 ```
+
+Snapshot roots are treated as collection state, not just a scratch folder. The local seedings directory can copy files into `backend/media` via `media:seed`, and `media:upload` can later publish `backend/media` to S3. To reduce stale overwrite risk, `media:seed` now stops and fails loudly if an older local seedings file would overwrite a newer `backend/media` file when the content differs, and `media:upload` stops and fails loudly if an overlapping seedings file is newer than the local `backend/media` file and the content differs.
 
 To pull production media into a non-default snapshot root, use the `--snapshot-root` flag:
 
