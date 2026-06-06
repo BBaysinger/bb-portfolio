@@ -10,12 +10,11 @@ Authority model:
 - Runtime authority and authoring origin are different concepts in this repo.
 - Runtime authority: each environment should render CMS-managed content from that same environment's live CMS/API unless a route is explicitly documented as snapshot-published.
 - Authoring origin: the team may choose `local`, `dev`, or `prod` as the current source for the next intended content change before promotion.
-- Preferred operational pattern for media: pull the chosen source environment into `local` first, then snapshot from `local` into the local seedings/snapshot root, then hydrate `backend/media` from that snapshot root. This is the preferred normalization path, not a hard requirement that every snapshot root must always be derived from `local`.
+- Preferred operational pattern for media: pull the chosen source environment into `local` first, then snapshot from `local` into the `cms-snapshot` root, then import `backend/media` from that snapshot root. This is the preferred normalization path, not a hard requirement that every snapshot root must always be derived from `local`.
 - Local CMS state is authoritative for `content:migrate` when the source is `local`, but only as the migration source for that operation. It does not make local the runtime authority for `dev` or `prod`.
 - Direct edits made in an environment are expected to appear immediately in that same environment. Later promotions from the current authoring origin may intentionally overwrite those edits.
-- `../cms-media-seedings` is the default hydration source for local media workflows, not the source of truth for local migrate.
 - Canonical local YAML snapshots live at the configured `PORTFOLIO_CONTENT_DIR`; non-local pull/export runs must target an explicit alternate directory and cannot overwrite that canonical local snapshot.
-- In this repo, `CMS_SNAPSHOT_ROOT` names the external, versionable filesystem representation of CMS state. In normal operation the team usually normalizes through `local` first, even when `dev` or `prod` was the original upstream source, but the snapshot root is conceptually environment-agnostic. "Media seeding" is the hydration step that copies asset collections from that snapshot root into local `backend/media`.
+- In this repo, `CMS_SNAPSHOT_ROOT` names the external, versionable `cms-snapshot` root. In normal operation the team usually normalizes through `local` first, even when `dev` or `prod` was the original upstream source, but the snapshot root is conceptually environment-agnostic. `media:import` copies asset collections from that snapshot root into local `backend/media`.
 
 Default content source:
 
@@ -23,7 +22,7 @@ Default content source:
 - Preferred override: set `PORTFOLIO_CONTENT_DIR` once in repo `.env.local`.
 - `PORTFOLIO_CONTENT_DIR` is for authored content roots.
 - `CMS_SNAPSHOT_ROOT` is for the external snapshot root when media hydration should read from a versioned snapshot directory.
-- `npm run media:seed` uses sibling `../cms-media-seedings` by default, or `CMS_SNAPSHOT_ROOT` when set.
+- `npm run media:import` requires `CMS_SNAPSHOT_ROOT`, unless you pass `--snapshot-root` for a one-off run.
 
 Recommended local setup:
 
@@ -160,21 +159,21 @@ For operator-facing commands, prefer the `content:apply-authored:*:content-dir` 
 
 The `ALLOW_DEV_WRITE=true` and `ALLOW_PROD_WRITE=true` prefixes satisfy the required write guards for remote targets. They do not disable other safety checks. Production writes still require the separate production confirmation step.
 
-`content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target and it does not automatically run authored-content imports. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local seeding/export tasks.
+`content:migrate` uses an internal temporary staging directory. It does not depend on your configured `PORTFOLIO_CONTENT_DIR` target and it does not automatically run authored-content imports. `PORTFOLIO_CONTENT_DIR` remains the canonical root for explicit pull/import workflows and local `cms-snapshot` export tasks.
 
 When `content:migrate` stages local media, it copies from `backend/media` and treats that local media state as authoritative. If the resolved snapshot root exists and overlapping files have different hashes, the migrate run stops before writing so local runtime media and snapshot-root assets can be reconciled intentionally.
 
-`media:seed` now also guards the local seedings import path. When the resolved snapshot root (`CMS_SNAPSHOT_ROOT` or sibling `../cms-media-seedings`) contains an older file than the existing `backend/media` copy and the hashes differ, the import stops and fails loudly instead of overwriting the newer local file.
+`media:import` now also guards the local `cms-snapshot` import path. When the resolved snapshot root contains an older file than the existing `backend/media` copy and the hashes differ, the import stops and fails loudly instead of overwriting the newer local file.
 
-`media:upload` performs the complementary guard in the opposite direction. Before syncing `backend/media` to S3, it checks the resolved snapshot root (usually the local seedings directory) for overlapping files. If a snapshot-root file is newer than the local `backend/media` copy and the hashes differ, the upload stops and fails loudly instead of letting an older local file overwrite a newer snapshot asset.
+`media:upload` performs the complementary guard in the opposite direction. Before syncing `backend/media` to S3, it checks the resolved `cms-snapshot` root for overlapping files. If a snapshot-root file is newer than the local `backend/media` copy and the hashes differ, the upload stops and fails loudly instead of letting an older local file overwrite a newer snapshot asset.
 
 Treat snapshot-root media as full collection state, not passive reference material. If it is newer than `backend/media`, reconcile intentionally first by importing/pulling the newer state rather than bulk-uploading from stale local files.
 
 Alternate directory examples:
 
-- `npm run media:seed -- --snapshot-root ../cms-media-seedings`
-- `npm run media:pull:prod:cv-experience-logos -- --snapshot-root ../cms-media-seedings`
-- `npm run media:pull:prod:project-brand-logos -- --snapshot-root ../cms-media-seedings`
+- `npm run media:import -- --snapshot-root ../cms-snapshots/local`
+- `npm run media:pull:prod:cv-experience-logos -- --snapshot-root ../cms-snapshots/_prod-compare`
+- `npm run media:pull:prod:project-brand-logos -- --snapshot-root ../cms-snapshots/_prod-compare`
 
 If you switch variants often, change `PORTFOLIO_CONTENT_DIR` in `.env.local`.
 

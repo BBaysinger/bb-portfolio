@@ -257,11 +257,11 @@
     "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
     // 🪄 Export the full dev dataset into the configured content root
     "content:pull:dev:content-dir": "bash ./scripts/content-workflow.sh pull-dev",
-    // 🪄 Pull both authored production project descriptions and CV experience seedings in one run
-    "content:pull:prod:all": "npm run content:pull:prod:content-dir",
-    // 🧪 Dry run: preview all authored production content pulls
-    "content:pull:prod:all:dry": "npm run content:pull:prod:content-dir:dry",
-    // 🪄 Import a target content root into local: seed media then import project descriptions and CV content.
+    //
+    "content:pull:local:all": "bash ./scripts/content-workflow.sh pull-local-all",
+    //
+    "content:pull:dev:all": "bash ./scripts/content-workflow.sh pull-dev-all",
+    // 🪄 Import a target content root into local: import media from the cms-snapshot, then import project descriptions and CV content.
     // Use these content:import:* commands when you intend to apply authored content from PORTFOLIO_CONTENT_DIR; migrate does not do that for you.
     // Content-root resolution and validation are centralized in scripts/content-workflow.sh.
     "content:import:local:content-dir": "bash ./scripts/content-workflow.sh import-local",
@@ -280,7 +280,11 @@
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     // 🧪 Dry-run variant of content:pull:prod:content-dir.
     "content:pull:prod:content-dir:dry": "bash ./scripts/content-workflow.sh pull-prod-dry",
-    // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:seed.
+    // 🪄 Pull both authored production project descriptions and CV experience content in one run
+    "content:pull:prod:all": "bash ./scripts/content-workflow.sh pull-prod-all",
+    // 🧪 Dry run: preview all authored production content pulls
+    "content:pull:prod:all:dry": "bash ./scripts/content-workflow.sh pull-prod-all-dry",
+    // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:import.
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Pull media assets from S3 using the script defaults
     "media:pull": "tsx scripts/pull-media-from-s3.ts",
@@ -292,8 +296,8 @@
     "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
     // 🧪 Dry run: preview production project brand logo downloads without writing files
     "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
-    // 🪄 Import images from ../cms-media-seedings into backend/media/* for local dev
-    "media:seed": "tsx scripts/import-media-from-snapshot-root.ts",
+    // 🪄 Import images from the active CMS snapshot root into backend/media/* for local dev
+    "media:import": "tsx scripts/import-media-from-snapshot-root.ts",
     // Upload media using the script defaults or explicit CLI flags.
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     // 🪄 Upload media only to the development S3 bucket

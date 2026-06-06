@@ -30,11 +30,11 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation sh ./scripts/generate-importmap-stable.sh",
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    // Export CV experience global content into the external seedings folder.
+    // Export CV experience global content into the external cms-snapshot root.
     "export:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-cv-experience-content.ts",
-    // Export project description paragraphs into the external seedings folder.
+    // Export project description paragraphs into the external cms-snapshot root.
     "export:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-project-descriptions-content.ts",
-    // Apply/import authored CV experience content from the external seedings folder into Payload.
+    // Apply/import authored CV experience content from the external cms-snapshot root into Payload.
     // This is not a CMS database migration command.
     "import:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-cv-experience-content.ts",
     // Apply/import authored CV experience content into the local backend environment.
@@ -43,7 +43,7 @@
     // Apply/import authored CV experience content into the dev backend environment.
     // This is not a CMS database migration command.
     "import:cv-content:dev": "npm run import:cv-content -- --env dev",
-    // Apply/import authored project description paragraphs from the external seedings folder into Payload.
+    // Apply/import authored project description paragraphs from the external cms-snapshot root into Payload.
     // This is not a CMS database migration command.
     "import:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-project-descriptions-content.ts",
     // Apply/import authored project descriptions into the local backend environment.

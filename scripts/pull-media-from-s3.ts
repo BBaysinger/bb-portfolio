@@ -2,10 +2,8 @@
 /**
  * Pull media files from an S3 media bucket into the external CMS snapshot root.
  *
- * Default destination:
- *   ../cms-media-seedings/<collection>/
- *
- * If `CMS_SNAPSHOT_ROOT` is set, collections are written under that snapshot root instead.
+ * Destination:
+ *   CMS_SNAPSHOT_ROOT/<collection>/ unless --snapshot-root overrides it.
  *
  * Supported collections:
  * - project-brand-logos
@@ -22,19 +20,16 @@ import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { ensureAwsCredentials } from "./lib/aws-creds";
+import {
+  MEDIA_COLLECTIONS,
+  ensureMediaCollection,
+} from "./lib/media-collections";
 
 const scriptDir = path.dirname(__filename);
 const repoRoot = path.resolve(scriptDir, "..");
 
-const MEDIA_COLLECTIONS = [
-  "project-brand-logos",
-  "cv-experience-logos",
-  "project-screenshots",
-  "project-thumbnails",
-] as const;
-
 type Environment = "dev" | "prod";
-type MediaCollection = (typeof MEDIA_COLLECTIONS)[number];
+type MediaCollection = string;
 
 const SOURCE_PREFIX_BY_COLLECTION: Record<MediaCollection, string> = {
   "project-brand-logos": "brand-logos",
@@ -55,7 +50,7 @@ interface Options {
 
 type ResolvedSnapshotRoot = {
   path: string;
-  source: "flag" | "snapshot-env" | "default";
+  source: "flag" | "snapshot-env";
 };
 
 function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
@@ -105,13 +100,11 @@ function parseArgs(): Options {
         break;
       }
       case "--collection": {
-        const value = args[++index] as MediaCollection;
-        if (!MEDIA_COLLECTIONS.includes(value)) {
-          throw new Error(
-            `Invalid collection: ${value}. Use one of: ${MEDIA_COLLECTIONS.join(", ")}`,
-          );
+        const value = args[++index];
+        if (!value) {
+          throw new Error("Missing value for --collection.");
         }
-        collection = value;
+        collection = ensureMediaCollection(value);
         break;
       }
       case "--dry-run":
@@ -180,18 +173,17 @@ function resolveSnapshotRoot(snapshotRoot?: string): ResolvedSnapshotRoot {
   }
 
   const envSnapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
-  if (envSnapshotRoot) {
-    return {
-      path: path.isAbsolute(envSnapshotRoot)
-        ? envSnapshotRoot
-        : path.resolve(repoRoot, envSnapshotRoot),
-      source: "snapshot-env",
-    };
+  if (!envSnapshotRoot) {
+    throw new Error(
+      "CMS_SNAPSHOT_ROOT is required when --snapshot-root is not provided.",
+    );
   }
 
   return {
-    path: path.resolve(repoRoot, "../cms-media-seedings"),
-    source: "default",
+    path: path.isAbsolute(envSnapshotRoot)
+      ? envSnapshotRoot
+      : path.resolve(repoRoot, envSnapshotRoot),
+    source: "snapshot-env",
   };
 }
 
@@ -211,9 +203,9 @@ function syncCollection(options: Options) {
   const bucket = resolveBucket(options.environment, {
     tfvarsPath: options.tfvarsPath,
   });
-  const resolvedSeedingsRoot = resolveSnapshotRoot(options.snapshotRoot);
+  const resolvedSnapshotRoot = resolveSnapshotRoot(options.snapshotRoot);
   const destinationDir = path.resolve(
-    resolvedSeedingsRoot.path,
+    resolvedSnapshotRoot.path,
     options.collection,
   );
 
@@ -221,7 +213,7 @@ function syncCollection(options: Options) {
   ensureAwsCredentials({ profile: options.profile, region: options.region });
 
   console.info(
-    `Resolved snapshot destination (${resolvedSeedingsRoot.source}): ${resolvedSeedingsRoot.path}`,
+    `Resolved snapshot destination (${resolvedSnapshotRoot.source}): ${resolvedSnapshotRoot.path}`,
   );
 
   const sourcePrefix = SOURCE_PREFIX_BY_COLLECTION[options.collection];

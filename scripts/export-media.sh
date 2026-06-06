@@ -17,8 +17,14 @@ if [[ -z "$WORK_BASE" || ! -d "$WORK_BASE" ]]; then
   exit 2
 fi
 
-# Output base: CMS_SNAPSHOT_ROOT when set, otherwise sibling to repo -> ../cms-media-seedings
-SNAPSHOT_BASE_RAW="${CMS_SNAPSHOT_ROOT:-${REPO_DIR}/../cms-media-seedings}"
+# Output base: explicit CMS snapshot root only
+if [[ -z "${CMS_SNAPSHOT_ROOT:-}" ]]; then
+  echo "Error: CMS_SNAPSHOT_ROOT is required for media export." >&2
+  echo "Point it at the active cms-snapshots target before running media:export." >&2
+  exit 2
+fi
+
+SNAPSHOT_BASE_RAW="$CMS_SNAPSHOT_ROOT"
 if [[ "$SNAPSHOT_BASE_RAW" = /* ]]; then
   SEED_BASE="$SNAPSHOT_BASE_RAW"
 else

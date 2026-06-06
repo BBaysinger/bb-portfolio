@@ -1,0 +1,4 @@
+project-brand-logos
+cv-experience-logos
+project-screenshots
+project-thumbnails

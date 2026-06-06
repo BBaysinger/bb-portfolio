@@ -78,7 +78,7 @@ Flat working inventory of notable features and technical systems
 
 - Sprite sheet image processing scripts (exporter work extracted to [BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations))
 - Sharp-backed image processing and upload size limits
-- Media hydration/import pipeline from external snapshot roots (`media:seed`)
+- Media import pipeline from external `cms-snapshot` roots (`media:import`)
 - Image export pipeline to external seed folders/WebP outputs (`media:export`)
 - PSD/WebP export script with optional opacity-to-matte flattening for transparent artwork variants
 - Local filesystem storage for local profile

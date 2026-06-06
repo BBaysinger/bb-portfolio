@@ -48,20 +48,20 @@ Note on `:dry` scripts: `migrate:all:<env>:dry` and `media:upload:<env>:dry` now
 - To import assets from your external snapshot root into `backend/media/*`, use:
 
 ```
-npm run media:seed
+npm run media:import
 ```
 
 You can also target a different snapshot root for one run:
 
 ```
-npm run media:seed -- --snapshot-root ../cms-media-seedings
+npm run media:import -- --snapshot-root ../cms-snapshots/local
 ```
 
 If you use the same snapshot root regularly, set `CMS_SNAPSHOT_ROOT` once in repo `.env.local` instead of overriding it on each command.
 
 Keep `PORTFOLIO_CONTENT_DIR` reserved for authored YAML/content workflows. Media scripts do not read it.
 
-In this repo, `CMS_SNAPSHOT_ROOT` is the external, versionable CMS snapshot on disk. "Seed" is just the local hydration verb: copy asset collections from that snapshot root into `backend/media`. The preferred operating pattern is local-first: pull from whichever environment is the current upstream source into `local`, snapshot that local state into the seedings/snapshot root, then hydrate `backend/media` from the snapshot. That is the preferred workflow, not a claim that every snapshot root must always be local-derived. If your canonical working source is under `../cms-snapshots/<target>`, seeding is one step within that snapshot-driven workflow.
+In this repo, `CMS_SNAPSHOT_ROOT` is the external, versionable `cms-snapshot` root on disk. `media:import` copies asset collections from that snapshot root into `backend/media`. The preferred operating pattern is local-first: pull from whichever environment is the current upstream source into `local`, snapshot that local state into the `cms-snapshot` root, then import `backend/media` from that snapshot. That is the preferred workflow, not a claim that every snapshot root must always be local-derived. If your canonical working source is under `../cms-snapshots/<target>`, `media:import` is one step within that snapshot-driven workflow.
 
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
@@ -70,7 +70,7 @@ This script copies files into `backend/media/*` for local dev only. It won't com
 Most of the time you want one of these flows:
 
 - **Fresh local clone (filesystem uploads only)**
-  - Seed local media from your external snapshot root: `npm run media:seed`
+  - Import local media from your `cms-snapshot` root: `npm run media:import`
   - Start the stack (Docker or bare metal) and upload media through Payload as usual.
 
 - **First-time S3 setup for an environment (dev/prod)**
@@ -100,16 +100,16 @@ Advanced / recovery scripts (manual, use with care):
 
 ### Importing from an external snapshot root
 
-If you keep non-checked-in working assets outside the repo, place them under your snapshot root. The default is sibling `../cms-media-seedings`, but snapshot-driven workflows will often point `CMS_SNAPSHOT_ROOT` at `../cms-snapshots/<target>`. Supported layouts include either flat or under an `images/` folder. For example:
+If you keep non-checked-in working assets outside the repo, place them under your snapshot root. Point `CMS_SNAPSHOT_ROOT` at that directory, often something like `../cms-snapshots/<target>`. Supported layouts include either flat or under an `images/` folder. For example:
 
 ```
-../cms-media-seedings/
+../cms-snapshots/local/
   project-brand-logos/
   cv-experience-logos/
   project-screenshots/
   project-thumbnails/
 # or
-../cms-media-seedings/images/
+../cms-snapshots/local/images/
   project-brand-logos/
   cv-experience-logos/
   project-screenshots/
@@ -119,16 +119,16 @@ If you keep non-checked-in working assets outside the repo, place them under you
 Then run the same import:
 
 ```
-npm run media:seed
+npm run media:import
 ```
 
-Snapshot roots are treated as collection state, not just a scratch folder. The local seedings directory can copy files into `backend/media` via `media:seed`, and `media:upload` can later publish `backend/media` to S3. To reduce stale overwrite risk, `media:seed` now stops and fails loudly if an older local seedings file would overwrite a newer `backend/media` file when the content differs, and `media:upload` stops and fails loudly if an overlapping seedings file is newer than the local `backend/media` file and the content differs.
+Snapshot roots are treated as collection state, not just a scratch folder. The local `cms-snapshot` directory can copy files into `backend/media` via `media:import`, and `media:upload` can later publish `backend/media` to S3. To reduce stale overwrite risk, `media:import` now stops and fails loudly if an older `cms-snapshot` file would overwrite a newer `backend/media` file when the content differs, and `media:upload` stops and fails loudly if an overlapping `cms-snapshot` file is newer than the local `backend/media` file and the content differs.
 
 To pull production media into a non-default snapshot root, use the `--snapshot-root` flag:
 
 ```
-npm run media:pull:prod:cv-experience-logos -- --snapshot-root ../cms-media-seedings
-npm run media:pull:prod:project-brand-logos -- --snapshot-root ../cms-media-seedings
+npm run media:pull:prod:cv-experience-logos -- --snapshot-root ../cms-snapshots/_prod-compare
+npm run media:pull:prod:project-brand-logos -- --snapshot-root ../cms-snapshots/_prod-compare
 ```
 
 For backend-authored content pulls and imports, the root content workflow commands read `PORTFOLIO_CONTENT_DIR` from your shell or repo `.env.local`/`.env`:

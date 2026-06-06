@@ -15,28 +15,25 @@
  * or with an intermediate images/ folder, e.g. images/project-brand-logos, etc.
  *
  * Usage:
- *   npm run media:seed
- *   npm run media:seed -- --snapshot-root ../cms-media-seedings
- *   CMS_SNAPSHOT_ROOT=../cms-snapshots/_interactive-dev-w-outcomes npm run media:seed
+ *   npm run media:import
+ *   npm run media:import -- --snapshot-root ../cms-snapshots/local
+ *   CMS_SNAPSHOT_ROOT=../cms-snapshots/_interactive-dev-w-outcomes npm run media:import
  */
 import { createHash } from "node:crypto";
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import {
+  MEDIA_COLLECTIONS,
+  ensureMediaCollection,
+} from "./lib/media-collections";
+
 const IMAGE_EXTS = new Set([".webp", ".png", ".jpg", ".jpeg", ".svg"]);
-
-const SUPPORTED_COLLECTIONS = [
-  "project-brand-logos",
-  "cv-experience-logos",
-  "project-screenshots",
-  "project-thumbnails",
-] as const;
-
-type SupportedCollection = (typeof SUPPORTED_COLLECTIONS)[number];
+type SupportedCollection = string;
 type ResolvedSnapshotRoot = {
   path: string;
-  source: "flag" | "snapshot-env" | "default";
+  source: "flag" | "snapshot-env";
 };
 
 function parseArgs() {
@@ -46,6 +43,23 @@ function parseArgs() {
 
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
+
+    if (arg === "--help" || arg === "-h") {
+      console.info(`
+Usage: npm run media:import -- [options]
+
+Options:
+  --snapshot-root <path> Override the cms-snapshot root for this run
+  --collection <name>    Limit import to a specific media collection (repeatable)
+  --help, -h             Show help
+
+Examples:
+  npm run media:import
+  npm run media:import -- --snapshot-root ../cms-snapshots/local
+  npm run media:import -- --collection project-thumbnails
+      `);
+      process.exit(0);
+    }
 
     if (arg === "--snapshot-root") {
       snapshotRoot = args[index + 1];
@@ -59,29 +73,19 @@ function parseArgs() {
     }
 
     if (arg === "--collection") {
-      const collection = args[index + 1] as SupportedCollection | undefined;
-      if (!collection || !SUPPORTED_COLLECTIONS.includes(collection)) {
-        console.error(
-          `Invalid collection: ${collection ?? ""}. Use one of: ${SUPPORTED_COLLECTIONS.join(", ")}`,
-        );
+      const collection = args[index + 1];
+      if (!collection) {
+        console.error("Missing value for --collection.");
         process.exit(1);
       }
-      collections.add(collection);
+      collections.add(ensureMediaCollection(collection));
       index++;
       continue;
     }
 
     if (arg.startsWith("--collection=")) {
-      const collection = arg.slice(
-        "--collection=".length,
-      ) as SupportedCollection;
-      if (!SUPPORTED_COLLECTIONS.includes(collection)) {
-        console.error(
-          `Invalid collection: ${collection}. Use one of: ${SUPPORTED_COLLECTIONS.join(", ")}`,
-        );
-        process.exit(1);
-      }
-      collections.add(collection);
+      const collection = arg.slice("--collection=".length);
+      collections.add(ensureMediaCollection(collection));
       continue;
     }
   }
@@ -89,7 +93,7 @@ function parseArgs() {
   return {
     snapshotRoot,
     collections:
-      collections.size > 0 ? [...collections] : [...SUPPORTED_COLLECTIONS],
+      collections.size > 0 ? [...collections] : [...MEDIA_COLLECTIONS],
   };
 }
 
@@ -107,18 +111,17 @@ function resolveSnapshotRoot(
   }
 
   const snapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
-  if (snapshotRoot) {
-    return {
-      path: path.isAbsolute(snapshotRoot)
-        ? snapshotRoot
-        : path.resolve(root, snapshotRoot),
-      source: "snapshot-env",
-    };
+  if (!snapshotRoot) {
+    throw new Error(
+      "CMS_SNAPSHOT_ROOT is required when --snapshot-root is not provided.",
+    );
   }
 
   return {
-    path: path.join(root, "..", "cms-media-seedings"),
-    source: "default",
+    path: path.isAbsolute(snapshotRoot)
+      ? snapshotRoot
+      : path.resolve(root, snapshotRoot),
+    source: "snapshot-env",
   };
 }
 
@@ -170,8 +173,8 @@ async function copyDirFiltered(src: string, dest: string): Promise<number> {
             ]);
             if (sourceHash !== destHash) {
               throw new Error(
-                "Refusing media:seed because an older local seedings file would overwrite newer backend/media state.\n" +
-                  `Snapshot file: ${s} (${formatMtime(sourceStat.mtimeMs)})\n` +
+                "Refusing media:import because an older cms-snapshot file would overwrite newer backend/media state.\n" +
+                  `CMS snapshot file: ${s} (${formatMtime(sourceStat.mtimeMs)})\n` +
                   `Local file: ${d} (${formatMtime(destStat.mtimeMs)})`,
               );
             }
@@ -202,7 +205,7 @@ async function main() {
   }
   if (!sourceRoot) {
     console.error(
-      "No media source folder found. Create ../cms-media-seedings next to the repo, pass --snapshot-root, or set CMS_SNAPSHOT_ROOT in .env.local/.env.",
+      "No media source folder found at the resolved CMS snapshot root.",
     );
     process.exit(2);
   }
@@ -253,7 +256,7 @@ async function main() {
 
   const selectedCollections = new Set(collections);
   const selectedMappers = mappers.filter((map) =>
-    selectedCollections.has(map.label as SupportedCollection),
+    selectedCollections.has(map.label),
   );
 
   let grandTotal = 0;

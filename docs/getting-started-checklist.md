@@ -83,8 +83,8 @@ Pick one:
 
 Optional (recommended if you want the site to have images immediately):
 
-- [ ] Seed local media into `backend/media/*` from your external snapshot root:
-  - [ ] `npm run media:seed`
+- [ ] Import local media into `backend/media/*` from your `cms-snapshot` root:
+  - [ ] `npm run media:import`
   - [ ] Details and expected folder layouts: [docs/uploads-and-migration.md](./uploads-and-migration.md)
 
 ## 7) (Optional) Push images / deploy

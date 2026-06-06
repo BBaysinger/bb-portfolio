@@ -5,6 +5,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 COMMAND="${1:-}"
 MIGRATION_TEMP_DIR=""
+MEDIA_COLLECTIONS_FILE="$REPO_ROOT/scripts/media-collections.txt"
 
 cleanup() {
   if [[ -n "$MIGRATION_TEMP_DIR" && -d "$MIGRATION_TEMP_DIR" ]]; then
@@ -18,23 +19,6 @@ if [[ ! "$COMMAND" =~ ^$|^-h$|^--help$|^help$|^migrate$ ]] && [[ "${CONTENT_WORK
   exec env CONTENT_WORKFLOW_DIR_READY=true bash "$REPO_ROOT/scripts/with-portfolio-content-dir.sh" bash "$0" "$@"
 fi
 
-MEDIA_COLLECTIONS=(
-  project-brand-logos
-  cv-experience-logos
-  project-screenshots
-  project-thumbnails
-)
-
-PROJECT_MEDIA_COLLECTIONS=(
-  project-brand-logos
-  project-screenshots
-  project-thumbnails
-)
-
-CV_MEDIA_COLLECTIONS=(
-  cv-experience-logos
-)
-
 log() {
   echo "[content-workflow] $*"
 }
@@ -43,6 +27,28 @@ die() {
   echo "[content-workflow] $*" >&2
   exit 1
 }
+
+load_media_collections() {
+  [[ -f "$MEDIA_COLLECTIONS_FILE" ]] || die "Missing media collections manifest: $MEDIA_COLLECTIONS_FILE"
+
+  MEDIA_COLLECTIONS=()
+  PROJECT_MEDIA_COLLECTIONS=()
+  CV_MEDIA_COLLECTIONS=()
+
+  local collection
+  while IFS= read -r collection || [[ -n "$collection" ]]; do
+    [[ -n "$collection" ]] || continue
+    MEDIA_COLLECTIONS+=("$collection")
+
+    if [[ "$collection" == "cv-experience-logos" ]]; then
+      CV_MEDIA_COLLECTIONS+=("$collection")
+    else
+      PROJECT_MEDIA_COLLECTIONS+=("$collection")
+    fi
+  done <"$MEDIA_COLLECTIONS_FILE"
+}
+
+load_media_collections
 
 hash_file() {
   shasum -a 256 "$1" | awk '{print $1}'
@@ -69,11 +75,9 @@ resolve_content_dir() {
 }
 
 resolve_media_snapshot_root() {
-  if [[ -n "${CMS_SNAPSHOT_ROOT:-}" ]]; then
-    resolve_dir_from_repo_root "$CMS_SNAPSHOT_ROOT"
-  else
-    printf '%s\n' "$REPO_ROOT/../cms-media-seedings"
-  fi
+  [[ -n "${CMS_SNAPSHOT_ROOT:-}" ]] || die "CMS_SNAPSHOT_ROOT is required. Point it at the active cms-snapshots target."
+
+  resolve_dir_from_repo_root "$CMS_SNAPSHOT_ROOT"
 }
 
 set_profile_env() {
@@ -116,10 +120,10 @@ ensure_write_guard_for_target() {
 }
 
 copy_local_media_to_content_dir() {
-  local enforce_seedings_guard="${1:-false}"
+  local enforce_snapshot_guard="${1:-false}"
   local source_root="$REPO_ROOT/backend/media"
 
-  if [[ "$enforce_seedings_guard" == "true" ]]; then
+  if [[ "$enforce_snapshot_guard" == "true" ]]; then
     local snapshot_root
     snapshot_root="$(resolve_media_snapshot_root)"
     if [[ -d "$snapshot_root" ]]; then
@@ -257,7 +261,7 @@ stage_media_dataset() {
   pull_media_from_remote_env "$source" false
 }
 
-seed_media_from_content_dir() {
+import_media_from_content_dir() {
   local -a selected_collections=()
 
   if (($# > 0)); then
@@ -265,19 +269,19 @@ seed_media_from_content_dir() {
   fi
 
   if ((${#selected_collections[@]} == 0)); then
-    npm run media:seed
+    npm run media:import
     return
   fi
 
-  local seed_args=()
+  local import_args=()
   local collection
   if ((${#selected_collections[@]} > 0)); then
     for collection in "${selected_collections[@]}"; do
-      seed_args+=(--collection "$collection")
+      import_args+=(--collection "$collection")
     done
   fi
 
-  npm run media:seed -- "${seed_args[@]}"
+  npm run media:import -- "${import_args[@]}"
 }
 
 upload_media_to_remote_env() {
@@ -363,7 +367,7 @@ apply_full_dataset_to_target() {
   ensure_write_guard_for_target "$target" "$explicit_confirm"
   log "Applying full dataset from $CONTENT_DIR into $target"
 
-  seed_media_from_content_dir
+  import_media_from_content_dir
 
   if [[ "$target" != "local" ]]; then
     upload_media_to_remote_env "$target"
@@ -396,9 +400,9 @@ apply_media_dataset_to_target() {
   log "Applying staged media dataset from $CONTENT_DIR into $target"
 
   if ((${#selected_collections[@]} > 0)); then
-    seed_media_from_content_dir "${selected_collections[@]}"
+    import_media_from_content_dir "${selected_collections[@]}"
   else
-    seed_media_from_content_dir
+    import_media_from_content_dir
   fi
 
   if [[ "$target" != "local" ]]; then
@@ -457,7 +461,7 @@ apply_projects_dataset_to_target() {
   ensure_write_guard_for_target "$target" "$explicit_confirm"
   log "Applying project descriptions + project media from $CONTENT_DIR into $target"
 
-  seed_media_from_content_dir "${PROJECT_MEDIA_COLLECTIONS[@]}"
+  import_media_from_content_dir "${PROJECT_MEDIA_COLLECTIONS[@]}"
 
   if [[ "$target" != "local" ]]; then
     upload_media_to_remote_env "$target" "${PROJECT_MEDIA_COLLECTIONS[@]}"
@@ -473,7 +477,7 @@ apply_cv_dataset_to_target() {
   ensure_write_guard_for_target "$target" "$explicit_confirm"
   log "Applying CV experiences + CV logos from $CONTENT_DIR into $target"
 
-  seed_media_from_content_dir "${CV_MEDIA_COLLECTIONS[@]}"
+  import_media_from_content_dir "${CV_MEDIA_COLLECTIONS[@]}"
 
   if [[ "$target" != "local" ]]; then
     upload_media_to_remote_env "$target" "${CV_MEDIA_COLLECTIONS[@]}"
@@ -520,19 +524,23 @@ Commands:
   migrate         Sync the full CMS database from --source local|dev|prod into --target local|dev|prod, plus stage and apply supported media collections
                   Requires ALLOW_DEV_WRITE=true for dev targets. Prod targets require ALLOW_PROD_WRITE=true and still enforce separate prod confirmation.
                   Does not read PORTFOLIO_CONTENT_DIR and does not auto-run authored-content import commands; those remain the explicit import-* workflows below.
-  import-local    Seed media and import greeting + branding lockup + project descriptions + CV into local
+  import-local    Import media from the cms-snapshot, then import greeting + branding lockup + project descriptions + CV into local
   import-dev      Import greeting + branding lockup + project descriptions + CV into dev (requires ALLOW_DEV_WRITE=true)
   import-prod     Import greeting + branding lockup + project descriptions + CV into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
-  import-projects-local  Seed project media and import only project descriptions into local
+  import-projects-local  Import project media from the cms-snapshot and import only project descriptions into local
   import-projects-dev    Upload project media and import only project descriptions into dev (requires ALLOW_DEV_WRITE=true)
   import-projects-prod   Upload project media and import only project descriptions into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
-  import-cv-local        Seed CV logos and import only CV experiences into local
+  import-cv-local        Import CV logos from the cms-snapshot and import only CV experiences into local
   import-cv-dev          Upload CV logos and import only CV experiences into dev (requires ALLOW_DEV_WRITE=true)
   import-cv-prod         Upload CV logos and import only CV experiences into prod (requires ALLOW_PROD_WRITE=true and prod confirmation)
-  pull-local      Export local media + authored content into configured content root
-  pull-dev        Pull dev media + export greeting + branding lockup + authored content into configured content root
-  pull-prod       Pull prod media + export greeting + branding lockup + authored content into configured content root
+  pull-local      Export authored content only into configured content root
+  pull-dev        Export authored content only from dev into configured content root
+  pull-prod       Export authored content only from prod into configured content root
   pull-prod-dry   Dry-run variant of pull-prod
+  pull-local-all  Export local media + authored content into configured content root
+  pull-dev-all    Pull dev media + export authored content into configured content root
+  pull-prod-all   Pull prod media + export authored content into configured content root
+  pull-prod-all-dry Dry-run variant of pull-prod-all
 EOF
 }
 
@@ -586,6 +594,12 @@ run_import_cv_prod() {
 
 run_pull_local() {
   CONTENT_DIR="$(resolve_content_dir)"
+  log "Exporting authored content from local into $CONTENT_DIR"
+  export_authored_content local false
+}
+
+run_pull_local_all() {
+  CONTENT_DIR="$(resolve_content_dir)"
   export_full_dataset local false
 }
 
@@ -613,16 +627,37 @@ ensure_nonlocal_pull_uses_explicit_dir() {
 run_pull_dev() {
   ensure_nonlocal_pull_uses_explicit_dir dev
   CONTENT_DIR="$(resolve_content_dir)"
+  log "Exporting authored content from dev into $CONTENT_DIR"
+  export_authored_content dev false
+}
+
+run_pull_dev_all() {
+  ensure_nonlocal_pull_uses_explicit_dir dev
+  CONTENT_DIR="$(resolve_content_dir)"
   export_full_dataset dev false
 }
 
 run_pull_prod() {
   ensure_nonlocal_pull_uses_explicit_dir prod
   CONTENT_DIR="$(resolve_content_dir)"
-  export_full_dataset prod false
+  log "Exporting authored content from prod into $CONTENT_DIR"
+  export_authored_content prod false
 }
 
 run_pull_prod_dry() {
+  ensure_nonlocal_pull_uses_explicit_dir prod
+  CONTENT_DIR="$(resolve_content_dir)"
+  log "[DRY RUN] Exporting authored content from prod into $CONTENT_DIR"
+  export_authored_content prod true
+}
+
+run_pull_prod_all() {
+  ensure_nonlocal_pull_uses_explicit_dir prod
+  CONTENT_DIR="$(resolve_content_dir)"
+  export_full_dataset prod false
+}
+
+run_pull_prod_all_dry() {
   ensure_nonlocal_pull_uses_explicit_dir prod
   CONTENT_DIR="$(resolve_content_dir)"
   export_full_dataset prod true
@@ -694,14 +729,26 @@ case "$COMMAND" in
   pull-local)
     run_pull_local
     ;;
+  pull-local-all)
+    run_pull_local_all
+    ;;
   pull-dev)
     run_pull_dev
+    ;;
+  pull-dev-all)
+    run_pull_dev_all
     ;;
   pull-prod)
     run_pull_prod
     ;;
   pull-prod-dry)
     run_pull_prod_dry
+    ;;
+  pull-prod-all)
+    run_pull_prod_all
+    ;;
+  pull-prod-all-dry)
+    run_pull_prod_all_dry
     ;;
   -h | --help | help)
     usage

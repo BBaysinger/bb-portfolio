@@ -21,6 +21,10 @@ import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
 
 import { ensureAwsCredentials } from "./lib/aws-creds";
+import {
+  MEDIA_COLLECTIONS,
+  ensureMediaCollection,
+} from "./lib/media-collections";
 
 // Get script directory and repo root
 const scriptDir = path.dirname(__filename);
@@ -48,15 +52,7 @@ function resolveBucket(
   );
 }
 
-// Media collections to sync
-const MEDIA_COLLECTIONS = [
-  "project-brand-logos",
-  "cv-experience-logos",
-  "project-screenshots",
-  "project-thumbnails",
-] as const;
-
-type MediaCollection = (typeof MEDIA_COLLECTIONS)[number];
+type MediaCollection = string;
 
 type Environment = "dev" | "prod";
 
@@ -72,7 +68,7 @@ interface Options {
 
 type ResolvedSnapshotRoot = {
   path: string;
-  source: "snapshot-env" | "default";
+  source: "snapshot-env";
 };
 
 function parseArgs(): Options {
@@ -107,15 +103,25 @@ function parseArgs(): Options {
         options.dryRun = true;
         break;
       case "--collection": {
-        const collection = args[++i] as MediaCollection | undefined;
-        if (!collection || !MEDIA_COLLECTIONS.includes(collection)) {
+        const collection = args[++i];
+        if (!collection) {
+          console.error("Missing value for --collection.");
+          process.exit(1);
+        }
+
+        let ensuredCollection: MediaCollection;
+        try {
+          ensuredCollection = ensureMediaCollection(collection);
+        } catch (error) {
           console.error(
-            `Invalid collection: ${collection ?? ""}. Use one of: ${MEDIA_COLLECTIONS.join(", ")}`,
+            error instanceof Error
+              ? error.message
+              : `Invalid collection: ${collection}.`,
           );
           process.exit(1);
         }
-        if (!options.collections.includes(collection)) {
-          options.collections.push(collection);
+        if (!options.collections.includes(ensuredCollection)) {
+          options.collections.push(ensuredCollection);
         }
         break;
       }
@@ -189,7 +195,7 @@ function checkPrerequisites() {
   const mediaDir = path.join(repoRoot, "backend/media");
   if (!existsSync(mediaDir)) {
     console.error(`Media directory not found: ${mediaDir}`);
-    console.error('Run "npm run media:seed" first to import media files');
+    console.error('Run "npm run media:import" first to import media files');
     process.exit(1);
   }
 
@@ -204,18 +210,16 @@ function checkPrerequisites() {
 
 function resolveSnapshotRoot(): ResolvedSnapshotRoot {
   const envSnapshotRoot = process.env.CMS_SNAPSHOT_ROOT?.trim();
-  if (envSnapshotRoot) {
-    return {
-      path: path.isAbsolute(envSnapshotRoot)
-        ? envSnapshotRoot
-        : path.resolve(repoRoot, envSnapshotRoot),
-      source: "snapshot-env",
-    };
+  if (!envSnapshotRoot) {
+    console.error("CMS_SNAPSHOT_ROOT is required for media uploads.");
+    process.exit(1);
   }
 
   return {
-    path: path.resolve(repoRoot, "../cms-media-seedings"),
-    source: "default",
+    path: path.isAbsolute(envSnapshotRoot)
+      ? envSnapshotRoot
+      : path.resolve(repoRoot, envSnapshotRoot),
+    source: "snapshot-env",
   };
 }
 
@@ -439,7 +443,7 @@ async function main() {
 
   if (totalFiles === 0) {
     console.info(
-      '\nNo media files found. Run "npm run media:seed" first to import files.',
+      '\nNo media files found. Run "npm run media:import" first to import files.',
     );
     process.exit(0);
   }
