@@ -12,9 +12,7 @@ export type FluxelResizeOptions = {
 };
 
 export type FluxelResizeTarget =
-  | HTMLElement
-  | null
-  | (() => HTMLElement | null);
+  HTMLElement | null | (() => HTMLElement | null);
 
 /**
  * Observes size changes on the provided element and invokes the handler.

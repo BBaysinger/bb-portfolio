@@ -65,10 +65,7 @@ async function getS3Files(bucketName: string, prefix: string): Promise<string[]>
 }
 
 type CollectionSlug =
-  | 'projectThumbnails'
-  | 'projectScreenshots'
-  | 'brandLogos'
-  | 'cvExperienceLogos'
+  'projectThumbnails' | 'projectScreenshots' | 'brandLogos' | 'cvExperienceLogos'
 
 interface MediaCollectionConfig {
   name: CollectionSlug

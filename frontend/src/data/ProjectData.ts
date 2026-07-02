@@ -60,8 +60,7 @@ type ProjectDataSnapshotEnvelope = {
 };
 
 type ProjectDataSnapshotFile =
-  | PortfolioProjectData
-  | ProjectDataSnapshotEnvelope;
+  PortfolioProjectData | ProjectDataSnapshotEnvelope;
 
 const isPayloadRestSnapshot = (val: unknown): boolean => {
   return (

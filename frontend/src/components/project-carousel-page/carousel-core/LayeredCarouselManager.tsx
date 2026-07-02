@@ -108,13 +108,11 @@ const LayeredCarouselManager = forwardRef<
 
     const eligibilityLayers = useMemo(
       () =>
-        layers.map(
-          (layer): StagedEligibilityLayer => ({
-            id: layer.id,
-            type: layer.type,
-            slides: layer.slides,
-          }),
-        ),
+        layers.map((layer): StagedEligibilityLayer => ({
+          id: layer.id,
+          type: layer.type,
+          slides: layer.slides,
+        })),
       [layers],
     );
 

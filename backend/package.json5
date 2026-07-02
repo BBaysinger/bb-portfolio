@@ -58,6 +58,13 @@
     "seed:cv-experience:local": "npm run seed:cv-experience -- --env local",
     // Seed CV experience data into the dev backend environment
     "seed:cv-experience:dev": "npm run seed:cv-experience -- --env dev",
+    // Update only the contactInfo global's contact email for a given environment.
+    // Pass --email '<value>' to set, or --print to read the current value without writing.
+    "update:contact-info": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/update-contact-info.ts",
+    // Update the local backend contact email
+    "update:contact-info:local": "npm run update:contact-info -- --env local",
+    // Update the dev backend contact email (requires ALLOW_DEV_WRITE=true)
+    "update:contact-info:dev": "npm run update:contact-info -- --env dev",
     // Standalone smoke test for the Payload admin login flow
     "smoke:admin-login": "tsx scripts/smoke-admin-login.ts",
     // Run Next.js linter with deprecation warnings suppressed
@@ -78,25 +85,25 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1062.0",
+    "@aws-sdk/client-ses": "^3.1078.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.973.10",
+    "@aws-sdk/types": "^3.973.15",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.85.0",
+    "@payloadcms/db-mongodb": "3.85.2",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.85.0",
+    "@payloadcms/email-nodemailer": "3.85.2",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.85.0",
+    "@payloadcms/next": "3.85.2",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.85.0",
+    "@payloadcms/payload-cloud": "3.85.2",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.85.0",
+    "@payloadcms/richtext-lexical": "3.85.2",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.85.0",
+    "@payloadcms/storage-s3": "3.85.2",
     // Payload's core UI components
-    "@payloadcms/ui": "3.85.0",
+    "@payloadcms/ui": "3.85.2",
     // BSON/EJSON utilities used by database migration and snapshot scripts
-    "bson": "^7.2.0",
+    "bson": "^7.3.1",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -104,30 +111,30 @@
     // Express.js web server framework (v5 for latest features)
     "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
-    "graphql": "^16.14.1",
+    "graphql": "^17.0.1",
     // YAML parser used by content tooling and import/export helpers
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^5.2.1",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Direct MongoDB client used by database sync scripts
-    "mongodb": "~7.2.0",
+    "mongodb": "~7.4.0",
     // Next.js framework for frontend/backend integration
-    "next": "16.2.7",
+    "next": "16.2.10",
     // Payload CMS core package
-    "payload": "3.85.0",
+    "payload": "3.85.2",
     // React version to match Next.js 15
     "react": "19.2.7",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
     "react-dom": "19.2.7",
     // High-performance image processing (required for Payload image fields)
-    "sharp": "0.34.5",
+    "sharp": "0.35.3",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
     "slugify": "^1.6.9",
   },
   // Development-only tools and type definitions
   "devDependencies": {
     // E2E test runner
-    "@playwright/test": "1.60.0",
+    "@playwright/test": "1.61.1",
     // Testing utilities for React components
     "@testing-library/react": "16.3.2",
     // Express.js TypeScript definitions
@@ -135,27 +142,27 @@
     // TypeScript definitions for js-yaml used by private content import helpers
     "@types/js-yaml": "^4.0.9",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.1.0",
     // React 19 types
-    "@types/react": "19.2.16",
+    "@types/react": "19.2.17",
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "6.0.2",
+    "@vitejs/plugin-react": "6.0.3",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.33",
+    "baseline-browser-mapping": "^2.10.40",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.2.7",
+    "eslint-config-next": "16.2.10",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "29.1.1",
     // Standalone version of Playwright test runner
-    "playwright": "1.60.0",
+    "playwright": "1.61.1",
     // Playwright core library (used for browser automation)
-    "playwright-core": "1.60.0",
+    "playwright-core": "1.61.1",
     // Code formatter with opinionated defaults
-    "prettier": "^3.8.3",
+    "prettier": "^3.9.4",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
     "tsx": "^4.22.4",
     // TypeScript compiler (v5.9 for latest language features)
@@ -163,7 +170,7 @@
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "6.1.1",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.1.8",
+    "vitest": "4.1.9",
   },
   // Pin patched versions of transitive dependencies.
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
@@ -192,5 +199,5 @@
     "unrs-resolver",
   ],
   // Canonical npm version for backend scripts, installs, and CI consistency
-  "packageManager": "npm@11.16.0",
+  "packageManager": "npm@11.18.0",
 }

@@ -71,9 +71,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.1062.0",
+    "@aws-sdk/client-s3": "^3.1078.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.1062.0",
+    "@aws-sdk/s3-request-presigner": "^3.1078.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.12.0",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -87,11 +87,11 @@
     // HTTP client for making API requests
     "jsonwebtoken": "^9.0.3",
     // Next.js framework (App Router + build pipeline)
-    "next": "^16.2.7",
+    "next": "^16.2.10",
     // PixiJS renderer for interactive canvas experiences
     "pixi.js": "^8.19.0",
     // End-to-end browser automation used for UI and deployment smoke tests.
-    "playwright": "^1.60.0",
+    "playwright": "^1.61.1",
     // React library for building user interfaces (v19 for latest features)
     "react": "^19.2.7",
     // React DOM renderer for web applications (matches React 19)
@@ -99,9 +99,9 @@
     // Official React bindings for Redux state management
     "react-redux": "^9.3.0",
     // Client-side routing utilities (used for interactive demo routes)
-    "react-router-dom": "^7.17.0",
+    "react-router-dom": "^7.18.1",
     // CSS preprocessor with variables, nesting, and mixins
-    "sass": "^1.100.0",
+    "sass": "^1.101.0",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
@@ -112,7 +112,7 @@
     // TypeScript definitions for jsonwebtoken library
     "@types/jsonwebtoken": "^9.0.10",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25",
+    "@types/node": "^26",
     // React TypeScript definitions (v19 for latest React features)
     "@types/react": "^19",
     // React DOM TypeScript definitions (v19 for latest React features)
@@ -126,21 +126,21 @@
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration with React and accessibility rules
-    "eslint-config-next": "16.2.7",
+    "eslint-config-next": "16.2.10",
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
-    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-react-refresh": "^0.5.3",
     // Browser-like DOM environment used by Vitest component and hook tests.
     "jsdom": "^29.1.1",
     // Opinionated code formatter for consistent style
-    "prettier": "^3.8.3",
+    "prettier": "^3.9.4",
     // Lightweight TypeScript runtime for executing guard scripts
     "tsx": "^4.22.4",
     // TypeScript compiler (v5 for latest language features)
     "typescript": "6.0.3",
     // Fast unit and integration test runner for the frontend package.
-    "vitest": "^4.1.8",
+    "vitest": "^4.1.9",
   },
   // Toolchain version constraints for local dev and CI
   "engines": {

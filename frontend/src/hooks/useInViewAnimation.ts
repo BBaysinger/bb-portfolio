@@ -62,12 +62,9 @@ const useInViewArray = (
               const rafId2 = window.requestAnimationFrame(() => {
                 scheduledRafs.delete(rafId2);
 
-                if (
-                  !(
-                    target instanceof HTMLElement ||
-                    target instanceof SVGElement
-                  )
-                ) {
+                if (!(
+                  target instanceof HTMLElement || target instanceof SVGElement
+                )) {
                   return;
                 }
                 if (!target.isConnected) {

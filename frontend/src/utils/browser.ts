@@ -1,10 +1,5 @@
 export type DetectedOs =
-  | "windows"
-  | "mac"
-  | "linux"
-  | "ios"
-  | "android"
-  | "unknown";
+  "windows" | "mac" | "linux" | "ios" | "android" | "unknown";
 
 type NavigatorWithUserAgentData = Navigator & {
   userAgentData?: {

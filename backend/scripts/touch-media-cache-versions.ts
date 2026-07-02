@@ -9,10 +9,7 @@ import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
 
 type MediaCollectionSlug =
-  | 'projectThumbnails'
-  | 'projectScreenshots'
-  | 'brandLogos'
-  | 'cvExperienceLogos'
+  'projectThumbnails' | 'projectScreenshots' | 'brandLogos' | 'cvExperienceLogos'
 
 type UpdateManyResult = {
   acknowledged?: boolean

@@ -35,8 +35,7 @@ export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
 
 type AuthCheckResult =
-  | { ok: true }
-  | { ok: false; status: 401 | 502; message: string };
+  { ok: true } | { ok: false; status: 401 | 502; message: string };
 
 /**
  * Validates that the request is authenticated by forwarding cookies to the backend session endpoint.

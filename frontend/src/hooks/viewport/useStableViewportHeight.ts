@@ -49,9 +49,7 @@ export type HeightOnlyResizePolicy =
   | ((context: HeightOnlyResizeContext) => boolean);
 
 export type StableViewportHeightMode =
-  | "use-js-for-all"
-  | "use-svh-for-all"
-  | "use-where-required";
+  "use-js-for-all" | "use-svh-for-all" | "use-where-required";
 
 export interface UseStableViewportHeightOptions {
   mode?: StableViewportHeightMode;

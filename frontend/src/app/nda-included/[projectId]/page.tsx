@@ -59,8 +59,7 @@ export default async function NdaIncludedProjectPage({
   const projectData = new ProjectDataStore();
   let initialized = false;
   let ssrParsed:
-    | import("@/data/ProjectData").ParsedPortfolioProjectData
-    | undefined;
+    import("@/data/ProjectData").ParsedPortfolioProjectData | undefined;
   let ssrContainsSanitizedPlaceholders = false;
 
   try {

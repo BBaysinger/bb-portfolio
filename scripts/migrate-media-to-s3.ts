@@ -144,9 +144,7 @@ async function migrateMediaCollection(
     // Get all documents in the collection
     const result = await payload.find({
       collection: collectionName as
-        | "brandLogos"
-        | "projectScreenshots"
-        | "projectThumbnails",
+        "brandLogos" | "projectScreenshots" | "projectThumbnails",
       limit: 1000, // Adjust if you have more media files
     });
 

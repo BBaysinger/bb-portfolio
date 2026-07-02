@@ -78,8 +78,7 @@ export default async function ProjectPage({
   const projectData = new ProjectDataStore();
   let initialized = false;
   let ssrParsed:
-    | import("@/data/ProjectData").ParsedPortfolioProjectData
-    | undefined;
+    import("@/data/ProjectData").ParsedPortfolioProjectData | undefined;
 
   try {
     await projectData.initialize({
