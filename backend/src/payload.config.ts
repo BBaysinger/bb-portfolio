@@ -12,7 +12,7 @@ import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { buildConfig } from 'payload'
+import { buildConfig, type SharpDependency } from 'payload'
 
 import { AuthEvents } from './collections/AuthEvents'
 import { BrandLogos } from './collections/BrandLogos'
@@ -51,7 +51,7 @@ const sharp = (() => {
   if (disableSharp) return undefined
   try {
     const require = createRequire(import.meta.url)
-    return require('sharp') as unknown as typeof import('sharp')
+    return require('sharp') as SharpDependency
   } catch (err) {
     // Fail fast with a clearer message. This is typically a local dev dependency issue.
     throw new Error(
