@@ -98,7 +98,7 @@ server {
   # Route Next.js assets based on referer.
   # Payload admin is served by the backend, but it references assets at /_next/*.
   set \$next_upstream_prod_local http://127.0.0.1:3000;
-  if (\$http_referer ~* /admin/) { set \$next_upstream_prod_local http://127.0.0.1:3001; }
+  if (\$http_referer ~* /admin) { set \$next_upstream_prod_local http://127.0.0.1:3001; }
 
   proxy_intercept_errors on;
   error_page 500 502 503 504 =500 /__server-error.html;
@@ -196,7 +196,7 @@ server {
   include /etc/letsencrypt/options-ssl-nginx.conf;
 
   set \$next_upstream_dev_local http://127.0.0.1:4000;
-  if (\$http_referer ~* /admin/) { set \$next_upstream_dev_local http://127.0.0.1:4001; }
+  if (\$http_referer ~* /admin) { set \$next_upstream_dev_local http://127.0.0.1:4001; }
 
   proxy_intercept_errors on;
   error_page 500 502 503 504 =500 /__server-error.html;
