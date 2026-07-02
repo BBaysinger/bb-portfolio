@@ -98,6 +98,9 @@ services:
       - NODE_ENV=production
       - AWS_REGION=us-west-2
       - AWS_DEFAULT_REGION=us-west-2
+      # Reach the co-located frontend container directly for cache revalidation,
+      # avoiding a public-domain hairpin and the trailingSlash 308 redirect.
+      - FRONTEND_INTERNAL_URL=http://bb-portfolio-frontend-prod:3000
     healthcheck: # HTTP health check against backend endpoint (/api lives at root)
       test:
         [
@@ -171,6 +174,9 @@ services:
       - NODE_ENV=production
       - NEXT_DISABLE_TURBOPACK=1
       - NEXT_TELEMETRY_DISABLED=1
+      # Reach the co-located frontend container directly for cache revalidation,
+      # avoiding a public-domain hairpin and the trailingSlash 308 redirect.
+      - FRONTEND_INTERNAL_URL=http://bb-portfolio-frontend-dev:3000
     restart: unless-stopped # Auto-restart on failure/reboot
     networks:
       default: {}
@@ -236,6 +242,8 @@ services:
       ENV_PROFILE: local
       NEXT_DISABLE_TURBOPACK: "1"
       NPM_CONFIG_CACHE: /app/.npm-cache
+      # Reach the co-located frontend container directly for cache revalidation.
+      FRONTEND_INTERNAL_URL: http://bb-portfolio-frontend-local:3000
       # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
       DISK_WARN_PCT: "95"
       DISK_FAIL_PCT: "101"
