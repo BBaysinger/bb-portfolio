@@ -111,9 +111,9 @@
     // Express.js web server framework (v5 for latest features)
     "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
-    "graphql": "^17.0.1",
+    "graphql": "^16.14.1",
     // YAML parser used by content tooling and import/export helpers
-    "js-yaml": "^5.2.1",
+    "js-yaml": "^4.2.0",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Direct MongoDB client used by database sync scripts

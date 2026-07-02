@@ -127,7 +127,10 @@ function parseArgs(argv: string[]): CliOptions {
     console.info("Updates root/backend/frontend dependencies with guardrails.");
     console.info("Runs npm install for each changed package root.");
     console.info(
-      "Syncs package.json5 only after all updates/install steps succeed.",
+      "Validates each changed root with a strict `npm ci --dry-run` (CI parity) before syncing.",
+    );
+    console.info(
+      "Syncs package.json5 only after all updates/install/validation steps succeed.",
     );
     process.exit(0);
   }
@@ -395,6 +398,30 @@ function installWithRetry(target: PackageTarget): void {
   runCommand("npm", lockfileRefreshArgs, target.cwd);
 }
 
+// Validate the freshly-updated tree the same way CI does: a strict resolver
+// pass with no `--legacy-peer-deps`. This catches peer-dependency conflicts
+// (e.g. a major bump that violates a framework's peer range) that the guarded
+// install can otherwise mask, before we commit the change by syncing manifests.
+function validateStrictPeerResolution(target: PackageTarget): {
+  ok: boolean;
+  output: string;
+} {
+  console.info(
+    `\n[${target.label}] validating dependency tree under strict peer resolution (npm ci --dry-run)`,
+  );
+  const result = runCommand("npm", ["ci", "--dry-run"], target.cwd, {
+    allowFailure: true,
+    captureOutput: true,
+  });
+
+  if (result.status === 0) {
+    console.info(`[${target.label}] strict peer resolution OK`);
+    return { ok: true, output: "" };
+  }
+
+  return { ok: false, output: `${result.stdout}${result.stderr}`.trim() };
+}
+
 function syncPackages(): void {
   console.info("\n[root] syncing package.json5 manifests");
   runCommand("npm", ["run", "sync:json5"], repoRoot);
@@ -437,6 +464,32 @@ async function main(): Promise<void> {
 
   for (const plan of changedPlans) {
     installWithRetry(plan.target);
+  }
+
+  const validationFailures: Array<{ target: PackageTarget; output: string }> =
+    [];
+  for (const plan of changedPlans) {
+    const result = validateStrictPeerResolution(plan.target);
+    if (!result.ok) {
+      validationFailures.push({ target: plan.target, output: result.output });
+    }
+  }
+
+  if (validationFailures.length) {
+    for (const failure of validationFailures) {
+      console.error(
+        `\n[${failure.target.label}] strict peer resolution FAILED:`,
+      );
+      if (failure.output) console.error(failure.output);
+    }
+    const labels = validationFailures
+      .map((entry) => entry.target.label)
+      .join(", ");
+    throw new Error(
+      `Strict peer resolution failed for: ${labels}. ` +
+        "The updated dependency tree would be rejected by CI's npm ci. " +
+        "Review the conflicts above, then add a guardrail or pin the offending package before retrying.",
+    );
   }
 
   syncPackages();
