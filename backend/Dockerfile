@@ -6,7 +6,8 @@
 # - dev: local development with auto-restart
 #
 # Image choices:
-# - Build/dev stages may use a standard Node base (via NODE_IMAGE arg) to retain full tooling.
+# - Build/dev stages use a standard Debian/glibc Node base (via NODE_IMAGE arg) to retain full tooling
+#   and match native optional dependencies with the distroless Debian runtime.
 # - Final runtime uses Distroless Node 22 (Debian 12) for minimal attack surface,
 #   no shell/package manager, and cleaner security scan results.
 
@@ -20,8 +21,8 @@ ARG NPM_VERSION=11.12.1
 #######################
 # This stage compiles the Payload CMS application and prepares production dependencies
 
-# Default to Alpine to reduce CVEs; can override with build arg NODE_IMAGE.
-ARG NODE_IMAGE=node:22-alpine3.20
+# Default to Debian slim so native packages such as sharp match the distroless Debian runtime.
+ARG NODE_IMAGE=node:22-slim
 FROM ${NODE_IMAGE} AS builder
 ARG NPM_VERSION
 
@@ -130,6 +131,10 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./app/.next/static
 COPY --from=builder /app/.next/server ./app/.next/server
 COPY --from=builder /app/public ./public
+# Sharp loads platform packages dynamically, so Next standalone tracing can miss them.
+COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder /app/node_modules/@img/sharp-linux-* ./node_modules/@img/
+COPY --from=builder /app/node_modules/@img/sharp-libvips-linux-* ./node_modules/@img/
 # Payload admin runtime still reads these source-tree artifacts directly.
 COPY --from=builder /app/src/app/(payload)/importMap.js ./src/app/(payload)/importMap.js
 COPY --from=builder /app/src/payload.config.ts ./src/payload.config.ts
