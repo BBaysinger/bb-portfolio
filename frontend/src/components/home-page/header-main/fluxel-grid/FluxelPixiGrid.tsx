@@ -350,7 +350,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       return () => {
         canceled = true;
         try {
-          app.destroy(true, { children: true });
+          // React owns the canvas element; Pixi should release resources without removing it.
+          app.destroy({ removeView: false }, { children: true });
         } catch (err) {
           console.warn("Pixi destroy failed", err);
         }

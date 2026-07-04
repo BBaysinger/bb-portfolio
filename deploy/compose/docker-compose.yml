@@ -59,6 +59,8 @@ x-frontend-local-volumes: &frontend_local_volumes
 
 x-backend-local-envfile: &backend_local_envfile
   - ../../backend/.env
+  - path: ../../backend/.env.local
+    required: false
 
 x-frontend-local-envfile: &frontend_local_envfile
   - ../../frontend/.env
