@@ -5,7 +5,7 @@ import type { CollectionConfig, Where } from 'payload'
 
 import { buildProjectWarmPaths, loadProjectWarmTarget } from '../utils/frontendRouteWarmup'
 import { computeProjectMediaNda } from '../utils/projectMediaNda'
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+import { scheduleFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 type RelRecord = Record<string, unknown>
 
@@ -271,7 +271,7 @@ export const ProjectScreenshots: CollectionConfig = {
           (doc as { project?: unknown })?.project,
         )
 
-        await triggerFrontendProjectRevalidate('projectScreenshots.afterChange', {
+        scheduleFrontendProjectRevalidate('projectScreenshots.afterChange', {
           warmPaths: buildProjectWarmPaths(project),
         })
       },
@@ -283,7 +283,7 @@ export const ProjectScreenshots: CollectionConfig = {
           (doc as { project?: unknown })?.project,
         )
 
-        await triggerFrontendProjectRevalidate('projectScreenshots.afterDelete', {
+        scheduleFrontendProjectRevalidate('projectScreenshots.afterDelete', {
           warmPaths: buildProjectWarmPaths(project),
         })
       },

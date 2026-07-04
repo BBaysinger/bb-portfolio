@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+import { scheduleFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 const roleTitleClassNameField = (defaultValue: string) => ({
   name: 'roleTitleClassName',
@@ -33,8 +33,8 @@ export const BrandingLockup: GlobalConfig = {
   label: 'Site Branding',
   hooks: {
     afterChange: [
-      async () => {
-        await triggerFrontendProjectRevalidate('brandingLockup.afterChange', {
+      () => {
+        scheduleFrontendProjectRevalidate('brandingLockup.afterChange', {
           warmPaths: ['/'],
         })
       },

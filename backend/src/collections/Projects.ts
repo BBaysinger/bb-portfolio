@@ -5,7 +5,7 @@ import { canReadNdaField } from '../access/nda'
 import { buildProjectWarmPaths } from '../utils/frontendRouteWarmup'
 import { propagateProjectMediaNda } from '../utils/projectMediaNda'
 import { generateShortCode } from '../utils/shortCode'
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+import { scheduleFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 const SHORT_CODE_LENGTH = 10
 const SHORT_CODE_MAX_ATTEMPTS = 10
@@ -185,7 +185,7 @@ export const Projects: CollectionConfig = {
           )
         }
 
-        await triggerFrontendProjectRevalidate('projects.afterChange', {
+        scheduleFrontendProjectRevalidate('projects.afterChange', {
           warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
             includeHome: true,
           }),
@@ -194,7 +194,7 @@ export const Projects: CollectionConfig = {
     ],
     afterDelete: [
       async ({ doc }) => {
-        await triggerFrontendProjectRevalidate('projects.afterDelete', {
+        scheduleFrontendProjectRevalidate('projects.afterDelete', {
           warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
             includeHome: true,
           }),

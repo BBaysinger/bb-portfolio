@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { triggerFrontendCvRevalidate } from '../utils/triggerFrontendCvRevalidate'
+import { scheduleFrontendCvRevalidate } from '../utils/triggerFrontendCvRevalidate'
 
 export const CvExperienceLogos: CollectionConfig = {
   slug: 'cvExperienceLogos',
@@ -23,15 +23,15 @@ export const CvExperienceLogos: CollectionConfig = {
   },
   hooks: {
     afterChange: [
-      async () => {
-        await triggerFrontendCvRevalidate('cvExperienceLogos.afterChange', {
+      () => {
+        scheduleFrontendCvRevalidate('cvExperienceLogos.afterChange', {
           warmPaths: ['/cv'],
         })
       },
     ],
     afterDelete: [
-      async () => {
-        await triggerFrontendCvRevalidate('cvExperienceLogos.afterDelete', {
+      () => {
+        scheduleFrontendCvRevalidate('cvExperienceLogos.afterDelete', {
           warmPaths: ['/cv'],
         })
       },

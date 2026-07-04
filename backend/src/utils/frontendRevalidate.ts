@@ -9,6 +9,7 @@
 
 const DEFAULT_TIMEOUT_MS = 8000
 const DEFAULT_WARM_TIMEOUT_MS = 15000
+const DEFAULT_SCHEDULE_DELAY_MS = 2000
 
 // Shared fallbacks used by every target when a target-specific value is absent.
 const PROJECTS_URL_ENV = 'FRONTEND_PROJECTS_REVALIDATE_URL'
@@ -33,6 +34,11 @@ export type TriggerFrontendRevalidate = (
   reason: string,
   options?: TriggerFrontendRevalidateOptions,
 ) => Promise<void>
+
+export type ScheduleFrontendRevalidate = (
+  reason: string,
+  options?: TriggerFrontendRevalidateOptions,
+) => void
 
 const readEnv = (name?: string): string => (name ? (process.env[name] || '').trim() : '')
 
@@ -288,5 +294,40 @@ export const createFrontendRevalidateTrigger = (
         `[revalidate] Frontend ${target.label} revalidation failed for all configured endpoints: ${failures.join('; ')}`,
       )
     }
+  }
+}
+
+export const createScheduledFrontendRevalidateTrigger = (
+  trigger: TriggerFrontendRevalidate,
+  delayMs = DEFAULT_SCHEDULE_DELAY_MS,
+): ScheduleFrontendRevalidate => {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const reasons = new Set<string>()
+  const warmPaths = new Set<string>()
+
+  return (reason, options = {}) => {
+    reasons.add(reason)
+    for (const path of options.warmPaths ?? []) {
+      warmPaths.add(path)
+    }
+
+    if (timer) {
+      clearTimeout(timer)
+    }
+
+    timer = setTimeout(() => {
+      timer = undefined
+      const scheduledReasons = Array.from(reasons)
+      const scheduledWarmPaths = Array.from(warmPaths)
+      reasons.clear()
+      warmPaths.clear()
+
+      void trigger(scheduledReasons.join(', '), { warmPaths: scheduledWarmPaths }).catch(
+        (error) => {
+          const message = error instanceof Error ? error.message : String(error)
+          console.warn(`[revalidate] Scheduled frontend revalidation error: ${message}`)
+        },
+      )
+    }, delayMs)
   }
 }

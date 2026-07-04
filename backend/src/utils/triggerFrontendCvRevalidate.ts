@@ -1,4 +1,7 @@
-import { createFrontendRevalidateTrigger } from './frontendRevalidate'
+import {
+  createFrontendRevalidateTrigger,
+  createScheduledFrontendRevalidateTrigger,
+} from './frontendRevalidate'
 
 // CV experience content. Prefers its own explicit URL/secret, falling back to the
 // shared FRONTEND_PROJECTS_* env vars (see frontendRevalidate.ts).
@@ -8,3 +11,7 @@ export const triggerFrontendCvRevalidate = createFrontendRevalidateTrigger({
   explicitUrlEnv: 'FRONTEND_CV_REVALIDATE_URL',
   secretEnv: 'FRONTEND_CV_REVALIDATE_SECRET',
 })
+
+export const scheduleFrontendCvRevalidate = createScheduledFrontendRevalidateTrigger(
+  triggerFrontendCvRevalidate,
+)

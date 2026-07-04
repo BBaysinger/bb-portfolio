@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+import { scheduleFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 const paragraphField = (label: string, rows: number) => ({
   name: 'text',
@@ -30,8 +30,8 @@ export const Greeting: GlobalConfig = {
   label: 'Greeting',
   hooks: {
     afterChange: [
-      async () => {
-        await triggerFrontendProjectRevalidate('greeting.afterChange', {
+      () => {
+        scheduleFrontendProjectRevalidate('greeting.afterChange', {
           warmPaths: ['/'],
         })
       },

@@ -4,7 +4,7 @@ import path from 'path'
 import type { CollectionConfig, Where } from 'payload'
 
 import { buildProjectsWarmPaths, loadProjectsByBrandLogo } from '../utils/frontendRouteWarmup'
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+import { scheduleFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 type OverwriteMeta = { alt?: string | null; logoType?: string | null }
 
@@ -161,7 +161,7 @@ export const BrandLogos: CollectionConfig = {
           { includeHome: true },
         )
 
-        await triggerFrontendProjectRevalidate('brandLogos.afterChange', {
+        scheduleFrontendProjectRevalidate('brandLogos.afterChange', {
           warmPaths,
         })
       },
@@ -173,7 +173,7 @@ export const BrandLogos: CollectionConfig = {
           { includeHome: true },
         )
 
-        await triggerFrontendProjectRevalidate('brandLogos.afterDelete', {
+        scheduleFrontendProjectRevalidate('brandLogos.afterDelete', {
           warmPaths,
         })
       },

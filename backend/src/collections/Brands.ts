@@ -3,7 +3,7 @@ import type { CollectionConfig, Where } from 'payload'
 import { canReadNdaBrandAsset } from '../access/nda'
 import { buildProjectsWarmPaths, loadProjectsByBrand } from '../utils/frontendRouteWarmup'
 import { propagateBrandProjectsMediaNda } from '../utils/projectMediaNda'
-import { triggerFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
+import { scheduleFrontendProjectRevalidate } from '../utils/triggerFrontendProjectRevalidate'
 
 export const ProjectBrands: CollectionConfig = {
   slug: 'project-brands',
@@ -73,7 +73,7 @@ export const ProjectBrands: CollectionConfig = {
           { includeHome: true },
         )
 
-        await triggerFrontendProjectRevalidate('project-brands.afterChange', {
+        scheduleFrontendProjectRevalidate('project-brands.afterChange', {
           warmPaths,
         })
       },
@@ -85,7 +85,7 @@ export const ProjectBrands: CollectionConfig = {
           { includeHome: true },
         )
 
-        await triggerFrontendProjectRevalidate('project-brands.afterDelete', {
+        scheduleFrontendProjectRevalidate('project-brands.afterDelete', {
           warmPaths,
         })
       },

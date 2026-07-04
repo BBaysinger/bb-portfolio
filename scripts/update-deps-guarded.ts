@@ -40,12 +40,7 @@ const repoRoot = path.resolve(__dirname, "..");
 
 const targets: PackageTarget[] = [
   { label: "root", cwd: repoRoot },
-  {
-    label: "backend",
-    cwd: path.join(repoRoot, "backend"),
-    installArgs: ["--legacy-peer-deps"],
-    lockfileRefreshArgs: ["--package-lock-only", "--legacy-peer-deps"],
-  },
+  { label: "backend", cwd: path.join(repoRoot, "backend") },
   { label: "frontend", cwd: path.join(repoRoot, "frontend") },
 ];
 
@@ -73,6 +68,18 @@ const guardrails: Guardrail[] = [
     maxMajor: 3,
     reason:
       "Payload major upgrades can require coordinated backend changes; review them explicitly instead of auto-applying them.",
+  },
+  {
+    packageName: "graphql",
+    maxMajor: 16,
+    reason:
+      "Payload 3.85.x peers on graphql^16.8.1 through @payloadcms/next and @payloadcms/graphql; review GraphQL 17 only after Payload supports it.",
+  },
+  {
+    packageName: "js-yaml",
+    maxMajor: 4,
+    reason:
+      "Backend export scripts use js-yaml DumpOptions. js-yaml 5 removes the quotingType option from the published types, so review that migration explicitly.",
   },
   {
     packageName: "react",

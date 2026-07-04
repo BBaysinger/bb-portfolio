@@ -85,7 +85,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1078.0",
+    "@aws-sdk/client-ses": "^3.1079.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.15",
     // MongoDB adapter for Payload CMS
@@ -111,7 +111,7 @@
     // Express.js web server framework (v5 for latest features)
     "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
-    "graphql": "^16.14.1",
+    "graphql": "^16.14.2",
     // YAML parser used by content tooling and import/export helpers
     "js-yaml": "^4.2.0",
     // JSON5 parser for annotated configuration files
@@ -150,7 +150,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "6.0.3",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.40",
+    "baseline-browser-mapping": "^2.10.41",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
@@ -164,7 +164,7 @@
     // Code formatter with opinionated defaults
     "prettier": "^3.9.4",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
-    "tsx": "^4.22.4",
+    "tsx": "^4.23.0",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "6.0.3",
     // Vite path mapping support (resolves TypeScript path aliases)

@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { triggerFrontendCvRevalidate } from '../utils/triggerFrontendCvRevalidate'
+import { scheduleFrontendCvRevalidate } from '../utils/triggerFrontendCvRevalidate'
 
 import {
   CV_CORE_STRENGTHS_HTML_SEED,
@@ -14,8 +14,8 @@ export const CvExperienceConfig: GlobalConfig = {
   label: 'CV Experience Config',
   hooks: {
     afterChange: [
-      async () => {
-        await triggerFrontendCvRevalidate('cvExperienceConfig.afterChange', {
+      () => {
+        scheduleFrontendCvRevalidate('cvExperienceConfig.afterChange', {
           warmPaths: ['/cv'],
         })
       },
