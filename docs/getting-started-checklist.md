@@ -23,7 +23,7 @@ It is intentionally brief and meant to confirm that you have the right accounts 
 ## 2) Install tools on your machine
 
 - [ ] Git
-- [ ] Node.js (repo expects Node `>=18.20.2`)
+- [ ] Node.js (repo expects Node `^22.13.0 || >=24 <26`)
 - [ ] npm (bundled with Node) or pnpm (supported, optional)
 - [ ] Docker Desktop (macOS/Windows) so you have:
   - [ ] `docker`

@@ -85,23 +85,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1079.0",
+    "@aws-sdk/client-ses": "^3.1085.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.973.15",
+    "@aws-sdk/types": "^3.974.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.85.2",
+    "@payloadcms/db-mongodb": "3.86.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.85.2",
+    "@payloadcms/email-nodemailer": "3.86.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.85.2",
+    "@payloadcms/next": "3.86.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.85.2",
+    "@payloadcms/payload-cloud": "3.86.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.85.2",
+    "@payloadcms/richtext-lexical": "3.86.0",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.85.2",
+    "@payloadcms/storage-s3": "3.86.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.85.2",
+    "@payloadcms/ui": "3.86.0",
     // BSON/EJSON utilities used by database migration and snapshot scripts
     "bson": "^7.3.1",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
@@ -117,11 +117,11 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Direct MongoDB client used by database sync scripts
-    "mongodb": "~7.4.0",
+    "mongodb": "~7.5.0",
     // Next.js framework for frontend/backend integration
     "next": "16.2.10",
     // Payload CMS core package
-    "payload": "3.85.2",
+    "payload": "3.86.0",
     // React version to match Next.js 15
     "react": "19.2.7",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -142,7 +142,7 @@
     // TypeScript definitions for js-yaml used by private content import helpers
     "@types/js-yaml": "^4.0.9",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     // React 19 types
     "@types/react": "19.2.17",
     // React DOM 19 types
@@ -150,7 +150,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "6.0.3",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.41",
+    "baseline-browser-mapping": "^2.10.43",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
@@ -162,7 +162,7 @@
     // Playwright core library (used for browser automation)
     "playwright-core": "1.61.1",
     // Code formatter with opinionated defaults
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.5",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
     "tsx": "^4.23.0",
     // TypeScript compiler (v5.9 for latest language features)
@@ -170,7 +170,7 @@
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "6.1.1",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.1.9",
+    "vitest": "4.1.10",
   },
   // Pin patched versions of transitive dependencies.
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
@@ -182,8 +182,8 @@
   },
   // Minimum versions for runtime tools
   "engines": {
-    // Node 18.20.2+ or 20.9.0+ (for ES modules and latest security patches)
-    "node": "^18.20.2 || >=20.9.0",
+    // Node.js runtime version range supported by this repo and current dependency engines
+    "node": "^22.13.0 || >=24 <26",
     // Pin npm 11 so lockfile writes stay consistent across local/dev/prod installs.
     "npm": ">=11 <12",
     // PNPM v9 or v10 (for workspace support and faster installs)

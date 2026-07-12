@@ -5,6 +5,8 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import JSON5 from "json5";
+
 type PackageTarget = {
   label: string;
   cwd: string;
@@ -28,6 +30,18 @@ type UpgradePlan = {
   target: PackageTarget;
   allowed: Array<{ name: string; version: string }>;
   blocked: Array<{ name: string; version: string; reason: string }>;
+};
+
+type ManifestDependencyFields = {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+};
+
+type PackageManifest = ManifestDependencyFields & {
+  engines?: Record<string, string>;
+  packageManager?: string;
 };
 
 type CliOptions = {
@@ -58,6 +72,12 @@ const guardrails: Guardrail[] = [
       "TypeScript is a core toolchain dependency here; review new major upgrades explicitly instead of auto-applying them.",
   },
   {
+    packageName: "npm",
+    maxMajor: 11,
+    reason:
+      "Repo manifests currently require npm >=11 <12; review npm 12 only together with engine and lockfile policy changes.",
+  },
+  {
     packageName: "next",
     maxMajor: 16,
     reason:
@@ -73,7 +93,7 @@ const guardrails: Guardrail[] = [
     packageName: "graphql",
     maxMajor: 16,
     reason:
-      "Payload 3.85.x peers on graphql^16.8.1 through @payloadcms/next and @payloadcms/graphql; review GraphQL 17 only after Payload supports it.",
+      "Payload 3.x peers on graphql^16.8.1 through @payloadcms/next and @payloadcms/graphql; review GraphQL 17 only after Payload supports it.",
   },
   {
     packageName: "js-yaml",
@@ -187,13 +207,7 @@ function getGuardrail(packageName: string): Guardrail | undefined {
 }
 
 function getManifestPackages(target: PackageTarget): Set<string> {
-  const packageJsonPath = path.join(target.cwd, "package.json");
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-    peerDependencies?: Record<string, string>;
-    optionalDependencies?: Record<string, string>;
-  };
+  const packageJson = readManifest(target);
 
   return new Set([
     ...Object.keys(packageJson.dependencies ?? {}),
@@ -201,6 +215,33 @@ function getManifestPackages(target: PackageTarget): Set<string> {
     ...Object.keys(packageJson.peerDependencies ?? {}),
     ...Object.keys(packageJson.optionalDependencies ?? {}),
   ]);
+}
+
+function readManifest(target: PackageTarget): PackageManifest {
+  const packageJsonPath = path.join(target.cwd, "package.json");
+  return JSON.parse(
+    fs.readFileSync(packageJsonPath, "utf8"),
+  ) as PackageManifest;
+}
+
+function readJson5Manifest(target: PackageTarget): PackageManifest | null {
+  const packageJson5Path = path.join(target.cwd, "package.json5");
+  if (!fs.existsSync(packageJson5Path)) return null;
+  return JSON5.parse(
+    fs.readFileSync(packageJson5Path, "utf8"),
+  ) as PackageManifest;
+}
+
+function getDependencyVersion(
+  manifest: ManifestDependencyFields,
+  packageName: string,
+): string | undefined {
+  return (
+    manifest.dependencies?.[packageName] ??
+    manifest.devDependencies?.[packageName] ??
+    manifest.peerDependencies?.[packageName] ??
+    manifest.optionalDependencies?.[packageName]
+  );
 }
 
 function getUpgradedPackages(target: PackageTarget): Record<string, string> {
@@ -217,6 +258,144 @@ function getUpgradedPackages(target: PackageTarget): Record<string, string> {
 function extractVersionCore(versionSpec: string): string | null {
   const match = versionSpec.match(/\d+(?:\.\d+){0,2}/);
   return match?.[0] ?? null;
+}
+
+function parsePackageManager(packageManager: string): {
+  name: string;
+  version: string;
+} | null {
+  const match = packageManager.match(/^(.+)@(\d+(?:\.\d+){0,2})$/);
+  if (!match) return null;
+  return { name: match[1], version: match[2] };
+}
+
+function isMajorAllowedByEngineRange(major: number, range: string): boolean {
+  const lowerBounds = Array.from(range.matchAll(/>=\s*(\d+)/g), (match) =>
+    Number.parseInt(match[1], 10),
+  );
+  const upperBounds = Array.from(range.matchAll(/<\s*(\d+)/g), (match) =>
+    Number.parseInt(match[1], 10),
+  );
+
+  return (
+    lowerBounds.every((minimum) => major >= minimum) &&
+    upperBounds.every((maximum) => major < maximum)
+  );
+}
+
+function collectManifestInvariantFailures(manifest: PackageManifest): string[] {
+  const failures: string[] = [];
+
+  if (manifest.packageManager) {
+    const parsedPackageManager = parsePackageManager(manifest.packageManager);
+    const engineRange = parsedPackageManager
+      ? manifest.engines?.[parsedPackageManager.name]
+      : undefined;
+    const packageManagerMajor = parsedPackageManager
+      ? parseMajor(parsedPackageManager.version)
+      : null;
+
+    if (
+      parsedPackageManager &&
+      engineRange &&
+      packageManagerMajor !== null &&
+      !isMajorAllowedByEngineRange(packageManagerMajor, engineRange)
+    ) {
+      failures.push(
+        `packageManager ${manifest.packageManager} is outside engines.${parsedPackageManager.name} ${engineRange}.`,
+      );
+    }
+  }
+
+  for (const family of familyGuardrails) {
+    const familyVersions = family.members
+      .map((member) => ({
+        member,
+        version: getDependencyVersion(manifest, member),
+      }))
+      .filter(
+        (entry): entry is { member: string; version: string } =>
+          entry.version !== undefined,
+      );
+
+    if (familyVersions.length < 2) continue;
+
+    const versionCores = new Set(
+      familyVersions
+        .map((entry) => extractVersionCore(entry.version))
+        .filter((version): version is string => Boolean(version)),
+    );
+
+    if (versionCores.size > 1) {
+      const details = familyVersions
+        .map((entry) => `${entry.member}@${entry.version}`)
+        .join(", ");
+      failures.push(`${family.name} versions must match: ${details}.`);
+    }
+  }
+
+  return failures;
+}
+
+function validateJson5Companion(
+  packageJson: PackageManifest,
+  packageJson5: PackageManifest,
+): string[] {
+  const failures: string[] = [];
+
+  const comparedFields = ["node", "npm"] as const;
+  for (const field of comparedFields) {
+    const jsonValue = packageJson.engines?.[field];
+    const json5Value = packageJson5.engines?.[field];
+    if (jsonValue && json5Value && jsonValue !== json5Value) {
+      failures.push(
+        `package.json5 engines.${field} ${json5Value} does not match package.json ${jsonValue}.`,
+      );
+    }
+  }
+
+  if (
+    packageJson.packageManager &&
+    packageJson5.packageManager &&
+    packageJson.packageManager !== packageJson5.packageManager
+  ) {
+    failures.push(
+      `package.json5 packageManager ${packageJson5.packageManager} does not match package.json ${packageJson.packageManager}.`,
+    );
+  }
+
+  for (const family of familyGuardrails) {
+    for (const member of family.members) {
+      const jsonVersion = getDependencyVersion(packageJson, member);
+      const json5Version = getDependencyVersion(packageJson5, member);
+      if (jsonVersion && json5Version && jsonVersion !== json5Version) {
+        failures.push(
+          `package.json5 ${member}@${json5Version} does not match package.json ${member}@${jsonVersion}.`,
+        );
+      }
+    }
+  }
+
+  return failures;
+}
+
+function validateManifestInvariants(target: PackageTarget): void {
+  const packageJson = readManifest(target);
+  const packageJson5 = readJson5Manifest(target);
+  const failures = collectManifestInvariantFailures(packageJson);
+
+  if (packageJson5) {
+    failures.push(...collectManifestInvariantFailures(packageJson5));
+    failures.push(...validateJson5Companion(packageJson, packageJson5));
+  }
+
+  if (!failures.length) return;
+
+  throw new Error(
+    `[${target.label}] manifest guard failed:\n${failures
+      .map((failure) => `  - ${failure}`)
+      .join("\n")}`,
+  );
 }
 
 function blockUpgrade(
@@ -305,6 +484,8 @@ function applyFrontendTypescriptEslintGuardrail(
 }
 
 function buildPlan(target: PackageTarget): UpgradePlan {
+  validateManifestInvariants(target);
+
   const upgraded = getUpgradedPackages(target);
   const blocked = new Map<string, { version: string; reason: string }>();
 
