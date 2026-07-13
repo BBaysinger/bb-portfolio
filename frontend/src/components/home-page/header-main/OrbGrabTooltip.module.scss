@@ -4,103 +4,32 @@
   position: absolute;
   z-index: 1000;
   display: block;
-  color: $lighterThemeColor;
-  top: 8px;
-  left: 8px;
+  width: 180px;
+  height: 180px;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
   transform-origin: center center;
-  color: $lighterThemeColor;
+
   :global(.hasDragged) & {
     display: none;
   }
 }
 
 .grabImage {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  bottom: 25px;
-  right: 25px;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   filter: drop-shadow(0 0 4px $lighterThemeColor);
-  animation: bounceMask 2s infinite forwards;
   user-select: none;
   -webkit-user-drag: none;
-  :global(.hasDragged) & {
-    display: none;
-  }
 
-  // Hide permanently after wall collision
   :global(.hasCollided) & {
     display: none !important;
   }
 
-  // Hide temporarily only when slinger is in flight (after release, not during drag)
-  // This requires the isSlingerInFlight state to be exposed as a CSS class
   :global(.slingerInFlight.notCollided) & {
     opacity: 0;
     pointer-events: none;
-  }
-}
-
-.tooltipText {
-  --offset: 31px;
-
-  position: absolute;
-  width: 200px;
-  height: 2em;
-  right: var(--offset);
-  bottom: calc(-50% + var(--offset));
-  transform-origin: bottom right;
-  transform: rotate(45deg) translate(10px, 52%);
-  animation: bounceClip 2s infinite forwards;
-
-  &::before {
-    content: "Grab the orb! Grab the orb! Grab the orb!\00a0";
-    color: white;
-    // content: "Grab the orb! Click and hold! Grab the orb! Click and hold!\00a0";
-    position: absolute;
-    top: 50%;
-    left: -50px;
-    margin-top: 0;
-    white-space: nowrap;
-    text-align: right;
-    transform-origin: bottom right;
-    display: block;
-    animation: scrollText 2s linear infinite;
-    width: max-content;
-  }
-}
-
-@keyframes bounceClip {
-  0% {
-    clip-path: inset(0 42px 0 58px);
-  }
-  50% {
-    clip-path: inset(0 69px 0 29px);
-  }
-  100% {
-    clip-path: inset(0 42px 0 58px);
-  }
-}
-
-@keyframes scrollText {
-  0% {
-    transform: translate(0%, -50%);
-  }
-  100% {
-    transform: translate(-33%, -50%);
-  }
-}
-
-@keyframes bounceMask {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(-20px, -20px);
-  }
-  100% {
-    transform: translate(0, 0);
   }
 }

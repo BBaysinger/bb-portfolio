@@ -20,8 +20,9 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   className,
   isActive = false,
 }) => {
-  const lightningSrc = "/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp";
-  const energyBarSrc = "/spritesheets/energy-bars_w92h300f110.webp";
+  const lightningSrc =
+    "/spritesheets/hero/lightning_Layer-Comp-_w480h1098f7.webp";
+  const energyBarSrc = "/spritesheets/hero/energy-bars_w92h300f110.webp";
 
   const [lightningFrame, setLightningFrame] = useState<number | null>(-1); // hidden
   const [energyBarsFrame, setEnergyBarsFrame] = useState<number | null>(-1); // hidden
