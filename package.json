@@ -3,8 +3,8 @@
   "version": "0.0.86",
   "private": true,
   "engines": {
-    "node": "^22.13.0 || >=24 <26",
-    "npm": ">=11 <12",
+    "node": "^20.13.0 || ^22.13.0 || >=24 <26",
+    "npm": ">=10.5 <12",
     "pnpm": "^9 || ^10"
   },
   "scripts": {
@@ -161,8 +161,8 @@
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.10",
     "@types/glob": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "8.63.0",
-    "@typescript-eslint/parser": "8.63.0",
+    "@typescript-eslint/eslint-plugin": "8.64.0",
+    "@typescript-eslint/parser": "8.64.0",
     "baseline-browser-mapping": "^2.10.43",
     "concurrently": "^10.0.3",
     "eslint": "^9.39.4",
@@ -177,10 +177,13 @@
     "json5-manifest-sync": "^0.2.2",
     "prettier": "^3.9.5",
     "ts-node": "^10.9.2",
-    "tsx": "^4.23.0",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.3"
+  },
+  "overrides": {
+    "eslint-visitor-keys": "4.2.1"
   }
 }

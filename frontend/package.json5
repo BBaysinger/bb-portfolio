@@ -71,9 +71,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.1085.0",
+    "@aws-sdk/client-s3": "^3.1087.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.1085.0",
+    "@aws-sdk/s3-request-presigner": "^3.1087.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.12.0",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -136,7 +136,7 @@
     // Opinionated code formatter for consistent style
     "prettier": "^3.9.5",
     // Lightweight TypeScript runtime for executing guard scripts
-    "tsx": "^4.23.0",
+    "tsx": "^4.23.1",
     // TypeScript compiler (v5 for latest language features)
     "typescript": "6.0.3",
     // Fast unit and integration test runner for the frontend package.
@@ -145,9 +145,9 @@
   // Toolchain version constraints for local dev and CI
   "engines": {
     // Node.js runtime version range supported by this repo and current dependency engines
-    "node": "^22.13.0 || >=24 <26",
-    // Pin npm 11 so lockfile writes stay consistent across local/dev/prod installs.
-    "npm": ">=11 <12",
+    "node": "^20.13.0 || ^22.13.0 || >=24 <26",
+    // Allow npm 10.5+ so local installs work with the active Node 20.13.x toolchain.
+    "npm": ">=10.5 <12",
     // pnpm major versions supported (used by some scripts/workflows)
     "pnpm": "^9 || ^10",
   },

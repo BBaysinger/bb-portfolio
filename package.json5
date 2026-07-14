@@ -15,9 +15,9 @@
   // Toolchain version constraints for dev machines/CI
   "engines": {
     // Node.js runtime version range supported by this repo and current dependency engines
-    "node": "^22.13.0 || >=24 <26",
-    // Pin npm 11 so lockfile writes stay consistent across local/dev/prod installs.
-    "npm": ">=11 <12",
+    "node": "^20.13.0 || ^22.13.0 || >=24 <26",
+    // Allow npm 10.5+ so local installs work with the active Node 20.13.x toolchain.
+    "npm": ">=10.5 <12",
     // pnpm major versions supported (used by some scripts/workflows)
     "pnpm": "^9 || ^10",
   },
@@ -421,9 +421,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.63.0",
+    "@typescript-eslint/eslint-plugin": "8.64.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.63.0",
+    "@typescript-eslint/parser": "8.64.0",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.43",
     // Run multiple commands concurrently in scripts
@@ -453,7 +453,7 @@
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
-    "tsx": "^4.23.0",
+    "tsx": "^4.23.1",
     // TypeScript language support
     "typescript": "^6.0.3",
   },
@@ -461,5 +461,10 @@
   "dependencies": {
     // JWT utilities used by local maintenance scripts
     "jsonwebtoken": "^9.0.3",
+  },
+  //
+  "overrides": {
+    // Keep TypeScript ESLint's visitor key helper on a Node 20.13-compatible release.
+    "eslint-visitor-keys": "4.2.1",
   },
 }
