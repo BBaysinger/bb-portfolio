@@ -530,7 +530,7 @@ migrate_database() {
       done
     else
       echo "  Will run: mongodump --uri \"$masked_source_uri\" --out \"$temp_dump_dir\"${QUIET_FLAG:+ $QUIET_FLAG}"
-      echo "  Then:     mongorestore --uri \"$masked_target_uri\" --drop --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
+      echo "  Then:     mongorestore --uri \"$(mask_uri "$target_base")\" --drop --nsInclude \"<dumped-db>.*\" --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
     fi
     echo
     return
@@ -625,8 +625,9 @@ migrate_database() {
   else
     local restore_cmd=(
       mongorestore
-      --uri "$target_db_uri"
+      --uri "$target_base"
       --drop
+      --nsInclude "${source_dump_name}.*"
       --nsFrom "${source_dump_name}.*"
       --nsTo "${target_db_name}.*"
       "$source_dump_dir"

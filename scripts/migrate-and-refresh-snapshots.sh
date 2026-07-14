@@ -12,6 +12,12 @@ usage() {
   cat >&2 <<'EOF'
 Usage: scripts/migrate-and-refresh-snapshots.sh --target dev|prod [--source local|dev|prod] [--confirm-prod-write]
 
+NOTE: For routine CMS migrations, run the package.json script instead:
+  npm run content:migrate -- --source local --target prod --confirm-prod-write
+
+This wrapper is only for migrations that also require regenerating and syncing
+frontend snapshot secrets.
+
 Runs the aggregate content:migrate workflow only, then regenerates both
 frontend snapshot secret payloads from the target environment and syncs only
 the relevant GitHub environment secrets.
