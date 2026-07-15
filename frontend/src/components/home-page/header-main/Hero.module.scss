@@ -22,12 +22,13 @@ header.hero {
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: 100% 100%;
-  // Use the global stable viewport, including Chrome's route-aware visible-height exception.
-  min-height: var(--stable-vh, 100vh);
+  // Use the route-aware fullscreen viewport value; Chrome may briefly publish long height
+  // after route changes, while other browsers keep this pinned to short height.
+  min-height: var(--fullscreen-viewport-height, var(--stable-vh, 100vh));
 
   // Before client hydration publishes the pixel value, prefer the native short viewport unit.
   @supports (min-height: 100svh) and (not (-moz-appearance: none)) {
-    min-height: var(--stable-vh, 100svh);
+    min-height: var(--fullscreen-viewport-height, var(--stable-vh, 100svh));
   }
   @include lerpRange(--hero-padding, 10px, 18px, $b320, $b576);
 

@@ -18,9 +18,9 @@ Provide stable, mobile-friendly viewport measurements for layout code that canno
   - schedules a few post-mount and `visualViewport`-driven settle passes
 - `useLockedStableViewportHeightVar`
   - captures mobile short/long viewport heights once per orientation
-  - bounds Chrome iOS measurements with native `svh`/`lvh`, preventing oversized fresh-entry samples from becoming the active hero height
-  - exposes global `--short-vh`, `--long-vh`, and active `--stable-vh` variables on the document root
-  - on mobile Chrome, `--stable-vh` may use the visible long height after routing until the first real document scroll; other mobile browsers keep the short height locked
+  - bounds Chrome measurements with native `svh`/`lvh`, preventing oversized fresh-entry samples from becoming the active hero height
+  - exposes global `--short-vh`, `--long-vh`, stable `--stable-vh`, and route-aware `--fullscreen-viewport-height` variables on the document root
+  - on mobile Chrome, `--fullscreen-viewport-height` may use the current measured viewport height after routing until the first real document scroll writes the short pixel height back; other mobile browsers keep it locked to short height
 
 ## Design Goals
 

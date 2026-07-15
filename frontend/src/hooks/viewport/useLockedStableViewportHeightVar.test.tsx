@@ -51,6 +51,9 @@ describe("useLockedStableViewportHeightVar", () => {
     document.documentElement.style.removeProperty("--stable-vh");
     document.documentElement.style.removeProperty("--short-vh");
     document.documentElement.style.removeProperty("--long-vh");
+    document.documentElement.style.removeProperty(
+      "--fullscreen-viewport-height",
+    );
     visualViewport = new MockVisualViewport();
     cssSmallHeight = 0;
     cssLargeHeight = 0;
@@ -146,6 +149,11 @@ describe("useLockedStableViewportHeightVar", () => {
     expect(document.documentElement.style.getPropertyValue("--long-vh")).toBe(
       "600px",
     );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
 
     setScrollY(100);
     visualViewport.height = 700;
@@ -157,6 +165,11 @@ describe("useLockedStableViewportHeightVar", () => {
     expect(document.documentElement.style.getPropertyValue("--long-vh")).toBe(
       "700px",
     );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
   });
 
   it("uses native small viewport height on a fresh Chrome iOS visit", () => {
@@ -179,9 +192,49 @@ describe("useLockedStableViewportHeightVar", () => {
     expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
       "600px",
     );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+    expect(document.documentElement.style.getPropertyValue("--long-vh")).toBe(
+      "700px",
+    );
   });
 
-  it("uses Chrome's visible long height after routing until the user scrolls", () => {
+  it("uses the current measured height after Chrome route changes before scroll events populate long height", () => {
+    setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
+    );
+    setScrollY(0);
+    cssSmallHeight = 600;
+    cssLargeHeight = 700;
+    visualViewport.height = 600;
+
+    const { result, rerender } = renderHook(
+      ({ navigationKey }) =>
+        useLockedStableViewportHeightVar(null, { navigationKey }),
+      { initialProps: { navigationKey: "/project/example" } },
+    );
+
+    expect(result.current).toBe(600);
+    expect(document.documentElement.style.getPropertyValue("--long-vh")).toBe(
+      "700px",
+    );
+
+    rerender({ navigationKey: "/" });
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+  });
+
+  it("publishes Chrome's current visible height as fullscreen height after routing until the user scrolls", () => {
     setUserAgent(
       "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
     );
@@ -200,8 +253,8 @@ describe("useLockedStableViewportHeightVar", () => {
     visualViewport.height = 700;
     rerender({ navigationKey: "/" });
 
-    // The returned value remains the cached layout baseline; CSS reflects Chrome's
-    // temporary route-visible height without forcing a second React render.
+    // The returned value and stable CSS variable remain the cached layout baseline;
+    // only the route-aware fullscreen variable reflects Chrome's temporary visible height.
     expect(result.current).toBe(600);
     expect(document.documentElement.style.getPropertyValue("--short-vh")).toBe(
       "600px",
@@ -210,15 +263,153 @@ describe("useLockedStableViewportHeightVar", () => {
       "700px",
     );
     expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
-      "700px",
+      "600px",
     );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("700px");
 
     act(() => window.dispatchEvent(new Event("scroll")));
+
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("700px");
+
+    act(() => window.dispatchEvent(new Event("touchmove")));
 
     expect(result.current).toBe(600);
     expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
       "600px",
     );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+  });
+
+  it("uses the current measured height after Chrome route changes even when cached long height is larger", () => {
+    setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
+    );
+    setScrollY(0);
+    visualViewport.height = 600;
+
+    const { result, rerender } = renderHook(
+      ({ navigationKey }) =>
+        useLockedStableViewportHeightVar(null, { navigationKey }),
+      { initialProps: { navigationKey: "/project/example" } },
+    );
+
+    expect(result.current).toBe(600);
+
+    setScrollY(100);
+    visualViewport.height = 700;
+    act(() => visualViewport.dispatchEvent(new Event("resize")));
+
+    expect(document.documentElement.style.getPropertyValue("--long-vh")).toBe(
+      "700px",
+    );
+
+    visualViewport.height = 600;
+    rerender({ navigationKey: "/" });
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+
+    act(() => window.dispatchEvent(new Event("scroll")));
+
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+
+    act(() => window.dispatchEvent(new Event("touchmove")));
+
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+  });
+
+  it("uses the fullscreen long height for Android Chrome after routing", () => {
+    setUserAgent(
+      "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36",
+    );
+    setScrollY(0);
+    visualViewport.height = 600;
+
+    const { result, rerender } = renderHook(
+      ({ navigationKey }) =>
+        useLockedStableViewportHeightVar(null, { navigationKey }),
+      { initialProps: { navigationKey: "/project/example" } },
+    );
+
+    expect(result.current).toBe(600);
+
+    setScrollY(100);
+    visualViewport.height = 700;
+    rerender({ navigationKey: "/" });
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("700px");
+
+    act(() => window.dispatchEvent(new Event("touchmove")));
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+  });
+
+  it("keeps the fullscreen height locked to short height for non-Chrome browsers after routing", () => {
+    setScrollY(0);
+    visualViewport.height = 600;
+
+    const { rerender } = renderHook(
+      ({ navigationKey }) =>
+        useLockedStableViewportHeightVar(null, { navigationKey }),
+      { initialProps: { navigationKey: "/project/example" } },
+    );
+
+    setScrollY(100);
+    visualViewport.height = 700;
+    rerender({ navigationKey: "/" });
+    act(() => visualViewport.dispatchEvent(new Event("resize")));
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(document.documentElement.style.getPropertyValue("--long-vh")).toBe(
+      "700px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
   });
 
   it("keeps a top-anchored mobile height locked during ordinary scrolling", () => {
@@ -234,6 +425,9 @@ describe("useLockedStableViewportHeightVar", () => {
 
     expect(result.current).toBe(600);
     expect(element.style.getPropertyValue("--stable-vh")).toBe("600px");
+    expect(element.style.getPropertyValue("--fullscreen-viewport-height")).toBe(
+      "600px",
+    );
   });
 
   it("recaptures the short height after an orientation change", () => {

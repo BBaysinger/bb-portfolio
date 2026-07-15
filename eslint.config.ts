@@ -12,6 +12,7 @@ export default [
   {
     ignores: [
       "dist",
+      "**/dist/**",
       "node_modules",
       "**/.next/**",
       "**/src (from backup)/**",

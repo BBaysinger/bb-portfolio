@@ -27,6 +27,8 @@ export interface UseLockedStableViewportHeightVarOptions {
   shortCssVarName?: string;
   /** Collapsed-browser-chrome viewport height (default: `--long-vh`). */
   longCssVarName?: string;
+  /** Route-aware fullscreen viewport height (default: `--fullscreen-viewport-height`). */
+  fullscreenViewportCssVarName?: string;
   /** Whether measurement and CSS-variable publication are active. */
   enabled?: boolean;
   /** Width delta treated as a new mobile orientation/layout. */
@@ -107,14 +109,34 @@ function getBoundedLongViewportHeight() {
   return Math.min(measuredHeight, cssLongHeight);
 }
 
+function getChromeRouteFullscreenViewportHeight(
+  cache: MobileViewportHeightCache,
+) {
+  const shortHeight = cache.shortHeight;
+  if (!isUsableViewportHeight(shortHeight)) return null;
+
+  const measuredHeight = getViewportHeightPx();
+  if (isUsableViewportHeight(measuredHeight)) return measuredHeight;
+
+  return shortHeight;
+}
+
+function getChromeRouteFullscreenViewportCssValue(
+  cache: MobileViewportHeightCache,
+) {
+  const measuredHeight = getChromeRouteFullscreenViewportHeight(cache);
+  return isUsableViewportHeight(measuredHeight) ? `${measuredHeight}px` : null;
+}
+
 /**
  * Publishes stable viewport lengths as CSS variables.
  *
  * With no target ref, variables are written to `document.documentElement` and are therefore
  * globally inherited. On coarse/non-hover devices, the short and long heights are cached
- * across client-side routes. The short height normally drives `--stable-vh`; mobile Chrome
- * temporarily uses the visible long height after navigation because it does not immediately
- * restore expanded browser chrome. The first real scroll switches it back to the short lock.
+ * across client-side routes. The short height drives `--stable-vh`; mobile Chrome
+ * temporarily publishes the desired fullscreen height to `--fullscreen-viewport-height`
+ * after navigation because it does not immediately restore expanded browser chrome.
+ * The first real scroll switches that route-aware value back to the short lock.
  */
 export default function useLockedStableViewportHeightVar(
   elementRef: RefObject<HTMLElement | null> | null = null,
@@ -124,6 +146,7 @@ export default function useLockedStableViewportHeightVar(
     cssVarName = "--stable-vh",
     shortCssVarName = "--short-vh",
     longCssVarName = "--long-vh",
+    fullscreenViewportCssVarName = "--fullscreen-viewport-height",
     enabled = true,
     widthChangeThresholdPx = DEFAULT_WIDTH_CHANGE_THRESHOLD_PX,
     topScrollGuardPx = DEFAULT_TOP_SCROLL_GUARD_PX,
@@ -148,9 +171,13 @@ export default function useLockedStableViewportHeightVar(
     return cache.longHeight ?? cache.shortHeight;
   });
   const stableHeightRef = useRef<number | null>(initialCachedHeight);
+  const fullscreenViewportHeightRef = useRef<number | null>(
+    initialCachedHeight,
+  );
   const lastWidthRef = useRef<number | null>(null);
   const needsTopAnchoredCorrectionRef = useRef(false);
   const chromeNavigationUsesLongHeightRef = useRef(false);
+  const chromeNavigationHasUserScrollRef = useRef(false);
   const rafIdsRef = useRef<number[]>([]);
 
   const clearScheduledSamples = useCallback(() => {
@@ -177,12 +204,19 @@ export default function useLockedStableViewportHeightVar(
         atTop &&
         visualViewportOffsetTop <= TOP_ANCHORED_VISUAL_VIEWPORT_OFFSET_GUARD_PX
       ) {
-        // Chrome iOS can report an oversized visual viewport on a fresh visit before its
+        // Chrome can report an oversized visual viewport on a fresh visit before its
         // browser chrome settles. Keep the smallest trustworthy top-anchored sample.
         cache.shortHeight = Math.min(
           cache.shortHeight ?? measuredHeight,
           measuredHeight,
         );
+        const nativeLongHeight = getLargeViewportHeightPx();
+        if (
+          isUsableViewportHeight(nativeLongHeight) &&
+          nativeLongHeight > cache.shortHeight
+        ) {
+          cache.longHeight = Math.max(cache.longHeight ?? 0, nativeLongHeight);
+        }
       } else if (!atTop) {
         // Browser chrome can collapse over several frames; the largest sample is the long
         // viewport and is safe to refine because it never drives stable layout sizing.
@@ -227,6 +261,7 @@ export default function useLockedStableViewportHeightVar(
     if (!enabled) {
       stableHeightRef.current = null;
       el.style.removeProperty(cssVarName);
+      el.style.removeProperty(fullscreenViewportCssVarName);
       return;
     }
 
@@ -263,6 +298,7 @@ export default function useLockedStableViewportHeightVar(
       // This is the primary mobile recapture boundary.
       resetMobileViewportHeightCache();
       chromeNavigationUsesLongHeightRef.current = false;
+      chromeNavigationHasUserScrollRef.current = false;
       setShortHeightPx(null);
       setLongHeightPx(null);
 
@@ -315,6 +351,7 @@ export default function useLockedStableViewportHeightVar(
 
       if (
         chromeNavigationUsesLongHeightRef.current &&
+        chromeNavigationHasUserScrollRef.current &&
         window.scrollY > topScrollGuardPx
       ) {
         const shortHeight = getMobileViewportHeightCache(
@@ -322,12 +359,16 @@ export default function useLockedStableViewportHeightVar(
         ).shortHeight;
         if (isUsableViewportHeight(shortHeight)) {
           // Chrome keeps collapsed browser chrome after routing. Once the user actually
-          // scrolls, return to the same short-height lock used by the other browsers.
+          // scrolls, return the route-aware value to the same short-height lock used by
+          // the other browsers.
           chromeNavigationUsesLongHeightRef.current = false;
-          stableHeightRef.current = shortHeight;
+          chromeNavigationHasUserScrollRef.current = false;
+          fullscreenViewportHeightRef.current = shortHeight;
           const el = elementRef?.current ?? document.documentElement;
-          el.style.setProperty(cssVarName, `${shortHeight}px`);
-          setStableHeightPx(shortHeight);
+          el.style.setProperty(
+            fullscreenViewportCssVarName,
+            `${shortHeight}px`,
+          );
         }
         return;
       }
@@ -348,8 +389,14 @@ export default function useLockedStableViewportHeightVar(
     };
 
     const onWindowScroll = () => {
-      // Chrome iOS does not consistently pair a document scroll with a
+      // Chrome does not consistently pair a document scroll with a
       // VisualViewport scroll event. Both must drive the route-height contraction.
+      onVisualViewportChange();
+    };
+
+    const onUserScrollStart = () => {
+      if (!chromeNavigationUsesLongHeightRef.current) return;
+      chromeNavigationHasUserScrollRef.current = true;
       onVisualViewportChange();
     };
 
@@ -362,6 +409,8 @@ export default function useLockedStableViewportHeightVar(
     });
     window.addEventListener("pageshow", onPageShow, { passive: true });
     window.addEventListener("scroll", onWindowScroll, { passive: true });
+    window.addEventListener("touchmove", onUserScrollStart, { passive: true });
+    window.addEventListener("wheel", onUserScrollStart, { passive: true });
     document.addEventListener("fullscreenchange", onFullscreenChange);
     viewport?.addEventListener("resize", onVisualViewportChange, {
       passive: true,
@@ -376,6 +425,8 @@ export default function useLockedStableViewportHeightVar(
       window.removeEventListener("orientationchange", onOrientationChange);
       window.removeEventListener("pageshow", onPageShow);
       window.removeEventListener("scroll", onWindowScroll);
+      window.removeEventListener("touchmove", onUserScrollStart);
+      window.removeEventListener("wheel", onUserScrollStart);
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       viewport?.removeEventListener("resize", onVisualViewportChange);
       viewport?.removeEventListener("scroll", onVisualViewportChange);
@@ -386,6 +437,7 @@ export default function useLockedStableViewportHeightVar(
     cssVarName,
     elementRef,
     enabled,
+    fullscreenViewportCssVarName,
     longCssVarName,
     scheduleLockedMeasurement,
     shortCssVarName,
@@ -398,6 +450,8 @@ export default function useLockedStableViewportHeightVar(
     if (!el) return;
 
     if (!enabled || stableHeightPx === null) {
+      fullscreenViewportHeightRef.current = null;
+      el.style.removeProperty(fullscreenViewportCssVarName);
       el.style.removeProperty(cssVarName);
       el.style.removeProperty(shortCssVarName);
       el.style.removeProperty(longCssVarName);
@@ -406,7 +460,18 @@ export default function useLockedStableViewportHeightVar(
 
     // Publish before paint so route mounts consume the cached short height without a frame
     // rendered at Safari's temporary collapsed-chrome height.
+    if (!chromeNavigationUsesLongHeightRef.current) {
+      fullscreenViewportHeightRef.current = stableHeightPx;
+    }
+    const fullscreenViewportHeight = fullscreenViewportHeightRef.current;
+
     el.style.setProperty(cssVarName, `${stableHeightPx}px`);
+    if (isUsableViewportHeight(fullscreenViewportHeight)) {
+      el.style.setProperty(
+        fullscreenViewportCssVarName,
+        `${fullscreenViewportHeight}px`,
+      );
+    }
     el.style.setProperty(
       shortCssVarName,
       `${shortHeightPx ?? stableHeightPx}px`,
@@ -416,6 +481,7 @@ export default function useLockedStableViewportHeightVar(
     cssVarName,
     elementRef,
     enabled,
+    fullscreenViewportCssVarName,
     longCssVarName,
     longHeightPx,
     shortHeightPx,
@@ -429,33 +495,56 @@ export default function useLockedStableViewportHeightVar(
     const { hasCoarsePointer, canHover } = getInteractionCapabilities();
     if ((!hasCoarsePointer && canHover) || !isChrome() || getIsFullscreen()) {
       chromeNavigationUsesLongHeightRef.current = false;
+      chromeNavigationHasUserScrollRef.current = false;
       return;
     }
 
     const cache = getMobileViewportHeightCache(widthChangeThresholdPx);
-    const measuredHeight = getBoundedLongViewportHeight();
+    const fullscreenViewportHeight =
+      getChromeRouteFullscreenViewportCssValue(cache);
     if (
       !isUsableViewportHeight(cache.shortHeight) ||
-      !isUsableViewportHeight(measuredHeight) ||
-      measuredHeight <= cache.shortHeight
+      fullscreenViewportHeight === null
     ) {
       chromeNavigationUsesLongHeightRef.current = false;
+      chromeNavigationHasUserScrollRef.current = false;
+      if (isUsableViewportHeight(cache.shortHeight)) {
+        fullscreenViewportHeightRef.current = cache.shortHeight;
+        const el = elementRef?.current ?? document.documentElement;
+        el.style.setProperty(
+          fullscreenViewportCssVarName,
+          `${cache.shortHeight}px`,
+        );
+      }
       return;
     }
 
-    // Unlike Safari, mobile Chrome can preserve its collapsed location bar across routing.
-    // Match the viewport that is actually visible until the next user scroll restores chrome.
-    cache.longHeight = Math.max(cache.longHeight ?? 0, measuredHeight);
+    // Unlike Safari, mobile Chrome can preserve its current location-bar state across routing.
+    // Publish the viewport that is actually visible until the next user scroll restores chrome.
+    const measuredHeight = getChromeRouteFullscreenViewportHeight(cache);
+    if (
+      isUsableViewportHeight(measuredHeight) &&
+      measuredHeight > cache.shortHeight
+    ) {
+      cache.longHeight = Math.max(cache.longHeight ?? 0, measuredHeight);
+    }
     chromeNavigationUsesLongHeightRef.current = true;
-    stableHeightRef.current = measuredHeight;
+    chromeNavigationHasUserScrollRef.current = false;
+    fullscreenViewportHeightRef.current = null;
 
     const el = elementRef?.current ?? document.documentElement;
-    el.style.setProperty(cssVarName, `${measuredHeight}px`);
-    el.style.setProperty(longCssVarName, `${cache.longHeight}px`);
+    el.style.setProperty(
+      fullscreenViewportCssVarName,
+      fullscreenViewportHeight,
+    );
+    if (isUsableViewportHeight(cache.longHeight)) {
+      el.style.setProperty(longCssVarName, `${cache.longHeight}px`);
+    }
   }, [
     cssVarName,
     elementRef,
     enabled,
+    fullscreenViewportCssVarName,
     longCssVarName,
     navigationKey,
     widthChangeThresholdPx,

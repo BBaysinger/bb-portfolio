@@ -6,10 +6,16 @@
 @mixin graphite-page-scope() {
   box-sizing: border-box;
   padding-top: $navBarHeight;
-  min-height: var(--graphite-stable-vh, 100vh);
+  min-height: var(
+    --fullscreen-viewport-height,
+    var(--graphite-stable-vh, 100vh)
+  );
 
   @supports (min-height: 100svh) {
-    min-height: var(--graphite-stable-vh, 100svh);
+    min-height: var(
+      --fullscreen-viewport-height,
+      var(--graphite-stable-vh, 100svh)
+    );
   }
 
   h1,
