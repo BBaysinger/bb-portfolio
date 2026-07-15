@@ -21,7 +21,17 @@ if [ "$ENVIRONMENT" = "dev" ]; then
 fi
 
 payload='{"reason":"post-deploy-revalidate","source":"github-actions-redeploy"}'
+base_url="http://127.0.0.1:${port}"
+auth_header="Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET"
+
+# Invalidation is lazy. Warm the primary public pages immediately so the newly
+# deployed frontend replaces build-snapshot HTML with live environment data
+# before the first visitor arrives.
+remote_command="curl -fsS -X POST -H '$auth_header' -H 'Content-Type: application/json' -d '$payload' $base_url/api/revalidate/projects/ >/dev/null"
+remote_command+=" && curl -fsS -X POST -H '$auth_header' -H 'Content-Type: application/json' -d '$payload' $base_url/api/revalidate/cv/ >/dev/null"
+remote_command+=" && curl -fsS -H 'X-Cache-Warm: 1' $base_url/ >/dev/null"
+remote_command+=" && curl -fsS -H 'X-Cache-Warm: 1' $base_url/cv/ >/dev/null"
 
 bb_retry 3 4 "trigger frontend revalidation" \
   ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" \
-  "curl -fsS -X POST -H 'Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET' -H 'Content-Type: application/json' -d '$payload' http://127.0.0.1:${port}/api/revalidate/projects/ >/dev/null && curl -fsS -X POST -H 'Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET' -H 'Content-Type: application/json' -d '$payload' http://127.0.0.1:${port}/api/revalidate/cv/ >/dev/null"
+  "$remote_command"
