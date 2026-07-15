@@ -454,7 +454,7 @@ create_backup() {
 
   log_success "Backup created: $backup_dir"
   echo "  Use this to restore if needed:"
-  echo "  mongorestore --uri \"$target_db_uri\" --drop \"$backup_dir/$target_db_name\""
+  echo "  mongorestore --uri \"$(mask_uri "$target_db_uri")\" --drop \"$backup_dir/$target_db_name\""
   echo
 }
 
@@ -544,7 +544,7 @@ migrate_database() {
       done
     else
       echo "  Will run: mongodump --uri \"$masked_source_uri\" --out \"$temp_dump_dir\"${QUIET_FLAG:+ $QUIET_FLAG}"
-      echo "  Then:     mongorestore --uri \"$(mask_uri "$target_base")\" --drop --nsInclude \"<dumped-db>.*\" --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir/<dumped-db>\" ${QUIET_FLAG:+$QUIET_FLAG}"
+      echo "  Then:     mongorestore --uri \"$(mask_uri "$target_base")\" --drop --nsInclude \"<dumped-db>.*\" --nsFrom \"<dumped-db>.*\" --nsTo \"${target_db_name}.*\" \"$temp_dump_dir\" ${QUIET_FLAG:+$QUIET_FLAG}"
     fi
     echo
     return
@@ -635,10 +635,21 @@ migrate_database() {
       --nsInclude "${source_dump_name}.*"
       --nsFrom "${source_dump_name}.*"
       --nsTo "${target_db_name}.*"
-      "$source_dump_dir"
+      "$temp_dump_dir"
     )
     if ! "${restore_cmd[@]}" </dev/null 2>"$restore_log"; then
       log_error "mongorestore failed. Last lines from restore log:"
+      print_mongodb_log "$restore_log"
+      rm -f "$restore_log"
+      exit 1
+    fi
+  fi
+
+  if [[ ${#COLLECTION_DISPLAY[@]} -eq 0 ]]; then
+    local restored_count
+    restored_count=$(sed -nE 's/.* ([0-9]+) document\(s\) restored successfully.*/\1/p' "$restore_log" | tail -n 1)
+    if [[ -z "$restored_count" || "$restored_count" == "0" ]]; then
+      log_error "mongorestore completed without restoring any documents."
       print_mongodb_log "$restore_log"
       rm -f "$restore_log"
       exit 1
