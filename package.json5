@@ -427,7 +427,7 @@
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.43",
     // Run multiple commands concurrently in scripts
-    "concurrently": "^9.2.4",
+    "concurrently": "^10.0.3",
     // Main linter for JS/TS code
     "eslint": "^9.39.4",
     // ESLint plugin for import/export syntax validation
