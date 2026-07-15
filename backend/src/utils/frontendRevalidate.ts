@@ -10,6 +10,7 @@
 const DEFAULT_TIMEOUT_MS = 8000
 const DEFAULT_WARM_TIMEOUT_MS = 15000
 const DEFAULT_SCHEDULE_DELAY_MS = 2000
+const DEFAULT_WARM_CONCURRENCY = 2
 
 // Shared fallbacks used by every target when a target-specific value is absent.
 const PROJECTS_URL_ENV = 'FRONTEND_PROJECTS_REVALIDATE_URL'
@@ -184,34 +185,42 @@ const warmFrontendPaths = async (
   const origin = originOverride ?? resolvePublicOrigins(target)[0]
   if (!origin) return
 
-  await Promise.allSettled(
-    normalizedPaths.map(async (path) => {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort('timeout'), DEFAULT_WARM_TIMEOUT_MS)
+  const warmPath = async (path: string): Promise<void> => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort('timeout'), DEFAULT_WARM_TIMEOUT_MS)
 
-      try {
-        const res = await fetch(`${origin}${path}`, {
-          method: 'GET',
-          headers: {
-            'x-cache-warm': '1',
-            'user-agent': 'payload-cms-cache-warmer/1.0',
-          },
-          signal: controller.signal,
-        })
+    try {
+      const res = await fetch(`${origin}${path}`, {
+        method: 'GET',
+        headers: {
+          'x-cache-warm': '1',
+          'user-agent': 'payload-cms-cache-warmer/1.0',
+        },
+        signal: controller.signal,
+      })
 
-        if (!res.ok) {
-          console.warn(
-            `[revalidate] Warm request failed for ${path} after ${reason} (${res.status}).`,
-          )
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error)
-        console.warn(`[revalidate] Warm request error for ${path} after ${reason}: ${message}`)
-      } finally {
-        clearTimeout(timeout)
+      if (!res.ok) {
+        console.warn(
+          `[revalidate] Warm request failed for ${path} after ${reason} (${res.status}).`,
+        )
       }
-    }),
-  )
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(`[revalidate] Warm request error for ${path} after ${reason}: ${message}`)
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  // A bulk database migration can invalidate dozens of generated routes at
+  // once. Warming all of them concurrently creates an ISR thundering herd and
+  // can make every request time out on the small dev deployment. Keep a small
+  // bounded pool so regeneration progresses without overwhelming Next.js or
+  // the backend.
+  for (let index = 0; index < normalizedPaths.length; index += DEFAULT_WARM_CONCURRENCY) {
+    const batch = normalizedPaths.slice(index, index + DEFAULT_WARM_CONCURRENCY)
+    await Promise.allSettled(batch.map(warmPath))
+  }
 }
 
 const resolveSecret = (target: FrontendRevalidateTarget): string =>
