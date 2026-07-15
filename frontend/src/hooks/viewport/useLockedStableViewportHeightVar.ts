@@ -41,6 +41,7 @@ export interface UseLockedStableViewportHeightVarOptions {
 
 const DEFAULT_WIDTH_CHANGE_THRESHOLD_PX = 60;
 const DEFAULT_TOP_SCROLL_GUARD_PX = 2;
+// Chrome can correct an oversized fresh-entry viewport over a few frames.
 const SETTLE_SAMPLE_FRAME_COUNT = 6;
 const TOP_ANCHORED_VISUAL_VIEWPORT_OFFSET_GUARD_PX = 2;
 
