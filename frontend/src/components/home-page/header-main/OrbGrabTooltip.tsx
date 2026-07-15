@@ -2,7 +2,7 @@
  * Decorative “grab the orb” tooltip.
  *
  * Rendered inside the hero slinger/orb as an onboarding hint.
- * The parent controls visibility (e.g., hides permanently after first collision).
+ * The parent renders it only after persisted onboarding eligibility is known.
  *
  * This component is intentionally non-interactive and should not be announced by
  * assistive tech.
@@ -23,8 +23,7 @@ type Props = {
 
 /**
  * Arrow tooltip that appears on the draggable orb to guide first-time users.
- * Hides permanently after the first wall collision to avoid clutter for experienced users.
- *
+ * Visibility policy remains in the parent so this component stays presentational.
  */
 function OrbGrabTooltip({ className, hidden = false }: Props) {
   if (hidden) {

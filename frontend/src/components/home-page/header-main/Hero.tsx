@@ -28,6 +28,7 @@ import AdaptiveLink from "@/components/common/AdaptiveLink";
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
+import { shouldShowOrbGrabTooltip } from "@/components/home-page/header-main/orbGrabTooltipEligibility";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
@@ -137,6 +138,8 @@ function Hero({ initialRoleTitle }: HeroProps) {
   >(undefined);
   const [hasDragged, setHasDragged] = useState<boolean>(false);
   const [hasCollided, setHasCollided] = useState<boolean>(false);
+  const [isOrbTooltipEligibilityKnown, setIsOrbTooltipEligibilityKnown] =
+    useState(false);
   const [hasAfterCollidedDelay, setHasAfterCollidedDelay] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
@@ -166,6 +169,11 @@ function Hero({ initialRoleTitle }: HeroProps) {
     viewportWidth !== null &&
     viewportWidth > ANIMATION_SEQUENCER_PAUSE_MIN_VIEWPORT &&
     !isSlingerIdle;
+  const showOrbGrabTooltip = shouldShowOrbGrabTooltip({
+    isKnown: isOrbTooltipEligibilityKnown,
+    hasDragged,
+    hasCollided,
+  });
 
   const updateHasDragged = useCallback((value: boolean) => {
     try {
@@ -386,6 +394,8 @@ function Hero({ initialRoleTitle }: HeroProps) {
           setHasAfterCollidedDelay(true);
         }
         setIsTouchDevice(touchDevice);
+        // Enable onboarding hints only after all persisted eligibility flags are known.
+        setIsOrbTooltipEligibilityKnown(true);
       });
     }
 
@@ -526,7 +536,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
                 isActive={!circlePaused && !isSlingerInFlight}
                 isUnlocked={hasCollided}
               />
-              <OrbGrabTooltip hidden={hasCollided} />
+              <OrbGrabTooltip hidden={!showOrbGrabTooltip} />
               <OrbTossTooltip hidden={hasCollided} />
             </>
           </SlingerBox>
