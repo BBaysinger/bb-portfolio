@@ -15,6 +15,7 @@ import { getViewportHeightPx } from "@/utils/viewport";
 import {
   getInteractionCapabilities,
   getIsFullscreen,
+  getLargeViewportHeightPx,
   getSmallViewportHeightPx,
   isUsableViewportHeight,
 } from "./stableViewportHeightUtils";
@@ -96,6 +97,16 @@ function getTopAnchoredViewportHeight(topScrollGuardPx: number) {
   return getViewportHeightPx();
 }
 
+function getBoundedLongViewportHeight() {
+  const measuredHeight = getViewportHeightPx();
+  const cssLongHeight = getLargeViewportHeightPx();
+
+  if (!isUsableViewportHeight(cssLongHeight)) return measuredHeight;
+  if (!isUsableViewportHeight(measuredHeight)) return cssLongHeight;
+
+  return Math.min(measuredHeight, cssLongHeight);
+}
+
 /**
  * Publishes stable viewport lengths as CSS variables.
  *
@@ -166,13 +177,17 @@ export default function useLockedStableViewportHeightVar(
         atTop &&
         visualViewportOffsetTop <= TOP_ANCHORED_VISUAL_VIEWPORT_OFFSET_GUARD_PX
       ) {
-        // Capture once: replacing this during a route transition would reintroduce the
-        // visible hero/grid shift this cache is designed to prevent.
-        cache.shortHeight ??= measuredHeight;
+        // Chrome iOS can report an oversized visual viewport on a fresh visit before its
+        // browser chrome settles. Keep the smallest trustworthy top-anchored sample.
+        cache.shortHeight = Math.min(
+          cache.shortHeight ?? measuredHeight,
+          measuredHeight,
+        );
       } else if (!atTop) {
         // Browser chrome can collapse over several frames; the largest sample is the long
         // viewport and is safe to refine because it never drives stable layout sizing.
-        cache.longHeight = Math.max(cache.longHeight ?? 0, measuredHeight);
+        const longHeight = getBoundedLongViewportHeight();
+        cache.longHeight = Math.max(cache.longHeight ?? 0, longHeight);
       }
 
       nextHeight = cache.shortHeight ?? measuredHeight;
@@ -290,7 +305,7 @@ export default function useLockedStableViewportHeightVar(
       }
 
       if (window.scrollY > topScrollGuardPx && !getIsFullscreen()) {
-        const measuredHeight = getViewportHeightPx();
+        const measuredHeight = getBoundedLongViewportHeight();
         if (isUsableViewportHeight(measuredHeight)) {
           const cache = getMobileViewportHeightCache(widthChangeThresholdPx);
           cache.longHeight = Math.max(cache.longHeight ?? 0, measuredHeight);
@@ -332,6 +347,12 @@ export default function useLockedStableViewportHeightVar(
       scheduleLockedMeasurement();
     };
 
+    const onWindowScroll = () => {
+      // Chrome iOS does not consistently pair a document scroll with a
+      // VisualViewport scroll event. Both must drive the route-height contraction.
+      onVisualViewportChange();
+    };
+
     lastWidthRef.current = window.innerWidth;
     scheduleLockedMeasurement();
 
@@ -340,6 +361,7 @@ export default function useLockedStableViewportHeightVar(
       passive: true,
     });
     window.addEventListener("pageshow", onPageShow, { passive: true });
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
     document.addEventListener("fullscreenchange", onFullscreenChange);
     viewport?.addEventListener("resize", onVisualViewportChange, {
       passive: true,
@@ -353,6 +375,7 @@ export default function useLockedStableViewportHeightVar(
       window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("orientationchange", onOrientationChange);
       window.removeEventListener("pageshow", onPageShow);
+      window.removeEventListener("scroll", onWindowScroll);
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       viewport?.removeEventListener("resize", onVisualViewportChange);
       viewport?.removeEventListener("scroll", onVisualViewportChange);
@@ -410,7 +433,7 @@ export default function useLockedStableViewportHeightVar(
     }
 
     const cache = getMobileViewportHeightCache(widthChangeThresholdPx);
-    const measuredHeight = getViewportHeightPx();
+    const measuredHeight = getBoundedLongViewportHeight();
     if (
       !isUsableViewportHeight(cache.shortHeight) ||
       !isUsableViewportHeight(measuredHeight) ||

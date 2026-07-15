@@ -20,6 +20,8 @@ class MockVisualViewport extends EventTarget {
 describe("useLockedStableViewportHeightVar", () => {
   let visualViewport: MockVisualViewport;
   let viewportWidth = 390;
+  let cssSmallHeight = 0;
+  let cssLargeHeight = 0;
 
   const setScrollY = (value: number) => {
     Object.defineProperty(window, "scrollY", {
@@ -50,6 +52,8 @@ describe("useLockedStableViewportHeightVar", () => {
     document.documentElement.style.removeProperty("--short-vh");
     document.documentElement.style.removeProperty("--long-vh");
     visualViewport = new MockVisualViewport();
+    cssSmallHeight = 0;
+    cssLargeHeight = 0;
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
       value: viewportWidth,
@@ -64,6 +68,29 @@ describe("useLockedStableViewportHeightVar", () => {
         matches: query === "(pointer: coarse)",
       })),
     });
+    vi.stubGlobal("CSS", { supports: vi.fn(() => true) });
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        const height =
+          this.style.height === "100svh"
+            ? cssSmallHeight
+            : this.style.height === "100lvh"
+              ? cssLargeHeight
+              : 0;
+
+        return {
+          x: 0,
+          y: 0,
+          width: 0,
+          height,
+          top: 0,
+          right: 0,
+          bottom: height,
+          left: 0,
+          toJSON: () => ({}),
+        };
+      },
+    );
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       callback(0);
       return 1;
@@ -73,6 +100,7 @@ describe("useLockedStableViewportHeightVar", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("reuses the captured short height when rerouting while scrolled", () => {
@@ -131,6 +159,28 @@ describe("useLockedStableViewportHeightVar", () => {
     );
   });
 
+  it("uses native small viewport height on a fresh Chrome iOS visit", () => {
+    setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
+    );
+    setScrollY(0);
+    cssSmallHeight = 600;
+    cssLargeHeight = 700;
+    visualViewport.height = 820;
+
+    const { result } = renderHook(() =>
+      useLockedStableViewportHeightVar(null, { navigationKey: "/" }),
+    );
+
+    expect(result.current).toBe(600);
+    expect(document.documentElement.style.getPropertyValue("--short-vh")).toBe(
+      "600px",
+    );
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+  });
+
   it("uses Chrome's visible long height after routing until the user scrolls", () => {
     setUserAgent(
       "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
@@ -163,7 +213,7 @@ describe("useLockedStableViewportHeightVar", () => {
       "700px",
     );
 
-    act(() => visualViewport.dispatchEvent(new Event("scroll")));
+    act(() => window.dispatchEvent(new Event("scroll")));
 
     expect(result.current).toBe(600);
     expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(

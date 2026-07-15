@@ -51,10 +51,37 @@ export function getIsFullscreen() {
   return typeof document !== "undefined" && Boolean(document.fullscreenElement);
 }
 
+function measureCssViewportUnitHeight(unit: "svh" | "lvh") {
+  if (typeof document === "undefined" || typeof CSS === "undefined") return 0;
+  if (!CSS.supports?.("height", `100${unit}`)) return 0;
+
+  const parent = document.body ?? document.documentElement;
+  if (!parent) return 0;
+
+  const probe = document.createElement("div");
+  probe.setAttribute("aria-hidden", "true");
+  probe.style.cssText = [
+    "position:fixed",
+    "inset:0 auto auto 0",
+    "width:0",
+    `height:100${unit}`,
+    "visibility:hidden",
+    "pointer-events:none",
+    "contain:strict",
+  ].join(";");
+
+  parent.appendChild(probe);
+  const height = Math.round(probe.getBoundingClientRect().height);
+  probe.remove();
+
+  return isUsableViewportHeight(height) ? height : 0;
+}
+
 export function getSmallViewportHeightPx() {
   if (typeof window === "undefined") return 0;
 
   const candidates = [
+    measureCssViewportUnitHeight("svh"),
     window.visualViewport?.height,
     window.innerHeight,
     document.documentElement?.clientHeight,
@@ -64,6 +91,10 @@ export function getSmallViewportHeightPx() {
   if (candidates.length === 0) return 0;
 
   return Math.min(...candidates.map((candidate) => Math.round(candidate)));
+}
+
+export function getLargeViewportHeightPx() {
+  return measureCssViewportUnitHeight("lvh");
 }
 
 export function getVisualViewportOffsetTopPx() {
