@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { getPayload, type Payload } from 'payload'
 
 import { buildProjectsWarmPaths } from '../src/utils/frontendRouteWarmup'
+import { triggerFrontendCvRevalidate } from '../src/utils/triggerFrontendCvRevalidate'
 import { triggerFrontendProjectRevalidate } from '../src/utils/triggerFrontendProjectRevalidate'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
@@ -58,14 +59,14 @@ const main = async () => {
     ) as ActiveProjectRouteTarget[]
 
     const warmPaths = buildProjectsWarmPaths(activeProjects, { includeHome: true })
-    warmPaths.push('/cv')
 
     await triggerFrontendProjectRevalidate(reason, {
       warmPaths: Array.from(new Set(warmPaths)),
     })
+    await triggerFrontendCvRevalidate(reason, { warmPaths: ['/cv/'] })
 
     console.info(
-      `Triggered frontend project revalidation for ${activeProjects.length} active projects.`,
+      `Triggered frontend project and CV revalidation for ${activeProjects.length} active projects.`,
     )
   } finally {
     if (payload) {

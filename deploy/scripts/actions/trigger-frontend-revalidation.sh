@@ -24,4 +24,4 @@ payload='{"reason":"post-deploy-revalidate","source":"github-actions-redeploy"}'
 
 bb_retry 3 4 "trigger frontend revalidation" \
   ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" \
-  "curl -fsS -X POST -H 'Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET' -H 'Content-Type: application/json' -d '$payload' http://127.0.0.1:${port}/api/revalidate/projects/ >/dev/null"
+  "curl -fsS -X POST -H 'Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET' -H 'Content-Type: application/json' -d '$payload' http://127.0.0.1:${port}/api/revalidate/projects/ >/dev/null && curl -fsS -X POST -H 'Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET' -H 'Content-Type: application/json' -d '$payload' http://127.0.0.1:${port}/api/revalidate/cv/ >/dev/null"
