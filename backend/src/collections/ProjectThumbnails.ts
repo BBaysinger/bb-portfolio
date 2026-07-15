@@ -171,7 +171,7 @@ export const ProjectThumbnails: CollectionConfig = {
           (doc as { project?: unknown })?.project,
         )
 
-        scheduleFrontendProjectRevalidate('projectThumbnails.afterChange', {
+        await scheduleFrontendProjectRevalidate('projectThumbnails.afterChange', {
           warmPaths: buildProjectWarmPaths(project, { includeHome: true }),
         })
       },
@@ -183,7 +183,7 @@ export const ProjectThumbnails: CollectionConfig = {
           (doc as { project?: unknown })?.project,
         )
 
-        scheduleFrontendProjectRevalidate('projectThumbnails.afterDelete', {
+        await scheduleFrontendProjectRevalidate('projectThumbnails.afterDelete', {
           warmPaths: buildProjectWarmPaths(project, { includeHome: true }),
         })
       },

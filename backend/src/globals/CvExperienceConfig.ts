@@ -14,8 +14,8 @@ export const CvExperienceConfig: GlobalConfig = {
   label: 'CV Experience Config',
   hooks: {
     afterChange: [
-      () => {
-        scheduleFrontendCvRevalidate('cvExperienceConfig.afterChange', {
+      async () => {
+        await scheduleFrontendCvRevalidate('cvExperienceConfig.afterChange', {
           warmPaths: ['/cv'],
         })
       },

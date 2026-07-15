@@ -271,7 +271,7 @@ export const ProjectScreenshots: CollectionConfig = {
           (doc as { project?: unknown })?.project,
         )
 
-        scheduleFrontendProjectRevalidate('projectScreenshots.afterChange', {
+        await scheduleFrontendProjectRevalidate('projectScreenshots.afterChange', {
           warmPaths: buildProjectWarmPaths(project),
         })
       },
@@ -283,7 +283,7 @@ export const ProjectScreenshots: CollectionConfig = {
           (doc as { project?: unknown })?.project,
         )
 
-        scheduleFrontendProjectRevalidate('projectScreenshots.afterDelete', {
+        await scheduleFrontendProjectRevalidate('projectScreenshots.afterDelete', {
           warmPaths: buildProjectWarmPaths(project),
         })
       },

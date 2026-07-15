@@ -29,8 +29,10 @@ auth_header="Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET"
 # before the first visitor arrives.
 remote_command="curl -fsS -X POST -H '$auth_header' -H 'Content-Type: application/json' -d '$payload' $base_url/api/revalidate/projects/ >/dev/null"
 remote_command+=" && curl -fsS -X POST -H '$auth_header' -H 'Content-Type: application/json' -d '$payload' $base_url/api/revalidate/cv/ >/dev/null"
+remote_command+=" && curl -fsS -X POST -H '$auth_header' -H 'Content-Type: application/json' -d '$payload' $base_url/api/revalidate/site/ >/dev/null"
 remote_command+=" && curl -fsS -H 'X-Cache-Warm: 1' $base_url/ >/dev/null"
 remote_command+=" && curl -fsS -H 'X-Cache-Warm: 1' $base_url/cv/ >/dev/null"
+remote_command+=" && curl -fsS -H 'X-Cache-Warm: 1' $base_url/.well-known/security.txt >/dev/null"
 
 bb_retry 3 4 "trigger frontend revalidation" \
   ssh -i "$KEY_PATH" "${SSH_OPTS_ARR[@]}" "$SSH_TARGET" \

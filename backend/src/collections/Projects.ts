@@ -185,7 +185,7 @@ export const Projects: CollectionConfig = {
           )
         }
 
-        scheduleFrontendProjectRevalidate('projects.afterChange', {
+        await scheduleFrontendProjectRevalidate('projects.afterChange', {
           warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
             includeHome: true,
           }),
@@ -194,7 +194,7 @@ export const Projects: CollectionConfig = {
     ],
     afterDelete: [
       async ({ doc }) => {
-        scheduleFrontendProjectRevalidate('projects.afterDelete', {
+        await scheduleFrontendProjectRevalidate('projects.afterDelete', {
           warmPaths: buildProjectWarmPaths(doc as { slug?: unknown; shortCode?: unknown }, {
             includeHome: true,
           }),

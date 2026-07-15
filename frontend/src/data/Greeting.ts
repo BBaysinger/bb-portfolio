@@ -1,5 +1,6 @@
 import { resolveBackendBase } from "@/utils/backend-base";
 
+import { GREETING_CACHE_TAG } from "./cacheTags";
 import {
   requireResponseData,
   requireTrimmedString,
@@ -41,7 +42,7 @@ export const getServerGreeting = async (): Promise<ServerGreeting> => {
   const response = await fetch(`${backendUrl}/api/greeting/`, {
     method: "GET",
     headers: { Accept: "application/json" },
-    next: { revalidate: 86400 },
+    next: { revalidate: 86400, tags: [GREETING_CACHE_TAG] },
   });
 
   if (!response.ok) {

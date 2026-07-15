@@ -23,15 +23,15 @@ export const CvExperienceLogos: CollectionConfig = {
   },
   hooks: {
     afterChange: [
-      () => {
-        scheduleFrontendCvRevalidate('cvExperienceLogos.afterChange', {
+      async () => {
+        await scheduleFrontendCvRevalidate('cvExperienceLogos.afterChange', {
           warmPaths: ['/cv'],
         })
       },
     ],
     afterDelete: [
-      () => {
-        scheduleFrontendCvRevalidate('cvExperienceLogos.afterDelete', {
+      async () => {
+        await scheduleFrontendCvRevalidate('cvExperienceLogos.afterDelete', {
           warmPaths: ['/cv'],
         })
       },

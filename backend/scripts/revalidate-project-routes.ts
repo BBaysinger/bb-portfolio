@@ -6,6 +6,7 @@ import { getPayload, type Payload } from 'payload'
 import { buildProjectsWarmPaths } from '../src/utils/frontendRouteWarmup'
 import { triggerFrontendCvRevalidate } from '../src/utils/triggerFrontendCvRevalidate'
 import { triggerFrontendProjectRevalidate } from '../src/utils/triggerFrontendProjectRevalidate'
+import { triggerFrontendSiteRevalidate } from '../src/utils/triggerFrontendSiteRevalidate'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 
@@ -64,9 +65,12 @@ const main = async () => {
       warmPaths: Array.from(new Set(warmPaths)),
     })
     await triggerFrontendCvRevalidate(reason, { warmPaths: ['/cv/'] })
+    await triggerFrontendSiteRevalidate(reason, {
+      warmPaths: ['/.well-known/security.txt'],
+    })
 
     console.info(
-      `Triggered frontend project and CV revalidation for ${activeProjects.length} active projects.`,
+      `Triggered frontend project, CV, and site revalidation for ${activeProjects.length} active projects.`,
     )
   } finally {
     if (payload) {

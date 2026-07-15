@@ -9,8 +9,8 @@ export const ContactInfo: GlobalConfig = {
   label: 'Contact Info',
   hooks: {
     afterChange: [
-      () => {
-        scheduleFrontendSiteRevalidate('contactInfo.afterChange', {
+      async () => {
+        await scheduleFrontendSiteRevalidate('contactInfo.afterChange', {
           warmPaths: ['/.well-known/security.txt'],
         })
       },

@@ -73,7 +73,7 @@ export const ProjectBrands: CollectionConfig = {
           { includeHome: true },
         )
 
-        scheduleFrontendProjectRevalidate('project-brands.afterChange', {
+        await scheduleFrontendProjectRevalidate('project-brands.afterChange', {
           warmPaths,
         })
       },
@@ -85,7 +85,7 @@ export const ProjectBrands: CollectionConfig = {
           { includeHome: true },
         )
 
-        scheduleFrontendProjectRevalidate('project-brands.afterDelete', {
+        await scheduleFrontendProjectRevalidate('project-brands.afterDelete', {
           warmPaths,
         })
       },

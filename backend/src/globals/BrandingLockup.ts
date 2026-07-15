@@ -33,8 +33,8 @@ export const BrandingLockup: GlobalConfig = {
   label: 'Site Branding',
   hooks: {
     afterChange: [
-      () => {
-        scheduleFrontendProjectRevalidate('brandingLockup.afterChange', {
+      async () => {
+        await scheduleFrontendProjectRevalidate('brandingLockup.afterChange', {
           warmPaths: ['/'],
         })
       },

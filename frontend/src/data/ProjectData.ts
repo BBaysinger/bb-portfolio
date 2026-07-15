@@ -4,8 +4,9 @@ import {
   resolveBackendBase,
 } from "@/utils/backend-base";
 
+import { PROJECTS_CACHE_TAG } from "./cacheTags";
+
 const COOKIE_HEADER_NAME = "cookie";
-const PROJECTS_CACHE_TAG = "projects";
 
 const getCookieHeaderValue = (headers?: HeadersInit): string => {
   if (!headers) return "";

@@ -53,15 +53,15 @@ export const CvExperienceItems: CollectionConfig = {
       },
     ],
     afterChange: [
-      () => {
-        scheduleFrontendCvRevalidate('cvExperienceItems.afterChange', {
+      async () => {
+        await scheduleFrontendCvRevalidate('cvExperienceItems.afterChange', {
           warmPaths: ['/cv'],
         })
       },
     ],
     afterDelete: [
-      () => {
-        scheduleFrontendCvRevalidate('cvExperienceItems.afterDelete', {
+      async () => {
+        await scheduleFrontendCvRevalidate('cvExperienceItems.afterDelete', {
           warmPaths: ['/cv'],
         })
       },

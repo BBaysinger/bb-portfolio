@@ -30,8 +30,8 @@ export const Greeting: GlobalConfig = {
   label: 'Greeting',
   hooks: {
     afterChange: [
-      () => {
-        scheduleFrontendProjectRevalidate('greeting.afterChange', {
+      async () => {
+        await scheduleFrontendProjectRevalidate('greeting.afterChange', {
           warmPaths: ['/'],
         })
       },

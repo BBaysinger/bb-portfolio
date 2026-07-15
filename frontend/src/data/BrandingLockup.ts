@@ -4,6 +4,7 @@ import {
 } from "@/data/heroRoleTitleClasses";
 import { resolveBackendBase } from "@/utils/backend-base";
 
+import { BRANDING_CACHE_TAG } from "./cacheTags";
 import {
   requireResponseData,
   requireTrimmedString,
@@ -58,7 +59,7 @@ export const getServerBrandingLockup =
     const response = await fetch(`${backendUrl}/api/branding-lockup/`, {
       method: "GET",
       headers: { Accept: "application/json" },
-      next: { revalidate: 86400 },
+      next: { revalidate: 86400, tags: [BRANDING_CACHE_TAG] },
     });
 
     if (!response.ok) {

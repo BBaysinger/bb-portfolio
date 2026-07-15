@@ -4,6 +4,7 @@ import {
   resolveBackendBase,
 } from "@/utils/backend-base";
 
+import { CV_CACHE_TAG } from "./cacheTags";
 import {
   requireArray,
   requireResponseData,
@@ -13,6 +14,7 @@ import {
   loadStaticContentSnapshot,
   type StaticCvExperienceData,
 } from "./StaticContentSnapshot";
+export { CV_CACHE_TAG } from "./cacheTags";
 
 type CvExperienceResponse = {
   success?: boolean;
@@ -25,8 +27,6 @@ type CvExperienceResponse = {
     recentIndependentStudyItems?: CvExperienceItemData[];
   };
 };
-
-export const CV_CACHE_TAG = "cv-experience";
 
 const parseCvExperienceResponse = (
   payload: unknown,

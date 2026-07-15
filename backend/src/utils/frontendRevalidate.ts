@@ -39,7 +39,7 @@ export type TriggerFrontendRevalidate = (
 export type ScheduleFrontendRevalidate = (
   reason: string,
   options?: TriggerFrontendRevalidateOptions,
-) => void
+) => Promise<void>
 
 const readEnv = (name?: string): string => (name ? (process.env[name] || '').trim() : '')
 
@@ -245,7 +245,12 @@ export const createFrontendRevalidateTrigger = (
     if (shouldSkipFrontendRevalidation()) return
 
     const endpoints = resolveEndpoints(target)
-    if (endpoints.length === 0) return
+    if (endpoints.length === 0) {
+      if (isLocalProfile()) return
+      throw new Error(
+        `[revalidate] No frontend ${target.label} revalidation endpoint is configured.`,
+      )
+    }
 
     const secret = resolveSecret(target)
     if (!secret && !isLocalProfile()) {
@@ -257,7 +262,9 @@ export const createFrontendRevalidateTrigger = (
           `[revalidate] ${names.join(' and ')} ${verb} not set; skipping ${target.label} revalidation ping.`,
         )
       }
-      return
+      throw new Error(
+        `[revalidate] ${missingSecretEnvNames(target).join(' or ')} must be configured for ${target.label} revalidation.`,
+      )
     }
 
     const failures: string[] = []
@@ -299,7 +306,7 @@ export const createFrontendRevalidateTrigger = (
     }
 
     if (failures.length > 0) {
-      console.warn(
+      throw new Error(
         `[revalidate] Frontend ${target.label} revalidation failed for all configured endpoints: ${failures.join('; ')}`,
       )
     }
@@ -313,6 +320,7 @@ export const createScheduledFrontendRevalidateTrigger = (
   let timer: ReturnType<typeof setTimeout> | undefined
   const reasons = new Set<string>()
   const warmPaths = new Set<string>()
+  const waiters: Array<{ resolve: () => void; reject: (error: unknown) => void }> = []
 
   return (reason, options = {}) => {
     reasons.add(reason)
@@ -324,19 +332,26 @@ export const createScheduledFrontendRevalidateTrigger = (
       clearTimeout(timer)
     }
 
-    timer = setTimeout(() => {
+    const completion = new Promise<void>((resolve, reject) => {
+      waiters.push({ resolve, reject })
+    })
+
+    timer = setTimeout(async () => {
       timer = undefined
       const scheduledReasons = Array.from(reasons)
       const scheduledWarmPaths = Array.from(warmPaths)
+      const scheduledWaiters = waiters.splice(0)
       reasons.clear()
       warmPaths.clear()
 
-      void trigger(scheduledReasons.join(', '), { warmPaths: scheduledWarmPaths }).catch(
-        (error) => {
-          const message = error instanceof Error ? error.message : String(error)
-          console.warn(`[revalidate] Scheduled frontend revalidation error: ${message}`)
-        },
-      )
+      try {
+        await trigger(scheduledReasons.join(', '), { warmPaths: scheduledWarmPaths })
+        for (const waiter of scheduledWaiters) waiter.resolve()
+      } catch (error) {
+        for (const waiter of scheduledWaiters) waiter.reject(error)
+      }
     }, delayMs)
+
+    return completion
   }
 }

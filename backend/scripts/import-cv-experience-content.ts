@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url'
 
 import { getPayload, type Payload } from 'payload'
 
+import { triggerFrontendCvRevalidate } from '../src/utils/triggerFrontendCvRevalidate'
+
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { readYamlFile, requireDirectory, resolvePortfolioContentDir } from './lib/portfolio-content'
 import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
@@ -426,6 +428,11 @@ async function main() {
         process.env.SKIP_FRONTEND_REVALIDATE = previousSkipFrontendRevalidate
       }
     }
+
+    await triggerFrontendCvRevalidate('cvExperience.bulkImport', {
+      warmPaths: ['/cv'],
+    })
+    console.info('Completed consolidated frontend revalidation for CV experience content.')
   } catch (error) {
     console.error('Failed to import cvExperience content:', error)
     process.exitCode = 1

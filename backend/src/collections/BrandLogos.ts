@@ -161,7 +161,7 @@ export const BrandLogos: CollectionConfig = {
           { includeHome: true },
         )
 
-        scheduleFrontendProjectRevalidate('brandLogos.afterChange', {
+        await scheduleFrontendProjectRevalidate('brandLogos.afterChange', {
           warmPaths,
         })
       },
@@ -173,7 +173,7 @@ export const BrandLogos: CollectionConfig = {
           { includeHome: true },
         )
 
-        scheduleFrontendProjectRevalidate('brandLogos.afterDelete', {
+        await scheduleFrontendProjectRevalidate('brandLogos.afterDelete', {
           warmPaths,
         })
       },
