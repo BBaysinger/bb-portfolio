@@ -101,6 +101,11 @@ mask_uri() {
   echo "$uri" | sed -E 's#(://)[^/@:]+(:[^/@]+)?(@)#\1****:****\3#'
 }
 
+print_mongodb_log() {
+  local log_file="$1"
+  tail -n 50 "$log_file" | sed -E 's#(mongodb(\+srv)?://)[^/@[:space:]]+(:[^/@[:space:]]+)?@#\1****:****@#g'
+}
+
 # Parse optional flags after source and target
 parse_flags() {
   while [[ $# -gt 0 ]]; do
@@ -419,24 +424,33 @@ create_backup() {
 
   mkdir -p "$backup_dir"
 
+  local backup_log
+  backup_log=$(mktemp -t mongodump-backup.XXXXXX)
+
   if [[ ${#COLLECTION_DISPLAY[@]} -gt 0 ]]; then
     local collection
     for collection in "${COLLECTION_DISPLAY[@]}"; do
       local dump_cmd=(mongodump --uri "$target_db_uri" --db "$target_db_name" --collection "$collection" --out "$backup_dir")
-      if [[ -n "$QUIET_FLAG" ]]; then
-        dump_cmd+=("$QUIET_FLAG")
+      if ! "${dump_cmd[@]}" </dev/null >>"$backup_log" 2>&1; then
+        log_error "Target backup failed. Last lines from mongodump:"
+        print_mongodb_log "$backup_log"
+        rm -f "$backup_log"
+        rm -rf "$backup_dir"
+        exit 1
       fi
-
-      "${dump_cmd[@]}" </dev/null
     done
   else
     local dump_cmd=(mongodump --uri "$target_db_uri" --out "$backup_dir")
-    if [[ -n "$QUIET_FLAG" ]]; then
-      dump_cmd+=("$QUIET_FLAG")
+    if ! "${dump_cmd[@]}" </dev/null >"$backup_log" 2>&1; then
+      log_error "Target backup failed. Last lines from mongodump:"
+      print_mongodb_log "$backup_log"
+      rm -f "$backup_log"
+      rm -rf "$backup_dir"
+      exit 1
     fi
-
-    "${dump_cmd[@]}" </dev/null
   fi
+
+  rm -f "$backup_log"
 
   log_success "Backup created: $backup_dir"
   echo "  Use this to restore if needed:"
@@ -546,24 +560,18 @@ migrate_database() {
     local collection
     for collection in "${COLLECTION_DISPLAY[@]}"; do
       local dump_cmd=(mongodump --uri "$source_db_uri" --db "$source_db_name" --collection "$collection" --out "$temp_dump_dir")
-      if [[ -n "$QUIET_FLAG" ]]; then
-        dump_cmd+=("$QUIET_FLAG")
-      fi
       if ! "${dump_cmd[@]}" </dev/null 2>>"$dump_log"; then
         log_error "mongodump failed. Last lines from dump log:"
-        tail -n 50 "$dump_log"
+        print_mongodb_log "$dump_log"
         rm -f "$dump_log"
         exit 1
       fi
     done
   else
     local dump_cmd=(mongodump --uri "$source_db_uri" --out "$temp_dump_dir")
-    if [[ -n "$QUIET_FLAG" ]]; then
-      dump_cmd+=("$QUIET_FLAG")
-    fi
     if ! "${dump_cmd[@]}" </dev/null 2>"$dump_log"; then
       log_error "mongodump failed. Last lines from dump log:"
-      tail -n 50 "$dump_log"
+      print_mongodb_log "$dump_log"
       rm -f "$dump_log"
       exit 1
     fi
@@ -585,7 +593,7 @@ migrate_database() {
       echo "   - Insufficient permissions for the user"
       echo "   - Network/auth issues (see dump log below)"
       echo
-      tail -n 50 "$dump_log"
+      print_mongodb_log "$dump_log"
       rm -f "$dump_log"
       exit 1
     fi
@@ -612,12 +620,9 @@ migrate_database() {
         --drop
         "$bson_path"
       )
-      if [[ -n "$QUIET_FLAG" ]]; then
-        restore_cmd+=("$QUIET_FLAG")
-      fi
       if ! "${restore_cmd[@]}" </dev/null 2>>"$restore_log"; then
         log_error "mongorestore failed. Last lines from restore log:"
-        tail -n 50 "$restore_log"
+        print_mongodb_log "$restore_log"
         rm -f "$restore_log"
         exit 1
       fi
@@ -632,12 +637,9 @@ migrate_database() {
       --nsTo "${target_db_name}.*"
       "$source_dump_dir"
     )
-    if [[ -n "$QUIET_FLAG" ]]; then
-      restore_cmd+=("$QUIET_FLAG")
-    fi
     if ! "${restore_cmd[@]}" </dev/null 2>"$restore_log"; then
       log_error "mongorestore failed. Last lines from restore log:"
-      tail -n 50 "$restore_log"
+      print_mongodb_log "$restore_log"
       rm -f "$restore_log"
       exit 1
     fi
@@ -657,10 +659,11 @@ main() {
   local target_env=$2
   shift 2
   parse_flags "$@"
-  # Enable verbose bash tracing if requested
+  # MongoDB diagnostics are captured explicitly; avoid shell tracing because
+  # expanded command arguments can contain database credentials.
   if [[ "$VERBOSE" == "true" ]]; then
-    set -x
     QUIET_FLAG=
+    log_info "Verbose mode enabled. MongoDB command failures will include diagnostic output."
   fi
 
   COLLECTION_DISPLAY=()
