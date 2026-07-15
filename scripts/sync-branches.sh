@@ -336,8 +336,11 @@ push_or_dispatch_workflow() {
 
       if [[ "$EXISTING_RUN_STATUS" != "completed" ]]; then
         log "$DEST_BRANCH already points at $TARGET_SHA; reusing in-progress workflow run $EXISTING_RUN_ID for $LABEL"
+        # The reused run predates STARTED_AT, so do not filter it out while waiting.
+        STARTED_AT=""
       elif [[ "$EXISTING_RUN_CONCLUSION" == "success" ]]; then
         log "$DEST_BRANCH already points at $TARGET_SHA; reusing successful workflow run $EXISTING_RUN_ID for $LABEL"
+        STARTED_AT=""
       else
         log "$DEST_BRANCH already points at $TARGET_SHA but latest workflow run $EXISTING_RUN_ID concluded '$EXISTING_RUN_CONCLUSION'; using workflow_dispatch for $LABEL"
         trigger_manual_workflow "$DEST_BRANCH" "$LABEL"
