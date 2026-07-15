@@ -225,6 +225,39 @@ describe("useLockedStableViewportHeightVar", () => {
     ).toBe("600px");
   });
 
+  it("settles Chrome direct entry down when the first frame overreports height", () => {
+    setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
+    );
+    setScrollY(0);
+    cssSmallHeight = 700;
+    cssLargeHeight = 700;
+    visualViewport.height = 700;
+    let frameCount = 0;
+    vi.mocked(window.requestAnimationFrame).mockImplementation((callback) => {
+      frameCount += 1;
+      if (frameCount > 1) {
+        cssSmallHeight = 600;
+        visualViewport.height = 600;
+      }
+      callback(0);
+      return frameCount;
+    });
+
+    renderHook(() =>
+      useLockedStableViewportHeightVar(null, { navigationKey: "/" }),
+    );
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+  });
+
   it("uses the current measured height after Chrome route changes before scroll events populate long height", () => {
     setUserAgent(
       "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",

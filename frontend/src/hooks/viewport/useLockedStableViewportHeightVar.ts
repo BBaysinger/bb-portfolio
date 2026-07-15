@@ -41,6 +41,7 @@ export interface UseLockedStableViewportHeightVarOptions {
 
 const DEFAULT_WIDTH_CHANGE_THRESHOLD_PX = 60;
 const DEFAULT_TOP_SCROLL_GUARD_PX = 2;
+const SETTLE_SAMPLE_FRAME_COUNT = 6;
 const TOP_ANCHORED_VISUAL_VIEWPORT_OFFSET_GUARD_PX = 2;
 
 interface MobileViewportHeightCache {
@@ -248,11 +249,16 @@ export default function useLockedStableViewportHeightVar(
   const scheduleLockedMeasurement = useCallback(() => {
     clearScheduledSamples();
 
-    rafIdsRef.current.push(
-      window.requestAnimationFrame(() => {
+    const sample = (remainingFrames: number) => {
+      const rafId = window.requestAnimationFrame(() => {
         commitStableHeight();
-      }),
-    );
+        rafIdsRef.current = rafIdsRef.current.filter((id) => id !== rafId);
+        if (remainingFrames > 1) sample(remainingFrames - 1);
+      });
+      rafIdsRef.current.push(rafId);
+    };
+
+    sample(SETTLE_SAMPLE_FRAME_COUNT);
   }, [clearScheduledSamples, commitStableHeight]);
 
   useEffect(() => {
