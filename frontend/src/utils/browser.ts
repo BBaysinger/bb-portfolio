@@ -42,6 +42,14 @@ export function isOpera(): boolean {
   return /OPR\/|OPiOS|OPT\//i.test(ua);
 }
 
+export function isChrome(): boolean {
+  const ua = getUserAgent();
+  return (
+    /Chrome|CriOS/i.test(ua) &&
+    !/Edg(?:A|iOS)?\/|OPR\/|OPiOS|OPT\/|Brave/i.test(ua)
+  );
+}
+
 export function isSafari(): boolean {
   const ua = getUserAgent();
   if (!ua) return false;

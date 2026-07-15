@@ -28,7 +28,7 @@ import type { ServerBrandingLockup } from "@/data/BrandingLockup";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import { useLerpVars } from "@/hooks/useLerpVars";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
-import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
+import useLockedStableViewportHeightVar from "@/hooks/viewport/useLockedStableViewportHeightVar";
 import { recordEvent, setRUMSessionAttributes } from "@/services/rum";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
@@ -320,10 +320,8 @@ export function AppShell({ children, brandingLockup }: AppShellProps) {
 
   const childContentRef = useRef<HTMLDivElement>(null);
 
-  useStableViewportHeightVar(childContentRef, {
-    cssVarName: "--app-shell-stable-vh",
-    mode: "use-where-required",
-  });
+  // Publish route-persistent viewport heights on `<html>` for all layout consumers.
+  useLockedStableViewportHeightVar(null, { navigationKey: pathname });
 
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();

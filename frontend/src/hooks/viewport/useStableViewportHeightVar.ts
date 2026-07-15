@@ -27,7 +27,7 @@ export default function useStableViewportHeightVar(
   elementRef: RefObject<HTMLElement | null>,
   options: UseStableViewportHeightVarOptions = {},
 ) {
-  const { cssVarName = "--hero-stable-vh", ...measurementOptions } = options;
+  const { cssVarName = "--stable-vh", ...measurementOptions } = options;
   const stableHeightPx = useStableViewportHeight(measurementOptions);
 
   useEffect(() => {

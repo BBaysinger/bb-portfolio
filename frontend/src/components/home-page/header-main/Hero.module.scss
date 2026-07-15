@@ -22,14 +22,12 @@ header.hero {
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: 100% 100%;
-  // Prefer a JS-set, stable pixel height (set once on mount; updated only on real resizes).
-  // This avoids Firefox and Edge mobile viewport-unit jitter during scroll-chrome show/hide.
-  min-height: var(--hero-stable-vh, 100vh);
+  // Use the global stable viewport, including Chrome's route-aware visible-height exception.
+  min-height: var(--stable-vh, 100vh);
 
-  // CSS-only fallback: prefer `svh` where reliable. The JS hook overrides this on browsers
-  // that currently require managed stable height.
+  // Before client hydration publishes the pixel value, prefer the native short viewport unit.
   @supports (min-height: 100svh) and (not (-moz-appearance: none)) {
-    min-height: var(--hero-stable-vh, 100svh);
+    min-height: var(--stable-vh, 100svh);
   }
   @include lerpRange(--hero-padding, 10px, 18px, $b320, $b576);
 

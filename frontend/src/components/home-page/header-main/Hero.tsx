@@ -31,7 +31,6 @@ import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
-import useLockedStableViewportHeightVar from "@/hooks/viewport/useLockedStableViewportHeightVar";
 import useViewportSize from "@/hooks/viewport/useViewportSize";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
@@ -152,8 +151,6 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const isSlingerInFlightRef = useRef(false);
-
-  useLockedStableViewportHeightVar(heroRef);
 
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);

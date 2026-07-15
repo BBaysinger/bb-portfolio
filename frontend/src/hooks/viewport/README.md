@@ -16,6 +16,10 @@ Provide stable, mobile-friendly viewport measurements for layout code that canno
   - writes that stable height into a CSS custom property on a target element
 - `useViewportSettle`
   - schedules a few post-mount and `visualViewport`-driven settle passes
+- `useLockedStableViewportHeightVar`
+  - captures mobile short/long viewport heights once per orientation
+  - exposes global `--short-vh`, `--long-vh`, and active `--stable-vh` variables on the document root
+  - on mobile Chrome, `--stable-vh` may use the visible long height after routing until the first real user scroll; other mobile browsers keep the short height locked
 
 ## Design Goals
 

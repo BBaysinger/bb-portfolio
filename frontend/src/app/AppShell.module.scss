@@ -50,10 +50,10 @@ $navSlideTime: 0.5s;
 
 .childContent {
   display: flow-root; // establish non-collapsing block formatting context
-  min-height: var(--app-shell-stable-vh, 100vh);
+  min-height: var(--stable-vh, 100vh);
 
   @supports (min-height: 100svh) {
-    min-height: var(--app-shell-stable-vh, 100svh);
+    min-height: var(--stable-vh, 100svh);
   }
 }
 
