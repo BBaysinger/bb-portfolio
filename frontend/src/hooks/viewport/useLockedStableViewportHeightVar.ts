@@ -178,6 +178,7 @@ export default function useLockedStableViewportHeightVar(
   const needsTopAnchoredCorrectionRef = useRef(false);
   const chromeNavigationUsesLongHeightRef = useRef(false);
   const chromeNavigationHasUserScrollRef = useRef(false);
+  const previousNavigationKeyRef = useRef<string | null | undefined>(undefined);
   const rafIdsRef = useRef<number[]>([]);
 
   const clearScheduledSamples = useCallback(() => {
@@ -492,6 +493,13 @@ export default function useLockedStableViewportHeightVar(
   useLayoutEffect(() => {
     if (!enabled || navigationKey === undefined) return;
 
+    const previousNavigationKey = previousNavigationKeyRef.current;
+    previousNavigationKeyRef.current = navigationKey;
+
+    // The first key is direct entry, not client navigation; Chrome may overreport then.
+    if (previousNavigationKey === undefined) return;
+    if (previousNavigationKey === navigationKey) return;
+
     const { hasCoarsePointer, canHover } = getInteractionCapabilities();
     if ((!hasCoarsePointer && canHover) || !isChrome() || getIsFullscreen()) {
       chromeNavigationUsesLongHeightRef.current = false;
@@ -519,8 +527,8 @@ export default function useLockedStableViewportHeightVar(
       return;
     }
 
-    // Unlike Safari, mobile Chrome can preserve its current location-bar state across routing.
-    // Publish the viewport that is actually visible until the next user scroll restores chrome.
+    // On Chrome, client navigation may preserve collapsed browser chrome; let fullscreen
+    // surfaces use that current measured height until the next real user scroll.
     const measuredHeight = getChromeRouteFullscreenViewportHeight(cache);
     if (
       isUsableViewportHeight(measuredHeight) &&

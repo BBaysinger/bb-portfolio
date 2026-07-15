@@ -202,6 +202,29 @@ describe("useLockedStableViewportHeightVar", () => {
     );
   });
 
+  it("does not publish Chrome's long measurement as fullscreen height on direct entry", () => {
+    setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
+    );
+    setScrollY(0);
+    cssSmallHeight = 600;
+    cssLargeHeight = 700;
+    visualViewport.height = 700;
+
+    renderHook(() =>
+      useLockedStableViewportHeightVar(null, { navigationKey: "/" }),
+    );
+
+    expect(document.documentElement.style.getPropertyValue("--stable-vh")).toBe(
+      "600px",
+    );
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--fullscreen-viewport-height",
+      ),
+    ).toBe("600px");
+  });
+
   it("uses the current measured height after Chrome route changes before scroll events populate long height", () => {
     setUserAgent(
       "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1",
