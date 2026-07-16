@@ -72,6 +72,20 @@ const hasJson5SecretsForProfile = (repoRoot: string, profile: string) => {
   return fs.existsSync(sharedPath) || fs.existsSync(profilePath)
 }
 
+const isRunningInsideDocker = () => fs.existsSync('/.dockerenv')
+
+const normalizeLocalHostRunMongoUri = (profile: string) => {
+  if (profile !== 'local' || isRunningInsideDocker()) return
+
+  const mongoUri = process.env.MONGODB_URI
+  if (!mongoUri?.includes('host.docker.internal')) return
+
+  process.env.MONGODB_URI = mongoUri.replaceAll('host.docker.internal', '127.0.0.1')
+  console.info(
+    'Normalized local MONGODB_URI host from host.docker.internal to 127.0.0.1 for host-run backend script.',
+  )
+}
+
 export const loadBackendScriptEnvironment = (scriptDir: string) => {
   const envProfileArgIndex = process.argv.indexOf('--env')
   const envProfile =
@@ -112,6 +126,8 @@ export const loadBackendScriptEnvironment = (scriptDir: string) => {
   if (fs.existsSync(dotenvPath)) {
     dotenv.config({ path: dotenvPath })
   }
+
+  normalizeLocalHostRunMongoUri(String(envProfile))
 
   return {
     backendDir,
