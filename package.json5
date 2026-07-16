@@ -247,20 +247,15 @@
     // 🪄 Canonical aggregate dataset migration entrypoint.
     // Migrates the full CMS database and supported media between environments; it does not read PORTFOLIO_CONTENT_DIR or auto-run authored-content imports.
     "content:migrate": "bash ./scripts/content-workflow.sh migrate",
+    // 🪄 One-shot database sync across environments via the canonical Mongo migration tool.
+    // Usage: npm run data:sync -- local dev --dry-run --collections cvexperienceitems
+    "data:sync": "bash ./scripts/migrate-database.sh",
     // 🪄 Run content:migrate from local into dev, then refresh both frontend snapshot secrets from the dev environment and sync only dev/repo GitHub secrets.
     // This is still a migration wrapper, not a content-dir import wrapper.
     "content:migrate:local-to-dev:refresh-snapshots": "bash ./scripts/migrate-and-refresh-snapshots.sh --source local --target dev",
     // 🪄 Run content:migrate from local into prod, then refresh both frontend snapshot secrets from the prod environment and sync only prod/repo GitHub secrets.
     // This is still a migration wrapper, not a content-dir import wrapper.
     "content:migrate:local-to-prod:refresh-snapshots": "bash ./scripts/migrate-and-refresh-snapshots.sh --source local --target prod",
-    // 🪄 Export the full local dataset into the configured content root
-    "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
-    // 🪄 Export the full dev dataset into the configured content root
-    "content:pull:dev:content-dir": "bash ./scripts/content-workflow.sh pull-dev",
-    //
-    "content:pull:local:all": "bash ./scripts/content-workflow.sh pull-local-all",
-    //
-    "content:pull:dev:all": "bash ./scripts/content-workflow.sh pull-dev-all",
     // 🪄 Import a target content root into local: import media from the cms-snapshot, then import project descriptions and CV content.
     // Use these content:import:* commands when you intend to apply authored content from PORTFOLIO_CONTENT_DIR; migrate does not do that for you.
     // Content-root resolution and validation are centralized in scripts/content-workflow.sh.
@@ -273,9 +268,6 @@
     "content:import:dev:content-dir": "bash ./scripts/content-workflow.sh import-dev",
     // 🪄 Import authored content from PORTFOLIO_CONTENT_DIR into prod. Requires ALLOW_PROD_WRITE=true and extra confirmation.
     "content:import:prod:content-dir": "bash ./scripts/content-workflow.sh import-prod",
-    // 🪄 One-shot database sync across environments via the canonical Mongo migration tool.
-    // Usage: npm run data:sync -- local dev --dry-run --collections cvexperienceitems
-    "data:sync": "bash ./scripts/migrate-database.sh",
     // 🪄 Pull prod media + authored content into the configured content root.
     "content:pull:prod:content-dir": "bash ./scripts/content-workflow.sh pull-prod",
     // 🧪 Dry-run variant of content:pull:prod:content-dir.
@@ -284,6 +276,14 @@
     "content:pull:prod:all": "bash ./scripts/content-workflow.sh pull-prod-all",
     // 🧪 Dry run: preview all authored production content pulls
     "content:pull:prod:all:dry": "bash ./scripts/content-workflow.sh pull-prod-all-dry",
+    // 🪄 Export the full local dataset into the configured content root
+    "content:pull:local:content-dir": "bash ./scripts/content-workflow.sh pull-local",
+    // 🪄 Export all local authored content and media into the configured content root.
+    "content:pull:local:all": "bash ./scripts/content-workflow.sh pull-local-all",
+    // 🪄 Export the full dev dataset into the configured content root
+    "content:pull:dev:content-dir": "bash ./scripts/content-workflow.sh pull-dev",
+    // 🪄 Export all dev authored content and media into the configured content root.
+    "content:pull:dev:all": "bash ./scripts/content-workflow.sh pull-dev-all",
     // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:import.
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Pull media assets from S3 using the script defaults
@@ -462,7 +462,7 @@
     // JWT utilities used by local maintenance scripts
     "jsonwebtoken": "^9.0.3",
   },
-  //
+  // Dependency overrides for transitive packages that need repo-wide pinning.
   "overrides": {
     // Keep TypeScript ESLint's visitor key helper on a Node 20.13-compatible release.
     "eslint-visitor-keys": "4.2.1",
