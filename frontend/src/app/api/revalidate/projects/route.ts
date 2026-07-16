@@ -34,6 +34,6 @@ const revalidateProjectRoutes = () => {
 
 export const POST = createRevalidationHandler({
   label: "projects",
-  secretEnv: "FRONTEND_PROJECTS_REVALIDATE_SECRET",
+  secretEnv: "FRONTEND_REVALIDATE_SECRET",
   revalidate: revalidateProjectRoutes,
 });

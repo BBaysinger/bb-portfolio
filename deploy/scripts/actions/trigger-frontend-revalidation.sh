@@ -9,7 +9,7 @@ bb_load_repo_env "$REPO_ROOT"
 
 KEY_PATH="${1:?ssh key path arg required}"
 ENVIRONMENT="${ENVIRONMENT:?ENVIRONMENT env required}"
-FRONTEND_PROJECTS_REVALIDATE_SECRET="${FRONTEND_PROJECTS_REVALIDATE_SECRET:?FRONTEND_PROJECTS_REVALIDATE_SECRET env required}"
+FRONTEND_REVALIDATE_SECRET="${FRONTEND_REVALIDATE_SECRET:?FRONTEND_REVALIDATE_SECRET env required}"
 SSH_TARGET="$(bb_ec2_ssh_target_or_die)"
 
 declare -a SSH_OPTS_ARR
@@ -22,7 +22,7 @@ fi
 
 payload='{"reason":"post-deploy-revalidate","source":"github-actions-redeploy"}'
 base_url="http://127.0.0.1:${port}"
-auth_header="Authorization: Bearer $FRONTEND_PROJECTS_REVALIDATE_SECRET"
+auth_header="Authorization: Bearer $FRONTEND_REVALIDATE_SECRET"
 
 # Invalidation is lazy. Warm the primary public pages immediately so the newly
 # deployed frontend replaces build-snapshot HTML with live environment data

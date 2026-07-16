@@ -221,6 +221,10 @@ const loadProjectDataSnapshot = async (
   };
 };
 
+const isProductionBuildPhase = (): boolean => {
+  return process.env.NEXT_PHASE === "phase-production-build";
+};
+
 async function fetchPortfolioProjects(opts?: {
   /** Optional request headers to forward (e.g., Cookie for auth-aware results). */
   requestHeaders?: HeadersInit;
@@ -235,7 +239,9 @@ async function fetchPortfolioProjects(opts?: {
   // authority. Runtime deployments should avoid setting this env so live backend
   // reads remain the default authority.
   const snapshotPath =
-    isServer && process.env.PROJECT_DATA_SNAPSHOT_PATH
+    isServer &&
+    isProductionBuildPhase() &&
+    process.env.PROJECT_DATA_SNAPSHOT_PATH
       ? process.env.PROJECT_DATA_SNAPSHOT_PATH.trim()
       : "";
   if (snapshotPath) {

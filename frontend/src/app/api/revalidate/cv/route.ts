@@ -16,6 +16,6 @@ const revalidateCvRoutes = () => {
 
 export const POST = createRevalidationHandler({
   label: "cv",
-  secretEnv: "FRONTEND_CV_REVALIDATE_SECRET",
+  secretEnv: "FRONTEND_REVALIDATE_SECRET",
   revalidate: revalidateCvRoutes,
 });

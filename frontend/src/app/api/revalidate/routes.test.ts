@@ -28,7 +28,7 @@ const authorizedRequest = {
 
 beforeEach(() => {
   process.env.ENV_PROFILE = "dev";
-  process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET = "expected";
+  process.env.FRONTEND_REVALIDATE_SECRET = "expected";
 });
 
 afterEach(() => {

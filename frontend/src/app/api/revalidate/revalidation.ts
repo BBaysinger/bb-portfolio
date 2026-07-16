@@ -7,7 +7,9 @@ type RevalidationConfig = {
 };
 
 const isLocalProfile = (): boolean => {
-  const profile = (process.env.ENV_PROFILE || "").trim().toLowerCase();
+  const envProfile = (process.env.ENV_PROFILE || "").trim().toLowerCase();
+  const nodeEnv = (process.env.NODE_ENV || "").trim().toLowerCase();
+  const profile = envProfile || (nodeEnv === "production" ? "prod" : "");
   return profile === "" || profile === "local";
 };
 
@@ -19,16 +21,12 @@ const getTokenFromRequest = (req: NextRequest): string => {
 
 export const createRevalidationHandler = (config: RevalidationConfig) => {
   return async (req: NextRequest) => {
-    const expected = (
-      process.env[config.secretEnv] ||
-      process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET ||
-      ""
-    ).trim();
+    const expected = (process.env[config.secretEnv] || "").trim();
 
     if (!expected && !isLocalProfile()) {
       return NextResponse.json(
         {
-          error: `${config.secretEnv} or FRONTEND_PROJECTS_REVALIDATE_SECRET is not configured.`,
+          error: `${config.secretEnv} is not configured.`,
         },
         { status: 500 },
       );

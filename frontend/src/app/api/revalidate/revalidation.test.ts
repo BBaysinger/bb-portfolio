@@ -17,11 +17,11 @@ afterEach(() => {
 describe("revalidation handler", () => {
   it("rejects an invalid bearer token without invalidating", async () => {
     process.env.ENV_PROFILE = "dev";
-    process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET = "expected";
+    process.env.FRONTEND_REVALIDATE_SECRET = "expected";
     const revalidate = vi.fn(() => ["/"]);
     const handler = createRevalidationHandler({
       label: "test",
-      secretEnv: "FRONTEND_TEST_REVALIDATE_SECRET",
+      secretEnv: "FRONTEND_REVALIDATE_SECRET",
       revalidate,
     });
 
@@ -35,11 +35,11 @@ describe("revalidation handler", () => {
 
   it("accepts authenticated POST handling and returns its coverage", async () => {
     process.env.ENV_PROFILE = "dev";
-    process.env.FRONTEND_TEST_REVALIDATE_SECRET = "expected";
+    process.env.FRONTEND_REVALIDATE_SECRET = "expected";
     const revalidate = vi.fn(() => ["/one", "/two"]);
     const handler = createRevalidationHandler({
       label: "test",
-      secretEnv: "FRONTEND_TEST_REVALIDATE_SECRET",
+      secretEnv: "FRONTEND_REVALIDATE_SECRET",
       revalidate,
     });
 
@@ -58,12 +58,28 @@ describe("revalidation handler", () => {
 
   it("fails closed without a secret outside local development", async () => {
     process.env.ENV_PROFILE = "prod";
-    delete process.env.FRONTEND_TEST_REVALIDATE_SECRET;
-    delete process.env.FRONTEND_PROJECTS_REVALIDATE_SECRET;
+    delete process.env.FRONTEND_REVALIDATE_SECRET;
     const revalidate = vi.fn(() => ["/"]);
     const handler = createRevalidationHandler({
       label: "test",
-      secretEnv: "FRONTEND_TEST_REVALIDATE_SECRET",
+      secretEnv: "FRONTEND_REVALIDATE_SECRET",
+      revalidate,
+    });
+
+    const response = await handler(request());
+
+    expect(response.status).toBe(500);
+    expect(revalidate).not.toHaveBeenCalled();
+  });
+
+  it("treats NODE_ENV=production as nonlocal when ENV_PROFILE is absent", async () => {
+    delete process.env.ENV_PROFILE;
+    process.env.NODE_ENV = "production";
+    delete process.env.FRONTEND_REVALIDATE_SECRET;
+    const revalidate = vi.fn(() => ["/"]);
+    const handler = createRevalidationHandler({
+      label: "test",
+      secretEnv: "FRONTEND_REVALIDATE_SECRET",
       revalidate,
     });
 

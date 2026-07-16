@@ -15,6 +15,6 @@ const revalidateSiteRoutes = () => {
 
 export const POST = createRevalidationHandler({
   label: "site",
-  secretEnv: "FRONTEND_SITE_REVALIDATE_SECRET",
+  secretEnv: "FRONTEND_REVALIDATE_SECRET",
   revalidate: revalidateSiteRoutes,
 });

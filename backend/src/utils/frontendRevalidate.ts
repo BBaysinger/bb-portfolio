@@ -12,9 +12,8 @@ const DEFAULT_WARM_TIMEOUT_MS = 15000
 const DEFAULT_SCHEDULE_DELAY_MS = 2000
 const DEFAULT_WARM_CONCURRENCY = 2
 
-// Shared fallbacks used by every target when a target-specific value is absent.
+// Shared fallback used to derive target-specific URLs when an explicit URL is absent.
 const PROJECTS_URL_ENV = 'FRONTEND_PROJECTS_REVALIDATE_URL'
-const PROJECTS_SECRET_ENV = 'FRONTEND_PROJECTS_REVALIDATE_SECRET'
 
 export type FrontendRevalidateTarget = {
   /** Human label used in log messages, e.g. "CV", "project", "site". */
@@ -23,7 +22,7 @@ export type FrontendRevalidateTarget = {
   path: string
   /** Env var holding an explicit revalidate URL for this target (optional). */
   explicitUrlEnv?: string
-  /** Env var holding the shared secret for this target. */
+  /** Env var holding the secret for this target. */
   secretEnv: string
 }
 
@@ -70,7 +69,9 @@ const getOrigins = (raw: string): string[] =>
     .map(withNoTrailingSlash)
 
 const isLocalProfile = (): boolean => {
-  const profile = (process.env.ENV_PROFILE || '').trim().toLowerCase()
+  const envProfile = (process.env.ENV_PROFILE || '').trim().toLowerCase()
+  const nodeEnv = (process.env.NODE_ENV || '').trim().toLowerCase()
+  const profile = envProfile || (nodeEnv === 'production' ? 'prod' : '')
   return profile === '' || profile === 'local'
 }
 
@@ -223,11 +224,10 @@ const warmFrontendPaths = async (
   }
 }
 
-const resolveSecret = (target: FrontendRevalidateTarget): string =>
-  readEnv(target.secretEnv) || readEnv(PROJECTS_SECRET_ENV)
+const resolveSecret = (target: FrontendRevalidateTarget): string => readEnv(target.secretEnv)
 
 const missingSecretEnvNames = (target: FrontendRevalidateTarget): string[] =>
-  Array.from(new Set([target.secretEnv, PROJECTS_SECRET_ENV]))
+  Array.from(new Set([target.secretEnv]))
 
 // Per-target guard so a missing secret is only warned about once per process,
 // without one target's warning suppressing another's.

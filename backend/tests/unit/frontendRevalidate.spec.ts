@@ -32,6 +32,19 @@ describe('frontend revalidation delivery', () => {
     )
   })
 
+  it('treats NODE_ENV=production as nonlocal when ENV_PROFILE is absent', async () => {
+    delete process.env.ENV_PROFILE
+    process.env.NODE_ENV = 'production'
+    delete process.env.FRONTEND_INTERNAL_URL
+    delete process.env.FRONTEND_URL
+    delete process.env.PUBLIC_SERVER_URL
+    delete process.env.FRONTEND_PROJECTS_REVALIDATE_URL
+
+    await expect(createFrontendRevalidateTrigger(target)('content.changed')).rejects.toThrow(
+      'No frontend test revalidation endpoint is configured',
+    )
+  })
+
   it('fails loudly when every configured endpoint rejects the request', async () => {
     process.env.ENV_PROFILE = 'dev'
     process.env.FRONTEND_INTERNAL_URL = 'http://frontend:3000'

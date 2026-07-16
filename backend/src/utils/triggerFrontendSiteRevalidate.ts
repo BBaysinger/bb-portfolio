@@ -9,7 +9,7 @@ export const triggerFrontendSiteRevalidate = createFrontendRevalidateTrigger({
   label: 'site',
   path: '/api/revalidate/site',
   explicitUrlEnv: 'FRONTEND_SITE_REVALIDATE_URL',
-  secretEnv: 'FRONTEND_SITE_REVALIDATE_SECRET',
+  secretEnv: 'FRONTEND_REVALIDATE_SECRET',
 })
 
 export const scheduleFrontendSiteRevalidate = createScheduledFrontendRevalidateTrigger(

@@ -103,9 +103,7 @@ const backendEnv = (profile: Profile, secrets: SecretBundle): string => {
     "",
     `MONGODB_URI=${get("MONGODB_URI")}`,
     `PAYLOAD_SECRET=${get("PAYLOAD_SECRET")}`,
-    `FRONTEND_PROJECTS_REVALIDATE_SECRET=${get(
-      "FRONTEND_PROJECTS_REVALIDATE_SECRET",
-    )}`,
+    `FRONTEND_REVALIDATE_SECRET=${get("FRONTEND_REVALIDATE_SECRET")}`,
     "",
     `S3_BUCKET=${get("S3_BUCKET")}`,
     `PUBLIC_PROJECTS_BUCKET=${get("PUBLIC_PROJECTS_BUCKET")}`,
@@ -153,9 +151,7 @@ const frontendEnv = (profile: Profile, secrets: SecretBundle): string => {
         ? "http://bb-portfolio-backend-prod:3000"
         : "http://bb-portfolio-backend-dev:3000",
     )}`,
-    `FRONTEND_PROJECTS_REVALIDATE_SECRET=${get(
-      "FRONTEND_PROJECTS_REVALIDATE_SECRET",
-    )}`,
+    `FRONTEND_REVALIDATE_SECRET=${get("FRONTEND_REVALIDATE_SECRET")}`,
     `FRONTEND_URL=${get("FRONTEND_URL")}`,
     "",
     `PUBLIC_PROJECTS_BUCKET=${get("PUBLIC_PROJECTS_BUCKET")}`,

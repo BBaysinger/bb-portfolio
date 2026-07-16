@@ -132,7 +132,7 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          FRONTEND_PROJECTS_REVALIDATE_SECRET: ${{ secrets.FRONTEND_PROJECTS_REVALIDATE_SECRET }}
+          FRONTEND_REVALIDATE_SECRET: ${{ secrets.FRONTEND_REVALIDATE_SECRET }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL }}
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
@@ -247,7 +247,7 @@ jobs:
         env:
           ENVIRONMENT: ${{ matrix.target }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-          FRONTEND_PROJECTS_REVALIDATE_SECRET: ${{ secrets.FRONTEND_PROJECTS_REVALIDATE_SECRET }}
+          FRONTEND_REVALIDATE_SECRET: ${{ secrets.FRONTEND_REVALIDATE_SECRET }}
         run: bash deploy/scripts/actions/trigger-frontend-revalidation.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Dump container logs on failure
