@@ -535,6 +535,7 @@ const CurriculumVitae: React.FC<CvPageClientProps> = ({
                 <span>Mattel</span>
                 <span>AT&amp;T</span>
                 <span>MTV</span>
+                <span>Microsoft</span>
                 <span>Netflix</span>
                 <span>National Geographic</span>
                 <span>USDA</span>
